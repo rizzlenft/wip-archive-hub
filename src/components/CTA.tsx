@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Zap, Calendar, ArrowRight } from "lucide-react";
+import { Sparkles, Calendar, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export const CTA = () => {
@@ -25,19 +25,20 @@ export const CTA = () => {
           </div>
 
           <h2 className="text-4xl md:text-6xl font-bold mb-6">
-            Ready to <span className="text-gradient-electric glow-text">Join</span> the Movement?
+            Ready to <span className="text-gradient-rainbow glow-text">Join</span> Us?
           </h2>
 
           <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto">
-            Don't miss out on the alpha. Join our Discord to get notified about upcoming events 
-            and become part of the best web3 community in existence.
+            Whether you're a builder, creator, artist, or just web3-curious—you're welcome here. 
+            Join our Discord to get notified about upcoming meetups and become part of a community 
+            that's been growing together since 2019.
           </p>
 
           <div className="flex flex-wrap justify-center gap-4">
             <Button variant="hero" size="xl" asChild>
               <a href="https://discord.gg/XHDcUdm3" target="_blank" rel="noopener noreferrer">
-                <Zap className="w-5 h-5" />
-                Join Discord Now
+                <Sparkles className="w-5 h-5" />
+                Join the Community
                 <ArrowRight className="w-5 h-5" />
               </a>
             </Button>
@@ -52,15 +53,15 @@ export const CTA = () => {
             className="mt-12 flex flex-wrap justify-center gap-8 text-muted-foreground"
           >
             <div className="text-center">
-              <div className="text-3xl font-bold text-gradient-electric">3,700+</div>
+              <div className="text-3xl font-bold text-gradient-rainbow">3,700+</div>
               <div className="text-sm">Community Members</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-gradient-electric">250+</div>
+              <div className="text-3xl font-bold text-gradient-rainbow">250+</div>
               <div className="text-sm">Episodes</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-gradient-electric">5+</div>
+              <div className="text-3xl font-bold text-gradient-rainbow">5+</div>
               <div className="text-sm">Years Running</div>
             </div>
           </motion.div>

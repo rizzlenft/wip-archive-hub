@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 const recentEpisodes = [
   {
     title: "The WIP Meetup - January 2025",
-    description: "Catch up on the latest alpha and community updates from our most recent session.",
+    description: "Catch up on the latest discussions and community updates from our most recent session.",
     thumbnail: "https://i.ytimg.com/vi/dQw4w9WgXcQ/maxresdefault.jpg",
     url: "https://www.youtube.com/@thewipmeetup",
     duration: "1:13:27",
@@ -42,10 +42,10 @@ export const FeaturedContent = () => {
           className="text-center mb-16"
         >
           <h2 className="text-4xl md:text-5xl font-bold mb-6">
-            Recent <span className="text-gradient-electric">Episodes</span>
+            Recent <span className="text-gradient-rainbow">Episodes</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Missed a session? No worries. Catch up on our latest meetups and stay in the loop.
+            Missed a session? No worries. Catch up on our latest meetups and stay connected with the community.
           </p>
         </motion.div>
 

@@ -1,8 +1,9 @@
 import { motion } from "framer-motion";
-import { Zap, Calendar, Users } from "lucide-react";
+import { Calendar, Users, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CountdownTimer } from "@/components/CountdownTimer";
 import heroBg from "@/assets/hero-bg.jpg";
+import wipLogo from "@/assets/wip-logo.gif";
 
 export const Hero = () => {
   return (
@@ -29,25 +30,39 @@ export const Hero = () => {
           transition={{ duration: 0.8 }}
           className="space-y-8"
         >
+          {/* Animated Logo */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.2, duration: 0.6 }}
+            className="flex justify-center"
+          >
+            <img 
+              src={wipLogo} 
+              alt="The WIP Logo" 
+              className="w-32 h-32 md:w-40 md:h-40 animate-float"
+            />
+          </motion.div>
+
           {/* Badge */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2 }}
+            transition={{ delay: 0.3 }}
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/30"
           >
-            <Zap className="w-4 h-4 text-primary animate-pulse-glow" />
-            <span className="text-sm font-medium text-primary">Since 2019 • Every Thursday</span>
+            <Sparkles className="w-4 h-4 text-primary animate-pulse-glow" />
+            <span className="text-sm font-medium text-primary">Building Together Since 2019 • Every Thursday</span>
           </motion.div>
 
           {/* Title */}
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
+            transition={{ delay: 0.4 }}
             className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight"
           >
-            <span className="text-gradient-electric glow-text">The WIP</span>
+            <span className="text-gradient-rainbow glow-text">The WIP</span>
             <br />
             <span className="text-foreground">Meetup</span>
           </motion.h1>
@@ -56,19 +71,19 @@ export const Hero = () => {
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
+            transition={{ delay: 0.5 }}
             className="max-w-2xl mx-auto text-lg md:text-xl text-muted-foreground leading-relaxed"
           >
-            The longest-running web3 metaverse meetup dropping alpha on the community 
-            <span className="text-primary font-semibold"> every Thursday at 12 PM PT</span>. 
-            We are the best web3 community in existence!
+            The longest-running web3 metaverse meetup—where builders, creators, and artists come together 
+            <span className="text-primary font-semibold"> every Thursday at 12 PM PT</span> to share what's new, 
+            what's next, and what matters.
           </motion.p>
 
           {/* Stats */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
+            transition={{ delay: 0.6 }}
             className="flex flex-wrap justify-center gap-8 pt-4"
           >
             <div className="flex items-center gap-2">
@@ -80,8 +95,8 @@ export const Hero = () => {
               <span className="text-muted-foreground">3,700+ Community Members</span>
             </div>
             <div className="flex items-center gap-2">
-              <Zap className="w-5 h-5 text-primary" />
-              <span className="text-muted-foreground">Weekly Alpha Drops</span>
+              <Sparkles className="w-5 h-5 text-primary" />
+              <span className="text-muted-foreground">Weekly Insights & Connections</span>
             </div>
           </motion.div>
 
@@ -89,7 +104,7 @@ export const Hero = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
+            transition={{ delay: 0.7 }}
           >
             <CountdownTimer />
           </motion.div>
@@ -98,13 +113,13 @@ export const Hero = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7 }}
+            transition={{ delay: 0.8 }}
             className="flex flex-wrap justify-center gap-4 pt-4"
           >
             <Button variant="hero" size="xl" asChild>
               <a href="https://discord.gg/XHDcUdm3" target="_blank" rel="noopener noreferrer">
-                <Zap className="w-5 h-5" />
-                Join Live Events
+                <Sparkles className="w-5 h-5" />
+                Join the Community
               </a>
             </Button>
             <Button variant="outline" size="xl" asChild>
