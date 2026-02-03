@@ -7,30 +7,72 @@ interface VideoData {
   title: string;
   videoId: string;
   thumbnail: string;
-  pubDate: string;
 }
 
-// Fallback videos from The WIP Meetup channel (recent livestreams)
-const FALLBACK_VIDEOS = [
-  { videoId: "UyPHBnJNT0M", title: "The WIP Meetup - Latest Event" },
-  { videoId: "L6wVfn9_jlA", title: "The WIP Meetup" },
-  { videoId: "rJHxWrCHQEY", title: "The WIP Meetup" },
-];
+// The WIP Meetup YouTube channel
+const CHANNEL_URL = "https://www.youtube.com/@thewipmeetup";
 
 export const LatestEvent = () => {
   const [video, setVideo] = useState<VideoData | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [thumbnailError, setThumbnailError] = useState(false);
 
   useEffect(() => {
-    // Use the most recent known video
-    const latest = FALLBACK_VIDEOS[0];
-    setVideo({
-      title: latest.title,
-      videoId: latest.videoId,
-      thumbnail: `https://img.youtube.com/vi/${latest.videoId}/maxresdefault.jpg`,
-      pubDate: "",
-    });
+    const fetchLatestVideo = async () => {
+      try {
+        // Try fetching from YouTube RSS via a CORS proxy
+        const channelId = "UCRwQrMcwYE3K7gfP5nQVgng"; // The WIP Meetup channel ID
+        const rssUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
+        
+        // Try using corsproxy.io
+        const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(rssUrl)}`;
+        const response = await fetch(proxyUrl);
+        const text = await response.text();
+        
+        // Parse the XML
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(text, "text/xml");
+        const entries = xml.querySelectorAll("entry");
+        
+        if (entries.length > 0) {
+          const firstEntry = entries[0];
+          const videoId = firstEntry.querySelector("yt\\:videoId, videoId")?.textContent || "";
+          const title = firstEntry.querySelector("title")?.textContent || "The WIP Meetup";
+          
+          if (videoId) {
+            setVideo({
+              title,
+              videoId,
+              thumbnail: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
+            });
+            return;
+          }
+        }
+      } catch (error) {
+        console.log("RSS fetch failed, using fallback:", error);
+      }
+      
+      // Fallback to the latest known video
+      setVideo({
+        title: "The WIP Meetup - Latest Event",
+        videoId: "bcDx_9I9vJc",
+        thumbnail: "https://img.youtube.com/vi/bcDx_9I9vJc/maxresdefault.jpg",
+      });
+    };
+
+    fetchLatestVideo();
   }, []);
+
+  const handleThumbnailError = () => {
+    if (!thumbnailError && video) {
+      setThumbnailError(true);
+      // Try hqdefault as fallback
+      setVideo({
+        ...video,
+        thumbnail: `https://img.youtube.com/vi/${video.videoId}/hqdefault.jpg`,
+      });
+    }
+  };
 
   return (
     <section id="about" className="py-24 relative overflow-hidden">
@@ -116,21 +158,17 @@ export const LatestEvent = () => {
               ) : (
                 <button
                   onClick={() => setIsPlaying(true)}
-                  className="group w-full h-full cursor-pointer"
+                  className="group w-full h-full cursor-pointer block"
                 >
-                  <img
-                    src={video?.thumbnail}
-                    alt={video?.title || "Latest WIP Meetup"}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    onError={(e) => {
-                      // Fallback to hqdefault if maxresdefault fails
-                      const target = e.target as HTMLImageElement;
-                      if (target.src.includes('maxresdefault')) {
-                        target.src = `https://img.youtube.com/vi/${video?.videoId}/hqdefault.jpg`;
-                      }
-                    }}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
+                  {video && (
+                    <img
+                      src={video.thumbnail}
+                      alt={video.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      onError={handleThumbnailError}
+                    />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/20 to-transparent" />
                   
                   {/* Play button overlay */}
                   <div className="absolute inset-0 flex items-center justify-center">
@@ -160,7 +198,7 @@ export const LatestEvent = () => {
               Watch Latest Event
             </Button>
             <Button variant="outline" size="lg" asChild>
-              <a href="https://www.youtube.com/@thewipmeetup/streams" target="_blank" rel="noopener noreferrer">
+              <a href={`${CHANNEL_URL}/streams`} target="_blank" rel="noopener noreferrer">
                 <ExternalLink className="w-5 h-5" />
                 View All Events
               </a>
