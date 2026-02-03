@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Calendar, Users, Sparkles } from "lucide-react";
+import { Calendar, Users, Sparkles, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CountdownTimer } from "@/components/CountdownTimer";
 import heroBg from "@/assets/hero-bg.jpg";
@@ -131,10 +131,26 @@ export const Hero = () => {
                 Join the Community
               </a>
             </Button>
-            <Button variant="outline" size="xl" asChild>
-              <a href="#platforms">
-                Explore Platforms
-              </a>
+            <Button 
+              variant="outline" 
+              size="xl" 
+              onClick={() => {
+                const streams = [
+                  "live/UyPHBnJNT0M",
+                  "live/L6wVfn9_jlA",
+                  "live/rJHxWrCHQEY",
+                  "live/HFIBsM1fk_I",
+                  "live/NjNlBEYfmFk",
+                  "live/Gf-7o8Y0AAk",
+                  "live/pP9dP3m2wB4",
+                  "live/YrT8z2zAp9I",
+                ];
+                const randomStream = streams[Math.floor(Math.random() * streams.length)];
+                window.open(`https://www.youtube.com/@thewipmeetup/${randomStream}`, '_blank');
+              }}
+            >
+              <Play className="w-5 h-5" />
+              Watch a Random Event
             </Button>
           </motion.div>
         </motion.div>
