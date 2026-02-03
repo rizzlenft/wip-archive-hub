@@ -10,6 +10,14 @@ const navLinks = [
   { name: "Episodes", href: "#content" },
 ];
 
+const socialLinks = [
+  { name: "Discord", url: "https://discord.gg/XHDcUdm3", icon: "💬" },
+  { name: "Twitter", url: "https://twitter.com/theWIPmeetup", icon: "𝕏" },
+  { name: "YouTube", url: "https://www.youtube.com/@thewipmeetup", icon: "▶️" },
+  { name: "Warpcast", url: "https://warpcast.com/thewipmeetup", icon: "🟣" },
+  { name: "Twitch", url: "https://www.twitch.tv/wipmeetup", icon: "📺" },
+];
+
 export const Navigation = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -51,6 +59,22 @@ export const Navigation = () => {
                   className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
                 >
                   {link.name}
+                </a>
+              ))}
+            </div>
+
+            {/* Social Icons */}
+            <div className="hidden md:flex items-center gap-2">
+              {socialLinks.map((link) => (
+                <a
+                  key={link.name}
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title={link.name}
+                  className="w-8 h-8 flex items-center justify-center rounded-full bg-muted/50 hover:bg-primary/20 hover:scale-110 transition-all text-sm"
+                >
+                  {link.icon}
                 </a>
               ))}
             </div>
