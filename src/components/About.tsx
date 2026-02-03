@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Lightbulb, Globe, Heart, Sparkles } from "lucide-react";
+import heroBg from "@/assets/hero-bg.jpg";
 
 const features = [
   {
@@ -27,6 +28,11 @@ const features = [
 export const About = () => {
   return (
     <section id="about" className="py-24 relative overflow-hidden">
+      {/* Background image section */}
+      <div 
+        className="absolute inset-0 bg-cover bg-no-repeat opacity-10"
+        style={{ backgroundImage: `url(${heroBg})`, backgroundPosition: 'center top' }}
+      />
       {/* Background elements */}
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/5 rounded-full blur-3xl" />
