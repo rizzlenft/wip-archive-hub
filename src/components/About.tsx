@@ -42,9 +42,15 @@ export const About = () => {
           <h2 className="text-4xl md:text-5xl font-bold mb-6">
             What is <span className="text-gradient-rainbow">The WIP</span>?
           </h2>
+          <p className="text-xl text-primary font-semibold mb-4">
+            WIP = Work in Progress
+          </p>
+          <p className="text-lg text-muted-foreground max-w-3xl mx-auto mb-4">
+            Founded in 2019, The WIP Meetup is the <span className="text-foreground font-medium">oldest running web3 metaverse meetup</span>—a 
+            weekly gathering that has been a constant through every market cycle and technological shift.
+          </p>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-            The WIP Meetup is more than just a weekly gathering—it's a home for builders, 
-            creators, and artists pushing the boundaries of what's possible in web3. 
+            More than just a meetup, it's a home for builders, creators, and artists pushing the boundaries of what's possible in web3. 
             Whether you're just curious or deeply involved, you belong here.
           </p>
         </motion.div>
