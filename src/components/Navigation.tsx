@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Zap, Menu, X } from "lucide-react";
+import { Menu, X, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import wipLogo from "@/assets/wip-logo-static.png";
 
 const navLinks = [
   { name: "About", href: "#about" },
@@ -34,8 +35,12 @@ export const Navigation = () => {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16 md:h-20">
             {/* Logo */}
-            <a href="#" className="flex items-center gap-2 group">
-              <Zap className="w-6 h-6 text-primary group-hover:animate-pulse-glow transition-all" />
+            <a href="#" className="flex items-center gap-3 group">
+              <img 
+                src={wipLogo} 
+                alt="The WIP" 
+                className="w-10 h-10 group-hover:scale-110 transition-transform"
+              />
               <span className="font-bold text-lg hidden sm:inline">The WIP</span>
             </a>
 
@@ -56,8 +61,8 @@ export const Navigation = () => {
             <div className="flex items-center gap-3">
               <Button variant="electric" size="sm" className="hidden sm:flex" asChild>
                 <a href="https://discord.gg/XHDcUdm3" target="_blank" rel="noopener noreferrer">
-                  <Zap className="w-4 h-4" />
-                  Join Discord
+                  <Sparkles className="w-4 h-4" />
+                  Join Us
                 </a>
               </Button>
 
@@ -96,8 +101,8 @@ export const Navigation = () => {
                 ))}
                 <Button variant="electric" size="lg" className="mt-4" asChild>
                   <a href="https://discord.gg/XHDcUdm3" target="_blank" rel="noopener noreferrer">
-                    <Zap className="w-5 h-5" />
-                    Join Discord
+                    <Sparkles className="w-5 h-5" />
+                    Join the Community
                   </a>
                 </Button>
               </div>

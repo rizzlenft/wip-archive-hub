@@ -1,4 +1,4 @@
-import { Zap } from "lucide-react";
+import wipLogo from "@/assets/wip-logo-static.png";
 
 const socialLinks = [
   { name: "Discord", url: "https://discord.gg/XHDcUdm3" },
@@ -14,8 +14,8 @@ export const Footer = () => {
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           {/* Logo */}
-          <div className="flex items-center gap-2">
-            <Zap className="w-6 h-6 text-primary" />
+          <div className="flex items-center gap-3">
+            <img src={wipLogo} alt="The WIP" className="w-8 h-8" />
             <span className="font-bold text-xl">The WIP Meetup</span>
           </div>
 

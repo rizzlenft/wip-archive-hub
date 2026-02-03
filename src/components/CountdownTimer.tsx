@@ -80,7 +80,7 @@ export const CountdownTimer = () => {
             className="flex flex-col items-center"
           >
             <div className="w-16 md:w-20 h-16 md:h-20 rounded-xl bg-card border-glow flex items-center justify-center">
-              <span className="text-2xl md:text-3xl font-bold text-gradient-electric">
+              <span className="text-2xl md:text-3xl font-bold text-gradient-rainbow">
                 {String(block.value).padStart(2, "0")}
               </span>
             </div>

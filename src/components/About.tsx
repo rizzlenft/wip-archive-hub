@@ -1,26 +1,26 @@
 import { motion } from "framer-motion";
-import { Zap, Globe, Heart, Sparkles } from "lucide-react";
+import { Lightbulb, Globe, Heart, Sparkles } from "lucide-react";
 
 const features = [
   {
-    icon: Zap,
-    title: "Weekly Alpha Drops",
-    description: "Every Thursday at 12 PM PT, we gather in the metaverse to share insights, news, and opportunities in the web3 space.",
+    icon: Lightbulb,
+    title: "Fresh Perspectives Weekly",
+    description: "Every Thursday at 12 PM PT, we gather in the metaverse to share ideas, explore new projects, and discuss what's shaping the future of web3.",
   },
   {
     icon: Globe,
     title: "Metaverse Native",
-    description: "We don't just talk about the metaverse—we live in it. Join us in our virtual home on Hyperfy for an immersive experience.",
+    description: "We don't just talk about the metaverse—we live in it. Join us in our virtual home on Hyperfy for an immersive, welcoming experience.",
   },
   {
     icon: Heart,
     title: "Community First",
-    description: "With 3,700+ members and growing, we're one of the most engaged and supportive communities in web3.",
+    description: "With 3,700+ members and growing, we're one of the most supportive and inclusive communities in web3. Everyone is welcome here.",
   },
   {
     icon: Sparkles,
     title: "Since 2019",
-    description: "The longest-running metaverse meetup. We've been here through every cycle, building and growing together.",
+    description: "The longest-running metaverse meetup. We've been here through every cycle, building and growing together as a community.",
   },
 ];
 
@@ -40,12 +40,12 @@ export const About = () => {
           className="text-center mb-16"
         >
           <h2 className="text-4xl md:text-5xl font-bold mb-6">
-            What is <span className="text-gradient-electric">The WIP</span>?
+            What is <span className="text-gradient-rainbow">The WIP</span>?
           </h2>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-            The WIP Meetup is more than just a weekly gathering—it's a movement. 
-            We're a tight-knit community of builders, dreamers, and believers 
-            pushing the boundaries of what's possible in web3.
+            The WIP Meetup is more than just a weekly gathering—it's a home for builders, 
+            creators, and artists pushing the boundaries of what's possible in web3. 
+            Whether you're just curious or deeply involved, you belong here.
           </p>
         </motion.div>
 
