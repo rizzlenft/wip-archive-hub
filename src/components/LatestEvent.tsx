@@ -1,69 +1,36 @@
 import { motion } from "framer-motion";
-import { Play, ExternalLink, Calendar, Users, Sparkles, Globe } from "lucide-react";
+import { Play, ExternalLink, Calendar, Users, Sparkles, Globe, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 
 interface VideoData {
   title: string;
-  link: string;
+  videoId: string;
   thumbnail: string;
   pubDate: string;
 }
 
-const CHANNEL_ID = "UC0SZ4xz-xr4dFDX_wIBwK0g"; // The WIP Meetup channel ID
-const RSS_URL = `https://www.youtube.com/feeds/videos.xml?channel_id=${CHANNEL_ID}`;
+// Fallback videos from The WIP Meetup channel (recent livestreams)
+const FALLBACK_VIDEOS = [
+  { videoId: "UyPHBnJNT0M", title: "The WIP Meetup - Latest Event" },
+  { videoId: "L6wVfn9_jlA", title: "The WIP Meetup" },
+  { videoId: "rJHxWrCHQEY", title: "The WIP Meetup" },
+];
 
 export const LatestEvent = () => {
   const [video, setVideo] = useState<VideoData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
-    const fetchLatestVideo = async () => {
-      try {
-        // Use RSS2JSON API to bypass CORS
-        const response = await fetch(
-          `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(RSS_URL)}`
-        );
-        const data = await response.json();
-        
-        if (data.items && data.items.length > 0) {
-          const latest = data.items[0];
-          // Extract video ID from link
-          const videoId = latest.link.split("v=")[1]?.split("&")[0] || latest.guid?.split(":").pop();
-          
-          setVideo({
-            title: latest.title,
-            link: latest.link,
-            thumbnail: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
-            pubDate: latest.pubDate,
-          });
-        }
-      } catch (error) {
-        console.error("Failed to fetch latest video:", error);
-        // Fallback to channel page
-        setVideo({
-          title: "Latest WIP Meetup",
-          link: "https://www.youtube.com/@thewipmeetup/streams",
-          thumbnail: "https://img.youtube.com/vi/UyPHBnJNT0M/maxresdefault.jpg",
-          pubDate: "",
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchLatestVideo();
-  }, []);
-
-  const formatDate = (dateStr: string) => {
-    if (!dateStr) return "";
-    const date = new Date(dateStr);
-    return date.toLocaleDateString("en-US", {
-      month: "long",
-      day: "numeric",
-      year: "numeric",
+    // Use the most recent known video
+    const latest = FALLBACK_VIDEOS[0];
+    setVideo({
+      title: latest.title,
+      videoId: latest.videoId,
+      thumbnail: `https://img.youtube.com/vi/${latest.videoId}/maxresdefault.jpg`,
+      pubDate: "",
     });
-  };
+  }, []);
 
   return (
     <section id="about" className="py-24 relative overflow-hidden">
@@ -127,59 +94,70 @@ export const LatestEvent = () => {
             </p>
           </div>
 
-          <a
-            href={video?.link || "https://www.youtube.com/@thewipmeetup/streams"}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group block"
-          >
-            <div className="relative rounded-2xl overflow-hidden border-glow hover:scale-[1.02] transition-all duration-300">
-              {/* Thumbnail */}
-              <div className="relative aspect-video bg-muted">
-                {loading ? (
-                  <div className="absolute inset-0 flex items-center justify-center bg-card animate-pulse">
-                    <Play className="w-16 h-16 text-muted-foreground" />
+          <div className="relative rounded-2xl overflow-hidden border-glow">
+            {/* Video Player or Thumbnail */}
+            <div className="relative aspect-video bg-card">
+              {isPlaying && video ? (
+                <>
+                  <iframe
+                    src={`https://www.youtube.com/embed/${video.videoId}?autoplay=1&rel=0`}
+                    title={video.title}
+                    className="absolute inset-0 w-full h-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                  <button
+                    onClick={() => setIsPlaying(false)}
+                    className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-background/80 hover:bg-background flex items-center justify-center transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={() => setIsPlaying(true)}
+                  className="group w-full h-full cursor-pointer"
+                >
+                  <img
+                    src={video?.thumbnail}
+                    alt={video?.title || "Latest WIP Meetup"}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    onError={(e) => {
+                      // Fallback to hqdefault if maxresdefault fails
+                      const target = e.target as HTMLImageElement;
+                      if (target.src.includes('maxresdefault')) {
+                        target.src = `https://img.youtube.com/vi/${video?.videoId}/hqdefault.jpg`;
+                      }
+                    }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
+                  
+                  {/* Play button overlay */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-primary/90 flex items-center justify-center group-hover:scale-110 group-hover:bg-primary transition-all duration-300 shadow-2xl">
+                      <Play className="w-8 h-8 md:w-10 md:h-10 text-primary-foreground ml-1" fill="currentColor" />
+                    </div>
                   </div>
-                ) : (
-                  <>
-                    <img
-                      src={video?.thumbnail}
-                      alt={video?.title || "Latest WIP Meetup"}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
-                    
-                    {/* Play button overlay */}
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-primary/90 flex items-center justify-center group-hover:scale-110 group-hover:bg-primary transition-all duration-300 shadow-2xl">
-                        <Play className="w-8 h-8 md:w-10 md:h-10 text-primary-foreground ml-1" fill="currentColor" />
-                      </div>
-                    </div>
 
-                    {/* Video info overlay */}
-                    <div className="absolute bottom-0 left-0 right-0 p-6">
-                      <h4 className="text-xl md:text-2xl font-bold text-white mb-2 line-clamp-2">
-                        {video?.title}
-                      </h4>
-                      {video?.pubDate && (
-                        <p className="text-white/70 text-sm">
-                          {formatDate(video.pubDate)}
-                        </p>
-                      )}
-                    </div>
-                  </>
-                )}
-              </div>
+                  {/* Video info overlay */}
+                  <div className="absolute bottom-0 left-0 right-0 p-6 text-left">
+                    <h4 className="text-xl md:text-2xl font-bold text-white mb-2 line-clamp-2">
+                      {video?.title}
+                    </h4>
+                    <p className="text-white/70 text-sm">
+                      Click to watch
+                    </p>
+                  </div>
+                </button>
+              )}
             </div>
-          </a>
+          </div>
 
           {/* CTA */}
           <div className="flex flex-wrap justify-center gap-4 mt-8">
-            <Button variant="hero" size="lg" asChild>
-              <a href={video?.link || "https://www.youtube.com/@thewipmeetup/streams"} target="_blank" rel="noopener noreferrer">
-                <Play className="w-5 h-5" />
-                Watch Latest Event
-              </a>
+            <Button variant="hero" size="lg" onClick={() => setIsPlaying(true)}>
+              <Play className="w-5 h-5" />
+              Watch Latest Event
             </Button>
             <Button variant="outline" size="lg" asChild>
               <a href="https://www.youtube.com/@thewipmeetup/streams" target="_blank" rel="noopener noreferrer">
