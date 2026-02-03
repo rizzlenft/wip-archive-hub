@@ -47,8 +47,8 @@ const platforms = [
   },
   {
     name: "$WIP Token",
-    description: "Support the community",
-    url: "https://linktr.ee/thewipmeetup",
+    description: "Get rewarded & support the community",
+    url: "https://app.uniswap.org/explore/tokens/base/0xe21ec3068a538a064ff0bdd69db0204306fc00a0",
     icon: "⚡",
     isEmoji: true,
     color: "from-yellow-400 to-orange-500",
