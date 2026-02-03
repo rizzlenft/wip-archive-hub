@@ -2,15 +2,19 @@ import { motion } from "framer-motion";
 import { Gift, Coins, Heart, Users, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import nftGiftSample from "@/assets/nft-gift-sample.jpeg";
+import wipLogo from "@/assets/wip-logo.gif";
 
 const perks = [
   {
-    icon: Coins,
     title: "$WIP Token Rewards",
     description: "Attend our weekly meetups and receive $WIP tokens as a thank you for being part of our community. Every attendee gets rewarded!",
     color: "from-yellow-400 to-orange-500",
-    link: "https://app.uniswap.org/explore/tokens/base/0xe21ec3068a538a064ff0bdd69db0204306fc00a0",
-    linkText: "View on Uniswap",
+    isToken: true,
+    links: [
+      { url: "https://app.uniswap.org/explore/tokens/base/0xe21ec3068a538a064ff0bdd69db0204306fc00a0", text: "Uniswap" },
+      { url: "https://www.coingecko.com/en/coins/wip", text: "CoinGecko" },
+      { url: "https://www.geckoterminal.com/base/pools/0xfa9d608b5a13a78bd403e61e2459660efa7566348357ef7ccb010522af3660f0", text: "GeckoTerminal" },
+    ],
   },
   {
     icon: Gift,
@@ -70,25 +74,53 @@ export const CommunityPerks = () => {
                       className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-300"
                     />
                   </div>
-                ) : (
+                ) : perk.isToken ? (
+                  <div className="mb-6">
+                    <img 
+                      src={wipLogo} 
+                      alt="WIP Token" 
+                      className="w-16 h-16 rounded-2xl group-hover:scale-110 transition-transform"
+                    />
+                  </div>
+                ) : perk.icon ? (
                   <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${perk.color} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
                     <perk.icon className="w-8 h-8 text-white" />
                   </div>
-                )}
+                ) : null}
                 <h3 className="text-2xl font-bold mb-4">{perk.title}</h3>
                 <p className="text-muted-foreground mb-6 leading-relaxed">
                   {perk.description}
                 </p>
-                {perk.link && (
-                  <a
-                    href={perk.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors font-medium"
-                  >
-                    {perk.linkText}
-                    <ExternalLink className="w-4 h-4" />
-                  </a>
+                
+                {/* Live price chart for token */}
+                {perk.isToken && (
+                  <div className="mb-6 rounded-xl overflow-hidden border border-border">
+                    <iframe
+                      src="https://www.geckoterminal.com/base/pools/0xfa9d608b5a13a78bd403e61e2459660efa7566348357ef7ccb010522af3660f0?embed=1&info=0&swaps=0"
+                      width="100%"
+                      height="300"
+                      frameBorder="0"
+                      className="bg-background"
+                      title="$WIP Price Chart"
+                    />
+                  </div>
+                )}
+                
+                {perk.links && (
+                  <div className="flex flex-wrap gap-4">
+                    {perk.links.map((link) => (
+                      <a
+                        key={link.text}
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors font-medium"
+                      >
+                        {link.text}
+                        <ExternalLink className="w-4 h-4" />
+                      </a>
+                    ))}
+                  </div>
                 )}
                 {perk.artists && (
                   <div className="flex gap-4">
