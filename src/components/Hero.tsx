@@ -13,14 +13,25 @@ export const Hero = () => {
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: `url(${heroBg})` }}
       >
-        <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/50 to-background" />
       </div>
 
       {/* Grid overlay */}
-      <div className="absolute inset-0 bg-grid opacity-30" />
+      <div className="absolute inset-0 bg-grid opacity-20" />
 
-      {/* Radial glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/10 rounded-full blur-3xl" />
+      {/* Large Background Logo */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 0.15, scale: 1 }}
+        transition={{ delay: 0.2, duration: 1 }}
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+      >
+        <img 
+          src={wipLogo} 
+          alt="" 
+          className="w-[500px] h-[500px] md:w-[700px] md:h-[700px] lg:w-[900px] lg:h-[900px]"
+        />
+      </motion.div>
 
       {/* Content */}
       <div className="relative z-10 container mx-auto px-4 text-center">
@@ -28,7 +39,7 @@ export const Hero = () => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="space-y-8"
+          className="space-y-6"
         >
           {/* Animated Logo */}
           <motion.div
@@ -40,7 +51,7 @@ export const Hero = () => {
             <img 
               src={wipLogo} 
               alt="The WIP Logo" 
-              className="w-32 h-32 md:w-40 md:h-40 animate-float"
+              className="w-40 h-40 md:w-56 md:h-56 lg:w-64 lg:h-64 animate-float"
             />
           </motion.div>
 
@@ -55,16 +66,14 @@ export const Hero = () => {
             <span className="text-sm font-medium text-primary">Building Together Since 2019 • Every Thursday</span>
           </motion.div>
 
-          {/* Title */}
+          {/* Title - Single Line */}
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight"
+            className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight"
           >
-            <span className="text-gradient-rainbow glow-text">The WIP</span>
-            <br />
-            <span className="text-foreground">Meetup</span>
+            <span className="text-gradient-rainbow glow-text">The WIP Meetup</span>
           </motion.h1>
 
           {/* Subtitle */}
@@ -72,7 +81,7 @@ export const Hero = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
-            className="max-w-2xl mx-auto text-lg md:text-xl text-muted-foreground leading-relaxed"
+            className="max-w-2xl mx-auto text-base md:text-lg text-muted-foreground leading-relaxed"
           >
             The longest-running web3 metaverse meetup—where builders, creators, and artists come together 
             <span className="text-primary font-semibold"> every Thursday at 12 PM PT</span> to share what's new, 
@@ -84,11 +93,11 @@ export const Hero = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
-            className="flex flex-wrap justify-center gap-8 pt-4"
+            className="flex flex-wrap justify-center gap-6 md:gap-8 pt-2"
           >
             <div className="flex items-center gap-2">
               <Calendar className="w-5 h-5 text-primary" />
-              <span className="text-muted-foreground">5+ Years Running</span>
+              <span className="text-muted-foreground">6+ Years Running</span>
             </div>
             <div className="flex items-center gap-2">
               <Users className="w-5 h-5 text-primary" />
@@ -114,7 +123,7 @@ export const Hero = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.8 }}
-            className="flex flex-wrap justify-center gap-4 pt-4"
+            className="flex flex-wrap justify-center gap-4 pt-2"
           >
             <Button variant="hero" size="xl" asChild>
               <a href="https://discord.gg/XHDcUdm3" target="_blank" rel="noopener noreferrer">
