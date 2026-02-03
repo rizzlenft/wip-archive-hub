@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { ExternalLink } from "lucide-react";
+import heroBg from "@/assets/hero-bg.jpg";
 
 const platforms = [
   {
@@ -58,6 +59,11 @@ const platforms = [
 export const Platforms = () => {
   return (
     <section id="platforms" className="py-24 relative">
+      {/* Background image section */}
+      <div 
+        className="absolute inset-0 bg-cover bg-no-repeat opacity-10"
+        style={{ backgroundImage: `url(${heroBg})`, backgroundPosition: 'center bottom' }}
+      />
       {/* Background glow */}
       <div className="absolute inset-0 bg-gradient-to-b from-background via-card/20 to-background" />
 
