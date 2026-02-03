@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Gift, Coins, Heart, Users, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import nftGiftSample from "@/assets/nft-gift-sample.jpeg";
 
 const perks = [
   {
@@ -16,6 +17,7 @@ const perks = [
     title: "Free NFT Gifts",
     description: "Each week, our amazing artists Fabiano & Patrizia create unique voxel art NFTs that are gifted to attendees—beautiful collectibles just for showing up!",
     color: "from-pink-400 to-purple-500",
+    image: nftGiftSample,
     artists: [
       { name: "Fabiano", url: "https://x.com/fabianospeziari" },
       { name: "Patrizia", url: "https://x.com/patriziabarnatox" },
@@ -60,9 +62,19 @@ export const CommunityPerks = () => {
               className="group"
             >
               <div className="h-full p-8 rounded-2xl bg-card border-glow hover:scale-105 transition-all duration-300">
-                <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${perk.color} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
-                  <perk.icon className="w-8 h-8 text-white" />
-                </div>
+                {perk.image ? (
+                  <div className="mb-6 rounded-xl overflow-hidden">
+                    <img 
+                      src={perk.image} 
+                      alt="NFT Gift Sample" 
+                      className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-300"
+                    />
+                  </div>
+                ) : (
+                  <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${perk.color} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
+                    <perk.icon className="w-8 h-8 text-white" />
+                  </div>
+                )}
                 <h3 className="text-2xl font-bold mb-4">{perk.title}</h3>
                 <p className="text-muted-foreground mb-6 leading-relaxed">
                   {perk.description}
