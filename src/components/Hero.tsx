@@ -55,18 +55,7 @@ export const Hero = () => {
             />
           </motion.div>
 
-          {/* Badge */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.3 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/30"
-          >
-            <Sparkles className="w-4 h-4 text-primary animate-pulse-glow" />
-            <span className="text-sm font-medium text-primary">Building Together Since 2019 • Every Thursday</span>
-          </motion.div>
-
-          {/* Title - Single Line */}
+          {/* Title */}
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -76,16 +65,15 @@ export const Hero = () => {
             <span className="text-gradient-rainbow glow-text">The WIP Meetup</span>
           </motion.h1>
 
-          {/* Subtitle */}
+          {/* Subtitle - consolidated and concise */}
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
-            className="max-w-2xl mx-auto text-base md:text-lg text-muted-foreground leading-relaxed"
+            className="max-w-xl mx-auto text-base md:text-lg text-muted-foreground leading-relaxed"
           >
-            The longest-running web3 metaverse meetup—where builders, creators, and artists come together 
-            <span className="text-primary font-semibold"> every Thursday at 12 PM PT</span> to share what's new, 
-            what's next, and what matters.
+            The longest-running web3 metaverse meetup. Builders, creators, and artists gather
+            <span className="text-primary font-semibold"> every Thursday at 12 PM PT</span>—since 2019.
           </motion.p>
 
           {/* Stats */}
