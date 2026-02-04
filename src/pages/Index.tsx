@@ -1,6 +1,7 @@
 import { Navigation } from "@/components/Navigation";
 import { Hero } from "@/components/Hero";
 import { LatestEvent } from "@/components/LatestEvent";
+import { MetaverseExperience } from "@/components/MetaverseExperience";
 import { CommunityPerks } from "@/components/CommunityPerks";
 import { Platforms } from "@/components/Platforms";
 import { FeaturedContent } from "@/components/FeaturedContent";
@@ -13,6 +14,7 @@ const Index = () => {
       <Navigation />
       <Hero />
       <LatestEvent />
+      <MetaverseExperience />
       <CommunityPerks />
       <Platforms />
       <FeaturedContent />
