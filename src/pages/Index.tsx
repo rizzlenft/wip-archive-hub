@@ -4,8 +4,6 @@ import { LatestEvent } from "@/components/LatestEvent";
 import { MetaverseExperience } from "@/components/MetaverseExperience";
 import { CommunityPerks } from "@/components/CommunityPerks";
 import { Platforms } from "@/components/Platforms";
-import { FeaturedContent } from "@/components/FeaturedContent";
-import { CTA } from "@/components/CTA";
 import { Footer } from "@/components/Footer";
 
 const Index = () => {
@@ -17,8 +15,6 @@ const Index = () => {
       <MetaverseExperience />
       <CommunityPerks />
       <Platforms />
-      <FeaturedContent />
-      <CTA />
       <Footer />
     </div>
   );
