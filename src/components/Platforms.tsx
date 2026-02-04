@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { ExternalLink } from "lucide-react";
-import wipGroupHug from "@/assets/wip-group-hug.gif";
+import wipCv from "@/assets/wip-cv.gif";
 
 const platforms = [
   {
@@ -62,7 +62,7 @@ export const Platforms = () => {
       {/* Background GIF */}
       <div 
         className="absolute inset-0 bg-cover bg-center opacity-15"
-        style={{ backgroundImage: `url(${wipGroupHug})` }}
+        style={{ backgroundImage: `url(${wipCv})` }}
       />
       {/* Background glow */}
       <div className="absolute inset-0 bg-gradient-to-b from-background via-card/20 to-background" />

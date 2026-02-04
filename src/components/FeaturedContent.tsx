@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Play, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import wipCv from "@/assets/wip-cv.gif";
+import wipDclRizzle from "@/assets/wip-dcl-rizzle.gif";
 
 const recentEpisodes = [
   {
@@ -33,7 +33,7 @@ export const FeaturedContent = () => {
       {/* Background GIF */}
       <div 
         className="absolute inset-0 bg-cover bg-center opacity-10"
-        style={{ backgroundImage: `url(${wipCv})` }}
+        style={{ backgroundImage: `url(${wipDclRizzle})` }}
       />
       <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/80 to-background" />
       <div className="absolute top-1/2 left-0 w-full h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
