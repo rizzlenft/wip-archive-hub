@@ -1,33 +1,109 @@
 import { motion } from "framer-motion";
 import { Play, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useState, useEffect } from "react";
 import wipDclRizzle from "@/assets/wip-dcl-rizzle.gif";
 
-const recentEpisodes = [
-  {
-    title: "The WIP Meetup - January 2025",
-    description: "Catch up on the latest discussions and community updates from our most recent session.",
-    thumbnail: "https://i.ytimg.com/vi/dQw4w9WgXcQ/maxresdefault.jpg",
-    url: "https://www.youtube.com/@thewipmeetup",
-    duration: "1:13:27",
-  },
-  {
-    title: "Web3 Community Building",
-    description: "Deep dive into what makes a thriving web3 community with special guests.",
-    thumbnail: "https://i.ytimg.com/vi/dQw4w9WgXcQ/maxresdefault.jpg",
-    url: "https://www.youtube.com/@thewipmeetup",
-    duration: "58:42",
-  },
-  {
-    title: "Metaverse Innovations",
-    description: "Exploring the latest developments in virtual worlds and spatial computing.",
-    thumbnail: "https://i.ytimg.com/vi/dQw4w9WgXcQ/maxresdefault.jpg",
-    url: "https://www.youtube.com/@thewipmeetup",
-    duration: "1:05:18",
-  },
-];
+interface VideoData {
+  title: string;
+  videoId: string;
+  thumbnail: string;
+  url: string;
+}
 
 export const FeaturedContent = () => {
+  const [episodes, setEpisodes] = useState<VideoData[]>([]);
+  const [thumbnailErrors, setThumbnailErrors] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    const fetchRecentVideos = async () => {
+      const channelId = "UCRwQrMcwYE3K7gfP5nQVgng";
+      const rssUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
+      
+      const proxyUrls = [
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(rssUrl)}`,
+        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(rssUrl)}`,
+      ];
+      
+      for (const proxyUrl of proxyUrls) {
+        try {
+          const response = await fetch(proxyUrl);
+          if (!response.ok) continue;
+          
+          const text = await response.text();
+          const parser = new DOMParser();
+          const xml = parser.parseFromString(text, "text/xml");
+          const entries = xml.querySelectorAll("entry");
+          
+          if (entries.length > 1) {
+            // Skip the first entry (shown in LatestEvent), get the next 3
+            const recentVideos: VideoData[] = [];
+            
+            for (let i = 1; i < Math.min(entries.length, 4); i++) {
+              const entry = entries[i];
+              const videoId = entry.querySelector("yt\\:videoId, videoId")?.textContent || "";
+              const title = entry.querySelector("title")?.textContent || "The WIP Meetup";
+              
+              if (videoId) {
+                recentVideos.push({
+                  title,
+                  videoId,
+                  thumbnail: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
+                  url: `https://www.youtube.com/watch?v=${videoId}`,
+                });
+              }
+            }
+            
+            if (recentVideos.length > 0) {
+              console.log("Fetched recent videos:", recentVideos.map(v => v.title));
+              setEpisodes(recentVideos);
+              return;
+            }
+          }
+        } catch (error) {
+          console.log(`Proxy failed:`, error);
+          continue;
+        }
+      }
+      
+      // Fallback episodes if RSS fails
+      setEpisodes([
+        {
+          title: "The WIP Meetup - Recent Episode",
+          videoId: "L6wVfn9_jlA",
+          thumbnail: "https://img.youtube.com/vi/L6wVfn9_jlA/maxresdefault.jpg",
+          url: "https://www.youtube.com/watch?v=L6wVfn9_jlA",
+        },
+        {
+          title: "The WIP Meetup - Community Session",
+          videoId: "rJHxWrCHQEY",
+          thumbnail: "https://img.youtube.com/vi/rJHxWrCHQEY/maxresdefault.jpg",
+          url: "https://www.youtube.com/watch?v=rJHxWrCHQEY",
+        },
+        {
+          title: "The WIP Meetup - Builder Spotlight",
+          videoId: "HFIBsM1fk_I",
+          thumbnail: "https://img.youtube.com/vi/HFIBsM1fk_I/maxresdefault.jpg",
+          url: "https://www.youtube.com/watch?v=HFIBsM1fk_I",
+        },
+      ]);
+    };
+
+    fetchRecentVideos();
+  }, []);
+
+  const handleThumbnailError = (videoId: string) => {
+    if (!thumbnailErrors.has(videoId)) {
+      setThumbnailErrors(prev => new Set(prev).add(videoId));
+      // Update to hqdefault fallback
+      setEpisodes(prev => prev.map(ep => 
+        ep.videoId === videoId 
+          ? { ...ep, thumbnail: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` }
+          : ep
+      ));
+    }
+  };
+
   return (
     <section id="content" className="py-24 relative overflow-hidden">
       {/* Background GIF */}
@@ -55,9 +131,9 @@ export const FeaturedContent = () => {
         </motion.div>
 
         <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
-          {recentEpisodes.map((episode, index) => (
+          {episodes.map((episode, index) => (
             <motion.a
-              key={episode.title}
+              key={episode.videoId}
               href={episode.url}
               target="_blank"
               rel="noopener noreferrer"
@@ -70,25 +146,25 @@ export const FeaturedContent = () => {
               <div className="rounded-2xl overflow-hidden bg-card border-glow hover:scale-105 transition-all duration-300">
                 {/* Thumbnail */}
                 <div className="relative aspect-video bg-muted overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20" />
+                  <img 
+                    src={episode.thumbnail}
+                    alt={episode.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    onError={() => handleThumbnailError(episode.videoId)}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent" />
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-16 h-16 rounded-full bg-primary/90 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <div className="w-14 h-14 rounded-full bg-primary/90 flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
                       <Play className="w-6 h-6 text-primary-foreground ml-1" fill="currentColor" />
                     </div>
                   </div>
-                  <span className="absolute bottom-2 right-2 px-2 py-1 text-xs font-medium bg-background/80 rounded">
-                    {episode.duration}
-                  </span>
                 </div>
                 
                 {/* Content */}
                 <div className="p-5">
-                  <h3 className="font-semibold text-lg mb-2 group-hover:text-primary transition-colors line-clamp-1">
+                  <h3 className="font-semibold text-lg mb-2 group-hover:text-primary transition-colors line-clamp-2">
                     {episode.title}
                   </h3>
-                  <p className="text-sm text-muted-foreground line-clamp-2">
-                    {episode.description}
-                  </p>
                 </div>
               </div>
             </motion.a>
@@ -103,7 +179,7 @@ export const FeaturedContent = () => {
           className="text-center mt-12"
         >
           <Button variant="glow" size="lg" asChild>
-            <a href="https://www.youtube.com/@thewipmeetup" target="_blank" rel="noopener noreferrer">
+            <a href="https://www.youtube.com/@thewipmeetup/streams" target="_blank" rel="noopener noreferrer">
               View All Episodes
               <ExternalLink className="w-4 h-4 ml-2" />
             </a>
