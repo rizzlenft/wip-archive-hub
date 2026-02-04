@@ -26,7 +26,7 @@ const platforms = [
     color: "from-gray-600 to-gray-800",
   },
   {
-    name: "Warpcast",
+    name: "Farcaster",
     description: "Find us on Farcaster",
     url: "https://warpcast.com/thewipmeetup",
     icon: "https://warpcast.com/favicon.ico",

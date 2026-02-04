@@ -28,6 +28,7 @@ const perks = [
       { name: "Fabiano", url: "https://x.com/fabianospeziari" },
       { name: "Patrizia", url: "https://x.com/patriziabarnatox" },
     ],
+    collectionUrl: "https://opensea.io/collection/random-3d-things",
   },
 ];
 
@@ -132,7 +133,7 @@ export const CommunityPerks = () => {
                   </div>
                 )}
                 {perk.artists && (
-                  <div className="flex gap-4">
+                  <div className="flex flex-wrap gap-4">
                     {perk.artists.map((artist) => (
                       <a
                         key={artist.name}
@@ -145,6 +146,17 @@ export const CommunityPerks = () => {
                         <ExternalLink className="w-4 h-4" />
                       </a>
                     ))}
+                    {perk.collectionUrl && (
+                      <a
+                        href={perk.collectionUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors font-medium"
+                      >
+                        View Collection
+                        <ExternalLink className="w-4 h-4" />
+                      </a>
+                    )}
                   </div>
                 )}
               </div>
