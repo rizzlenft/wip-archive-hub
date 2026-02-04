@@ -37,13 +37,13 @@ export const Footer = () => {
           {/* Copyright & Credit */}
           <div className="text-sm text-muted-foreground text-center md:text-right">
             <p>© {new Date().getFullYear()} The WIP Meetup</p>
-            <p className="text-xs text-muted-foreground/60 mt-1">
+            <p className="text-xs mt-1">
               Hosted & produced by{" "}
               <a 
-                href="https://twitter.com/raboracle" 
+                href="https://rizzle.io" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="hover:text-primary transition-colors"
+                className="hover:text-primary transition-colors underline underline-offset-2"
               >
                 rizzle
               </a>
