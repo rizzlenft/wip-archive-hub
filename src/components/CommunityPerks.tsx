@@ -3,6 +3,7 @@ import { Gift, Coins, Heart, Users, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import nftGiftSample from "@/assets/nft-gift-sample.jpeg";
 import wipLogo from "@/assets/wip-logo.gif";
+import metaverseBg2 from "@/assets/metaverse-bg-2.gif";
 
 const perks = [
   {
@@ -32,6 +33,13 @@ const perks = [
 export const CommunityPerks = () => {
   return (
     <section className="py-16 relative overflow-hidden">
+      {/* Background GIF */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center opacity-10"
+        style={{ backgroundImage: `url(${metaverseBg2})` }}
+      />
+      <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/80 to-background" />
+      
       {/* Background effects */}
       <div className="absolute inset-0">
         <div className="absolute top-1/3 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
