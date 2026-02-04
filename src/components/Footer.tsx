@@ -34,10 +34,21 @@ export const Footer = () => {
             ))}
           </div>
 
-          {/* Copyright */}
-          <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} The WIP Meetup
-          </p>
+          {/* Copyright & Credit */}
+          <div className="text-sm text-muted-foreground text-center md:text-right">
+            <p>© {new Date().getFullYear()} The WIP Meetup</p>
+            <p className="text-xs text-muted-foreground/60 mt-1">
+              Hosted & produced by{" "}
+              <a 
+                href="https://twitter.com/raboracle" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="hover:text-primary transition-colors"
+              >
+                rizzle
+              </a>
+            </p>
+          </div>
         </div>
       </div>
     </footer>
