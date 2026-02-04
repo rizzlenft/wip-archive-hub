@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Play, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import wipCv from "@/assets/wip-cv.gif";
 
 const recentEpisodes = [
   {
@@ -29,8 +30,12 @@ const recentEpisodes = [
 export const FeaturedContent = () => {
   return (
     <section id="content" className="py-24 relative overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-card/30 to-background" />
+      {/* Background GIF */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center opacity-10"
+        style={{ backgroundImage: `url(${wipCv})` }}
+      />
+      <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/80 to-background" />
       <div className="absolute top-1/2 left-0 w-full h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
 
       <div className="container mx-auto px-4 relative z-10">
