@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Play, ExternalLink, Calendar, Users, Sparkles, Globe, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
-import metaverseBg from "@/assets/metaverse-bg.png";
+import wipDclRizzle from "@/assets/wip-dcl-rizzle.gif";
 
 interface VideoData {
   title: string;
@@ -77,10 +77,10 @@ export const LatestEvent = () => {
 
   return (
     <section id="about" className="py-16 pb-8 relative overflow-hidden">
-      {/* Background image */}
+      {/* Background GIF */}
       <div 
-        className="absolute inset-0 bg-cover bg-center opacity-15"
-        style={{ backgroundImage: `url(${metaverseBg})` }}
+        className="absolute inset-0 bg-cover bg-center opacity-12"
+        style={{ backgroundImage: `url(${wipDclRizzle})` }}
       />
       <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-background/70 to-background" />
       

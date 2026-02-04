@@ -1,10 +1,18 @@
 import { motion } from "framer-motion";
 import { Sparkles, Calendar, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import wipHubzzDance from "@/assets/wip-hubzz-dance.gif";
 
 export const CTA = () => {
   return (
     <section className="py-24 relative overflow-hidden">
+      {/* Background GIF */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center opacity-15"
+        style={{ backgroundImage: `url(${wipHubzzDance})` }}
+      />
+      <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/70 to-background" />
+      
       {/* Background effects */}
       <div className="absolute inset-0">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/10 rounded-full blur-3xl" />
