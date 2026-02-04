@@ -20,17 +20,29 @@ export const FeaturedContent = () => {
       const channelId = "UCRwQrMcwYE3K7gfP5nQVgng";
       const rssUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
       
-      const proxyUrls = [
-        `https://api.allorigins.win/raw?url=${encodeURIComponent(rssUrl)}`,
-        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(rssUrl)}`,
+      // Try multiple CORS proxies
+      const proxyConfigs = [
+        { url: `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`, isJson: true },
+        { url: `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(rssUrl)}`, isJson: false },
       ];
       
-      for (const proxyUrl of proxyUrls) {
+      for (const proxy of proxyConfigs) {
         try {
-          const response = await fetch(proxyUrl);
+          const response = await fetch(proxy.url);
           if (!response.ok) continue;
           
-          const text = await response.text();
+          let text: string;
+          if (proxy.isJson) {
+            const json = await response.json();
+            text = json.contents;
+          } else {
+            text = await response.text();
+          }
+          
+          if (!text || text.includes('Error 404') || text.includes('<!DOCTYPE html>')) {
+            continue;
+          }
+          
           const parser = new DOMParser();
           const xml = parser.parseFromString(text, "text/xml");
           const entries = xml.querySelectorAll("entry");
@@ -66,22 +78,23 @@ export const FeaturedContent = () => {
         }
       }
       
-      // Fallback episodes if RSS fails
+      // Fallback episodes if RSS fails - use known recent video IDs
+      console.log("Using fallback episodes");
       setEpisodes([
         {
-          title: "The WIP Meetup - Recent Episode",
+          title: "The WIP Meetup 290",
           videoId: "L6wVfn9_jlA",
           thumbnail: "https://img.youtube.com/vi/L6wVfn9_jlA/maxresdefault.jpg",
           url: "https://www.youtube.com/watch?v=L6wVfn9_jlA",
         },
         {
-          title: "The WIP Meetup - Community Session",
+          title: "The WIP Meetup 289",
           videoId: "rJHxWrCHQEY",
           thumbnail: "https://img.youtube.com/vi/rJHxWrCHQEY/maxresdefault.jpg",
           url: "https://www.youtube.com/watch?v=rJHxWrCHQEY",
         },
         {
-          title: "The WIP Meetup - Builder Spotlight",
+          title: "The WIP Meetup 288",
           videoId: "HFIBsM1fk_I",
           thumbnail: "https://img.youtube.com/vi/HFIBsM1fk_I/maxresdefault.jpg",
           url: "https://www.youtube.com/watch?v=HFIBsM1fk_I",

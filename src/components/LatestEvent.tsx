@@ -19,23 +19,33 @@ export const LatestEvent = () => {
 
   useEffect(() => {
     const fetchLatestVideo = async () => {
-      const channelId = "UCRwQrMcwYE3K7gfP5nQVgng"; // The WIP Meetup channel ID
+      const channelId = "UCRwQrMcwYE3K7gfP5nQVgng";
       const rssUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
       
-      // Try multiple CORS proxies in order of reliability
-      const proxyUrls = [
-        `https://api.allorigins.win/raw?url=${encodeURIComponent(rssUrl)}`,
-        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(rssUrl)}`,
+      // Try multiple CORS proxies with different response formats
+      const proxyConfigs = [
+        { url: `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`, isJson: true },
+        { url: `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(rssUrl)}`, isJson: false },
       ];
       
-      for (const proxyUrl of proxyUrls) {
+      for (const proxy of proxyConfigs) {
         try {
-          const response = await fetch(proxyUrl);
+          const response = await fetch(proxy.url);
           if (!response.ok) continue;
           
-          const text = await response.text();
+          let text: string;
+          if (proxy.isJson) {
+            const json = await response.json();
+            text = json.contents;
+          } else {
+            text = await response.text();
+          }
           
-          // Parse the XML
+          // Check if we got valid XML, not an error page
+          if (!text || text.includes('Error 404') || text.includes('<!DOCTYPE html>')) {
+            continue;
+          }
+          
           const parser = new DOMParser();
           const xml = parser.parseFromString(text, "text/xml");
           const entries = xml.querySelectorAll("entry");
@@ -56,15 +66,15 @@ export const LatestEvent = () => {
             }
           }
         } catch (error) {
-          console.log(`Proxy ${proxyUrl} failed:`, error);
+          console.log(`Proxy failed:`, error);
           continue;
         }
       }
       
       // Fallback to the latest known video if all proxies fail
-      console.log("All proxies failed, using fallback video");
+      console.log("Using fallback video");
       setVideo({
-        title: "The WIP Meetup - Latest Event",
+        title: "The WIP Meetup 291",
         videoId: "bcDx_9I9vJc",
         thumbnail: "https://img.youtube.com/vi/bcDx_9I9vJc/maxresdefault.jpg",
       });
