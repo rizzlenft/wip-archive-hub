@@ -19,40 +19,50 @@ export const LatestEvent = () => {
 
   useEffect(() => {
     const fetchLatestVideo = async () => {
-      try {
-        // Try fetching from YouTube RSS via a CORS proxy
-        const channelId = "UCRwQrMcwYE3K7gfP5nQVgng"; // The WIP Meetup channel ID
-        const rssUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
-        
-        // Try using corsproxy.io
-        const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(rssUrl)}`;
-        const response = await fetch(proxyUrl);
-        const text = await response.text();
-        
-        // Parse the XML
-        const parser = new DOMParser();
-        const xml = parser.parseFromString(text, "text/xml");
-        const entries = xml.querySelectorAll("entry");
-        
-        if (entries.length > 0) {
-          const firstEntry = entries[0];
-          const videoId = firstEntry.querySelector("yt\\:videoId, videoId")?.textContent || "";
-          const title = firstEntry.querySelector("title")?.textContent || "The WIP Meetup";
+      const channelId = "UCRwQrMcwYE3K7gfP5nQVgng"; // The WIP Meetup channel ID
+      const rssUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
+      
+      // Try multiple CORS proxies in order of reliability
+      const proxyUrls = [
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(rssUrl)}`,
+        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(rssUrl)}`,
+      ];
+      
+      for (const proxyUrl of proxyUrls) {
+        try {
+          const response = await fetch(proxyUrl);
+          if (!response.ok) continue;
           
-          if (videoId) {
-            setVideo({
-              title,
-              videoId,
-              thumbnail: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
-            });
-            return;
+          const text = await response.text();
+          
+          // Parse the XML
+          const parser = new DOMParser();
+          const xml = parser.parseFromString(text, "text/xml");
+          const entries = xml.querySelectorAll("entry");
+          
+          if (entries.length > 0) {
+            const firstEntry = entries[0];
+            const videoId = firstEntry.querySelector("yt\\:videoId, videoId")?.textContent || "";
+            const title = firstEntry.querySelector("title")?.textContent || "The WIP Meetup";
+            
+            if (videoId && title) {
+              console.log("Fetched latest video:", title);
+              setVideo({
+                title,
+                videoId,
+                thumbnail: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
+              });
+              return;
+            }
           }
+        } catch (error) {
+          console.log(`Proxy ${proxyUrl} failed:`, error);
+          continue;
         }
-      } catch (error) {
-        console.log("RSS fetch failed, using fallback:", error);
       }
       
-      // Fallback to the latest known video
+      // Fallback to the latest known video if all proxies fail
+      console.log("All proxies failed, using fallback video");
       setVideo({
         title: "The WIP Meetup - Latest Event",
         videoId: "bcDx_9I9vJc",
