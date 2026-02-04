@@ -82,6 +82,12 @@ export const FeaturedContent = () => {
       console.log("Using fallback episodes");
       setEpisodes([
         {
+          title: "The WIP Meetup 291",
+          videoId: "bcDx_9I9vJc",
+          thumbnail: "https://img.youtube.com/vi/bcDx_9I9vJc/maxresdefault.jpg",
+          url: "https://www.youtube.com/watch?v=bcDx_9I9vJc",
+        },
+        {
           title: "The WIP Meetup 290",
           videoId: "L6wVfn9_jlA",
           thumbnail: "https://img.youtube.com/vi/L6wVfn9_jlA/maxresdefault.jpg",
@@ -92,12 +98,6 @@ export const FeaturedContent = () => {
           videoId: "rJHxWrCHQEY",
           thumbnail: "https://img.youtube.com/vi/rJHxWrCHQEY/maxresdefault.jpg",
           url: "https://www.youtube.com/watch?v=rJHxWrCHQEY",
-        },
-        {
-          title: "The WIP Meetup 288",
-          videoId: "HFIBsM1fk_I",
-          thumbnail: "https://img.youtube.com/vi/HFIBsM1fk_I/maxresdefault.jpg",
-          url: "https://www.youtube.com/watch?v=HFIBsM1fk_I",
         },
       ]);
     };
