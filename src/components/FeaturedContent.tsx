@@ -157,7 +157,7 @@ export const FeaturedContent = () => {
               className="group"
             >
               <div className="rounded-2xl overflow-hidden bg-card border-glow hover:scale-105 transition-all duration-300">
-                {/* Thumbnail */}
+                {/* Thumbnail with overlaid title */}
                 <div className="relative aspect-video bg-muted overflow-hidden">
                   <img 
                     src={episode.thumbnail}
@@ -165,19 +165,22 @@ export const FeaturedContent = () => {
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     onError={() => handleThumbnailError(episode.videoId)}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/20 to-transparent" />
+                  
+                  {/* Play button */}
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="w-14 h-14 rounded-full bg-primary/90 flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
                       <Play className="w-6 h-6 text-primary-foreground ml-1" fill="currentColor" />
                     </div>
                   </div>
-                </div>
-                
-                {/* Content */}
-                <div className="p-5">
-                  <h3 className="font-semibold text-lg mb-2 group-hover:text-primary transition-colors line-clamp-2">
-                    {episode.title}
-                  </h3>
+                  
+                  {/* Title overlay */}
+                  <div className="absolute bottom-0 left-0 right-0 p-4 text-left">
+                    <h3 className="font-bold text-white text-lg line-clamp-2 drop-shadow-lg">
+                      {episode.title}
+                    </h3>
+                    <p className="text-white/70 text-xs mt-1">Click to watch</p>
+                  </div>
                 </div>
               </div>
             </motion.a>
