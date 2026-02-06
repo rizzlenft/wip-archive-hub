@@ -4,8 +4,7 @@ import { Button } from "@/components/ui/button";
 import nftGiftSample from "@/assets/nft-gift-sample.jpeg";
 import wipLogo from "@/assets/wip-logo.gif";
 import metaverseBg2 from "@/assets/metaverse-bg-2.gif";
-import wipDclRizzle from "@/assets/wip-dcl-rizzle.gif";
-
+import wipWorldBg from "@/assets/wip-world-bg.png";
 const perks = [
   {
     title: "$WIP Token Rewards",
@@ -170,27 +169,32 @@ export const CommunityPerks = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.3 }}
-          className="max-w-3xl mx-auto"
+          className="grid lg:grid-cols-2 gap-8 items-center max-w-5xl mx-auto"
         >
-          <div className="p-8 rounded-2xl border-rainbow bg-card/50 backdrop-blur-sm text-center relative overflow-hidden">
-            {/* Background GIF */}
-            <div 
-              className="absolute inset-0 bg-cover bg-center opacity-15 rounded-2xl"
-              style={{ backgroundImage: `url(${wipDclRizzle})` }}
+          {/* Image side */}
+          <div className="relative rounded-2xl overflow-hidden border-glow aspect-video lg:aspect-square">
+            <img 
+              src={wipWorldBg} 
+              alt="The WIP Metaverse World" 
+              className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/70 to-background/80 rounded-2xl" />
-            <div className="flex justify-center mb-6 relative z-10">
+            <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent" />
+          </div>
+          
+          {/* Content side */}
+          <div className="text-center lg:text-left">
+            <div className="flex justify-center lg:justify-start mb-6">
               <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
                 <Heart className="w-8 h-8 text-white" />
               </div>
             </div>
-            <h3 className="text-2xl font-bold mb-4 relative z-10">Support Our Community</h3>
-            <p className="text-muted-foreground mb-6 max-w-xl mx-auto leading-relaxed relative z-10">
+            <h3 className="text-3xl font-bold mb-4">Support Our Community</h3>
+            <p className="text-muted-foreground mb-6 leading-relaxed">
               When you purchase $WIP, you're directly supporting the builders, creators, and artists 
               who attend our weekly meetups. Every token helps sustain and grow this incredible community 
               that's been thriving since 2019.
             </p>
-            <div className="flex flex-wrap justify-center gap-4 relative z-10">
+            <div className="flex flex-wrap justify-center lg:justify-start gap-4">
               <Button variant="hero" size="lg" asChild>
                 <a href="https://app.uniswap.org/explore/tokens/base/0xe21ec3068a538a064ff0bdd69db0204306fc00a0" target="_blank" rel="noopener noreferrer">
                   <Coins className="w-5 h-5" />
