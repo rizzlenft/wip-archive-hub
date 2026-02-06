@@ -25,13 +25,20 @@ export const LatestEvent = () => {
       // Try multiple CORS proxies with different response formats
       const proxyConfigs = [
         { url: `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`, isJson: true },
+        { url: `https://corsproxy.io/?${encodeURIComponent(rssUrl)}`, isJson: false },
         { url: `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(rssUrl)}`, isJson: false },
       ];
       
       for (const proxy of proxyConfigs) {
         try {
-          const response = await fetch(proxy.url);
-          if (!response.ok) continue;
+          console.log("Trying proxy:", proxy.url.substring(0, 50));
+          const response = await fetch(proxy.url, { 
+            headers: { 'Accept': 'application/xml, text/xml, */*' }
+          });
+          if (!response.ok) {
+            console.log("Proxy response not ok:", response.status);
+            continue;
+          }
           
           let text: string;
           if (proxy.isJson) {
@@ -42,7 +49,8 @@ export const LatestEvent = () => {
           }
           
           // Check if we got valid XML, not an error page
-          if (!text || text.includes('Error 404') || text.includes('<!DOCTYPE html>')) {
+          if (!text || text.includes('Error 404') || text.includes('<!DOCTYPE html>') || !text.includes('<entry>')) {
+            console.log("Invalid response - not valid RSS XML");
             continue;
           }
           
@@ -56,7 +64,7 @@ export const LatestEvent = () => {
             const title = firstEntry.querySelector("title")?.textContent || "The WIP Meetup";
             
             if (videoId && title) {
-              console.log("Fetched latest video:", title);
+              console.log("✅ Successfully fetched latest video from RSS:", title);
               setVideo({
                 title,
                 videoId,
@@ -66,15 +74,15 @@ export const LatestEvent = () => {
             }
           }
         } catch (error) {
-          console.log(`Proxy failed:`, error);
+          console.log("Proxy failed:", error);
           continue;
         }
       }
       
       // Fallback to the latest known video if all proxies fail
-      console.log("Using fallback video - RSS feed unavailable");
+      console.log("⚠️ Using fallback video - all RSS proxies failed");
       setVideo({
-        title: "The WIP Meetup 292: Hyperfy Aww, Mona Multiplayer, The New York Times Connections, & Monaverse!",
+        title: "The WIP Meetup 2/5/2026 Raw Footage ft Stina Jones & Carlos Marcial",
         videoId: "A_CrnPJrI7M",
         thumbnail: "https://img.youtube.com/vi/A_CrnPJrI7M/maxresdefault.jpg",
       });
