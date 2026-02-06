@@ -38,7 +38,7 @@ export const MetaverseExperience = () => {
       <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-accent/15 rounded-full blur-3xl" />
 
       <div className="container mx-auto px-4 relative z-10">
-        <div className="max-w-3xl">
+        <div className="max-w-4xl mx-auto text-center">
           {/* Badge */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -68,7 +68,7 @@ export const MetaverseExperience = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-xl text-muted-foreground mb-12 leading-relaxed max-w-2xl"
+            className="text-xl text-muted-foreground mb-12 leading-relaxed max-w-2xl mx-auto"
           >
             Every Thursday, we transform our Hyperfy space into a completely custom experience 
             tailored for each guest. From the architecture to the atmosphere—no two meetups 
@@ -81,16 +81,16 @@ export const MetaverseExperience = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="flex flex-col sm:flex-row gap-6 mb-12"
+            className="flex flex-col sm:flex-row justify-center gap-6 mb-12"
           >
             {features.map((feature, index) => (
               <motion.div
                 key={feature.title}
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: 0.4 + index * 0.1 }}
-                className="flex items-start gap-4 bg-background/30 backdrop-blur-sm rounded-xl p-4 border border-border/50"
+                className="flex items-start gap-4 bg-background/30 backdrop-blur-sm rounded-xl p-4 border border-border/50 text-left"
               >
                 <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center flex-shrink-0">
                   <feature.icon className="w-5 h-5 text-primary" />
