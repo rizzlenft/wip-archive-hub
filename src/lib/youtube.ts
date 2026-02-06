@@ -1,4 +1,6 @@
-// YouTube RSS feed utilities for The WIP Meetup channel
+// YouTube utilities for The WIP Meetup channel
+
+import { EPISODES_DATA } from "./episodesData";
 
 export interface Episode {
   videoId: string;
@@ -15,14 +17,21 @@ export interface Episode {
 export function parseGuestsFromTitle(title: string): string[] {
   const guests: string[] = [];
   
-  // Match patterns like "ft. Name & Name", "ft Name, Name", "featuring Name"
-  const ftMatch = title.match(/(?:ft\.?|featuring)\s+([^|]+?)(?:\s*[|\-–—]|$)/i);
+  // Match patterns like "ft. Name & Name", "ft Name, Name", "featuring Name", "w/ Name"
+  const ftMatch = title.match(/(?:ft\.?|featuring|w\/)\s+([^|]+?)(?:\s*[|\-–—]|$|\s+Mashup|\s+Raw\s+Footage)/i);
   if (ftMatch) {
     const guestString = ftMatch[1].trim();
-    // Split by common separators: &, and, ,
-    const guestNames = guestString.split(/\s*(?:&|,|\band\b)\s*/);
+    // Split by common separators: &, and, ,, +
+    const guestNames = guestString.split(/\s*(?:&|,|\+|\band\b)\s*/);
     guestNames.forEach(name => {
-      const cleaned = name.trim();
+      // Clean up the name - remove common suffixes
+      let cleaned = name.trim()
+        .replace(/\s*@\w+/g, '') // Remove @handles
+        .replace(/\s*\d+\/\d+\/?$/, '') // Remove trailing dates like 1/2
+        .replace(/\s*Mash(up)?$/i, '') // Remove "Mash" or "Mashup"
+        .replace(/\s*by\s+Paradoxx$/i, '') // Remove "by Paradoxx"
+        .trim();
+      
       if (cleaned && cleaned.length > 1 && cleaned.length < 50) {
         guests.push(cleaned);
       }
@@ -49,83 +58,38 @@ export function parseEpisodeNumber(title: string): number | null {
   return null;
 }
 
-// Parse a single RSS entry into an Episode
-function parseEntry(entry: Element): Episode | null {
-  const videoId = entry.querySelector("yt\\:videoId, videoId")?.textContent || "";
-  const title = entry.querySelector("title")?.textContent || "";
-  const publishedStr = entry.querySelector("published")?.textContent || "";
-  
-  if (!videoId || !title) return null;
-  
-  const publishedAt = publishedStr ? new Date(publishedStr) : new Date();
-  
-  return {
-    videoId,
-    title,
-    thumbnail: `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`,
-    publishedAt,
-    url: `https://www.youtube.com/watch?v=${videoId}`,
-    guests: parseGuestsFromTitle(title),
-    episodeNumber: parseEpisodeNumber(title),
-  };
-}
-
-// Fetch all episodes from YouTube RSS feed
-export async function fetchAllEpisodes(): Promise<Episode[]> {
-  const channelId = "UCRwQrMcwYE3K7gfP5nQVgng";
-  const rssUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
-  
-  const proxyConfigs = [
-    { url: `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`, isJson: true },
-    { url: `https://corsproxy.io/?${encodeURIComponent(rssUrl)}`, isJson: false },
-    { url: `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(rssUrl)}`, isJson: false },
-  ];
-  
-  for (const proxy of proxyConfigs) {
-    try {
-      const response = await fetch(proxy.url, {
-        headers: { 'Accept': 'application/xml, text/xml, */*' }
-      });
-      
-      if (!response.ok) continue;
-      
-      let text: string;
-      if (proxy.isJson) {
-        const json = await response.json();
-        text = json.contents;
-      } else {
-        text = await response.text();
-      }
-      
-      if (!text || text.includes('Error 404') || text.includes('<!DOCTYPE html>') || !text.includes('<entry>')) {
-        continue;
-      }
-      
-      const parser = new DOMParser();
-      const xml = parser.parseFromString(text, "text/xml");
-      const entries = xml.querySelectorAll("entry");
-      
-      const episodes: Episode[] = [];
-      entries.forEach(entry => {
-        const episode = parseEntry(entry);
-        if (episode) {
-          episodes.push(episode);
-        }
-      });
-      
-      if (episodes.length > 0) {
-        console.log(`✅ Fetched ${episodes.length} episodes from RSS`);
-        return episodes;
-      }
-    } catch (error) {
-      console.log("Proxy failed:", error);
-      continue;
-    }
+// Parse date string to Date object
+function parsePublishDate(dateStr: string): Date {
+  if (!dateStr) {
+    return new Date();
   }
   
-  // Return fallback episodes if RSS fails
-  console.log("⚠️ Using fallback episodes - RSS unavailable");
-  return getFallbackEpisodes();
+  // Handle formats like "Feb 12, 2024", "Mar 28, 2025"
+  const parsed = new Date(dateStr);
+  if (!isNaN(parsed.getTime())) {
+    return parsed;
+  }
+  
+  return new Date();
+}
+
+// Fetch all episodes from static data
+export async function fetchAllEpisodes(): Promise<Episode[]> {
+  const episodes: Episode[] = EPISODES_DATA.map(data => ({
+    videoId: data.videoId,
+    title: data.title,
+    thumbnail: `https://img.youtube.com/vi/${data.videoId}/mqdefault.jpg`,
+    publishedAt: parsePublishDate(data.publishDate),
+    url: `https://www.youtube.com/watch?v=${data.videoId}`,
+    guests: parseGuestsFromTitle(data.title),
+    episodeNumber: parseEpisodeNumber(data.title),
+  }));
+  
+  // Sort by date (newest first)
+  episodes.sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime());
+  
+  console.log(`✅ Loaded ${episodes.length} episodes from archive`);
+  return episodes;
 }
 
 // Get unique guests from all episodes
@@ -150,31 +114,16 @@ export function groupEpisodesByYear(episodes: Episode[]): Map<number, Episode[]>
   });
   
   // Sort each year's episodes by date (newest first)
-  grouped.forEach((eps, year) => {
+  grouped.forEach((eps) => {
     eps.sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime());
   });
   
   return grouped;
 }
 
-// Fallback episodes when RSS is unavailable
-function getFallbackEpisodes(): Episode[] {
-  const fallbackData = [
-    { videoId: "A_CrnPJrI7M", title: "The WIP Meetup 2/5/2026 Raw Footage ft Stina Jones & Carlos Marcial", date: "2026-02-05" },
-    { videoId: "bcDx_9I9vJc", title: "The WIP Meetup 291", date: "2026-01-29" },
-    { videoId: "L6wVfn9_jlA", title: "The WIP Meetup 290", date: "2026-01-22" },
-    { videoId: "rJHxWrCHQEY", title: "The WIP Meetup 289", date: "2026-01-15" },
-    { videoId: "dQw4w9WgXcQ", title: "The WIP Meetup 288 ft MetaGamer & VR Pioneer", date: "2026-01-08" },
-    { videoId: "dQw4w9WgXcQ", title: "The WIP Meetup 287", date: "2026-01-01" },
-  ];
-  
-  return fallbackData.map(data => ({
-    videoId: data.videoId,
-    title: data.title,
-    thumbnail: `https://img.youtube.com/vi/${data.videoId}/mqdefault.jpg`,
-    publishedAt: new Date(data.date),
-    url: `https://www.youtube.com/watch?v=${data.videoId}`,
-    guests: parseGuestsFromTitle(data.title),
-    episodeNumber: parseEpisodeNumber(data.title),
-  }));
+// Get a random episode for the "Random Episode" feature
+export function getRandomEpisode(episodes: Episode[]): Episode | null {
+  if (episodes.length === 0) return null;
+  const randomIndex = Math.floor(Math.random() * episodes.length);
+  return episodes[randomIndex];
 }
