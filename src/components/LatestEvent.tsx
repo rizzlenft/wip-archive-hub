@@ -74,7 +74,7 @@ export const LatestEvent = () => {
       // Fallback to the latest known video if all proxies fail
       console.log("Using fallback video - RSS feed unavailable");
       setVideo({
-        title: "The WIP Meetup 292",
+        title: "The WIP Meetup 292: Hyperfy Aww, Mona Multiplayer, The New York Times Connections, & Monaverse!",
         videoId: "A_CrnPJrI7M",
         thumbnail: "https://img.youtube.com/vi/A_CrnPJrI7M/maxresdefault.jpg",
       });
