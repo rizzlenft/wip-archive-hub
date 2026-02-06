@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { ExternalLink, Sparkles, Palette, Users, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import wipGroupHug from "@/assets/wip-group-hug.gif";
-
+import wipDclRizzle from "@/assets/wip-dcl-rizzle.gif";
 const features = [
   {
     icon: Palette,
@@ -99,7 +99,7 @@ export const MetaverseExperience = () => {
           >
             <div className="relative rounded-2xl overflow-hidden border-glow aspect-video">
               <img 
-                src={wipGroupHug} 
+                src={wipDclRizzle} 
                 alt="The WIP Metaverse Experience" 
                 className="w-full h-full object-cover"
               />
