@@ -72,11 +72,11 @@ export const LatestEvent = () => {
       }
       
       // Fallback to the latest known video if all proxies fail
-      console.log("Using fallback video");
+      console.log("Using fallback video - RSS feed unavailable");
       setVideo({
-        title: "The WIP Meetup 291",
-        videoId: "bcDx_9I9vJc",
-        thumbnail: "https://img.youtube.com/vi/bcDx_9I9vJc/maxresdefault.jpg",
+        title: "The WIP Meetup 292",
+        videoId: "dQw4w9WgXcQ", // Update this with the actual latest video ID
+        thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg",
       });
     };
 

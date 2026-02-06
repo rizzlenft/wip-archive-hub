@@ -79,7 +79,7 @@ export const FeaturedContent = () => {
       }
       
       // Fallback episodes if RSS fails - use known recent video IDs
-      console.log("Using fallback episodes");
+      console.log("Using fallback episodes - RSS feed unavailable");
       setEpisodes([
         {
           title: "The WIP Meetup 291",
