@@ -75,8 +75,8 @@ export const LatestEvent = () => {
       console.log("Using fallback video - RSS feed unavailable");
       setVideo({
         title: "The WIP Meetup 292",
-        videoId: "dQw4w9WgXcQ", // Update this with the actual latest video ID
-        thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg",
+        videoId: "A_CrnPJrI7M",
+        thumbnail: "https://img.youtube.com/vi/A_CrnPJrI7M/maxresdefault.jpg",
       });
     };
 
