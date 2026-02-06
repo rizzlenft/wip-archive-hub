@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Sparkles } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import wipLogo from "@/assets/wip-logo-static.png";
 
 const navLinks = [
-  { name: "About", href: "#about" },
-  { name: "Platforms", href: "#platforms" },
-  { name: "Episodes", href: "#content" },
+  { name: "About", href: "#about", isAnchor: true },
+  { name: "Platforms", href: "#platforms", isAnchor: true },
+  { name: "Episodes", href: "/episodes", isAnchor: false },
 ];
 
 const socialLinks = [
@@ -42,26 +43,36 @@ export const Navigation = () => {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16 md:h-20">
             {/* Logo */}
-            <a href="#" className="flex items-center gap-3 group">
+            <Link to="/" className="flex items-center gap-3 group">
               <img 
                 src={wipLogo} 
                 alt="The WIP" 
                 className="w-10 h-10 group-hover:scale-110 transition-transform"
               />
               <span className="font-bold text-lg hidden sm:inline">The WIP</span>
-            </a>
+            </Link>
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center gap-8">
-              {navLinks.map((link) => (
-                <a
-                  key={link.name}
-                  href={link.href}
-                  className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  {link.name}
-                </a>
-              ))}
+              {navLinks.map((link) => 
+                link.isAnchor ? (
+                  <a
+                    key={link.name}
+                    href={link.href}
+                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {link.name}
+                  </a>
+                ) : (
+                  <Link
+                    key={link.name}
+                    to={link.href}
+                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {link.name}
+                  </Link>
+                )
+              )}
             </div>
 
             {/* Social Icons */}
@@ -112,16 +123,27 @@ export const Navigation = () => {
           >
             <div className="container mx-auto px-4 py-8">
               <div className="flex flex-col gap-6">
-                {navLinks.map((link) => (
-                  <a
-                    key={link.name}
-                    href={link.href}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="text-2xl font-medium text-foreground hover:text-primary transition-colors"
-                  >
-                    {link.name}
-                  </a>
-                ))}
+                {navLinks.map((link) => 
+                  link.isAnchor ? (
+                    <a
+                      key={link.name}
+                      href={link.href}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="text-2xl font-medium text-foreground hover:text-primary transition-colors"
+                    >
+                      {link.name}
+                    </a>
+                  ) : (
+                    <Link
+                      key={link.name}
+                      to={link.href}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="text-2xl font-medium text-foreground hover:text-primary transition-colors"
+                    >
+                      {link.name}
+                    </Link>
+                  )
+                )}
                 <Button variant="electric" size="lg" className="mt-4" asChild>
                   <a href="https://discord.gg/XHDcUdm3" target="_blank" rel="noopener noreferrer">
                     <Sparkles className="w-5 h-5" />
