@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Calendar, Users, Play, X, ChevronDown, ArrowUp, Shuffle } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -109,7 +110,7 @@ const Episodes = () => {
     <div className="min-h-screen bg-background">
       <Navigation />
       
-      {/* Hero Section - Compact */}
+      {/* Hero Section with Randomizer & Guest CTA */}
       <section className="pt-24 pb-8 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-background to-background" />
         <div className="absolute top-20 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
@@ -129,6 +130,28 @@ const Episodes = () => {
               {episodes.length}+ episodes from the longest-running web3 metaverse meetup
             </p>
             
+            {/* Action Buttons */}
+            <div className="flex flex-wrap justify-center gap-3 mb-8">
+              <Button
+                size="lg"
+                onClick={handleRandomEpisode}
+                className="bg-gradient-to-r from-primary to-accent hover:opacity-90 text-primary-foreground shadow-lg"
+              >
+                <Shuffle className="w-5 h-5 mr-2" />
+                Random Episode
+              </Button>
+              <Link to="/guests">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-primary/50 hover:border-primary hover:bg-primary/5"
+                >
+                  <Users className="w-5 h-5 mr-2" />
+                  Explore {allGuests.length}+ Guests
+                </Button>
+              </Link>
+            </div>
+            
             {/* Stats Row */}
             <div className="flex flex-wrap justify-center gap-4 md:gap-8">
               <div className="flex items-center gap-2 text-muted-foreground">
@@ -138,10 +161,6 @@ const Episodes = () => {
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Play className="w-4 h-4 text-primary" />
                 <span className="text-sm">{episodes.length} Episodes</span>
-              </div>
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Users className="w-4 h-4 text-primary" />
-                <span className="text-sm">{allGuests.length} Guests</span>
               </div>
             </div>
           </motion.div>

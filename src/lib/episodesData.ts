@@ -8,7 +8,6 @@ export interface EpisodeData {
 }
 
 export const EPISODES_DATA: EpisodeData[] = [
-  { videoId: "8TYHNCF0mX0", title: "death to audio problems", publishDate: "" },
   { videoId: "i0EQ50k8Aeg", title: "The WIP Meetup 01/11/2024 Metageist Race Commentary", publishDate: "Feb 12, 2024" },
   { videoId: "8jLOVvAbgLU", title: "The WIP Meetup 08/29/2024 Raw Footage ft Buildtree Alpha & Roustan BlockBuster Video Field Trip", publishDate: "Aug 29, 2024" },
   { videoId: "n74Nu9HIjHE", title: "The WIP Meetup 09/19/2024 Raw Footage ft Jin aka DankVR with the Openvoxels Deep Dive", publishDate: "Sep 20, 2024" },
@@ -49,7 +48,6 @@ export const EPISODES_DATA: EpisodeData[] = [
   { videoId: "W3s0D-ABu3U", title: "The WIP Meetup 2/22/2024 Raw Footage Ft. HubzzHQ & Russfranky", publishDate: "Feb 23, 2024" },
   { videoId: "odVsoispuwg", title: "The WIP Meetup 05/15/2025 Raw Footage ft Roustan Tour & Deep Dive into Hyperfy 2.0", publishDate: "May 16, 2025" },
   { videoId: "sjUhfA6R8pg", title: "The WIP Meetup 03/31/2022 The Paradoxx Theme Song Live Unveiling", publishDate: "Mar 8, 2024" },
-  { videoId: "AB7A0h3dl0I", title: "Copy_Copy_Copy_Copy_Copy", publishDate: "Nov 13, 2025" },
   { videoId: "77yz9q2fLh8", title: "The WIP Meetup 03/28/2024 Decentraland Art Week w/ Bay Backner Mashup by Paradoxx", publishDate: "Apr 10, 2024" },
   { videoId: "3Kv4JyLdQwU", title: "The WIP Meetup 12/21/2023 Raw Footage Merry WIPmas massive #anontree nft giveaway + Reneil🎄", publishDate: "Dec 22, 2023" },
   { videoId: "GpRRg_qCu5o", title: "The WIP Meetup 02/13/2025 Raw Footage ft Artacle.io, Meme NFA w/ Johan + WIPSON ai w/ HiddenForces", publishDate: "Feb 14, 2025" },
@@ -83,7 +81,6 @@ export const EPISODES_DATA: EpisodeData[] = [
   { videoId: "k4dbYmA08Jo", title: "The WIP Meetup 04/01/2021 Gary Cartlidge, Sam Brukhman, Stina Jones, Bittrees Egg Mashup by Paradoxx", publishDate: "Jul 22, 2024" },
   { videoId: "kS4fU7zW5Eo", title: "The WIP Meetup 04/25/2024 CyberBrokers Takeover Mashup by Paradoxx", publishDate: "May 1, 2024" },
   { videoId: "lPwgSt3ukfY", title: "[Special Interview] SuperRare CEO John Crain on building a crypto art marketplace", publishDate: "Mar 28, 2025" },
-  { videoId: "rTogLrcWDmU", title: "Quickie Upgrade", publishDate: "Nov 20, 2025" },
   { videoId: "xK98kbyKdm0", title: "The WIP Meetup 1/22/2026 Raw Footage ft Matt's Awkward Retirement Party", publishDate: "Jan 23, 2026" },
   { videoId: "-fQWgh5TVLk", title: "The WIP Meetup 09/12/2024 Raw Footage ft Ol1y Art Deep Dive,Fabiano Rat Party, Rizzlefest Drivers Ed", publishDate: "Sep 13, 2024" },
   { videoId: "H8Y9pQZ-1sk", title: "The WIP Meetup 03/27/2025 ft Paradoxx WIP Parcel, OONA Art Exhibit & Egg Race Mashup by Paradoxx", publishDate: "Apr 2, 2025" },
@@ -205,13 +202,11 @@ export const EPISODES_DATA: EpisodeData[] = [
   { videoId: "9B-8JpTYHpc", title: "[Special Interview] Roneil, Audius CEO & Co-founder", publishDate: "Mar 28, 2025" },
   { videoId: "9l7DsSO7mUw", title: "[Spotlight] At the Electric Bazaar with Artist Stefan Große Halbuer", publishDate: "Mar 28, 2025" },
   { videoId: "CHagVifGhW4", title: "The WIP Meetup 08/02/2024 Raw Footage ft THREADH3ADS & FrankyNeedles", publishDate: "Aug 2, 2024" },
-  { videoId: "CkVtHPmhdhc", title: "WIP meeting 03/02/26", publishDate: "" },
   { videoId: "DIEmM4HG0yo", title: "[Classic Episode] CryptoArt in VR, CryptoVoxels & the Future of Digital Art", publishDate: "Mar 28, 2025" },
   { videoId: "GxdemQg6BbU", title: "CryptoArt in VR, CryptoVoxels & the Future of Digital Art", publishDate: "Mar 28, 2025" },
   { videoId: "HPIFdHVvoGU", title: "The WIP Meetup 06/24/2021 ft Jax HideAway, Waves, CryptoArt Gallery Tour w/ Micol Mashup by Paradoxx", publishDate: "Feb 4, 2025" },
   { videoId: "IWoiDjjLs7M", title: "[Special Interview] Snowfro, Creator of artblocks.io", publishDate: "Mar 28, 2025" },
   { videoId: "IlqyXSEvmfo", title: "[Special Interview] Dannie Chu From MakersPlace", publishDate: "Mar 28, 2025" },
-  { videoId: "KK44hbKNU0Q", title: "WIP meeting 27/01/26", publishDate: "" },
   { videoId: "MxD9ziAGiCs", title: "The WIP Meetup 01/09/2025 ft 2025 kickoff w/ Colborn, Reneil, Jin aka Dankvr, Trislit & Rizzle🤘", publishDate: "Jan 16, 2025" },
   { videoId: "P8LAGuVnsHY", title: "The WIP Meetup 10/24/2024 ft. Bihoz & Niftyisland Game Time Mashup by Paradoxx", publishDate: "Oct 30, 2024" },
   { videoId: "TeLVCfPxxU8", title: "Cent CryptoVoxels Art Tour & Social Money Giveaway", publishDate: "Mar 28, 2025" },
