@@ -23,6 +23,14 @@ export const EpisodeCard = ({ episode, onGuestClick }: EpisodeCardProps) => {
     setIsPlaying(false);
   };
 
+  // Format a shorter title for display
+  const displayTitle = episode.title
+    .replace(/^The WIP Meetup\s*/i, '')
+    .replace(/\s*Raw Footage\s*/gi, ' ')
+    .replace(/\s*Mashup by Paradoxx\s*/gi, '')
+    .replace(/\s*Mashup\s*/gi, '')
+    .trim();
+
   return (
     <>
       <motion.div
@@ -42,10 +50,17 @@ export const EpisodeCard = ({ episode, onGuestClick }: EpisodeCardProps) => {
             loading="lazy"
           />
           
-          {/* Gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity" />
+          {/* Dark gradient overlay for title readability */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
           
-          {/* Play button */}
+          {/* Title overlay at bottom */}
+          <div className="absolute bottom-0 left-0 right-0 p-3">
+            <h4 className="text-white text-sm font-medium line-clamp-2 drop-shadow-lg">
+              {displayTitle}
+            </h4>
+          </div>
+          
+          {/* Play button on hover */}
           <motion.div 
             className="absolute inset-0 flex items-center justify-center"
             initial={{ opacity: 0 }}
@@ -56,13 +71,6 @@ export const EpisodeCard = ({ episode, onGuestClick }: EpisodeCardProps) => {
               <Play className="w-6 h-6 text-primary-foreground ml-1" fill="currentColor" />
             </div>
           </motion.div>
-
-          {/* Episode number badge */}
-          {episode.episodeNumber && (
-            <div className="absolute top-2 left-2 bg-primary/90 text-primary-foreground text-xs font-bold px-2 py-1 rounded">
-              #{episode.episodeNumber}
-            </div>
-          )}
         </div>
 
         {/* Info overlay - shows on hover */}
@@ -75,10 +83,6 @@ export const EpisodeCard = ({ episode, onGuestClick }: EpisodeCardProps) => {
               transition={{ duration: 0.2 }}
               className="absolute top-full left-0 right-0 mt-2 p-3 bg-card border border-border rounded-lg shadow-xl z-30"
             >
-              <h4 className="font-semibold text-sm line-clamp-2 mb-2 group-hover:text-primary transition-colors">
-                {episode.title}
-              </h4>
-              
               <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
                 <Calendar className="w-3 h-3" />
                 {episode.publishedAt.toLocaleDateString('en-US', { 
