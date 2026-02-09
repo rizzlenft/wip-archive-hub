@@ -4,10 +4,14 @@ import { ShoppingBag, ExternalLink, Sparkles } from "lucide-react";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import merchHat from "@/assets/merch-hat.jpg";
-import merchTshirt from "@/assets/merch-tshirt.jpg";
-import merchMug from "@/assets/merch-mug.jpg";
-import merchHoodie from "@/assets/merch-hoodie.jpg";
+import merchHatRainbow from "@/assets/merch-hat-rainbow.jpg";
+import merchHatBw from "@/assets/merch-hat-bw.jpg";
+import merchTshirtRainbow from "@/assets/merch-tshirt-rainbow.jpg";
+import merchTshirtBw from "@/assets/merch-tshirt-bw.jpg";
+import merchMugRainbow from "@/assets/merch-mug-rainbow.jpg";
+import merchMugBw from "@/assets/merch-mug-bw.jpg";
+import merchHoodieRainbow from "@/assets/merch-hoodie-rainbow.jpg";
+import merchHoodieBw from "@/assets/merch-hoodie-bw.jpg";
 import wipLogoBW from "@/assets/wip-logo-bw.png";
 import wipLogoRainbow from "@/assets/wip-logo-rainbow.png";
 
@@ -20,7 +24,7 @@ const products = [
   {
     name: "WIP Rainbow Snapback",
     price: "$30",
-    image: merchHat,
+    images: { rainbow: merchHatRainbow, bw: merchHatBw },
     description: "Classic black snapback with embroidered WIP logo. One size fits all.",
     buyUrl: "#",
     badge: "Popular",
@@ -28,14 +32,14 @@ const products = [
   {
     name: "WIP Classic Tee",
     price: "$25",
-    image: merchTshirt,
+    images: { rainbow: merchTshirtRainbow, bw: merchTshirtBw },
     description: "Premium cotton tee with the iconic WIP print. Unisex fit.",
     buyUrl: "#",
   },
   {
     name: "WIP Hoodie",
     price: "$50",
-    image: merchHoodie,
+    images: { rainbow: merchHoodieRainbow, bw: merchHoodieBw },
     description: "Cozy heavyweight hoodie with kangaroo pocket and WIP logo.",
     buyUrl: "#",
     badge: "New",
@@ -43,7 +47,7 @@ const products = [
   {
     name: "WIP Coffee Mug",
     price: "$18",
-    image: merchMug,
+    images: { rainbow: merchMugRainbow, bw: merchMugBw },
     description: "Start your mornings right with the WIP mug. 11oz ceramic.",
     buyUrl: "#",
   },
@@ -87,21 +91,13 @@ const Merch = () => {
                 transition={{ delay: i * 0.1 }}
                 className="group"
               >
-                <div className="rounded-2xl bg-card border-glow overflow-hidden hover:scale-[1.03] transition-all duration-300">
-                  <div className="relative aspect-square overflow-hidden">
+                <div className="rounded-2xl bg-card border border-border/40 overflow-hidden hover:scale-[1.03] hover:border-primary/30 transition-all duration-300 shadow-lg shadow-black/20">
+                  <div className="relative aspect-square overflow-hidden bg-muted/10">
                     <img
-                      src={product.image}
+                      src={product.images[selectedLogos[i] as keyof typeof product.images]}
                       alt={product.name}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     />
-                    {/* Logo overlay */}
-                    <div className="absolute bottom-3 left-3 w-16 h-16 rounded-full overflow-hidden border-2 border-background shadow-lg">
-                      <img
-                        src={logoOptions.find(l => l.id === selectedLogos[i])?.image}
-                        alt="Selected logo"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
                     {product.badge && (
                       <span className="absolute top-3 right-3 px-3 py-1 text-xs font-bold rounded-full bg-primary text-primary-foreground">
                         {product.badge}
