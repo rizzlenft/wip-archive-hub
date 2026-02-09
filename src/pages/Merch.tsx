@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { ShoppingBag, ExternalLink, Sparkles } from "lucide-react";
 import { Navigation } from "@/components/Navigation";
@@ -7,28 +8,35 @@ import merchHat from "@/assets/merch-hat.jpg";
 import merchTshirt from "@/assets/merch-tshirt.jpg";
 import merchMug from "@/assets/merch-mug.jpg";
 import merchHoodie from "@/assets/merch-hoodie.jpg";
+import wipLogoBW from "@/assets/wip-logo-bw.png";
+import wipLogoRainbow from "@/assets/wip-logo-rainbow.png";
+
+const logoOptions = [
+  { id: "rainbow", label: "Rainbow", image: wipLogoRainbow },
+  { id: "bw", label: "B&W", image: wipLogoBW },
+] as const;
 
 const products = [
   {
     name: "WIP Rainbow Snapback",
     price: "$30",
     image: merchHat,
-    description: "Classic black snapback with embroidered rainbow WIP logo. One size fits all.",
-    buyUrl: "#", // Replace with your Printful/Printify link
+    description: "Classic black snapback with embroidered WIP logo. One size fits all.",
+    buyUrl: "#",
     badge: "Popular",
   },
   {
     name: "WIP Classic Tee",
     price: "$25",
     image: merchTshirt,
-    description: "Premium cotton tee with the iconic rainbow WIP print. Unisex fit.",
+    description: "Premium cotton tee with the iconic WIP print. Unisex fit.",
     buyUrl: "#",
   },
   {
     name: "WIP Hoodie",
     price: "$50",
     image: merchHoodie,
-    description: "Cozy heavyweight hoodie with kangaroo pocket and rainbow WIP logo.",
+    description: "Cozy heavyweight hoodie with kangaroo pocket and WIP logo.",
     buyUrl: "#",
     badge: "New",
   },
@@ -36,12 +44,15 @@ const products = [
     name: "WIP Coffee Mug",
     price: "$18",
     image: merchMug,
-    description: "Start your mornings right with the WIP rainbow mug. 11oz ceramic.",
+    description: "Start your mornings right with the WIP mug. 11oz ceramic.",
     buyUrl: "#",
   },
 ];
 
 const Merch = () => {
+  const [selectedLogos, setSelectedLogos] = useState<Record<number, string>>(
+    () => Object.fromEntries(products.map((_, i) => [i, "rainbow"]))
+  );
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
@@ -83,6 +94,14 @@ const Merch = () => {
                       alt={product.name}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     />
+                    {/* Logo overlay */}
+                    <div className="absolute bottom-3 left-3 w-16 h-16 rounded-full overflow-hidden border-2 border-background shadow-lg">
+                      <img
+                        src={logoOptions.find(l => l.id === selectedLogos[i])?.image}
+                        alt="Selected logo"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
                     {product.badge && (
                       <span className="absolute top-3 right-3 px-3 py-1 text-xs font-bold rounded-full bg-primary text-primary-foreground">
                         {product.badge}
@@ -94,6 +113,23 @@ const Merch = () => {
                     <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
                       {product.description}
                     </p>
+                    {/* Logo choice */}
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="text-xs text-muted-foreground">Logo:</span>
+                      {logoOptions.map((logo) => (
+                        <button
+                          key={logo.id}
+                          onClick={() => setSelectedLogos(prev => ({ ...prev, [i]: logo.id }))}
+                          className={`w-8 h-8 rounded-full overflow-hidden border-2 transition-all ${
+                            selectedLogos[i] === logo.id
+                              ? "border-primary scale-110"
+                              : "border-muted opacity-60 hover:opacity-100"
+                          }`}
+                        >
+                          <img src={logo.image} alt={logo.label} className="w-full h-full object-cover" />
+                        </button>
+                      ))}
+                    </div>
                     <div className="flex items-center justify-between">
                       <span className="text-xl font-bold text-primary">{product.price}</span>
                       <Button size="sm" variant="electric" asChild>
