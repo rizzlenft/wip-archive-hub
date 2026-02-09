@@ -9,6 +9,7 @@ const navLinks = [
   { name: "About", href: "#about", isAnchor: true },
   { name: "Platforms", href: "#platforms", isAnchor: true },
   { name: "Episodes", href: "/episodes", isAnchor: false },
+  { name: "Merch", href: "/merch", isAnchor: false },
 ];
 
 const socialLinks = [
