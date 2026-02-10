@@ -26,7 +26,7 @@ const products = [
     price: "$30",
     images: { rainbow: merchHatRainbow, bw: merchHatBw },
     description: "Classic black snapback with embroidered WIP logo. One size fits all.",
-    buyUrl: "#",
+    buyUrl: "https://the-wip-meetup.printify.me/product/26761482/retro-wip-embroidered-trucker-cap",
     badge: "Popular",
   },
   {
@@ -34,14 +34,14 @@ const products = [
     price: "$25",
     images: { rainbow: merchTshirtRainbow, bw: merchTshirtBw },
     description: "Premium cotton tee with the iconic WIP print. Unisex fit.",
-    buyUrl: "#",
+    buyUrl: "https://the-wip-meetup.printify.me/product/26761219/wip-retro-rainbow-tee-psychedelic-work-in-progress-graphic-t-shirt",
   },
   {
     name: "WIP Hoodie",
     price: "$50",
     images: { rainbow: merchHoodieRainbow, bw: merchHoodieBw },
     description: "Cozy heavyweight hoodie with kangaroo pocket and WIP logo.",
-    buyUrl: "#",
+    buyUrl: "https://the-wip-meetup.printify.me/product/26761314/psychedelic-rainbow-wip-logo-organic-pullover-hoodie",
     badge: "New",
   },
   {
@@ -49,7 +49,7 @@ const products = [
     price: "$18",
     images: { rainbow: merchMugRainbow, bw: merchMugBw },
     description: "Start your mornings right with the WIP mug. 11oz ceramic.",
-    buyUrl: "#",
+    buyUrl: "https://the-wip-meetup.printify.me/product/26761570/15oz-black-mug-rainbow-retro-wip-logo-coffee-cup",
   },
 ];
 
