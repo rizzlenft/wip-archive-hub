@@ -75,11 +75,11 @@ export const CommunityPerks = () => {
             >
               <div className="h-full p-8 rounded-2xl bg-card border-glow hover:scale-105 transition-all duration-300">
                 {perk.image ? (
-                  <div className="mb-6 rounded-xl overflow-hidden">
+                  <div className="mb-6 rounded-xl overflow-hidden bg-muted/20 flex items-center justify-center">
                     <img 
                       src={perk.image} 
                       alt="NFT Gift Sample" 
-                      className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-300"
+                      className="w-full h-56 object-contain group-hover:scale-110 transition-transform duration-300"
                     />
                   </div>
                 ) : perk.isToken ? (
