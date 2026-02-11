@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button";
 import wipLogo from "@/assets/wip-logo-static.png";
 
 const navLinks = [
-  { name: "About", href: "#about", isAnchor: true },
-  { name: "Platforms", href: "#platforms", isAnchor: true },
+  { name: "About", href: "/#about", isAnchor: true },
+  { name: "Platforms", href: "/#platforms", isAnchor: true },
   { name: "Episodes", href: "/episodes", isAnchor: false },
   { name: "Merch", href: "/merch", isAnchor: false },
 ];
@@ -57,13 +57,13 @@ export const Navigation = () => {
             <div className="hidden md:flex items-center gap-8">
               {navLinks.map((link) => 
                 link.isAnchor ? (
-                  <a
+                  <Link
                     key={link.name}
-                    href={link.href}
+                    to={link.href}
                     className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
                   >
                     {link.name}
-                  </a>
+                  </Link>
                 ) : (
                   <Link
                     key={link.name}
@@ -126,14 +126,14 @@ export const Navigation = () => {
               <div className="flex flex-col gap-6">
                 {navLinks.map((link) => 
                   link.isAnchor ? (
-                    <a
+                    <Link
                       key={link.name}
-                      href={link.href}
+                      to={link.href}
                       onClick={() => setIsMobileMenuOpen(false)}
                       className="text-2xl font-medium text-foreground hover:text-primary transition-colors"
                     >
                       {link.name}
-                    </a>
+                    </Link>
                   ) : (
                     <Link
                       key={link.name}
