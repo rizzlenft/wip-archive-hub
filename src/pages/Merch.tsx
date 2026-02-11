@@ -23,7 +23,7 @@ const logoOptions = [
 const products = [
   {
     name: "WIP Rainbow Snapback",
-    price: "$30",
+    price: "$33.15",
     images: { rainbow: merchHatRainbow, bw: merchHatBw },
     description: "Classic black snapback with embroidered WIP logo. One size fits all.",
     buyUrl: "https://the-wip-meetup.printify.me/product/26761482/retro-wip-embroidered-trucker-cap",
@@ -31,14 +31,14 @@ const products = [
   },
   {
     name: "WIP Classic Tee",
-    price: "$25",
+    price: "$25.99",
     images: { rainbow: merchTshirtRainbow, bw: merchTshirtBw },
     description: "Premium cotton tee with the iconic WIP print. Unisex fit.",
     buyUrl: "https://the-wip-meetup.printify.me/product/26761219/wip-retro-rainbow-tee-psychedelic-work-in-progress-graphic-t-shirt",
   },
   {
     name: "WIP Hoodie",
-    price: "$50",
+    price: "$67.82",
     images: { rainbow: merchHoodieRainbow, bw: merchHoodieBw },
     description: "Cozy heavyweight hoodie with kangaroo pocket and WIP logo.",
     buyUrl: "https://the-wip-meetup.printify.me/product/26761314/psychedelic-rainbow-wip-logo-organic-pullover-hoodie",
@@ -46,7 +46,7 @@ const products = [
   },
   {
     name: "WIP Coffee Mug",
-    price: "$18",
+    price: "$14.33",
     images: { rainbow: merchMugRainbow, bw: merchMugBw },
     description: "Start your mornings right with the WIP mug. 11oz ceramic.",
     buyUrl: "https://the-wip-meetup.printify.me/product/26761570/15oz-black-mug-rainbow-retro-wip-logo-coffee-cup",
