@@ -1,9 +1,17 @@
-import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Gift, Coins, Heart, Users, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import nftGiftSample from "@/assets/nft-gift-sample.jpeg";
 import wipLogo from "@/assets/wip-logo.gif";
 import metaverseBg2 from "@/assets/metaverse-bg-2.gif";
+import nftGift1 from "@/assets/nft-gift-1.jpeg";
+import nftGift2 from "@/assets/nft-gift-2.avif";
+import nftGift3 from "@/assets/nft-gift-3.avif";
+import nftGift4 from "@/assets/nft-gift-4.avif";
+import nftGift5 from "@/assets/nft-gift-5.avif";
+import nftGift6 from "@/assets/nft-gift-6.avif";
+
+const nftGallery = [nftGift1, nftGift2, nftGift3, nftGift4, nftGift5, nftGift6];
 const perks = [
   {
     title: "$WIP Token Rewards",
@@ -21,7 +29,7 @@ const perks = [
     title: "Free NFT Gifts",
     description: "Each week, our amazing artists Fabiano & Patrizia create unique voxel art NFTs that are gifted to attendees—beautiful collectibles just for showing up!",
     color: "from-pink-400 to-purple-500",
-    image: nftGiftSample,
+    hasGallery: true,
     artists: [
       { name: "Fabiano", url: "https://x.com/fabianospeziari" },
       { name: "Patrizia", url: "https://x.com/patriziabarnatox" },
@@ -31,6 +39,15 @@ const perks = [
 ];
 
 export const CommunityPerks = () => {
+  const [currentNft, setCurrentNft] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentNft((prev) => (prev + 1) % nftGallery.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <section className="py-16 relative overflow-hidden">
       {/* Background GIF */}
@@ -74,13 +91,29 @@ export const CommunityPerks = () => {
               className="group"
             >
               <div className="h-full p-8 rounded-2xl bg-card border-glow hover:scale-105 transition-all duration-300">
-                {perk.image ? (
-                  <div className="mb-6 rounded-xl overflow-hidden bg-muted/20 flex items-center justify-center">
-                    <img 
-                      src={perk.image} 
-                      alt="NFT Gift Sample" 
-                      className="w-full h-56 object-contain group-hover:scale-110 transition-transform duration-300"
-                    />
+                {'hasGallery' in perk && perk.hasGallery ? (
+                  <div className="mb-6 rounded-xl overflow-hidden bg-muted/20 relative h-56">
+                    <AnimatePresence mode="wait">
+                      <motion.img
+                        key={currentNft}
+                        src={nftGallery[currentNft]}
+                        alt={`NFT Gift #${currentNft + 1}`}
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 1.05 }}
+                        transition={{ duration: 0.5 }}
+                        className="w-full h-full object-contain"
+                      />
+                    </AnimatePresence>
+                    <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
+                      {nftGallery.map((_, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setCurrentNft(i)}
+                          className={`w-2 h-2 rounded-full transition-all ${i === currentNft ? 'bg-primary w-4' : 'bg-muted-foreground/40'}`}
+                        />
+                      ))}
+                    </div>
                   </div>
                 ) : perk.isToken ? (
                   <div className="mb-6">
