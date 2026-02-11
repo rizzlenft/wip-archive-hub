@@ -1,30 +1,18 @@
-import { useState } from "react";
 import { motion } from "framer-motion";
 import { ShoppingBag, ExternalLink, Sparkles } from "lucide-react";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import merchHatRainbow from "@/assets/merch-hat-rainbow.jpg";
-import merchHatBw from "@/assets/merch-hat-bw.jpg";
 import merchTshirtRainbow from "@/assets/merch-tshirt-rainbow.jpg";
-import merchTshirtBw from "@/assets/merch-tshirt-bw.jpg";
 import merchMugRainbow from "@/assets/merch-mug-rainbow.jpg";
-import merchMugBw from "@/assets/merch-mug-bw.jpg";
 import merchHoodieRainbow from "@/assets/merch-hoodie-rainbow.jpg";
-import merchHoodieBw from "@/assets/merch-hoodie-bw.jpg";
-import wipLogoBW from "@/assets/wip-logo-bw.png";
-import wipLogoRainbow from "@/assets/wip-logo-rainbow.png";
-
-const logoOptions = [
-  { id: "rainbow", label: "Rainbow", image: wipLogoRainbow },
-  { id: "bw", label: "B&W", image: wipLogoBW },
-] as const;
 
 const products = [
   {
     name: "WIP Rainbow Snapback",
     price: "$33.15",
-    images: { rainbow: merchHatRainbow, bw: merchHatBw },
+    image: merchHatRainbow,
     description: "Classic black snapback with embroidered WIP logo. One size fits all.",
     buyUrl: "https://the-wip-meetup.printify.me/product/26761482/retro-wip-embroidered-trucker-cap",
     badge: "Popular",
@@ -32,14 +20,14 @@ const products = [
   {
     name: "WIP Classic Tee",
     price: "$25.99",
-    images: { rainbow: merchTshirtRainbow, bw: merchTshirtBw },
+    image: merchTshirtRainbow,
     description: "Premium cotton tee with the iconic WIP print. Unisex fit.",
     buyUrl: "https://the-wip-meetup.printify.me/product/26761219/wip-retro-rainbow-tee-psychedelic-work-in-progress-graphic-t-shirt",
   },
   {
     name: "WIP Hoodie",
     price: "$67.82",
-    images: { rainbow: merchHoodieRainbow, bw: merchHoodieBw },
+    image: merchHoodieRainbow,
     description: "Cozy heavyweight hoodie with kangaroo pocket and WIP logo.",
     buyUrl: "https://the-wip-meetup.printify.me/product/26761314/psychedelic-rainbow-wip-logo-organic-pullover-hoodie",
     badge: "New",
@@ -47,16 +35,13 @@ const products = [
   {
     name: "WIP Coffee Mug",
     price: "$14.33",
-    images: { rainbow: merchMugRainbow, bw: merchMugBw },
+    image: merchMugRainbow,
     description: "Start your mornings right with the WIP mug. 11oz ceramic.",
     buyUrl: "https://the-wip-meetup.printify.me/product/26761570/15oz-black-mug-rainbow-retro-wip-logo-coffee-cup",
   },
 ];
 
 const Merch = () => {
-  const [selectedLogos, setSelectedLogos] = useState<Record<number, string>>(
-    () => Object.fromEntries(products.map((_, i) => [i, "rainbow"]))
-  );
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
@@ -94,7 +79,7 @@ const Merch = () => {
                 <div className="rounded-2xl bg-card border border-border/40 overflow-hidden hover:scale-[1.03] hover:border-primary/30 transition-all duration-300 shadow-lg shadow-black/20">
                   <div className="relative aspect-square overflow-hidden bg-muted/10">
                     <img
-                      src={product.images[selectedLogos[i] as keyof typeof product.images]}
+                      src={product.image}
                       alt={product.name}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     />
@@ -109,23 +94,6 @@ const Merch = () => {
                     <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
                       {product.description}
                     </p>
-                    {/* Logo choice */}
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="text-xs text-muted-foreground">Logo:</span>
-                      {logoOptions.map((logo) => (
-                        <button
-                          key={logo.id}
-                          onClick={() => setSelectedLogos(prev => ({ ...prev, [i]: logo.id }))}
-                          className={`w-8 h-8 rounded-full overflow-hidden border-2 transition-all ${
-                            selectedLogos[i] === logo.id
-                              ? "border-primary scale-110"
-                              : "border-muted opacity-60 hover:opacity-100"
-                          }`}
-                        >
-                          <img src={logo.image} alt={logo.label} className="w-full h-full object-cover" />
-                        </button>
-                      ))}
-                    </div>
                     <div className="flex items-center justify-between">
                       <span className="text-xl font-bold text-primary">{product.price}</span>
                       <Button size="sm" variant="electric" asChild>
