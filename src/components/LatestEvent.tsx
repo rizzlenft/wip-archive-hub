@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Play, ExternalLink, Calendar, Users, Sparkles, Globe, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
+import { fetchAllEpisodes } from "@/lib/youtube";
 
 interface VideoData {
   title: string;
@@ -11,6 +12,17 @@ interface VideoData {
 
 // The WIP Meetup YouTube channel
 const CHANNEL_URL = "https://www.youtube.com/@thewipmeetup";
+
+// Get the latest video from the static episodes data (sorted by date)
+async function getLatestFromStaticData(): Promise<VideoData> {
+  const episodes = await fetchAllEpisodes();
+  const latest = episodes[0]; // Already sorted newest first
+  return {
+    title: latest.title,
+    videoId: latest.videoId,
+    thumbnail: `https://img.youtube.com/vi/${latest.videoId}/maxresdefault.jpg`,
+  };
+}
 
 export const LatestEvent = () => {
   const [video, setVideo] = useState<VideoData | null>(null);
@@ -22,24 +34,41 @@ export const LatestEvent = () => {
       const channelId = "UCRwQrMcwYE3K7gfP5nQVgng";
       const rssUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
       
-      // Try multiple CORS proxies with different response formats
+      // Try RSS proxies to get real-time latest video
       const proxyConfigs = [
         { url: `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`, isJson: true },
-        { url: `https://corsproxy.io/?${encodeURIComponent(rssUrl)}`, isJson: false },
-        { url: `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(rssUrl)}`, isJson: false },
+        { url: `https://thingproxy.freeboard.io/fetch/${encodeURIComponent(rssUrl)}`, isJson: false },
+        { url: `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`, isJson: true, isRss2Json: true },
       ];
       
       for (const proxy of proxyConfigs) {
         try {
-          console.log("Trying proxy:", proxy.url.substring(0, 50));
           const response = await fetch(proxy.url, { 
-            headers: { 'Accept': 'application/xml, text/xml, */*' }
+            headers: { 'Accept': 'application/xml, application/json, text/xml, */*' }
           });
-          if (!response.ok) {
-            console.log("Proxy response not ok:", response.status);
+          if (!response.ok) continue;
+          
+          // rss2json returns a clean JSON format
+          if ('isRss2Json' in proxy && proxy.isRss2Json) {
+            const json = await response.json();
+            if (json.status === 'ok' && json.items?.length > 0) {
+              const item = json.items[0];
+              // Extract video ID from the link
+              const videoIdMatch = item.link?.match(/[?&]v=([^&]+)/);
+              const videoId = videoIdMatch?.[1] || item.guid?.split(':').pop();
+              if (videoId && item.title) {
+                console.log("✅ Fetched latest video via rss2json:", item.title);
+                setVideo({
+                  title: item.title,
+                  videoId,
+                  thumbnail: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
+                });
+                return;
+              }
+            }
             continue;
           }
-          
+
           let text: string;
           if (proxy.isJson) {
             const json = await response.json();
@@ -48,9 +77,7 @@ export const LatestEvent = () => {
             text = await response.text();
           }
           
-          // Check if we got valid XML, not an error page
           if (!text || text.includes('Error 404') || text.includes('<!DOCTYPE html>') || !text.includes('<entry>')) {
-            console.log("Invalid response - not valid RSS XML");
             continue;
           }
           
@@ -64,7 +91,7 @@ export const LatestEvent = () => {
             const title = firstEntry.querySelector("title")?.textContent || "The WIP Meetup";
             
             if (videoId && title) {
-              console.log("✅ Successfully fetched latest video from RSS:", title);
+              console.log("✅ Fetched latest video via RSS proxy:", title);
               setVideo({
                 title,
                 videoId,
@@ -74,18 +101,15 @@ export const LatestEvent = () => {
             }
           }
         } catch (error) {
-          console.log("Proxy failed:", error);
+          console.log("Proxy failed, trying next...");
           continue;
         }
       }
       
-      // Fallback to the latest known video if all proxies fail
-      console.log("⚠️ Using fallback video - all RSS proxies failed");
-      setVideo({
-        title: "The WIP Meetup 2/5/2026 Raw Footage ft Stina Jones & Carlos Marcial",
-        videoId: "A_CrnPJrI7M",
-        thumbnail: "https://img.youtube.com/vi/A_CrnPJrI7M/maxresdefault.jpg",
-      });
+      // Fallback: use the latest from our static episodes archive (sorted by date)
+      console.log("⚠️ RSS proxies unavailable — using latest from episodes archive");
+      const fallback = await getLatestFromStaticData();
+      setVideo(fallback);
     };
 
     fetchLatestVideo();
