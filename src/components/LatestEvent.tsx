@@ -37,8 +37,8 @@ export const LatestEvent = () => {
       // Try RSS proxies to get real-time latest video
       const proxyConfigs = [
         { url: `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`, isJson: true },
-        { url: `https://thingproxy.freeboard.io/fetch/${encodeURIComponent(rssUrl)}`, isJson: false },
         { url: `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`, isJson: true, isRss2Json: true },
+        { url: `https://yacdn.org/serve/${rssUrl}`, isJson: false },
       ];
       
       for (const proxy of proxyConfigs) {
