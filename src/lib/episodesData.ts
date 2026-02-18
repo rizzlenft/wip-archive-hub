@@ -231,6 +231,7 @@ export const EPISODES_DATA: EpisodeData[] = [
   { videoId: "28NCPOC9fHM", title: "The WIP Meetup 05/16/2024 Raw Footage ft CollectPods, PfeffUnit & Paradoxx Race (1/2)", publishDate: "May 17, 2024" },
   { videoId: "5FhAWTKtLrc", title: "The WIP Meetup 05/13/2021 ft MARS26, Proof of Beauty, I Want My NFT Mashup by Paradoxx", publishDate: "Jan 24, 2025" },
   { videoId: "6k5bddZlY90", title: "The WIP Meetup 07/29/2021 ft AFutureModern, UTBBFT.com, CryptoMotors Mashup by Paradoxx", publishDate: "Feb 13, 2025" },
+  { videoId: "9Zcl9PEGa78", title: "The WIP Meetup 2/12/2026", publishDate: "Feb 12, 2026" },
   { videoId: "A_CrnPJrI7M", title: "The WIP Meetup 2/5/2026 Raw Footage ft Stina Jones & Carlos Marcial", publishDate: "Feb 6, 2026" },
   { videoId: "FrACLNjrStc", title: "The WIP Meetup 06/20/2024 George Boya & Barbi S.A. + Foxyoga Birthday Mashup by Paradoxx", publishDate: "Jun 27, 2024" },
   { videoId: "HFhqKFfejcs", title: "The WIP Meetup 08/22/2025 Raw Footage ft Metageist Takeover & Merch Drop", publishDate: "Aug 22, 2025" },
