@@ -2,7 +2,6 @@ import { motion } from "framer-motion";
 import { Play, ExternalLink, Calendar, Users, Sparkles, Globe, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
-import { fetchAllEpisodes } from "@/lib/youtube";
 
 interface VideoData {
   title: string;
@@ -12,33 +11,24 @@ interface VideoData {
 
 // The WIP Meetup YouTube channel
 const CHANNEL_URL = "https://www.youtube.com/@thewipmeetup";
-
-// Get the latest video from the static episodes data (sorted by date)
-async function getLatestFromStaticData(): Promise<VideoData> {
-  const episodes = await fetchAllEpisodes();
-  const latest = episodes[0]; // Already sorted newest first
-  return {
-    title: latest.title,
-    videoId: latest.videoId,
-    thumbnail: `https://img.youtube.com/vi/${latest.videoId}/maxresdefault.jpg`,
-  };
-}
+const CHANNEL_ID = "UCRwQrMcwYE3K7gfP5nQVgng";
+// YouTube auto-generates an "uploads" playlist: replace UC with UU
+const UPLOADS_PLAYLIST_ID = "UU" + CHANNEL_ID.slice(2);
 
 export const LatestEvent = () => {
   const [video, setVideo] = useState<VideoData | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [thumbnailError, setThumbnailError] = useState(false);
+  const [useFallbackEmbed, setUseFallbackEmbed] = useState(false);
 
   useEffect(() => {
     const fetchLatestVideo = async () => {
-      const channelId = "UCRwQrMcwYE3K7gfP5nQVgng";
-      const rssUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
+      const rssUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${CHANNEL_ID}`;
       
-      // Try RSS proxies to get real-time latest video
+      // Try RSS proxies to get real-time latest video with title/thumbnail
       const proxyConfigs = [
+        { url: `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`, isRss2Json: true },
         { url: `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`, isJson: true },
-        { url: `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`, isJson: true, isRss2Json: true },
-        { url: `https://yacdn.org/serve/${rssUrl}`, isJson: false },
       ];
       
       for (const proxy of proxyConfigs) {
@@ -48,21 +38,15 @@ export const LatestEvent = () => {
           });
           if (!response.ok) continue;
           
-          // rss2json returns a clean JSON format
-          if ('isRss2Json' in proxy && proxy.isRss2Json) {
+          if (proxy.isRss2Json) {
             const json = await response.json();
             if (json.status === 'ok' && json.items?.length > 0) {
               const item = json.items[0];
-              // Extract video ID from the link
               const videoIdMatch = item.link?.match(/[?&]v=([^&]+)/);
               const videoId = videoIdMatch?.[1] || item.guid?.split(':').pop();
               if (videoId && item.title) {
                 console.log("✅ Fetched latest video via rss2json:", item.title);
-                setVideo({
-                  title: item.title,
-                  videoId,
-                  thumbnail: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
-                });
+                setVideo({ title: item.title, videoId, thumbnail: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` });
                 return;
               }
             }
@@ -77,39 +61,29 @@ export const LatestEvent = () => {
             text = await response.text();
           }
           
-          if (!text || text.includes('Error 404') || text.includes('<!DOCTYPE html>') || !text.includes('<entry>')) {
-            continue;
-          }
+          if (!text || text.includes('Error 404') || !text.includes('<entry>')) continue;
           
           const parser = new DOMParser();
           const xml = parser.parseFromString(text, "text/xml");
-          const entries = xml.querySelectorAll("entry");
+          const firstEntry = xml.querySelector("entry");
           
-          if (entries.length > 0) {
-            const firstEntry = entries[0];
+          if (firstEntry) {
             const videoId = firstEntry.querySelector("yt\\:videoId, videoId")?.textContent || "";
             const title = firstEntry.querySelector("title")?.textContent || "The WIP Meetup";
-            
-            if (videoId && title) {
+            if (videoId) {
               console.log("✅ Fetched latest video via RSS proxy:", title);
-              setVideo({
-                title,
-                videoId,
-                thumbnail: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
-              });
+              setVideo({ title, videoId, thumbnail: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` });
               return;
             }
           }
-        } catch (error) {
-          console.log("Proxy failed, trying next...");
+        } catch {
           continue;
         }
       }
       
-      // Fallback: use the latest from our static episodes archive (sorted by date)
-      console.log("⚠️ RSS proxies unavailable — using latest from episodes archive");
-      const fallback = await getLatestFromStaticData();
-      setVideo(fallback);
+      // All proxies failed — use YouTube uploads playlist embed (always shows latest)
+      console.log("⚠️ RSS proxies unavailable — using YouTube playlist embed (always up to date)");
+      setUseFallbackEmbed(true);
     };
 
     fetchLatestVideo();
@@ -118,11 +92,7 @@ export const LatestEvent = () => {
   const handleThumbnailError = () => {
     if (!thumbnailError && video) {
       setThumbnailError(true);
-      // Try hqdefault as fallback
-      setVideo({
-        ...video,
-        thumbnail: `https://img.youtube.com/vi/${video.videoId}/hqdefault.jpg`,
-      });
+      setVideo({ ...video, thumbnail: `https://img.youtube.com/vi/${video.videoId}/hqdefault.jpg` });
     }
   };
 
@@ -136,7 +106,7 @@ export const LatestEvent = () => {
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/5 rounded-full blur-3xl" />
 
       <div className="container mx-auto px-4 relative z-10">
-        {/* About Section - Consolidated */}
+        {/* About Section */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -192,9 +162,17 @@ export const LatestEvent = () => {
           </div>
 
           <div className="relative rounded-2xl overflow-hidden border-glow">
-            {/* Video Player or Thumbnail */}
             <div className="relative aspect-video bg-card">
-              {isPlaying && video ? (
+              {useFallbackEmbed ? (
+                /* Guaranteed auto-updating: YouTube uploads playlist always shows latest video */
+                <iframe
+                  src={`https://www.youtube.com/embed/videoseries?list=${UPLOADS_PLAYLIST_ID}&rel=0`}
+                  title="Latest WIP Meetup"
+                  className="absolute inset-0 w-full h-full"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              ) : isPlaying && video ? (
                 <>
                   <iframe
                     src={`https://www.youtube.com/embed/${video.videoId}?autoplay=1&rel=0`}
