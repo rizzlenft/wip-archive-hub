@@ -3,6 +3,7 @@ import { Play, ExternalLink, Calendar, Users, Sparkles, Globe, X } from "lucide-
 import { Button } from "@/components/ui/button";
 import { fetchAllEpisodes } from "@/lib/youtube";
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 
 interface VideoData {
   title: string;
@@ -249,8 +250,8 @@ export const LatestEvent = () => {
             </div>
           </div>
 
-          {/* Source badge */}
-          {source && (
+          {/* Source badge — only visible with ?debug */}
+          {source && new URLSearchParams(window.location.search).has("debug") && (
             <div className="flex justify-end mt-2">
               <span className="text-xs text-muted-foreground/60 font-mono">
                 Source: {source}
