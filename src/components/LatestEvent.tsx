@@ -21,6 +21,7 @@ export const LatestEvent = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [thumbnailError, setThumbnailError] = useState(false);
   const [useFallbackEmbed, setUseFallbackEmbed] = useState(false);
+  const [source, setSource] = useState<string>("");
 
   useEffect(() => {
     const fetchLatestVideo = async () => {
@@ -49,6 +50,7 @@ export const LatestEvent = () => {
               if (videoId && item.title) {
                 console.log("✅ Fetched latest video via rss2json:", item.title);
                 setVideo({ title: item.title, videoId, thumbnail: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` });
+                setSource("Live via RSS");
                 return;
               }
             }
@@ -75,6 +77,7 @@ export const LatestEvent = () => {
             if (videoId) {
               console.log("✅ Fetched latest video via RSS proxy:", title);
               setVideo({ title, videoId, thumbnail: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` });
+              setSource("Live via RSS");
               return;
             }
           }
@@ -95,6 +98,7 @@ export const LatestEvent = () => {
             videoId: latestEpisode.videoId,
             thumbnail: `https://img.youtube.com/vi/${latestEpisode.videoId}/maxresdefault.jpg`,
           });
+          setSource("Archive fallback");
           return;
         }
       } catch {
@@ -103,6 +107,7 @@ export const LatestEvent = () => {
 
       // Final fallback — uploads playlist
       console.log("⚠️ Could not load archive fallback — using YouTube playlist embed");
+      setSource("Playlist embed");
       setUseFallbackEmbed(true);
     };
 
@@ -244,8 +249,17 @@ export const LatestEvent = () => {
             </div>
           </div>
 
+          {/* Source badge */}
+          {source && (
+            <div className="flex justify-end mt-2">
+              <span className="text-xs text-muted-foreground/60 font-mono">
+                Source: {source}
+              </span>
+            </div>
+          )}
+
           {/* CTA */}
-          <div className="flex justify-center mt-6">
+          <div className="flex justify-center mt-4">
             <Button variant="outline" size="lg" asChild>
               <a href={`${CHANNEL_URL}/streams`} target="_blank" rel="noopener noreferrer">
                 <ExternalLink className="w-5 h-5" />
