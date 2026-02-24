@@ -70,6 +70,16 @@ export const CountdownTimer = () => {
     return () => clearInterval(timer);
   }, [targetDate]);
 
+  const [active, setActive] = useState(isMeetupActive);
+
+  useEffect(() => {
+    const checkActive = setInterval(() => setActive(isMeetupActive()), 30_000);
+    return () => clearInterval(checkActive);
+  }, []);
+
+  // Hide countdown when the live banner is showing
+  if (active) return null;
+
   const timeBlocks = [
     { label: "Days", value: timeLeft.days },
     { label: "Hours", value: timeLeft.hours },
