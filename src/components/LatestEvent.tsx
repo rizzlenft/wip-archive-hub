@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Play, ExternalLink, Calendar, Users, Sparkles, Globe, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { fetchAllEpisodes } from "@/lib/youtube";
 import { useState, useEffect } from "react";
 
 interface VideoData {
@@ -25,25 +26,26 @@ export const LatestEvent = () => {
     const fetchLatestVideo = async () => {
       const rssUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${CHANNEL_ID}`;
       
-      // Try RSS proxies to get real-time latest video with title/thumbnail
+      // Try multiple RSS proxies to get real-time latest video with title/thumbnail
       const proxyConfigs = [
         { url: `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`, isRss2Json: true },
         { url: `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`, isJson: true },
+        { url: `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(rssUrl)}` },
       ];
       
       for (const proxy of proxyConfigs) {
         try {
-          const response = await fetch(proxy.url, { 
-            headers: { 'Accept': 'application/xml, application/json, text/xml, */*' }
+          const response = await fetch(proxy.url, {
+            headers: { Accept: "application/xml, application/json, text/xml, */*" },
           });
           if (!response.ok) continue;
           
           if (proxy.isRss2Json) {
             const json = await response.json();
-            if (json.status === 'ok' && json.items?.length > 0) {
+            if (json.status === "ok" && json.items?.length > 0) {
               const item = json.items[0];
               const videoIdMatch = item.link?.match(/[?&]v=([^&]+)/);
-              const videoId = videoIdMatch?.[1] || item.guid?.split(':').pop();
+              const videoId = videoIdMatch?.[1] || item.guid?.split(":").pop();
               if (videoId && item.title) {
                 console.log("✅ Fetched latest video via rss2json:", item.title);
                 setVideo({ title: item.title, videoId, thumbnail: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` });
@@ -60,13 +62,13 @@ export const LatestEvent = () => {
           } else {
             text = await response.text();
           }
-          
-          if (!text || text.includes('Error 404') || !text.includes('<entry>')) continue;
-          
+
+          if (!text || text.includes("Error 404") || !text.includes("<entry>")) continue;
+
           const parser = new DOMParser();
           const xml = parser.parseFromString(text, "text/xml");
           const firstEntry = xml.querySelector("entry");
-          
+
           if (firstEntry) {
             const videoId = firstEntry.querySelector("yt\\:videoId, videoId")?.textContent || "";
             const title = firstEntry.querySelector("title")?.textContent || "The WIP Meetup";
@@ -80,9 +82,27 @@ export const LatestEvent = () => {
           continue;
         }
       }
-      
-      // All proxies failed — use YouTube uploads playlist embed (always shows latest)
-      console.log("⚠️ RSS proxies unavailable — using YouTube playlist embed (always up to date)");
+
+      // RSS proxies failed — use latest playable archived episode first
+      try {
+        const episodes = await fetchAllEpisodes();
+        const latestEpisode = episodes[0];
+
+        if (latestEpisode) {
+          console.log("⚠️ RSS proxies unavailable — using latest archived episode");
+          setVideo({
+            title: latestEpisode.title,
+            videoId: latestEpisode.videoId,
+            thumbnail: `https://img.youtube.com/vi/${latestEpisode.videoId}/maxresdefault.jpg`,
+          });
+          return;
+        }
+      } catch {
+        // Continue to playlist fallback
+      }
+
+      // Final fallback — uploads playlist
+      console.log("⚠️ Could not load archive fallback — using YouTube playlist embed");
       setUseFallbackEmbed(true);
     };
 
