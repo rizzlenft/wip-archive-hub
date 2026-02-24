@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Calendar, Users, Sparkles, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CountdownTimer } from "@/components/CountdownTimer";
+import { LiveStatusBanner } from "@/components/LiveStatusBanner";
 import heroBg from "@/assets/hero-bg.jpg";
 import wipLogo from "@/assets/wip-logo.gif";
 
