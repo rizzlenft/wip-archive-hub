@@ -8,6 +8,18 @@ interface TimeLeft {
   seconds: number;
 }
 
+const getPTDate = (): Date => {
+  return new Date(new Date().toLocaleString("en-US", { timeZone: "America/Los_Angeles" }));
+};
+
+const isMeetupActive = (): boolean => {
+  const pt = getPTDate();
+  const day = pt.getDay();
+  const totalMinutes = pt.getHours() * 60 + pt.getMinutes();
+  // Hide countdown during "Starting Soon" (11 AM) through "Live" (2 PM) on Thursday
+  return day === 4 && totalMinutes >= 660 && totalMinutes < 840;
+};
+
 const getNextThursday = (): Date => {
   const now = new Date();
   const day = now.getDay();
@@ -57,6 +69,16 @@ export const CountdownTimer = () => {
 
     return () => clearInterval(timer);
   }, [targetDate]);
+
+  const [active, setActive] = useState(isMeetupActive);
+
+  useEffect(() => {
+    const checkActive = setInterval(() => setActive(isMeetupActive()), 30_000);
+    return () => clearInterval(checkActive);
+  }, []);
+
+  // Hide countdown when the live banner is showing
+  if (active) return null;
 
   const timeBlocks = [
     { label: "Days", value: timeLeft.days },

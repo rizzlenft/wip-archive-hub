@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Calendar, Users, Sparkles, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CountdownTimer } from "@/components/CountdownTimer";
+import { LiveStatusBanner } from "@/components/LiveStatusBanner";
 import heroBg from "@/assets/hero-bg.jpg";
 import wipLogo from "@/assets/wip-logo.gif";
 
@@ -97,12 +98,13 @@ export const Hero = () => {
             </div>
           </motion.div>
 
-          {/* Countdown */}
+          {/* Live Status or Countdown */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7 }}
           >
+            <LiveStatusBanner />
             <CountdownTimer />
           </motion.div>
 
