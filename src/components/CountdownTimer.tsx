@@ -20,26 +20,28 @@ const isMeetupActive = (): boolean => {
   return day === 4 && totalMinutes >= 660 && totalMinutes < 840;
 };
 
-const getNextThursday = (): Date => {
-  const now = new Date();
-  const day = now.getDay();
-  const daysUntilThursday = (4 - day + 7) % 7 || 7;
-  
-  const nextThursday = new Date(now);
-  nextThursday.setDate(now.getDate() + daysUntilThursday);
-  nextThursday.setHours(12, 0, 0, 0); // 12 PM PT
-  
-  // If it's Thursday but past noon, get next Thursday
-  if (day === 4 && now.getHours() >= 12) {
-    nextThursday.setDate(nextThursday.getDate() + 7);
-  }
-  
-  // If it's Thursday before noon, keep this Thursday
-  if (day === 4 && now.getHours() < 12) {
-    nextThursday.setDate(now.getDate());
-  }
-  
-  return nextThursday;
+const getNextThursdayNoonPT = (): Date => {
+  const pt = getPTDate();
+  const day = pt.getDay();
+  let daysUntil = (4 - day + 7) % 7;
+
+  const totalMin = pt.getHours() * 60 + pt.getMinutes();
+  // If it's Thursday past noon PT, target next week
+  if (daysUntil === 0 && totalMin >= 720) daysUntil = 7;
+
+  // Build a target date in PT space, set to noon, then find the real UTC offset
+  const future = new Date();
+  future.setDate(future.getDate() + daysUntil);
+
+  // Get PT offset for that future date (handles DST)
+  const utcStr = future.toLocaleString("en-US", { timeZone: "UTC" });
+  const ptStr = future.toLocaleString("en-US", { timeZone: "America/Los_Angeles" });
+  const ptOffsetMs = new Date(utcStr).getTime() - new Date(ptStr).getTime();
+
+  // PT noon = 12:00 on that date in PT. In UTC that's 12:00 + offset.
+  const ptDate = new Date(future.toLocaleString("en-US", { timeZone: "America/Los_Angeles" }));
+  ptDate.setHours(12, 0, 0, 0);
+  return new Date(ptDate.getTime() + ptOffsetMs);
 };
 
 const calculateTimeLeft = (targetDate: Date): TimeLeft => {
@@ -59,7 +61,7 @@ const calculateTimeLeft = (targetDate: Date): TimeLeft => {
 };
 
 export const CountdownTimer = () => {
-  const [targetDate] = useState(getNextThursday);
+  const [targetDate] = useState(getNextThursdayNoonPT);
   const [timeLeft, setTimeLeft] = useState<TimeLeft>(calculateTimeLeft(targetDate));
 
   useEffect(() => {
