@@ -23,11 +23,15 @@ export const EpisodeCard = ({ episode, onGuestClick }: EpisodeCardProps) => {
     setIsPlaying(false);
   };
 
+  const isMashup = /mashup\s*by\s*paradoxx/i.test(episode.title);
+  const isRawFootage = /raw\s*footage/i.test(episode.title);
+
   // Format a shorter title for display
   const displayTitle = episode.title
     .replace(/^The WIP Meetup\s*/i, '')
     .replace(/\s*Raw Footage\s*/gi, ' ')
     .replace(/\s*Mashup by Paradoxx\s*/gi, '')
+    .replace(/\s*Mash by Paradoxx\s*/gi, '')
     .replace(/\s*Mashup\s*/gi, '')
     .trim();
 
@@ -53,6 +57,20 @@ export const EpisodeCard = ({ episode, onGuestClick }: EpisodeCardProps) => {
           {/* Dark gradient overlay for title readability */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
           
+          {/* Badges */}
+          <div className="absolute top-2 left-2 flex gap-1.5 z-10">
+            {isMashup && (
+              <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded bg-accent/90 text-accent-foreground backdrop-blur-sm shadow">
+                ✂️ Mashup
+              </span>
+            )}
+            {isRawFootage && (
+              <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded bg-muted/90 text-muted-foreground backdrop-blur-sm shadow">
+                Raw
+              </span>
+            )}
+          </div>
+
           {/* Title overlay at bottom */}
           <div className="absolute bottom-0 left-0 right-0 p-3">
             <h4 className="text-white text-sm font-medium line-clamp-2 drop-shadow-lg">
