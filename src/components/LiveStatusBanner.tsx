@@ -2,29 +2,9 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Radio, Zap, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-type MeetupStatus = "live" | "starting-soon" | "upcoming";
+import { getMeetupStatus, type MeetupStatus } from "@/lib/meetupSchedule";
 
 const HYPERFY_URL = "https://hyperfy.io/wip";
-
-const getMeetupStatus = (): MeetupStatus => {
-  const now = new Date();
-  // Convert to PT
-  const pt = new Date(now.toLocaleString("en-US", { timeZone: "America/Los_Angeles" }));
-  const day = pt.getDay(); // 4 = Thursday
-  const hour = pt.getHours();
-  const minutes = pt.getMinutes();
-  const totalMinutes = hour * 60 + minutes;
-
-  if (day !== 4) return "upcoming";
-
-  // Live: Thursday 12:00 PM - 2:00 PM PT
-  if (totalMinutes >= 720 && totalMinutes < 840) return "live";
-  // Starting soon: Thursday 11:00 AM - 12:00 PM PT
-  if (totalMinutes >= 660 && totalMinutes < 720) return "starting-soon";
-
-  return "upcoming";
-};
 
 export const LiveStatusBanner = () => {
   const [status, setStatus] = useState<MeetupStatus>(getMeetupStatus);

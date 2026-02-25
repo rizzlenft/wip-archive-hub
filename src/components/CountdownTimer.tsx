@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { getNextMeetupDate, isMeetupActive } from "@/lib/meetupSchedule";
 
 interface TimeLeft {
   days: number;
@@ -8,50 +9,14 @@ interface TimeLeft {
   seconds: number;
 }
 
-const getPTDate = (): Date => {
-  return new Date(new Date().toLocaleString("en-US", { timeZone: "America/Los_Angeles" }));
-};
-
-const isMeetupActive = (): boolean => {
-  const pt = getPTDate();
-  const day = pt.getDay();
-  const totalMinutes = pt.getHours() * 60 + pt.getMinutes();
-  // Hide countdown during "Starting Soon" (11 AM) through "Live" (2 PM) on Thursday
-  return day === 4 && totalMinutes >= 660 && totalMinutes < 840;
-};
-
-const getNextThursdayNoonPT = (): Date => {
-  const pt = getPTDate();
-  const day = pt.getDay();
-  let daysUntil = (4 - day + 7) % 7;
-
-  const totalMin = pt.getHours() * 60 + pt.getMinutes();
-  // If it's Thursday past noon PT, target next week
-  if (daysUntil === 0 && totalMin >= 720) daysUntil = 7;
-
-  // Build a target date in PT space, set to noon, then find the real UTC offset
-  const future = new Date();
-  future.setDate(future.getDate() + daysUntil);
-
-  // Get PT offset for that future date (handles DST)
-  const utcStr = future.toLocaleString("en-US", { timeZone: "UTC" });
-  const ptStr = future.toLocaleString("en-US", { timeZone: "America/Los_Angeles" });
-  const ptOffsetMs = new Date(utcStr).getTime() - new Date(ptStr).getTime();
-
-  // PT noon = 12:00 on that date in PT. In UTC that's 12:00 + offset.
-  const ptDate = new Date(future.toLocaleString("en-US", { timeZone: "America/Los_Angeles" }));
-  ptDate.setHours(12, 0, 0, 0);
-  return new Date(ptDate.getTime() + ptOffsetMs);
-};
-
 const calculateTimeLeft = (targetDate: Date): TimeLeft => {
   const now = new Date();
   const difference = targetDate.getTime() - now.getTime();
-  
+
   if (difference <= 0) {
     return { days: 0, hours: 0, minutes: 0, seconds: 0 };
   }
-  
+
   return {
     days: Math.floor(difference / (1000 * 60 * 60 * 24)),
     hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
@@ -61,7 +26,7 @@ const calculateTimeLeft = (targetDate: Date): TimeLeft => {
 };
 
 export const CountdownTimer = () => {
-  const [targetDate] = useState(getNextThursdayNoonPT);
+  const [targetDate] = useState(getNextMeetupDate);
   const [timeLeft, setTimeLeft] = useState<TimeLeft>(calculateTimeLeft(targetDate));
 
   useEffect(() => {
