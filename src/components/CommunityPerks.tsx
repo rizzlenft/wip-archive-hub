@@ -20,7 +20,6 @@ const perks = [
     isToken: true,
     links: [
       { url: "https://app.uniswap.org/explore/tokens/base/0xe21ec3068a538a064ff0bdd69db0204306fc00a0", text: "Uniswap" },
-      { url: "https://www.coingecko.com/en/coins/wip", text: "CoinGecko" },
       { url: "https://www.geckoterminal.com/base/pools/0xfa9d608b5a13a78bd403e61e2459660efa7566348357ef7ccb010522af3660f0", text: "GeckoTerminal" },
     ],
   },
