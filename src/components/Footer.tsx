@@ -21,7 +21,7 @@ export const Footer = () => {
           </div>
 
           {/* Links */}
-          <div className="flex flex-wrap justify-center gap-6">
+          <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 sm:gap-x-6">
             {socialLinks.map((link) => (
               <a
                 key={link.name}
