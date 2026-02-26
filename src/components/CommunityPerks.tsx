@@ -89,7 +89,7 @@ export const CommunityPerks = () => {
               transition={{ duration: 0.5, delay: index * 0.15 }}
               className="group"
             >
-              <div className="h-full p-8 rounded-2xl bg-card border-glow hover:scale-105 transition-all duration-300">
+              <div className="h-full p-8 rounded-2xl bg-card border-glow hover:scale-105 transition-all duration-300 text-center">
                 {'hasGallery' in perk && perk.hasGallery ? (
                   <div className="mb-6 rounded-xl overflow-hidden bg-muted/20 relative h-56">
                     <AnimatePresence mode="wait">
@@ -115,7 +115,7 @@ export const CommunityPerks = () => {
                     </div>
                   </div>
                 ) : perk.isToken ? (
-                  <div className="mb-6">
+                  <div className="mb-6 flex justify-center">
                     <img 
                       src={wipLogo} 
                       alt="WIP Token" 
@@ -147,7 +147,7 @@ export const CommunityPerks = () => {
                 )}
                 
                 {perk.links && (
-                  <div className="flex flex-wrap gap-4">
+                  <div className="flex flex-wrap justify-center gap-4">
                     {perk.links.map((link) => (
                       <a
                         key={link.text}
@@ -163,7 +163,7 @@ export const CommunityPerks = () => {
                   </div>
                 )}
                 {perk.artists && (
-                  <div className="flex flex-wrap gap-4">
+                  <div className="flex flex-wrap justify-center gap-4">
                     {perk.artists.map((artist) => (
                       <a
                         key={artist.name}
