@@ -34,8 +34,17 @@ export const LatestEvent = () => {
         { url: `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`, isJson: true },
         { url: `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(rssUrl)}` },
       ];
+
+      // Also try Open RSS as an alternative (works when YouTube's native RSS returns 404)
+      const openRssUrl = `https://openrss.org/www.youtube.com/@thewipmeetup`;
+      const openRssProxies = [
+        { url: `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(openRssUrl)}`, isRss2Json: true },
+        { url: `https://api.allorigins.win/get?url=${encodeURIComponent(openRssUrl)}`, isJson: true },
+      ];
+
+      const allProxies = [...proxyConfigs, ...openRssProxies];
       
-      for (const proxy of proxyConfigs) {
+      for (const proxy of allProxies) {
         try {
           const response = await fetch(proxy.url, {
             headers: { Accept: "application/xml, application/json, text/xml, */*" },
@@ -46,7 +55,7 @@ export const LatestEvent = () => {
             const json = await response.json();
             if (json.status === "ok" && json.items?.length > 0) {
               const item = json.items[0];
-              const videoIdMatch = item.link?.match(/[?&]v=([^&]+)/);
+              const videoIdMatch = item.link?.match(/[?&]v=([^&]+)/) || item.link?.match(/youtube\.com\/watch\?v=([^&]+)/);
               const videoId = videoIdMatch?.[1] || item.guid?.split(":").pop();
               if (videoId && item.title) {
                 console.log("✅ Fetched latest video via rss2json:", item.title);
