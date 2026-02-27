@@ -1,8 +1,17 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Sparkles } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/auth/AuthContext";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import wipLogo from "@/assets/wip-logo-static.png";
 
 const navLinks = [
@@ -25,6 +34,7 @@ const socialLinks = [
 export const Navigation = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { isAuthenticated, login, logout, user } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -93,7 +103,7 @@ export const Navigation = () => {
               ))}
             </div>
 
-            {/* CTA */}
+            {/* CTA + Auth */}
             <div className="flex items-center gap-3">
               <Button variant="electric" size="sm" className="hidden sm:flex" asChild>
                 <a href="https://discord.gg/XHDcUdm3" target="_blank" rel="noopener noreferrer">
@@ -101,6 +111,45 @@ export const Navigation = () => {
                   Join Us
                 </a>
               </Button>
+
+              {!isAuthenticated ? (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="hidden sm:inline-flex"
+                  onClick={() => login("/events")}
+                >
+                  Sign in
+                </Button>
+              ) : (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="hidden sm:inline-flex max-w-[180px] truncate"
+                    >
+                      {user?.email || "My events"}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Account</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link to="/events">My events</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      className="text-destructive"
+                      onClick={() => {
+                        void logout();
+                      }}
+                    >
+                      Sign out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
 
               {/* Mobile menu button */}
               <button
@@ -145,6 +194,46 @@ export const Navigation = () => {
                       {link.name}
                     </Link>
                   )
+                )}
+                {!isAuthenticated ? (
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="mt-2"
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      login("/events");
+                    }}
+                  >
+                    Sign in
+                  </Button>
+                ) : (
+                  <>
+                    <Button
+                      variant="ghost"
+                      size="lg"
+                      className="mt-2"
+                      asChild
+                    >
+                      <Link
+                        to="/events"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        {user?.email || "My events"}
+                      </Link>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      className="mt-2"
+                      onClick={() => {
+                        setIsMobileMenuOpen(false);
+                        void logout();
+                      }}
+                    >
+                      Sign out
+                    </Button>
+                  </>
                 )}
                 <Button variant="electric" size="lg" className="mt-4" asChild>
                   <a href="https://discord.gg/XHDcUdm3" target="_blank" rel="noopener noreferrer">
