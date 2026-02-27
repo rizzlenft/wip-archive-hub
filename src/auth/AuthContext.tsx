@@ -22,7 +22,8 @@ const API_BASE =
 const TOKENSMART_URL =
   (import.meta.env.VITE_TOKENSMART_URL as string) ||
   "https://www.tokensmart.co";
-const CONNECT_CLIENT_ID = import.meta.env.VITE_CONNECT_CLIENT_ID as string;
+const CONNECT_CLIENT_ID =
+  (import.meta.env.VITE_CONNECT_CLIENT_ID as string | undefined) || "wip-app";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
