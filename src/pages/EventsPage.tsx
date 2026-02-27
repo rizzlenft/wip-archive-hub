@@ -215,7 +215,7 @@ const EventsPage = () => {
                   <div className="flex flex-col items-end gap-2">
                     {event.status === "scheduled" && (
                       <Button
-                        size="xs"
+                        size="sm"
                         variant="outline"
                         onClick={() => void handleCheckin(event.id)}
                       >
