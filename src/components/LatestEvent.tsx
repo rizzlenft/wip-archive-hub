@@ -26,28 +26,55 @@ export const LatestEvent = () => {
 
   useEffect(() => {
     const fetchLatestVideo = async () => {
+      // Strategy 1: Try Invidious API instances (most reliable, no API key needed)
+      const invidiousInstances = [
+        "https://inv.nadeko.net",
+        "https://invidious.fdn.fr",
+        "https://invidious.privacyredirect.com",
+        "https://vid.puffyan.us",
+      ];
+
+      for (const instance of invidiousInstances) {
+        try {
+          const response = await fetch(
+            `${instance}/api/v1/channels/${CHANNEL_ID}/videos?fields=videoId,title&sort_by=newest`,
+            { signal: AbortSignal.timeout(5000) }
+          );
+          if (!response.ok) continue;
+          const videos = await response.json();
+          if (Array.isArray(videos) && videos.length > 0) {
+            const latest = videos[0];
+            console.log("✅ Fetched latest video via Invidious:", latest.title);
+            setVideo({
+              title: latest.title,
+              videoId: latest.videoId,
+              thumbnail: `https://img.youtube.com/vi/${latest.videoId}/maxresdefault.jpg`,
+            });
+            setSource("Live via Invidious");
+            return;
+          }
+        } catch {
+          continue;
+        }
+      }
+
+      // Strategy 2: Try RSS proxies
       const rssUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${CHANNEL_ID}`;
+      const openRssUrl = `https://openrss.org/www.youtube.com/@thewipmeetup`;
       
-      // Try multiple RSS proxies to get real-time latest video with title/thumbnail
       const proxyConfigs = [
         { url: `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`, isRss2Json: true },
         { url: `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`, isJson: true },
         { url: `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(rssUrl)}` },
-      ];
-
-      // Also try Open RSS as an alternative (works when YouTube's native RSS returns 404)
-      const openRssUrl = `https://openrss.org/www.youtube.com/@thewipmeetup`;
-      const openRssProxies = [
         { url: `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(openRssUrl)}`, isRss2Json: true },
         { url: `https://api.allorigins.win/get?url=${encodeURIComponent(openRssUrl)}`, isJson: true },
       ];
-
-      const allProxies = [...proxyConfigs, ...openRssProxies];
       
-      for (const proxy of allProxies) {
+      for (const proxy of proxyConfigs) {
         try {
           const response = await fetch(proxy.url, {
             headers: { Accept: "application/xml, application/json, text/xml, */*" },
+            signal: AbortSignal.timeout(8000),
           });
           if (!response.ok) continue;
           
@@ -96,13 +123,13 @@ export const LatestEvent = () => {
         }
       }
 
-      // RSS proxies failed — use latest playable archived episode first
+      // Strategy 3: Use latest archived episode
       try {
         const episodes = await fetchAllEpisodes();
         const latestEpisode = episodes[0];
 
         if (latestEpisode) {
-          console.log("⚠️ RSS proxies unavailable — using latest archived episode");
+          console.log("⚠️ Live sources unavailable — using latest archived episode");
           setVideo({
             title: latestEpisode.title,
             videoId: latestEpisode.videoId,
@@ -115,8 +142,8 @@ export const LatestEvent = () => {
         // Continue to playlist fallback
       }
 
-      // Final fallback — uploads playlist
-      console.log("⚠️ Could not load archive fallback — using YouTube playlist embed");
+      // Strategy 4: Final fallback — uploads playlist embed
+      console.log("⚠️ All sources failed — using YouTube playlist embed");
       setSource("Playlist embed");
       setUseFallbackEmbed(true);
     };
