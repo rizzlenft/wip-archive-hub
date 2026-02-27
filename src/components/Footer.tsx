@@ -5,8 +5,10 @@ const socialLinks = [
   { name: "Discord", url: "https://discord.gg/XHDcUdm3" },
   { name: "Twitter", url: "https://twitter.com/theWIPmeetup" },
   { name: "YouTube", url: "https://www.youtube.com/@thewipmeetup" },
+  { name: "Substack", url: "https://thewipmeetup.substack.com/" },
   { name: "Warpcast", url: "https://warpcast.com/thewipmeetup" },
   { name: "Twitch", url: "https://www.twitch.tv/wipmeetup" },
+  { name: "Blog", url: "https://paragraph.com/@blog.thewipmeetup" },
 ];
 
 export const Footer = () => {
