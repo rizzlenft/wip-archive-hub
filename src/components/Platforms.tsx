@@ -47,6 +47,13 @@ const platforms = [
     color: "from-cyan-400 to-blue-500",
   },
   {
+    name: "Substack",
+    description: "Newsletter & updates",
+    url: "https://thewipmeetup.substack.com/",
+    icon: "https://substack.com/favicon.ico",
+    color: "from-orange-500 to-yellow-500",
+  },
+  {
     name: "$WIP Token",
     description: "Get rewarded",
     url: "https://app.uniswap.org/explore/tokens/base/0xe21ec3068a538a064ff0bdd69db0204306fc00a0",

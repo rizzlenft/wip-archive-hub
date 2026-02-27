@@ -19,6 +19,7 @@ const socialLinks = [
   { name: "Farcaster", url: "https://warpcast.com/thewipmeetup", icon: "https://warpcast.com/favicon.ico" },
   { name: "Twitch", url: "https://www.twitch.tv/wipmeetup", icon: "https://static.twitchcdn.net/assets/favicon-32-e29e246c157142c94346.png" },
   { name: "Hyperfy", url: "https://hyperfy.io/wip", icon: "https://hyperfy.io/favicon.ico" },
+  { name: "Substack", url: "https://thewipmeetup.substack.com/", icon: "https://substack.com/favicon.ico" },
 ];
 
 export const Navigation = () => {
