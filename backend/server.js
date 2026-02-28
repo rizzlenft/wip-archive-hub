@@ -16,6 +16,9 @@ const TOKENSMART_URL =
   process.env.TOKENSMART_URL || "https://www.tokensmart.co";
 const CLIENT_ID = process.env.CONNECT_CLIENT_ID;
 const CLIENT_SECRET = process.env.CONNECT_CLIENT_SECRET;
+const PROJECT_ID = process.env.CONNECT_PROJECT_ID;
+const API_KEY =
+  process.env.CONNECT_API_KEY || process.env.CONNECT_CLIENT_SECRET;
 
 if (!CLIENT_ID || !CLIENT_SECRET) {
   console.warn(
@@ -151,9 +154,11 @@ app.get("/api/events-checkins", requireAuth, async (req, res) => {
         // ignore
       }
       console.error("user-events error", tsRes.status, body);
-      return res
-        .status(502)
-        .json({ error: true, message: "Failed to load events" });
+      return res.status(200).json({
+        user: req.user,
+        checkins: [],
+        upcomingEvents: [],
+      });
     }
 
     const data = await tsRes.json();
@@ -165,7 +170,58 @@ app.get("/api/events-checkins", requireAuth, async (req, res) => {
     });
   } catch (err) {
     console.error("events/checkins error:", err);
-    return res.status(500).json({ error: "Failed to fetch checkins" });
+    return res.status(200).json({
+      user: req.user,
+      checkins: [],
+      upcomingEvents: [],
+    });
+  }
+});
+
+// Partner events list (no auth)
+app.get("/api/events", async (req, res) => {
+  if (!PROJECT_ID) {
+    return res.json({ events: [] });
+  }
+  try {
+    const tsRes = await fetch(
+      `${TOKENSMART_URL}/api/events?partner=${encodeURIComponent(PROJECT_ID)}`,
+    );
+    if (!tsRes.ok) {
+      return res.json({ events: [] });
+    }
+    const data = await tsRes.json();
+    return res.json({ events: data.events ?? [] });
+  } catch (err) {
+    console.error("events list error", err);
+    return res.json({ events: [] });
+  }
+});
+
+// Check-in availability for an event (no auth)
+app.get("/api/events-check-in/:eventId", async (req, res) => {
+  const { eventId } = req.params;
+  if (!eventId) {
+    return res.status(400).json({ error: "eventId required" });
+  }
+  try {
+    const tsRes = await fetch(
+      `${TOKENSMART_URL}/api/events/check-in/${encodeURIComponent(eventId)}`,
+    );
+    if (!tsRes.ok) {
+      return res.status(tsRes.status).json(
+        await tsRes.json().catch(() => ({ check_in_available: false })),
+      );
+    }
+    const data = await tsRes.json();
+    return res.json({
+      check_in_available: data.check_in_available ?? false,
+      scheduled_start: data.scheduled_start,
+      scheduled_end: data.scheduled_end,
+    });
+  } catch (err) {
+    console.error("events-check-in error", err);
+    return res.status(500).json({ check_in_available: false });
   }
 });
 
@@ -200,25 +256,68 @@ app.get("/api/events-upcoming", requireAuth, async (req, res) => {
   }
 });
 
-// Check in to an event (stub)
+// Check in to a live event (TokenSmart partner API)
 app.post("/api/events-checkin", requireAuth, async (req, res) => {
   const { eventId } = req.body || {};
   if (!eventId) {
     return res.status(400).json({ error: "eventId is required" });
   }
 
-  try {
-    // const jwt = req.cookies.jwt;
-    // Call your real TokenSmart event check-in endpoint here.
-    return res.json({
-      success: true,
-      eventId,
-      message:
-        "Stubbed check-in; connect to TokenSmart event API with your spec.",
+  const token = req.cookies.jwt;
+  if (!token) {
+    return res.status(401).json({ error: "Not authenticated" });
+  }
+  if (!API_KEY) {
+    console.error("CONNECT_API_KEY or CONNECT_CLIENT_SECRET not set");
+    return res.status(500).json({
+      success: false,
+      error:
+        "Check-in unavailable: set CONNECT_API_KEY (or CONNECT_CLIENT_SECRET) in backend/.env.",
     });
+  }
+
+  try {
+    const tsRes = await fetch(`${TOKENSMART_URL}/api/connect/check-in`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-API-Key": API_KEY,
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ event_id: eventId }),
+    });
+
+    const data = await tsRes.json().catch(() => ({}));
+
+    if (!tsRes.ok) {
+      if (tsRes.status === 403) {
+        return res.status(403).json({
+          success: false,
+          error: data.error ?? "Check-in is only available while the event is live.",
+        });
+      }
+      if (tsRes.status === 401) {
+        return res.status(401).json({
+          success: false,
+          error: data.error ?? "Not authorized",
+        });
+      }
+      if (tsRes.status === 404) {
+        return res.status(404).json({
+          success: false,
+          error: data.error ?? "Event not found",
+        });
+      }
+      return res.status(tsRes.status).json({
+        success: false,
+        error: data.error ?? data.message ?? "Check-in failed",
+      });
+    }
+
+    return res.json({ success: true, eventId });
   } catch (err) {
     console.error("events/checkin error:", err);
-    return res.status(500).json({ error: "Failed to check in" });
+    return res.status(500).json({ success: false, error: "Failed to check in" });
   }
 });
 
