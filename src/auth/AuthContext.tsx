@@ -53,7 +53,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   function login(redirectPath: string = "/") {
     const state = redirectPath;
-    const callbackUrl = `${API_BASE}/api/auth-callback`;
+    const callbackUrl =
+      API_BASE !== ""
+        ? `${API_BASE}/api/auth-callback`
+        : `${window.location.origin}/api/auth-callback`;
     const params = new URLSearchParams({
       client_id: CONNECT_CLIENT_ID,
       redirect_uri: callbackUrl,
