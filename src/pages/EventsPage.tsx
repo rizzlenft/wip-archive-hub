@@ -336,33 +336,6 @@ const EventsPage = () => {
                           </p>
                         )}
                       </div>
-<<<<<<< Updated upstream
-                    )}
-                  </div>
-                  <div className="flex flex-col items-end gap-2">
-                    {event.status === "scheduled" && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => void handleCheckin(event.id)}
-                      >
-                        Check in
-                      </Button>
-                    )}
-                    {event.discord_link && (
-                      <a
-                        href={event.discord_link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs font-medium text-primary hover:underline"
-                      >
-                        View on Discord
-                      </a>
-                    )}
-                  </div>
-                </li>
-              ))}
-=======
                       <div className="flex flex-col items-start gap-2 sm:items-end">
                         {canCheckIn && (
                           <Button
@@ -388,7 +361,6 @@ const EventsPage = () => {
                   );
                 },
               )}
->>>>>>> Stashed changes
             </ul>
           )}
         </section>
