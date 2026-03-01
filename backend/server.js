@@ -88,6 +88,7 @@ app.get("/api/auth-callback", async (req, res) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
+      domain: process.env.COOKIE_DOMAIN || undefined,
       path: "/",
       maxAge: 60 * 60 * 1000, // 1 hour
     });
@@ -114,6 +115,7 @@ app.post("/api/auth-logout", (req, res) => {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
+    domain: process.env.COOKIE_DOMAIN || undefined,
     path: "/",
   });
   return res.status(204).end();
