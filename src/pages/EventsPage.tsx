@@ -321,7 +321,7 @@ const EventsPage = () => {
                         {"check_in_prompt" in event &&
                           event.check_in_prompt && (
                             <div className="text-muted-foreground text-xs">
-                              Check-in: {event.check_in_prompt}
+                              Check-in: {String(event.check_in_prompt)}
                             </div>
                           )}
                         {feedback && (
@@ -339,7 +339,7 @@ const EventsPage = () => {
                       <div className="flex flex-col items-start gap-2 sm:items-end">
                         {canCheckIn && (
                           <Button
-                            size="xs"
+                            size="sm"
                             variant="outline"
                             onClick={() => void handleCheckin(event.id)}
                           >
