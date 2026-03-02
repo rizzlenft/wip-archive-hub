@@ -28,7 +28,7 @@ export default async function handler(
     console.error(
       "Missing CONNECT_CLIENT_ID or CONNECT_CLIENT_SECRET in environment",
     );
-    return res.redirect(`/login?error=server_error`);
+    return res.redirect(`/login?error=server_config`);
   }
 
   const host =
@@ -97,7 +97,7 @@ export default async function handler(
     return res.redirect(safePath);
   } catch (err) {
     console.error("Auth callback error:", err);
-    return res.redirect(`/login?error=server_error`);
+    return res.redirect(`/login?error=callback_exception`);
   }
 }
 
