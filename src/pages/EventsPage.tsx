@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 
 const API_BASE =
-  (import.meta.env.VITE_BACKEND_URL as string | undefined) || "";
+  (import.meta.env.VITE_BACKEND_URL as string | undefined) ||
+  "https://wip-archive-hub.vercel.app";
 
 type EventDetails = {
   id: string;

@@ -18,7 +18,8 @@ type AuthContextValue = {
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 const API_BASE =
-  (import.meta.env.VITE_BACKEND_URL as string | undefined) || "";
+  (import.meta.env.VITE_BACKEND_URL as string | undefined) ||
+  "https://wip-archive-hub.vercel.app";
 const TOKENSMART_URL =
   (import.meta.env.VITE_TOKENSMART_URL as string) ||
   "https://www.tokensmart.co";
