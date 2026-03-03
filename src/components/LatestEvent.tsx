@@ -181,7 +181,7 @@ export const LatestEvent = () => {
           </h2>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto mb-8">
             <span className="text-foreground font-semibold">WIP = Work in Progress.</span> Founded in 2019, we're the longest-running web3 metaverse meetup—
-            3,700+ members gathering every Thursday at 12 PM PT on Hyperfy to share ideas, 
+            3,700+ members gathering every Thursday at 12 PM PT to share ideas, 
             explore projects, and build together. Everyone is welcome.
           </p>
           
@@ -194,10 +194,6 @@ export const LatestEvent = () => {
             <div className="flex items-center gap-2 text-muted-foreground">
               <Users className="w-5 h-5 text-primary" />
               <span>3,700+ Members</span>
-            </div>
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Globe className="w-5 h-5 text-primary" />
-              <span>Hyperfy Metaverse</span>
             </div>
             <div className="flex items-center gap-2 text-muted-foreground">
               <Sparkles className="w-5 h-5 text-primary" />
