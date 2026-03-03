@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Gift, Coins, Heart, Users, ExternalLink } from "lucide-react";
+import { Gift, Coins, Heart, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import wipLogo from "@/assets/wip-logo.gif";
 import metaverseBg2 from "@/assets/metaverse-bg-2.gif";
@@ -194,36 +194,31 @@ export const CommunityPerks = () => {
           ))}
         </div>
 
-        {/* Support the community callout */}
+        {/* Support the community callout — horizontal banner style */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.3 }}
-          className="text-center max-w-2xl mx-auto"
+          className="max-w-4xl mx-auto"
         >
-          <div className="flex justify-center mb-6">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-              <Heart className="w-8 h-8 text-white" />
+          <div className="flex flex-col sm:flex-row items-center gap-6 rounded-2xl border border-primary/20 bg-gradient-to-r from-primary/5 via-card/80 to-accent/5 backdrop-blur-sm p-6 md:p-8">
+            <div className="shrink-0">
+              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+                <Heart className="w-7 h-7 text-white" />
+              </div>
             </div>
-          </div>
-          <h3 className="text-3xl font-bold mb-4">Support Our Community</h3>
-          <p className="text-muted-foreground mb-6 leading-relaxed">
-            When you purchase $WIP, you're directly supporting the builders, creators, and artists 
-            who attend our weekly meetups. Every token helps sustain and grow this incredible community 
-            that's been thriving since 2019.
-          </p>
-          <div className="flex flex-wrap justify-center gap-4">
-            <Button variant="hero" size="lg" asChild>
+            <div className="flex-1 text-center sm:text-left">
+              <h3 className="text-xl font-bold mb-1">Support Our Community</h3>
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                When you purchase $WIP, you're directly supporting the builders, creators, and artists 
+                who make this community thrive since 2019.
+              </p>
+            </div>
+            <Button variant="hero" size="lg" className="shrink-0" asChild>
               <a href="https://app.uniswap.org/explore/tokens/base/0xe21ec3068a538a064ff0bdd69db0204306fc00a0" target="_blank" rel="noopener noreferrer">
                 <Coins className="w-5 h-5" />
-                Get $WIP on Uniswap
-              </a>
-            </Button>
-            <Button variant="outline" size="lg" asChild>
-              <a href="https://linktr.ee/thewipmeetup" target="_blank" rel="noopener noreferrer">
-                <Users className="w-5 h-5" />
-                Learn More
+                Get $WIP
               </a>
             </Button>
           </div>

@@ -14,8 +14,8 @@ const Index = () => {
       <Hero />
       <LatestEvent />
       <MetaverseExperience />
-      <CommunityPerks />
       <ContactRizzle />
+      <CommunityPerks />
       <Platforms />
       <Footer />
     </div>
