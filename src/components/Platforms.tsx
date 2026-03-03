@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ExternalLink, Sparkles } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import wipCv from "@/assets/wip-cv.gif";
 
 const platforms = [
