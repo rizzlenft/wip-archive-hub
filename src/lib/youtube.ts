@@ -73,22 +73,59 @@ function parsePublishDate(dateStr: string): Date {
   return new Date();
 }
 
-// Fetch all episodes from static data
+// Fetch live recent videos from the API
+async function fetchLiveVideos(): Promise<Episode[]> {
+  const API_BASE =
+    (import.meta.env.VITE_BACKEND_URL as string | undefined) ||
+    "https://api.thewipmeetup.com";
+
+  try {
+    const response = await fetch(`${API_BASE}/api/youtube-latest?count=10`, {
+      signal: AbortSignal.timeout(8000),
+    });
+    if (!response.ok) return [];
+    const data = await response.json();
+    const videos = data.videos || [data];
+    return videos.map((v: any) => ({
+      videoId: v.videoId,
+      title: v.title,
+      thumbnail: `https://img.youtube.com/vi/${v.videoId}/mqdefault.jpg`,
+      publishedAt: v.publishedAt ? new Date(v.publishedAt) : new Date(),
+      url: `https://www.youtube.com/watch?v=${v.videoId}`,
+      guests: parseGuestsFromTitle(v.title),
+      episodeNumber: parseEpisodeNumber(v.title),
+    }));
+  } catch {
+    return [];
+  }
+}
+
+// Fetch all episodes, merging live data with static archive
 export async function fetchAllEpisodes(): Promise<Episode[]> {
-  const episodes: Episode[] = EPISODES_DATA.map(data => ({
-    videoId: data.videoId,
-    title: data.title,
-    thumbnail: `https://img.youtube.com/vi/${data.videoId}/mqdefault.jpg`,
-    publishedAt: parsePublishDate(data.publishDate),
-    url: `https://www.youtube.com/watch?v=${data.videoId}`,
-    guests: parseGuestsFromTitle(data.title),
-    episodeNumber: parseEpisodeNumber(data.title),
-  }));
-  
-  // Sort by date (newest first)
+  // Build archive map
+  const archiveMap = new Map<string, Episode>();
+  EPISODES_DATA.forEach(data => {
+    archiveMap.set(data.videoId, {
+      videoId: data.videoId,
+      title: data.title,
+      thumbnail: `https://img.youtube.com/vi/${data.videoId}/mqdefault.jpg`,
+      publishedAt: parsePublishDate(data.publishDate),
+      url: `https://www.youtube.com/watch?v=${data.videoId}`,
+      guests: parseGuestsFromTitle(data.title),
+      episodeNumber: parseEpisodeNumber(data.title),
+    });
+  });
+
+  // Fetch live videos and merge (live overrides archive for same videoId, adds new ones)
+  const liveVideos = await fetchLiveVideos();
+  liveVideos.forEach(ep => {
+    archiveMap.set(ep.videoId, ep);
+  });
+
+  const episodes = Array.from(archiveMap.values());
   episodes.sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime());
   
-  console.log(`✅ Loaded ${episodes.length} episodes from archive`);
+  console.log(`✅ Loaded ${episodes.length} episodes (${liveVideos.length} live, ${EPISODES_DATA.length} archived)`);
   return episodes;
 }
 

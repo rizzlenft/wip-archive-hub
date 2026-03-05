@@ -3,12 +3,14 @@ import { Play, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import wipDclRizzle from "@/assets/wip-dcl-rizzle.gif";
+import { parseGuestsFromTitle } from "@/lib/youtube";
 
 interface VideoData {
   title: string;
   videoId: string;
   thumbnail: string;
   url: string;
+  guests: string[];
 }
 
 export const FeaturedContent = () => {
@@ -17,10 +19,39 @@ export const FeaturedContent = () => {
 
   useEffect(() => {
     const fetchRecentVideos = async () => {
+      const API_BASE =
+        (import.meta.env.VITE_BACKEND_URL as string | undefined) ||
+        "https://api.thewipmeetup.com";
+
+      // Strategy 1: Our Vercel API (returns multiple videos, no CORS issues)
+      try {
+        const response = await fetch(`${API_BASE}/api/youtube-latest?count=4`, {
+          signal: AbortSignal.timeout(8000),
+        });
+        if (response.ok) {
+          const data = await response.json();
+          const videos = data.videos || [data];
+          // Skip the first (shown in LatestEvent), take next 3
+          const recent = videos.slice(1, 4).map((v: any) => ({
+            title: v.title,
+            videoId: v.videoId,
+            thumbnail: `https://img.youtube.com/vi/${v.videoId}/maxresdefault.jpg`,
+            url: `https://www.youtube.com/watch?v=${v.videoId}`,
+            guests: parseGuestsFromTitle(v.title),
+          }));
+          if (recent.length > 0) {
+            console.log("✅ Fetched recent videos via API:", recent.map((v: VideoData) => v.title));
+            setEpisodes(recent);
+            return;
+          }
+        }
+      } catch (err) {
+        console.log("API fetch failed for recent videos:", err);
+      }
+
+      // Strategy 2: Client-side CORS proxies (fallback)
       const channelId = "UCRwQrMcwYE3K7gfP5nQVgng";
       const rssUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
-      
-      // Try multiple CORS proxies
       const proxyConfigs = [
         { url: `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`, isJson: true },
         { url: `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(rssUrl)}`, isJson: false },
@@ -39,35 +70,29 @@ export const FeaturedContent = () => {
             text = await response.text();
           }
           
-          if (!text || text.includes('Error 404') || text.includes('<!DOCTYPE html>')) {
-            continue;
-          }
+          if (!text || text.includes('Error 404') || text.includes('<!DOCTYPE html>')) continue;
           
           const parser = new DOMParser();
           const xml = parser.parseFromString(text, "text/xml");
           const entries = xml.querySelectorAll("entry");
           
           if (entries.length > 1) {
-            // Skip the first entry (shown in LatestEvent), get the next 3
             const recentVideos: VideoData[] = [];
-            
             for (let i = 1; i < Math.min(entries.length, 4); i++) {
               const entry = entries[i];
               const videoId = entry.querySelector("yt\\:videoId, videoId")?.textContent || "";
               const title = entry.querySelector("title")?.textContent || "The WIP Meetup";
-              
               if (videoId) {
                 recentVideos.push({
                   title,
                   videoId,
                   thumbnail: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
                   url: `https://www.youtube.com/watch?v=${videoId}`,
+                  guests: parseGuestsFromTitle(title),
                 });
               }
             }
-            
             if (recentVideos.length > 0) {
-              console.log("Fetched recent videos:", recentVideos.map(v => v.title));
               setEpisodes(recentVideos);
               return;
             }
@@ -78,26 +103,29 @@ export const FeaturedContent = () => {
         }
       }
       
-      // Fallback episodes if RSS fails - use known recent video IDs
-      console.log("Using fallback episodes - RSS feed unavailable");
+      // Strategy 3: Static fallback
+      console.log("Using fallback episodes");
       setEpisodes([
+        {
+          title: "The WIP Meetup 3/05/2026 Raw Footage ft Hyperfy & @decentraland_foundation Field Trip w/ Roustan",
+          videoId: "H_HqMJ4pRBs",
+          thumbnail: "https://img.youtube.com/vi/H_HqMJ4pRBs/maxresdefault.jpg",
+          url: "https://www.youtube.com/watch?v=H_HqMJ4pRBs",
+          guests: parseGuestsFromTitle("The WIP Meetup 3/05/2026 Raw Footage ft Hyperfy & @decentraland_foundation Field Trip w/ Roustan"),
+        },
         {
           title: "The WIP Meetup 291",
           videoId: "bcDx_9I9vJc",
           thumbnail: "https://img.youtube.com/vi/bcDx_9I9vJc/maxresdefault.jpg",
           url: "https://www.youtube.com/watch?v=bcDx_9I9vJc",
+          guests: [],
         },
         {
           title: "The WIP Meetup 290",
           videoId: "L6wVfn9_jlA",
           thumbnail: "https://img.youtube.com/vi/L6wVfn9_jlA/maxresdefault.jpg",
           url: "https://www.youtube.com/watch?v=L6wVfn9_jlA",
-        },
-        {
-          title: "The WIP Meetup 289",
-          videoId: "rJHxWrCHQEY",
-          thumbnail: "https://img.youtube.com/vi/rJHxWrCHQEY/maxresdefault.jpg",
-          url: "https://www.youtube.com/watch?v=rJHxWrCHQEY",
+          guests: [],
         },
       ]);
     };
@@ -108,7 +136,6 @@ export const FeaturedContent = () => {
   const handleThumbnailError = (videoId: string) => {
     if (!thumbnailErrors.has(videoId)) {
       setThumbnailErrors(prev => new Set(prev).add(videoId));
-      // Update to hqdefault fallback
       setEpisodes(prev => prev.map(ep => 
         ep.videoId === videoId 
           ? { ...ep, thumbnail: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` }
@@ -157,7 +184,6 @@ export const FeaturedContent = () => {
               className="group"
             >
               <div className="rounded-2xl overflow-hidden bg-card border-glow hover:scale-105 transition-all duration-300">
-                {/* Thumbnail with overlaid title */}
                 <div className="relative aspect-video bg-muted overflow-hidden">
                   <img 
                     src={episode.thumbnail}
@@ -167,19 +193,21 @@ export const FeaturedContent = () => {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/20 to-transparent" />
                   
-                  {/* Play button */}
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="w-14 h-14 rounded-full bg-primary/90 flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
                       <Play className="w-6 h-6 text-primary-foreground ml-1" fill="currentColor" />
                     </div>
                   </div>
                   
-                  {/* Title overlay */}
                   <div className="absolute bottom-0 left-0 right-0 p-4 text-left">
                     <h3 className="font-bold text-white text-lg line-clamp-2 drop-shadow-lg">
                       {episode.title}
                     </h3>
-                    <p className="text-white/70 text-xs mt-1">Click to watch</p>
+                    {episode.guests.length > 0 && (
+                      <p className="text-white/70 text-xs mt-1">
+                        ft. {episode.guests.join(", ")}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>

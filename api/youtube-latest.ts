@@ -1,12 +1,20 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 
 /**
- * GET /api/youtube-latest — Returns the latest video from The WIP Meetup YouTube channel.
+ * GET /api/youtube-latest — Returns recent videos from The WIP Meetup YouTube channel.
+ * Query params:
+ *   count=N  — number of videos to return (default 1, max 15)
  * Server-side fetch avoids CORS issues with YouTube RSS feeds.
  * Caches for 1 hour via CDN headers.
  */
 
 const CHANNEL_ID = "UCRwQrMcwYE3K7gfP5nQVgng";
+
+interface VideoResult {
+  videoId: string;
+  title: string;
+  publishedAt?: string;
+}
 
 export default async function handler(
   req: VercelRequest,
@@ -17,12 +25,11 @@ export default async function handler(
     return res.status(405).end("Method Not Allowed");
   }
 
-  // Allow cross-origin requests from the frontend
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET");
-
-  // Cache for 1 hour at the CDN level, revalidate in background
   res.setHeader("Cache-Control", "public, s-maxage=3600, stale-while-revalidate=7200");
+
+  const count = Math.min(Math.max(parseInt(String(req.query.count)) || 1, 1), 15);
 
   try {
     // Strategy 1: YouTube RSS feed (direct server-side, no CORS issues)
@@ -34,16 +41,12 @@ export default async function handler(
 
     if (rssResponse.ok) {
       const text = await rssResponse.text();
-      // Simple XML parsing for the first <entry>
-      const videoIdMatch = text.match(/<yt:videoId>([^<]+)<\/yt:videoId>/);
-      const titleMatch = text.match(/<entry>[\s\S]*?<title>([^<]+)<\/title>/);
-
-      if (videoIdMatch && titleMatch) {
-        return res.status(200).json({
-          videoId: videoIdMatch[1],
-          title: titleMatch[1],
-          source: "youtube-rss",
-        });
+      const videos = parseRSSVideos(text, count);
+      if (videos.length > 0) {
+        if (count === 1) {
+          return res.status(200).json({ ...videos[0], source: "youtube-rss" });
+        }
+        return res.status(200).json({ videos, source: "youtube-rss" });
       }
     }
 
@@ -58,17 +61,21 @@ export default async function handler(
     for (const instance of invidiousInstances) {
       try {
         const response = await fetch(
-          `${instance}/api/v1/channels/${CHANNEL_ID}/videos?fields=videoId,title&sort_by=newest`,
+          `${instance}/api/v1/channels/${CHANNEL_ID}/videos?fields=videoId,title,publishedText,published&sort_by=newest`,
           { signal: AbortSignal.timeout(5000) },
         );
         if (!response.ok) continue;
-        const videos = await response.json();
-        if (Array.isArray(videos) && videos.length > 0) {
-          return res.status(200).json({
-            videoId: videos[0].videoId,
-            title: videos[0].title,
-            source: "invidious",
-          });
+        const data = await response.json();
+        if (Array.isArray(data) && data.length > 0) {
+          const videos: VideoResult[] = data.slice(0, count).map((v: any) => ({
+            videoId: v.videoId,
+            title: v.title,
+            publishedAt: v.publishedText || undefined,
+          }));
+          if (count === 1) {
+            return res.status(200).json({ ...videos[0], source: "invidious" });
+          }
+          return res.status(200).json({ videos, source: "invidious" });
         }
       } catch {
         continue;
@@ -80,4 +87,25 @@ export default async function handler(
     console.error("youtube-latest error:", err);
     return res.status(500).json({ error: "Internal server error" });
   }
+}
+
+function parseRSSVideos(xml: string, count: number): VideoResult[] {
+  const videos: VideoResult[] = [];
+  // Match all entries
+  const entryRegex = /<entry>([\s\S]*?)<\/entry>/g;
+  let match;
+  while ((match = entryRegex.exec(xml)) !== null && videos.length < count) {
+    const entry = match[1];
+    const videoIdMatch = entry.match(/<yt:videoId>([^<]+)<\/yt:videoId>/);
+    const titleMatch = entry.match(/<title>([^<]+)<\/title>/);
+    const publishedMatch = entry.match(/<published>([^<]+)<\/published>/);
+    if (videoIdMatch && titleMatch) {
+      videos.push({
+        videoId: videoIdMatch[1],
+        title: titleMatch[1],
+        publishedAt: publishedMatch?.[1] || undefined,
+      });
+    }
+  }
+  return videos;
 }
