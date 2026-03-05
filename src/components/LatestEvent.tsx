@@ -26,7 +26,33 @@ export const LatestEvent = () => {
 
   useEffect(() => {
     const fetchLatestVideo = async () => {
-      // Strategy 1: Try Invidious API instances (most reliable, no API key needed)
+      const API_BASE =
+        (import.meta.env.VITE_BACKEND_URL as string | undefined) ||
+        "https://api.thewipmeetup.com";
+
+      // Strategy 1: Our own Vercel API (server-side, no CORS issues)
+      try {
+        const response = await fetch(`${API_BASE}/api/youtube-latest`, {
+          signal: AbortSignal.timeout(8000),
+        });
+        if (response.ok) {
+          const data = await response.json();
+          if (data.videoId && data.title) {
+            console.log("✅ Fetched latest video via API:", data.title);
+            setVideo({
+              title: data.title,
+              videoId: data.videoId,
+              thumbnail: `https://img.youtube.com/vi/${data.videoId}/maxresdefault.jpg`,
+            });
+            setSource(`Live via API (${data.source})`);
+            return;
+          }
+        }
+      } catch (err) {
+        console.log("API fetch failed, trying client-side fallbacks:", err);
+      }
+
+      // Strategy 2: Try Invidious API instances (client-side)
       const invidiousInstances = [
         "https://inv.nadeko.net",
         "https://invidious.fdn.fr",
@@ -52,71 +78,6 @@ export const LatestEvent = () => {
             });
             setSource("Live via Invidious");
             return;
-          }
-        } catch {
-          continue;
-        }
-      }
-
-      // Strategy 2: Try RSS proxies
-      const rssUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${CHANNEL_ID}`;
-      const openRssUrl = `https://openrss.org/www.youtube.com/@thewipmeetup`;
-      
-      const proxyConfigs = [
-        { url: `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`, isRss2Json: true },
-        { url: `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}`, isJson: true },
-        { url: `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(rssUrl)}` },
-        { url: `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(openRssUrl)}`, isRss2Json: true },
-        { url: `https://api.allorigins.win/get?url=${encodeURIComponent(openRssUrl)}`, isJson: true },
-      ];
-      
-      for (const proxy of proxyConfigs) {
-        try {
-          const response = await fetch(proxy.url, {
-            headers: { Accept: "application/xml, application/json, text/xml, */*" },
-            signal: AbortSignal.timeout(8000),
-          });
-          if (!response.ok) continue;
-          
-          if (proxy.isRss2Json) {
-            const json = await response.json();
-            if (json.status === "ok" && json.items?.length > 0) {
-              const item = json.items[0];
-              const videoIdMatch = item.link?.match(/[?&]v=([^&]+)/) || item.link?.match(/youtube\.com\/watch\?v=([^&]+)/);
-              const videoId = videoIdMatch?.[1] || item.guid?.split(":").pop();
-              if (videoId && item.title) {
-                console.log("✅ Fetched latest video via rss2json:", item.title);
-                setVideo({ title: item.title, videoId, thumbnail: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` });
-                setSource("Live via RSS");
-                return;
-              }
-            }
-            continue;
-          }
-
-          let text: string;
-          if (proxy.isJson) {
-            const json = await response.json();
-            text = json.contents;
-          } else {
-            text = await response.text();
-          }
-
-          if (!text || text.includes("Error 404") || !text.includes("<entry>")) continue;
-
-          const parser = new DOMParser();
-          const xml = parser.parseFromString(text, "text/xml");
-          const firstEntry = xml.querySelector("entry");
-
-          if (firstEntry) {
-            const videoId = firstEntry.querySelector("yt\\:videoId, videoId")?.textContent || "";
-            const title = firstEntry.querySelector("title")?.textContent || "The WIP Meetup";
-            if (videoId) {
-              console.log("✅ Fetched latest video via RSS proxy:", title);
-              setVideo({ title, videoId, thumbnail: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` });
-              setSource("Live via RSS");
-              return;
-            }
           }
         } catch {
           continue;
