@@ -5,6 +5,7 @@ const TOKENSMART_URL =
   process.env.TOKENSMART_URL || "https://www.tokensmart.co";
 const CLIENT_ID = process.env.CONNECT_CLIENT_ID;
 const CLIENT_SECRET = process.env.CONNECT_CLIENT_SECRET;
+const APP_URL = process.env.APP_URL;
 
 export default async function handler(
   req: VercelRequest,
@@ -94,7 +95,10 @@ export default async function handler(
       .join("; ");
 
     res.setHeader("Set-Cookie", cookie);
-    return res.redirect(safePath);
+
+    const appBase = APP_URL || baseUrl;
+    const targetUrl = `${appBase}${safePath}`;
+    return res.redirect(targetUrl);
   } catch (err) {
     console.error("Auth callback error:", err);
     return res.redirect(`/login?error=callback_exception`);
