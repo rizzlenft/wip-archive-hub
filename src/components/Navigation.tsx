@@ -241,6 +241,22 @@ export const Navigation = () => {
                     Join the Community
                   </a>
                 </Button>
+
+                {/* Social Icons */}
+                <div className="flex items-center gap-3 mt-6 flex-wrap justify-center">
+                  {socialLinks.map((link) => (
+                    <a
+                      key={link.name}
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title={link.name}
+                      className="w-10 h-10 flex items-center justify-center rounded-full bg-muted/50 hover:bg-primary/20 hover:scale-110 transition-all"
+                    >
+                      <img src={link.icon} alt={link.name} className="w-5 h-5 object-contain" />
+                    </a>
+                  ))}
+                </div>
               </div>
             </div>
           </motion.div>
