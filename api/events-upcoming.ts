@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { getConnectUserFromRequest } from "./_connect-verify";
+import { getConnectUserFromRequest } from "./_connect-verify.js";
 
 export default async function handler(
   req: VercelRequest,
