@@ -9,7 +9,10 @@ export interface EpisodeData {
 
 export const EPISODES_DATA: EpisodeData[] = [
   { videoId: "H_HqMJ4pRBs", title: "The WIP Meetup 3/05/2026 Raw Footage ft Hyperfy & @decentraland_foundation Field Trip w/ Roustan", publishDate: "Mar 5, 2026" },
-  { videoId: "98lMPTGZpcc", title: "The WIP Meetup 2/26/2026 Raw Footage ft Dragonate body part removal charity drive & hyperfy v2 peek", publishDate: "Feb 27, 2026" },
+  { videoId: "98lMPTGZpcc", title: "The WIP Meetup 2/26/2026 Raw Footage ft Dragonate Body Part Removal Charity Drive & Hyperfy v2 Peek", publishDate: "Feb 26, 2026" },
+  { videoId: "9Zcl9PEGa78", title: "The WIP Meetup 2/12/2026 Raw Footage ft DaniellaDoodles Forest of Tarot Card Art", publishDate: "Feb 12, 2026" },
+  { videoId: "A_CrnPJrI7M", title: "The WIP Meetup 2/5/2026 Raw Footage ft Stina Jones & Carlos Marcial", publishDate: "Feb 5, 2026" },
+  { videoId: "bcDx_9I9vJc", title: "The WIP Meetup 1/29/2026 Raw Footage ft Smoke the Artist", publishDate: "Jan 29, 2026" },
   { videoId: "i0EQ50k8Aeg", title: "The WIP Meetup 01/11/2024 Metageist Race Commentary", publishDate: "Feb 12, 2024" },
   { videoId: "8jLOVvAbgLU", title: "The WIP Meetup 08/29/2024 Raw Footage ft Buildtree Alpha & Roustan BlockBuster Video Field Trip", publishDate: "Aug 29, 2024" },
   { videoId: "n74Nu9HIjHE", title: "The WIP Meetup 09/19/2024 Raw Footage ft Jin aka DankVR with the Openvoxels Deep Dive", publishDate: "Sep 20, 2024" },
