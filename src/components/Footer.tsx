@@ -6,7 +6,7 @@ const socialLinks = [
   { name: "Twitter", url: "https://twitter.com/theWIPmeetup" },
   { name: "YouTube", url: "https://www.youtube.com/@thewipmeetup" },
   { name: "Substack", url: "https://thewipmeetup.substack.com/" },
-  { name: "Warpcast", url: "https://warpcast.com/thewipmeetup" },
+  { name: "Farcaster", url: "https://farcaster.xyz/~/channel/thewipmeetup" },
   { name: "Twitch", url: "https://www.twitch.tv/wipmeetup" },
   { name: "Blog", url: "https://paragraph.com/@blog.thewipmeetup" },
 ];
