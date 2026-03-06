@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { setCorsHeaders } from "./_cors";
+import { setCorsHeaders } from "./_cors.js";
 
 const TOKENSMART_URL =
   process.env.TOKENSMART_URL || "https://www.tokensmart.co";
