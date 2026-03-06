@@ -28,7 +28,7 @@ const platforms = [
   {
     name: "Farcaster",
     description: "Web3 social",
-    url: "https://warpcast.com/thewipmeetup",
+    url: "https://farcaster.xyz/~/channel/thewipmeetup",
     icon: "https://warpcast.com/favicon.ico",
     color: "from-purple-500 to-violet-600",
   },

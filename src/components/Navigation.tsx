@@ -25,7 +25,7 @@ const socialLinks = [
   { name: "Discord", url: "https://discord.gg/XHDcUdm3", icon: "https://cdn.prod.website-files.com/6257adef93867e50d84d30e2/636e0a6ca814282eca7172c6_icon_clyde_white_RGB.svg" },
   { name: "Twitter", url: "https://twitter.com/theWIPmeetup", icon: "https://abs.twimg.com/responsive-web/client-web/icon-ios.77d25eba.png" },
   { name: "YouTube", url: "https://www.youtube.com/@thewipmeetup", icon: "https://www.youtube.com/s/desktop/c01ea7e3/img/favicon_144x144.png" },
-  { name: "Farcaster", url: "https://warpcast.com/thewipmeetup", icon: "https://warpcast.com/favicon.ico" },
+  { name: "Farcaster", url: "https://farcaster.xyz/~/channel/thewipmeetup", icon: "https://warpcast.com/favicon.ico" },
   { name: "Twitch", url: "https://www.twitch.tv/wipmeetup", icon: "https://static.twitchcdn.net/assets/favicon-32-e29e246c157142c94346.png" },
   { name: "Hyperfy", url: "https://hyperfy.io/wip", icon: "https://hyperfy.io/favicon.ico" },
   { name: "Substack", url: "https://thewipmeetup.substack.com/", icon: "https://substack.com/favicon.ico" },
