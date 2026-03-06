@@ -13,6 +13,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import wipLogo from "@/assets/wip-logo-static.png";
+import iconFarcaster from "@/assets/icon-farcaster.png";
+import iconHyperfy from "@/assets/icon-hyperfy.png";
+import iconSubstack from "@/assets/icon-substack.png";
 
 const navLinks = [
   { name: "About", href: "/#about", isAnchor: true },
