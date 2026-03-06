@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import fetch from "node-fetch";
+import { setCorsHeaders } from "./_cors";
 
 const TOKENSMART_URL =
   process.env.TOKENSMART_URL || "https://www.tokensmart.co";
@@ -11,6 +12,11 @@ export default async function handler(
   req: VercelRequest,
   res: VercelResponse,
 ) {
+  setCorsHeaders(res);
+
+  if (req.method === "OPTIONS") {
+    return res.status(204).end();
+  }
   if (req.method !== "GET") {
     res.setHeader("Allow", "GET");
     return res.status(405).end("Method Not Allowed");
