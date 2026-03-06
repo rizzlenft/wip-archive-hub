@@ -1,5 +1,4 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import fetch from "node-fetch";
 import { setCorsHeaders } from "./_cors";
 
 const TOKENSMART_URL =
@@ -8,45 +7,59 @@ const CLIENT_ID = process.env.CONNECT_CLIENT_ID;
 const CLIENT_SECRET = process.env.CONNECT_CLIENT_SECRET;
 const APP_URL = process.env.APP_URL;
 
+function loginErrorUrl(error: string): string {
+  const base = process.env.APP_URL || "";
+  const path = `/login?error=${encodeURIComponent(error)}`;
+  return base ? `${base}${path}` : path;
+}
+
+function safeRedirect(res: VercelResponse, url: string): void {
+  try {
+    res.redirect(url);
+  } catch {
+    res.status(302).setHeader("Location", url).end();
+  }
+}
+
 export default async function handler(
   req: VercelRequest,
   res: VercelResponse,
 ) {
-  setCorsHeaders(res);
-
-  if (req.method === "OPTIONS") {
-    return res.status(204).end();
-  }
-  if (req.method !== "GET") {
-    res.setHeader("Allow", "GET");
-    return res.status(405).end("Method Not Allowed");
-  }
-
-  const { code, state, error } = req.query;
-
-  if (error) {
-    return res.redirect(`/login?error=access_denied`);
-  }
-  if (!code || typeof code !== "string") {
-    return res.redirect(`/login?error=missing_code`);
-  }
-
-  if (!CLIENT_ID || !CLIENT_SECRET) {
-    console.error(
-      "Missing CONNECT_CLIENT_ID or CONNECT_CLIENT_SECRET in environment",
-    );
-    return res.redirect(`/login?error=server_config`);
-  }
-
-  const host =
-    (req.headers["x-forwarded-host"] as string | undefined) ||
-    (req.headers.host as string | undefined);
-  const protoHeader =
-    (req.headers["x-forwarded-proto"] as string | undefined) || "https";
-  const baseUrl = host ? `${protoHeader}://${host}` : "";
-  const redirectUri = `${baseUrl}/api/auth-callback`;
-
   try {
+    setCorsHeaders(res);
+
+    if (req.method === "OPTIONS") {
+      return res.status(204).end();
+    }
+    if (req.method !== "GET") {
+      res.setHeader("Allow", "GET");
+      return res.status(405).end("Method Not Allowed");
+    }
+
+    const { code, state, error } = req.query;
+
+    if (error) {
+      return safeRedirect(res, loginErrorUrl("access_denied"));
+    }
+    if (!code || typeof code !== "string") {
+      return safeRedirect(res, loginErrorUrl("missing_code"));
+    }
+
+    if (!CLIENT_ID || !CLIENT_SECRET) {
+      console.error(
+        "Missing CONNECT_CLIENT_ID or CONNECT_CLIENT_SECRET in environment",
+      );
+      return safeRedirect(res, loginErrorUrl("server_config"));
+    }
+
+    const host =
+      (req.headers["x-forwarded-host"] as string | undefined) ||
+      (req.headers.host as string | undefined);
+    const protoHeader =
+      (req.headers["x-forwarded-proto"] as string | undefined) || "https";
+    const baseUrl = host ? `${protoHeader}://${host}` : "";
+    const redirectUri = `${baseUrl}/api/auth-callback`;
+
     const tokenRes = await fetch(`${TOKENSMART_URL}/api/connect/token`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -71,15 +84,18 @@ export default async function handler(
         typeof body.error === "string" ? body.error : undefined;
 
       if (errorCode === "invalid_grant") {
-        return res.redirect(`/login?error=code_used`);
+        return safeRedirect(res, loginErrorUrl("code_used"));
       }
 
-      return res.redirect(`/login?error=token_exchange_failed`);
+      return safeRedirect(res, loginErrorUrl("token_exchange_failed"));
     }
 
-    const { access_token } = (await tokenRes.json()) as {
-      access_token: string;
-    };
+    const tokenData = (await tokenRes.json()) as { access_token?: string };
+    const access_token = tokenData?.access_token;
+    if (!access_token) {
+      console.error("Token response missing access_token", tokenData);
+      return safeRedirect(res, loginErrorUrl("token_exchange_failed"));
+    }
 
     const intended =
       typeof state === "string" && state.length > 0
@@ -104,10 +120,14 @@ export default async function handler(
 
     const appBase = APP_URL || baseUrl;
     const targetUrl = `${appBase}${safePath}`;
-    return res.redirect(targetUrl);
+    return safeRedirect(res, targetUrl);
   } catch (err) {
     console.error("Auth callback error:", err);
-    return res.redirect(`/login?error=callback_exception`);
+    try {
+      safeRedirect(res, loginErrorUrl("callback_exception"));
+    } catch {
+      res.status(500).end("Auth callback failed");
+    }
   }
 }
 
