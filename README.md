@@ -1,4 +1,4 @@
-# The WIP Meetup 
+# The WIP Meetup
 
 Community hub for The WIP Meetup — a web3 community podcast and events platform.
 
