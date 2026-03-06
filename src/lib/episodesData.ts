@@ -8,6 +8,7 @@ export interface EpisodeData {
 }
 
 export const EPISODES_DATA: EpisodeData[] = [
+  { videoId: "H_HqMJ4pRBs", title: "The WIP Meetup 3/05/2026 Raw Footage ft Hyperfy & @decentraland_foundation Field Trip w/ Roustan", publishDate: "Mar 5, 2026" },
   { videoId: "98lMPTGZpcc", title: "The WIP Meetup 2/26/2026 Raw Footage ft Dragonate body part removal charity drive & hyperfy v2 peek", publishDate: "Feb 27, 2026" },
   { videoId: "i0EQ50k8Aeg", title: "The WIP Meetup 01/11/2024 Metageist Race Commentary", publishDate: "Feb 12, 2024" },
   { videoId: "8jLOVvAbgLU", title: "The WIP Meetup 08/29/2024 Raw Footage ft Buildtree Alpha & Roustan BlockBuster Video Field Trip", publishDate: "Aug 29, 2024" },
