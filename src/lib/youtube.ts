@@ -73,6 +73,34 @@ function parsePublishDate(dateStr: string): Date {
   return new Date();
 }
 
+// Parse a date from a video title like "The WIP Meetup 3/05/2026 ..."
+function parseDateFromTitle(title: string): Date | null {
+  // Match M/DD/YYYY or MM/DD/YYYY patterns
+  const match = title.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if (match) {
+    const [, month, day, year] = match;
+    const d = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    if (!isNaN(d.getTime())) return d;
+  }
+  return null;
+}
+
+// Parse relative time strings like "Streamed 17 hours ago", "2 days ago", "3 weeks ago"
+function parseRelativeDate(text: string): Date | null {
+  if (!text) return null;
+  const cleaned = text.replace(/^Streamed\s+/i, '').trim();
+  const match = cleaned.match(/(\d+)\s+(second|minute|hour|day|week|month|year)s?\s+ago/i);
+  if (!match) return null;
+  const amount = parseInt(match[1]);
+  const unit = match[2].toLowerCase();
+  const now = new Date();
+  const ms: Record<string, number> = {
+    second: 1000, minute: 60000, hour: 3600000,
+    day: 86400000, week: 604800000, month: 2592000000, year: 31536000000,
+  };
+  return new Date(now.getTime() - amount * (ms[unit] || 0));
+}
+
 // Fetch live recent videos from the API
 async function fetchLiveVideos(): Promise<Episode[]> {
   const API_BASE =
@@ -86,15 +114,21 @@ async function fetchLiveVideos(): Promise<Episode[]> {
     if (!response.ok) return [];
     const data = await response.json();
     const videos = data.videos || [data];
-    return videos.map((v: any) => ({
-      videoId: v.videoId,
-      title: v.title,
-      thumbnail: `https://img.youtube.com/vi/${v.videoId}/mqdefault.jpg`,
-      publishedAt: v.publishedAt ? new Date(v.publishedAt) : new Date(),
-      url: `https://www.youtube.com/watch?v=${v.videoId}`,
-      guests: parseGuestsFromTitle(v.title),
-      episodeNumber: parseEpisodeNumber(v.title),
-    }));
+    return videos.map((v: any) => {
+      // Priority: date from title > relative date > fallback to now
+      const publishedAt = parseDateFromTitle(v.title)
+        || parseRelativeDate(v.publishedAt)
+        || new Date();
+      return {
+        videoId: v.videoId,
+        title: v.title,
+        thumbnail: `https://img.youtube.com/vi/${v.videoId}/mqdefault.jpg`,
+        publishedAt,
+        url: `https://www.youtube.com/watch?v=${v.videoId}`,
+        guests: parseGuestsFromTitle(v.title),
+        episodeNumber: parseEpisodeNumber(v.title),
+      };
+    });
   } catch {
     return [];
   }
@@ -144,6 +178,8 @@ export function groupEpisodesByYear(episodes: Episode[]): Map<number, Episode[]>
   
   episodes.forEach(episode => {
     const year = episode.publishedAt.getFullYear();
+    // Skip episodes with invalid dates
+    if (isNaN(year)) return;
     if (!grouped.has(year)) {
       grouped.set(year, []);
     }
