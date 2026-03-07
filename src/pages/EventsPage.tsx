@@ -285,18 +285,18 @@ const EventsPage = () => {
           )}
         </section>
 
-        {/* Next WIP Meetup */}
+        {/* Next WIP Meetup — auto-computed */}
         <section className="rounded-lg border border-border bg-card p-6">
           <div className="flex items-center gap-2 mb-2">
             <Calendar className="w-5 h-5 text-primary" />
             <h2 className="text-xl font-semibold">Next WIP Meetup</h2>
           </div>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-foreground">
             {nextMeetup.toLocaleDateString(undefined, {
               weekday: "long",
-              year: "numeric",
               month: "long",
               day: "numeric",
+              year: "numeric",
             })}{" "}
             at{" "}
             {nextMeetup.toLocaleTimeString(undefined, {
@@ -305,6 +305,7 @@ const EventsPage = () => {
               timeZoneName: "short",
             })}
           </p>
+          <p className="text-xs text-muted-foreground mt-1">Every Thursday at 12 PM PT / 3 PM ET</p>
         </section>
 
         <section className="space-y-4">
@@ -409,19 +410,12 @@ const EventsPage = () => {
               setSubstackStatus("loading");
               try {
                 const res = await fetch(
-                  "https://thewipmeetup.substack.com/api/v1/free?noRedirect=true",
+                  `${API_BASE}/api/substack-subscribe`,
                   {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                      first_url: "https://thewipmeetup.substack.com/",
-                      first_referrer: "",
-                      current_url: "https://thewipmeetup.substack.com/",
-                      current_referrer: window.location.href,
-                      referral_code: "",
-                      source: "embed",
-                      email: substackEmail.trim(),
-                    }),
+                    credentials: "include",
+                    body: JSON.stringify({ email: substackEmail.trim() }),
                   },
                 );
                 if (res.ok) {
