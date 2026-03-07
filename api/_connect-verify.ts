@@ -3,6 +3,10 @@ import type { VercelRequest } from "@vercel/node";
 
 const JWT_ISSUER = "tokensmart-connect";
 const JWT_AUDIENCE = "tokensmart-partner";
+const TOKENSMART_URL =
+  process.env.TOKENSMART_URL ||
+  process.env.NEXT_PUBLIC_TOKENSMART_URL ||
+  "https://www.tokensmart.co";
 
 function getJwtKey() {
   const secret = process.env.CONNECT_JWT_SECRET;
@@ -21,6 +25,56 @@ export type ConnectUserPayload = {
   scope?: string;
 };
 
+type TokenSmartUser = {
+  sub?: unknown;
+  id?: unknown;
+  user_id?: unknown;
+  email?: unknown;
+  client_id?: unknown;
+  scope?: unknown;
+};
+
+function normalizeTokenSmartUser(user: TokenSmartUser | null | undefined) {
+  if (!user) return null;
+
+  const sub =
+    typeof user.sub === "string"
+      ? user.sub
+      : typeof user.id === "string"
+        ? user.id
+        : typeof user.user_id === "string"
+          ? user.user_id
+          : null;
+
+  if (!sub) return null;
+
+  return {
+    sub,
+    email: typeof user.email === "string" ? user.email : undefined,
+    client_id: typeof user.client_id === "string" ? user.client_id : undefined,
+    scope: typeof user.scope === "string" ? user.scope : undefined,
+  } satisfies ConnectUserPayload;
+}
+
+async function verifyViaTokenSmart(
+  token: string,
+): Promise<ConnectUserPayload | null> {
+  try {
+    const res = await fetch(`${TOKENSMART_URL}/api/connect/user-events`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!res.ok) {
+      return null;
+    }
+
+    const data = (await res.json()) as { user?: TokenSmartUser };
+    return normalizeTokenSmartUser(data.user);
+  } catch {
+    return null;
+  }
+}
+
 export async function verifyConnectJwt(
   token: string,
 ): Promise<ConnectUserPayload | null> {
@@ -38,7 +92,7 @@ export async function verifyConnectJwt(
       scope: payload.scope as string | undefined,
     };
   } catch {
-    return null;
+    return verifyViaTokenSmart(token);
   }
 }
 
