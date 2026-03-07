@@ -117,11 +117,9 @@ export default async function handler(
       .filter(Boolean)
       .join("; ");
 
-    res.setHeader("Set-Cookie", cookie);
-
     const appBase = APP_URL || baseUrl;
     const targetUrl = `${appBase}${safePath}`;
-    return safeRedirect(res, targetUrl);
+    return safeRedirect(res, targetUrl, cookie);
   } catch (err) {
     console.error("Auth callback error:", err);
     try {
