@@ -70,6 +70,18 @@ function isEventLiveNow(event: {
   return now >= start && now <= end;
 }
 
+function isUpcomingOrLiveEvent(event: {
+  scheduled_date?: string;
+  scheduled_end_date?: string;
+}): boolean {
+  if (!event.scheduled_date) return true;
+  const start = new Date(event.scheduled_date).getTime();
+  const end = event.scheduled_end_date
+    ? new Date(event.scheduled_end_date).getTime()
+    : start + 4 * 60 * 60 * 1000;
+  return end >= Date.now();
+}
+
 type EventsResponse = {
   user: {
     sub: string;
@@ -96,7 +108,24 @@ const EventsPage = () => {
   } | null>(null);
   const [substackEmail, setSubstackEmail] = useState("");
   const [substackStatus, setSubstackStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+
   const nextMeetup = getNextMeetupDate();
+  const nextMeetupDateEt = nextMeetup.toLocaleDateString("en-US", {
+    timeZone: "America/New_York",
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+  const nextMeetupTimeEt = nextMeetup.toLocaleTimeString("en-US", {
+    timeZone: "America/New_York",
+    hour: "numeric",
+    minute: "2-digit",
+    timeZoneName: "short",
+  });
+
+  const sourceEvents = partnerEvents.length > 0 ? partnerEvents : upcomingEvents;
+  const upcomingDisplayEvents = sourceEvents.filter(isUpcomingOrLiveEvent);
 
   useEffect(() => {
     async function load() {
@@ -292,104 +321,102 @@ const EventsPage = () => {
             <h2 className="text-xl font-semibold">Next WIP Meetup</h2>
           </div>
           <p className="text-sm text-foreground">
-            {nextMeetup.toLocaleDateString(undefined, {
-              weekday: "long",
-              month: "long",
-              day: "numeric",
-              year: "numeric",
-            })}{" "}
-            at{" "}
-            {nextMeetup.toLocaleTimeString(undefined, {
-              hour: "numeric",
-              minute: "2-digit",
-              timeZoneName: "short",
-            })}
+            {nextMeetupDateEt} at {nextMeetupTimeEt}
           </p>
-          <p className="text-xs text-muted-foreground mt-1">Every Thursday at 12 PM PT / 3 PM ET</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Every Thursday at 3:00 PM ET
+          </p>
         </section>
 
         <section className="space-y-4">
           <h2 className="text-xl font-semibold">Upcoming WIP events</h2>
-          {partnerEvents.length === 0 && upcomingEvents.length === 0 ? (
+          {upcomingDisplayEvents.length === 0 ? (
             <p className="text-muted-foreground text-sm">
               No upcoming events yet.
             </p>
           ) : (
             <ul className="space-y-3">
-              {(partnerEvents.length > 0 ? partnerEvents : upcomingEvents).map(
-                (event) => {
-                  const avail = checkInAvailability[event.id];
-                  const canCheckIn =
-                    avail?.check_in_available === true ||
-                    isEventLiveNow(event);
-                  const feedback =
-                    checkinFeedback?.eventId === event.id
-                      ? checkinFeedback
-                      : null;
-                  return (
-                    <li
-                      key={event.id}
-                      className="flex flex-col gap-2 rounded-lg border border-border bg-card p-4 text-sm sm:flex-row sm:items-center sm:justify-between"
-                    >
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium">{event.name}</span>
-                          {canCheckIn && (
-                            <span className="rounded bg-destructive px-1.5 py-0.5 text-xs font-medium text-destructive-foreground">
-                              LIVE
-                            </span>
-                          )}
-                        </div>
-                        <div className="text-muted-foreground text-xs">
-                          {event.scheduled_date
-                            ? new Date(
-                                event.scheduled_date,
-                              ).toLocaleString()
-                            : "Time TBD"}
-                        </div>
-                        {"check_in_prompt" in event &&
-                          event.check_in_prompt && (
-                            <div className="text-muted-foreground text-xs">
-                              Check-in: {String(event.check_in_prompt)}
-                            </div>
-                          )}
-                        {feedback && (
-                          <p
-                            className={
-                              feedback.success
-                                ? "text-accent text-xs"
-                                : "text-destructive text-xs"
-                            }
-                          >
-                            {feedback.message}
-                          </p>
-                        )}
-                      </div>
-                      <div className="flex flex-col items-start gap-2 sm:items-end">
+              {upcomingDisplayEvents.map((event) => {
+                const avail = checkInAvailability[event.id];
+                const canCheckIn =
+                  avail?.check_in_available === true ||
+                  isEventLiveNow(event);
+                const feedback =
+                  checkinFeedback?.eventId === event.id
+                    ? checkinFeedback
+                    : null;
+                return (
+                  <li
+                    key={event.id}
+                    className="flex flex-col gap-2 rounded-lg border border-border bg-card p-4 text-sm sm:flex-row sm:items-center sm:justify-between"
+                  >
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">{event.name}</span>
                         {canCheckIn && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => void handleCheckin(event.id)}
-                          >
-                            Check in
-                          </Button>
-                        )}
-                        {event.discord_link && (
-                          <a
-                            href={event.discord_link}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-xs font-medium text-primary hover:underline"
-                          >
-                            View on Discord
-                          </a>
+                          <span className="rounded bg-destructive px-1.5 py-0.5 text-xs font-medium text-destructive-foreground">
+                            LIVE
+                          </span>
                         )}
                       </div>
-                    </li>
-                  );
-                },
-              )}
+                      <div className="text-muted-foreground text-xs">
+                        {event.scheduled_date
+                          ? new Date(event.scheduled_date).toLocaleString(
+                              "en-US",
+                              {
+                                timeZone: "America/New_York",
+                                month: "numeric",
+                                day: "numeric",
+                                year: "numeric",
+                                hour: "numeric",
+                                minute: "2-digit",
+                                timeZoneName: "short",
+                              },
+                            )
+                          : "Time TBD"}
+                      </div>
+                      {"check_in_prompt" in event &&
+                        event.check_in_prompt && (
+                          <div className="text-muted-foreground text-xs">
+                            Check-in: {String(event.check_in_prompt)}
+                          </div>
+                        )}
+                      {feedback && (
+                        <p
+                          className={
+                            feedback.success
+                              ? "text-accent text-xs"
+                              : "text-destructive text-xs"
+                          }
+                        >
+                          {feedback.message}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex flex-col items-start gap-2 sm:items-end">
+                      {canCheckIn && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => void handleCheckin(event.id)}
+                        >
+                          Check in
+                        </Button>
+                      )}
+                      {event.discord_link && (
+                        <a
+                          href={event.discord_link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs font-medium text-primary hover:underline"
+                        >
+                          View on Discord
+                        </a>
+                      )}
+                    </div>
+                  </li>
+                );
+              })}
             </ul>
           )}
         </section>
@@ -407,23 +434,22 @@ const EventsPage = () => {
             onSubmit={async (e: FormEvent) => {
               e.preventDefault();
               if (!substackEmail.trim()) return;
+
               setSubstackStatus("loading");
               try {
-                const res = await fetch(
-                  `${API_BASE}/api/substack-subscribe`,
-                  {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    credentials: "include",
-                    body: JSON.stringify({ email: substackEmail.trim() }),
-                  },
-                );
+                const res = await fetch("/api/substack-subscribe", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ email: substackEmail.trim() }),
+                });
+
                 if (res.ok) {
                   setSubstackStatus("success");
                   setSubstackEmail("");
-                } else {
-                  setSubstackStatus("error");
+                  return;
                 }
+
+                setSubstackStatus("error");
               } catch {
                 setSubstackStatus("error");
               }
