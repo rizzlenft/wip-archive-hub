@@ -68,15 +68,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   async function logout() {
-    try {
-      await fetch(`${API_BASE}/api/auth-logout`, {
-        method: "POST",
-        credentials: "include",
-      });
-    } finally {
-      setUser(null);
-      window.location.href = "/";
-    }
+    setUser(null);
+    // Navigate directly to the API logout endpoint so the cookie is
+    // cleared in a first-party context (avoids cross-origin Set-Cookie issues).
+    window.location.href = `${API_BASE}/api/auth-logout`;
   }
 
   const value: AuthContextValue = {
