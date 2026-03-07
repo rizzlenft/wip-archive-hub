@@ -434,23 +434,22 @@ const EventsPage = () => {
             onSubmit={async (e: FormEvent) => {
               e.preventDefault();
               if (!substackEmail.trim()) return;
+
               setSubstackStatus("loading");
               try {
-                const res = await fetch(
-                  `${API_BASE}/api/substack-subscribe`,
-                  {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    credentials: "include",
-                    body: JSON.stringify({ email: substackEmail.trim() }),
-                  },
-                );
+                const res = await fetch("/api/substack-subscribe", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ email: substackEmail.trim() }),
+                });
+
                 if (res.ok) {
                   setSubstackStatus("success");
                   setSubstackEmail("");
-                } else {
-                  setSubstackStatus("error");
+                  return;
                 }
+
+                setSubstackStatus("error");
               } catch {
                 setSubstackStatus("error");
               }
