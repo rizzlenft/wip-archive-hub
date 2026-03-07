@@ -321,20 +321,11 @@ const EventsPage = () => {
             <h2 className="text-xl font-semibold">Next WIP Meetup</h2>
           </div>
           <p className="text-sm text-foreground">
-            {nextMeetup.toLocaleDateString(undefined, {
-              weekday: "long",
-              month: "long",
-              day: "numeric",
-              year: "numeric",
-            })}{" "}
-            at{" "}
-            {nextMeetup.toLocaleTimeString(undefined, {
-              hour: "numeric",
-              minute: "2-digit",
-              timeZoneName: "short",
-            })}
+            {nextMeetupDateEt} at {nextMeetupTimeEt}
           </p>
-          <p className="text-xs text-muted-foreground mt-1">Every Thursday at 12 PM PT / 3 PM ET</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Every Thursday at 3:00 PM ET
+          </p>
         </section>
 
         <section className="space-y-4">
