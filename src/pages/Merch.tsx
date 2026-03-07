@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { ShoppingBag, ExternalLink, Sparkles } from "lucide-react";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
+import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import merchHatRainbow from "@/assets/merch-hat-rainbow.jpg";
 import merchTshirtRainbow from "@/assets/merch-tshirt-rainbow.jpg";
@@ -44,6 +45,11 @@ const products = [
 const Merch = () => {
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title="Merch"
+        description="Rep The WIP Meetup with official merch — snapbacks, tees, hoodies, and mugs. Every purchase supports the web3 community."
+        canonical="/merch"
+      />
       <Navigation />
 
       <main className="pt-24 pb-16">

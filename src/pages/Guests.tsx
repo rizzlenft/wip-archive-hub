@@ -7,6 +7,7 @@ import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { fetchAllEpisodes, extractUniqueGuests, type Episode } from "@/lib/youtube";
+import { SEO } from "@/components/SEO";
 import wipLogo from "@/assets/wip-logo.gif";
 
 interface GuestWithCount {
@@ -93,6 +94,11 @@ const Guests = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title="Guests"
+        description="Explore the full directory of guests and collaborators who have appeared on The WIP Meetup since 2019."
+        canonical="/guests"
+      />
       <Navigation />
       
       {/* Hero Section */}
