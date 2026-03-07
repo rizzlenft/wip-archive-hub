@@ -104,13 +104,14 @@ export default async function handler(
     const safePath =
       typeof intended === "string" && intended.startsWith("/") ? intended : "/";
 
-    const secure = process.env.NODE_ENV === "production";
+    const cookieDomain = process.env.COOKIE_DOMAIN; // e.g. .thewipmeetup.com
     const cookie = [
       `jwt=${access_token}`,
       "Path=/",
       "HttpOnly",
-      "SameSite=Lax",
-      secure ? "Secure" : "",
+      "SameSite=None",
+      "Secure",
+      cookieDomain ? `Domain=${cookieDomain}` : "",
       "Max-Age=3600",
     ]
       .filter(Boolean)
