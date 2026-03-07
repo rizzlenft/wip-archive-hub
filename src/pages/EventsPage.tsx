@@ -7,7 +7,7 @@ import { LogOut } from "lucide-react";
 
 const API_BASE =
   (import.meta.env.VITE_BACKEND_URL as string | undefined) ||
-  "https://wip-archive-hub.vercel.app";
+  "https://api.thewipmeetup.com";
 
 type EventDetails = {
   id: string;
