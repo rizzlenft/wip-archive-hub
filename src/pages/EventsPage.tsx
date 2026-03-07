@@ -285,6 +285,28 @@ const EventsPage = () => {
           )}
         </section>
 
+        {/* Next WIP Meetup */}
+        <section className="rounded-lg border border-border bg-card p-6">
+          <div className="flex items-center gap-2 mb-2">
+            <Calendar className="w-5 h-5 text-primary" />
+            <h2 className="text-xl font-semibold">Next WIP Meetup</h2>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            {nextMeetup.toLocaleDateString(undefined, {
+              weekday: "long",
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })}{" "}
+            at{" "}
+            {nextMeetup.toLocaleTimeString(undefined, {
+              hour: "numeric",
+              minute: "2-digit",
+              timeZoneName: "short",
+            })}
+          </p>
+        </section>
+
         <section className="space-y-4">
           <h2 className="text-xl font-semibold">Upcoming WIP events</h2>
           {partnerEvents.length === 0 && upcomingEvents.length === 0 ? (
@@ -312,7 +334,7 @@ const EventsPage = () => {
                         <div className="flex items-center gap-2">
                           <span className="font-medium">{event.name}</span>
                           {canCheckIn && (
-                            <span className="rounded bg-red-600 px-1.5 py-0.5 text-xs font-medium text-white">
+                            <span className="rounded bg-destructive px-1.5 py-0.5 text-xs font-medium text-destructive-foreground">
                               LIVE
                             </span>
                           )}
@@ -334,7 +356,7 @@ const EventsPage = () => {
                           <p
                             className={
                               feedback.success
-                                ? "text-green-600 text-xs"
+                                ? "text-accent text-xs"
                                 : "text-destructive text-xs"
                             }
                           >
@@ -371,20 +393,79 @@ const EventsPage = () => {
           )}
         </section>
 
-        {/* Substack subscribe */}
-        <section className="space-y-3 rounded-lg border border-border bg-card p-6">
-          <h2 className="text-xl font-semibold">Stay in the loop</h2>
+        {/* Substack subscribe — inline form */}
+        <section className="rounded-lg border border-border bg-secondary/30 p-6 space-y-3">
+          <div className="flex items-center gap-2">
+            <Mail className="w-5 h-5 text-primary" />
+            <h2 className="text-xl font-semibold">Stay in the loop</h2>
+          </div>
           <p className="text-sm text-muted-foreground">
-            Subscribe to the WIP Meetup newsletter on Substack for recaps, announcements, and more.
+            Get WIP recaps, announcements, and community highlights in your inbox.
           </p>
-          <iframe
-            src="https://thewipmeetup.substack.com/embed"
-            width="100%"
-            height="150"
-            className="rounded-md border-0"
-            style={{ background: "transparent" }}
-            title="Subscribe to The WIP Meetup on Substack"
-          />
+          <form
+            onSubmit={async (e: FormEvent) => {
+              e.preventDefault();
+              if (!substackEmail.trim()) return;
+              setSubstackStatus("loading");
+              try {
+                const res = await fetch(
+                  "https://thewipmeetup.substack.com/api/v1/free?noRedirect=true",
+                  {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      first_url: "https://thewipmeetup.substack.com/",
+                      first_referrer: "",
+                      current_url: "https://thewipmeetup.substack.com/",
+                      current_referrer: window.location.href,
+                      referral_code: "",
+                      source: "embed",
+                      email: substackEmail.trim(),
+                    }),
+                  },
+                );
+                if (res.ok) {
+                  setSubstackStatus("success");
+                  setSubstackEmail("");
+                } else {
+                  setSubstackStatus("error");
+                }
+              } catch {
+                setSubstackStatus("error");
+              }
+            }}
+            className="flex flex-col gap-3 sm:flex-row sm:items-center"
+          >
+            <Input
+              type="email"
+              required
+              placeholder="your@email.com"
+              value={substackEmail}
+              onChange={(e) => {
+                setSubstackEmail(e.target.value);
+                if (substackStatus !== "idle") setSubstackStatus("idle");
+              }}
+              className="bg-background border-border flex-1"
+            />
+            <Button
+              type="submit"
+              size="sm"
+              disabled={substackStatus === "loading"}
+              className="shrink-0"
+            >
+              {substackStatus === "loading" ? "Subscribing…" : "Subscribe"}
+            </Button>
+          </form>
+          {substackStatus === "success" && (
+            <p className="text-sm text-accent">
+              🎉 You're subscribed! Check your inbox.
+            </p>
+          )}
+          {substackStatus === "error" && (
+            <p className="text-sm text-destructive">
+              Something went wrong. Please try again.
+            </p>
+          )}
         </section>
       </div>
     </main>
