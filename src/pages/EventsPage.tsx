@@ -1,9 +1,11 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode, type FormEvent } from "react";
 import { useAuth } from "@/auth/AuthContext";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { LogOut } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { LogOut, Mail, Calendar } from "lucide-react";
+import { getNextMeetupDate } from "@/lib/meetupSchedule";
 
 const API_BASE =
   (import.meta.env.VITE_BACKEND_URL as string | undefined) ||
