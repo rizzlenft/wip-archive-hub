@@ -12,6 +12,8 @@ import Merch from "./pages/Merch";
 import NotFound from "./pages/NotFound";
 import LoginPage from "./pages/LoginPage";
 import EventsPage from "./pages/EventsPage";
+import Newsletter from "./pages/Newsletter";
+import AdminNewsletter from "./pages/AdminNewsletter";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +43,15 @@ const App = () => (
             <Route path="/episodes" element={<Episodes />} />
             <Route path="/guests" element={<Guests />} />
             <Route path="/merch" element={<Merch />} />
+            <Route path="/newsletter" element={<Newsletter />} />
+            <Route
+              path="/admin/newsletter"
+              element={
+                <ProtectedRoute>
+                  <AdminNewsletter />
+                </ProtectedRoute>
+              }
+            />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
