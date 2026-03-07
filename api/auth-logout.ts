@@ -9,8 +9,8 @@ export default async function handler(
   if (req.method === "OPTIONS") {
     return res.status(204).end();
   }
-  if (req.method !== "POST") {
-    res.setHeader("Allow", "POST");
+  if (req.method !== "POST" && req.method !== "GET") {
+    res.setHeader("Allow", "GET, POST");
     return res.status(405).end("Method Not Allowed");
   }
 
@@ -27,7 +27,12 @@ export default async function handler(
     .filter(Boolean)
     .join("; ");
 
-  res.setHeader("Set-Cookie", cookie);
-  return res.status(204).end();
+  const appUrl = process.env.APP_URL || "";
+  const redirectTo = appUrl ? `${appUrl}/login?logout=true` : "/login?logout=true";
+
+  res.writeHead(302, {
+    "Set-Cookie": cookie,
+    Location: redirectTo,
+  }).end();
 }
 
