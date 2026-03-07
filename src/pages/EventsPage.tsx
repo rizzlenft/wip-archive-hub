@@ -108,7 +108,24 @@ const EventsPage = () => {
   } | null>(null);
   const [substackEmail, setSubstackEmail] = useState("");
   const [substackStatus, setSubstackStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+
   const nextMeetup = getNextMeetupDate();
+  const nextMeetupDateEt = nextMeetup.toLocaleDateString("en-US", {
+    timeZone: "America/New_York",
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+  const nextMeetupTimeEt = nextMeetup.toLocaleTimeString("en-US", {
+    timeZone: "America/New_York",
+    hour: "numeric",
+    minute: "2-digit",
+    timeZoneName: "short",
+  });
+
+  const sourceEvents = partnerEvents.length > 0 ? partnerEvents : upcomingEvents;
+  const upcomingDisplayEvents = sourceEvents.filter(isUpcomingOrLiveEvent);
 
   useEffect(() => {
     async function load() {
