@@ -94,6 +94,9 @@ const EventsPage = () => {
     success: boolean;
     message: string;
   } | null>(null);
+  const [substackEmail, setSubstackEmail] = useState("");
+  const [substackStatus, setSubstackStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const nextMeetup = getNextMeetupDate();
 
   useEffect(() => {
     async function load() {
