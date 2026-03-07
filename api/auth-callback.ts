@@ -8,6 +8,10 @@ const CLIENT_SECRET = process.env.CONNECT_CLIENT_SECRET;
 const APP_URL = process.env.APP_URL;
 
 function loginErrorUrl(error: string): string {
+  // For access_denied (user declined), send them to the main site
+  if (error === "access_denied") {
+    return process.env.APP_URL || "https://thewipmeetup.com";
+  }
   const base = process.env.APP_URL || "";
   const path = `/login?error=${encodeURIComponent(error)}`;
   return base ? `${base}${path}` : path;

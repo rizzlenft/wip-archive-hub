@@ -14,24 +14,23 @@ export default async function handler(
     return res.status(405).end("Method Not Allowed");
   }
 
-  const cookieDomain = process.env.COOKIE_DOMAIN;
-  const cookie = [
-    "jwt=",
-    "Path=/",
-    "HttpOnly",
-    "SameSite=None",
-    "Secure",
-    cookieDomain ? `Domain=${cookieDomain}` : "",
-    "Max-Age=0",
-  ]
-    .filter(Boolean)
-    .join("; ");
+  const cookieDomain = process.env.COOKIE_DOMAIN; // e.g. .thewipmeetup.com
+
+  // Clear the cookie with AND without Domain to cover all cases.
+  const cookieAttrs = "Path=/; HttpOnly; SameSite=None; Secure; Max-Age=0";
+  const cookies: string[] = [];
+  cookies.push(`jwt=; ${cookieAttrs}`);
+  if (cookieDomain) {
+    cookies.push(`jwt=; ${cookieAttrs}; Domain=${cookieDomain}`);
+  }
 
   const appUrl = process.env.APP_URL || "";
-  const redirectTo = appUrl ? `${appUrl}/login?logout=true` : "/login?logout=true";
+  const redirectTo = appUrl
+    ? `${appUrl}/login?logout=true`
+    : "/login?logout=true";
 
   res.writeHead(302, {
-    "Set-Cookie": cookie,
+    "Set-Cookie": cookies,
     Location: redirectTo,
   }).end();
 }
