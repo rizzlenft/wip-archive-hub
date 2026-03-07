@@ -6,10 +6,12 @@ import { CommunityPerks } from "@/components/CommunityPerks";
 import { Platforms } from "@/components/Platforms";
 import { ContactRizzle } from "@/components/ContactRizzle";
 import { Footer } from "@/components/Footer";
+import { SEO } from "@/components/SEO";
 
 const Index = () => {
   return (
     <div className="min-h-screen bg-background">
+      <SEO canonical="/" />
       <Navigation />
       <Hero />
       <LatestEvent />

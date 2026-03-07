@@ -7,6 +7,7 @@ import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { EpisodeRow } from "@/components/episodes/EpisodeRow";
+import { SEO } from "@/components/SEO";
 import { 
   fetchAllEpisodes, 
   extractUniqueGuests, 
@@ -108,6 +109,11 @@ const Episodes = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title="Episodes"
+        description="Browse 250+ episodes from The WIP Meetup — the longest-running web3 metaverse meetup. Search by guest, year, or topic."
+        canonical="/episodes"
+      />
       <Navigation />
       
       {/* Hero Section with Randomizer & Guest CTA */}
