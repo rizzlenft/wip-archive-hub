@@ -316,8 +316,8 @@ const EventsPage = () => {
 
         {/* Next WIP Meetup — auto-computed */}
         <section className="rounded-lg border border-border bg-card p-6">
-          <div className="flex items-center gap-2 mb-2">
-            <Calendar className="w-5 h-5 text-primary" />
+          <div className="mb-2 flex items-center gap-2">
+            <Calendar className="h-5 w-5 text-primary" />
             <h2 className="text-xl font-semibold">Next WIP Meetup</h2>
           </div>
           <p className="text-sm text-foreground">
@@ -326,98 +326,15 @@ const EventsPage = () => {
           <p className="mt-1 text-xs text-muted-foreground">
             Every Thursday at 3:00 PM ET
           </p>
-        </section>
-
-        <section className="space-y-4">
-          <h2 className="text-xl font-semibold">Upcoming WIP events</h2>
-          {upcomingDisplayEvents.length === 0 ? (
-            <p className="text-muted-foreground text-sm">
-              No upcoming events yet.
-            </p>
-          ) : (
-            <ul className="space-y-3">
-              {upcomingDisplayEvents.map((event) => {
-                const avail = checkInAvailability[event.id];
-                const canCheckIn =
-                  avail?.check_in_available === true ||
-                  isEventLiveNow(event);
-                const feedback =
-                  checkinFeedback?.eventId === event.id
-                    ? checkinFeedback
-                    : null;
-                return (
-                  <li
-                    key={event.id}
-                    className="flex flex-col gap-2 rounded-lg border border-border bg-card p-4 text-sm sm:flex-row sm:items-center sm:justify-between"
-                  >
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">{event.name}</span>
-                        {canCheckIn && (
-                          <span className="rounded bg-destructive px-1.5 py-0.5 text-xs font-medium text-destructive-foreground">
-                            LIVE
-                          </span>
-                        )}
-                      </div>
-                      <div className="text-muted-foreground text-xs">
-                        {event.scheduled_date
-                          ? new Date(event.scheduled_date).toLocaleString(
-                              "en-US",
-                              {
-                                timeZone: "America/New_York",
-                                month: "numeric",
-                                day: "numeric",
-                                year: "numeric",
-                                hour: "numeric",
-                                minute: "2-digit",
-                                timeZoneName: "short",
-                              },
-                            )
-                          : "Time TBD"}
-                      </div>
-                      {"check_in_prompt" in event &&
-                        event.check_in_prompt && (
-                          <div className="text-muted-foreground text-xs">
-                            Check-in: {String(event.check_in_prompt)}
-                          </div>
-                        )}
-                      {feedback && (
-                        <p
-                          className={
-                            feedback.success
-                              ? "text-accent text-xs"
-                              : "text-destructive text-xs"
-                          }
-                        >
-                          {feedback.message}
-                        </p>
-                      )}
-                    </div>
-                    <div className="flex flex-col items-start gap-2 sm:items-end">
-                      {canCheckIn && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => void handleCheckin(event.id)}
-                        >
-                          Check in
-                        </Button>
-                      )}
-                      {event.discord_link && (
-                        <a
-                          href={event.discord_link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-xs font-medium text-primary hover:underline"
-                        >
-                          View on Discord
-                        </a>
-                      )}
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
+          {upcomingDisplayEvents[0]?.discord_link && (
+            <a
+              href={upcomingDisplayEvents[0].discord_link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-4 inline-block text-sm font-medium text-primary hover:underline"
+            >
+              View on Discord
+            </a>
           )}
         </section>
 
