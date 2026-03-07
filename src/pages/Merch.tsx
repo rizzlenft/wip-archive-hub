@@ -86,7 +86,8 @@ const Merch = () => {
                   <div className="relative aspect-square overflow-hidden bg-muted/10">
                     <img
                       src={product.image}
-                      alt={product.name}
+                      alt={`${product.name} — official WIP Meetup merchandise`}
+                      loading="lazy"
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     />
                     {product.badge && (
