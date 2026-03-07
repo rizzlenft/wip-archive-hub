@@ -14,13 +14,14 @@ export default async function handler(
     return res.status(405).end("Method Not Allowed");
   }
 
-  const secure = process.env.NODE_ENV === "production";
+  const cookieDomain = process.env.COOKIE_DOMAIN;
   const cookie = [
     "jwt=",
     "Path=/",
     "HttpOnly",
-    "SameSite=Lax",
-    secure ? "Secure" : "",
+    "SameSite=None",
+    "Secure",
+    cookieDomain ? `Domain=${cookieDomain}` : "",
     "Max-Age=0",
   ]
     .filter(Boolean)
