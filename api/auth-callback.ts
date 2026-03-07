@@ -13,12 +13,12 @@ function loginErrorUrl(error: string): string {
   return base ? `${base}${path}` : path;
 }
 
-function safeRedirect(res: VercelResponse, url: string): void {
-  try {
-    res.redirect(url);
-  } catch {
-    res.status(302).setHeader("Location", url).end();
+function safeRedirect(res: VercelResponse, url: string, cookie?: string): void {
+  const headers: Record<string, string> = { Location: url };
+  if (cookie) {
+    headers["Set-Cookie"] = cookie;
   }
+  res.writeHead(302, headers).end();
 }
 
 export default async function handler(
