@@ -365,6 +365,22 @@ const EventsPage = () => {
             </ul>
           )}
         </section>
+
+        {/* Substack subscribe */}
+        <section className="space-y-3 rounded-lg border border-border bg-card p-6">
+          <h2 className="text-xl font-semibold">Stay in the loop</h2>
+          <p className="text-sm text-muted-foreground">
+            Subscribe to the WIP Meetup newsletter on Substack for recaps, announcements, and more.
+          </p>
+          <iframe
+            src="https://thewipmeetup.substack.com/embed"
+            width="100%"
+            height="150"
+            className="rounded-md border-0"
+            style={{ background: "transparent" }}
+            title="Subscribe to The WIP Meetup on Substack"
+          />
+        </section>
       </div>
     </main>
   );
