@@ -70,6 +70,18 @@ function isEventLiveNow(event: {
   return now >= start && now <= end;
 }
 
+function isUpcomingOrLiveEvent(event: {
+  scheduled_date?: string;
+  scheduled_end_date?: string;
+}): boolean {
+  if (!event.scheduled_date) return true;
+  const start = new Date(event.scheduled_date).getTime();
+  const end = event.scheduled_end_date
+    ? new Date(event.scheduled_end_date).getTime()
+    : start + 4 * 60 * 60 * 1000;
+  return end >= Date.now();
+}
+
 type EventsResponse = {
   user: {
     sub: string;
