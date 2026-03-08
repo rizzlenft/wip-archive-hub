@@ -82,9 +82,10 @@ const Newsletter = () => {
                 </div>
               </div>
 
-              {/* Newsletter content */}
+              {/* Newsletter poster content */}
               <div
-                className="newsletter-content rounded-xl border border-border bg-card p-6 sm:p-10"
+                className="newsletter-poster-preview rounded-xl overflow-hidden"
+                style={{ background: '#0a0612' }}
                 dangerouslySetInnerHTML={{ __html: selected.body_html }}
               />
 

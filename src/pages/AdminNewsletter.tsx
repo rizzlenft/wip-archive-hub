@@ -370,10 +370,10 @@ const AdminNewsletter = () => {
                 />
               )}
 
-              {/* HTML Preview */}
-              <div className="rounded-lg border border-border overflow-hidden">
+              {/* Poster Preview */}
+              <div className="rounded-xl overflow-hidden" style={{ background: '#0a0612' }}>
                 <div className="bg-muted/30 px-4 py-2 border-b border-border flex items-center justify-between">
-                  <span className="text-sm font-medium">Email Preview</span>
+                  <span className="text-sm font-medium">🎪 Poster Preview</span>
                   <span
                     className={`text-xs px-2 py-0.5 rounded-full ${
                       draft.status === "published"
@@ -385,7 +385,7 @@ const AdminNewsletter = () => {
                   </span>
                 </div>
                 <div
-                  className="p-6"
+                  className="newsletter-poster-preview"
                   dangerouslySetInnerHTML={{ __html: editableHtml }}
                 />
               </div>

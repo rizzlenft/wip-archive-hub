@@ -122,9 +122,49 @@ async function handleGenerate(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: "At least one speaker is required" });
   }
 
+  // ── Auto-fetch YouTube transcript if available ──────────────────────────
+  let autoTranscript = "";
+  if (youtube_video_id && !transcript) {
+    try {
+      // Try fetching auto-generated captions via a public proxy
+      const captionRes = await fetch(
+        `https://www.youtube.com/watch?v=${youtube_video_id}`
+      );
+      if (captionRes.ok) {
+        const html = await captionRes.text();
+        // Extract caption track URL from the page
+        const captionMatch = html.match(/"captionTracks":\[.*?"baseUrl":"(.*?)"/);
+        if (captionMatch) {
+          const captionUrl = captionMatch[1].replace(/\\u0026/g, "&");
+          const subRes = await fetch(captionUrl);
+          if (subRes.ok) {
+            const subXml = await subRes.text();
+            // Strip XML tags to get plain text
+            autoTranscript = subXml
+              .replace(/<[^>]+>/g, " ")
+              .replace(/&amp;/g, "&")
+              .replace(/&lt;/g, "<")
+              .replace(/&gt;/g, ">")
+              .replace(/&#39;/g, "'")
+              .replace(/&quot;/g, '"')
+              .replace(/\s+/g, " ")
+              .trim()
+              .slice(0, 4000); // Limit to avoid token overflow
+            console.log(`Auto-fetched transcript: ${autoTranscript.length} chars`);
+          }
+        }
+      }
+    } catch (err) {
+      console.warn("Failed to auto-fetch YouTube transcript:", err);
+    }
+  }
+
+  const effectiveTranscript = transcript || autoTranscript;
+
   let videoContext = "";
   if (youtube_video_id) {
-    videoContext = `\nThe latest WIP Meetup recording: https://youtube.com/watch?v=${youtube_video_id}`;
+    videoContext = `\nThe latest WIP Meetup recording: https://youtube.com/watch?v=${youtube_video_id}
+YouTube Thumbnail (MUST include as clickable image): https://img.youtube.com/vi/${youtube_video_id}/maxresdefault.jpg`;
   }
 
   const speakerList = speakers
@@ -134,8 +174,8 @@ async function handleGenerate(req: VercelRequest, res: VercelResponse) {
     )
     .join("\n");
 
-  const transcriptSection = transcript
-    ? `\n\nHere is a transcript/notes from last week's event to use for the recap:\n${transcript}`
+  const transcriptSection = effectiveTranscript
+    ? `\n\nHere is a transcript/notes from last week's event. EXTRACT 2-3 of the best, most quotable moments and feature them prominently as pull-quotes with speaker attribution:\n${effectiveTranscript}`
     : "\n\n(No transcript provided — create a brief general recap mentioning the speakers and topics.)";
 
   // Rotating visual themes for week-to-week variety
@@ -151,63 +191,87 @@ async function handleGenerate(req: VercelRequest, res: VercelResponse) {
   const weekIndex = Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000));
   const theme = visualThemes[weekIndex % visualThemes.length];
 
-  const systemPrompt = `You are the creative director of "The WIP Weekly" — the weekly newsletter for The WIP Meetup,
+  const WIP_LOGO_URL = "https://thewipmeetup.com/assets/wip-logo-static-BLWp2V4x.png";
+
+  const systemPrompt = `You are the creative director of "The WIP Weekly" — the weekly poster/flyer for The WIP Meetup,
 a vibrant Web3/metaverse community that meets every Thursday at 3 PM ET.
+
+⚠️ THIS IS NOT AN EMAIL. THIS IS A POSTER. A FLYER. A BLOCK PARTY INVITATION. ⚠️
 
 THIS WEEK'S VISUAL THEME: "${theme.name}"
 Design vibe: ${theme.vibe}
 Color palette: primary=${theme.accent1}, secondary=${theme.accent2}, highlight=${theme.accent3}
 Background: dark (#0a0612)
 
-CRITICAL DESIGN MANDATE: This newsletter must look like an INVITATION TO THE COOLEST EVENT EVER.
-Think: indie concert flyer meets block party invitation meets underground art show announcement.
-Every issue should feel like a collector's item that people screenshot and share.
+CRITICAL DESIGN MANDATE — THINK POSTER, NOT EMAIL:
+- This should look like it was wheat-pasted to a wall in Brooklyn
+- Like a punk rock show flyer you'd rip off a telephone pole and keep
+- Like the dopest block party invitation that makes you cancel all other plans
+- NOT a corporate newsletter. NOT an email template. NO "Dear reader" energy.
+- Every issue should feel like a collector's item that people screenshot and share
 
-Your design principles:
-- BOLD typography: Use large, attention-grabbing headers with CSS text-transform, letter-spacing, and text-shadow
-- VISUAL hierarchy: The speakers are the HEADLINERS — treat them like concert lineup acts
-- ENERGY: Use emoji strategically as visual punctuation 🔥⚡🎤🌐✨ but don't overdo it
-- INTERACTIVE feel: CSS hover states, gradient borders, glowing accents
-- SECTIONS should feel like distinct "zones" of a party/venue
-- Speaker cards should look like artist lineup cards with their socials as "tickets to connect"
-- Include decorative CSS elements: borders, dividers, background patterns using CSS gradients
-- The date/time should feel like an EVENT STAMP — bold, unmissable, like a concert ticket
+WIP LOGO — MUST INCLUDE:
+- URL: ${WIP_LOGO_URL}
+- Place it prominently at the top as the "promoter logo" — like a record label or venue logo on a concert poster
+- Style it large (120-160px), centered, with a glow effect matching the theme
 
-HTML STYLING RULES:
-- All styles must be INLINE (email compatible)
+${youtube_video_id ? `LAST WEEK'S EVENT VIDEO — MUST INCLUDE AS CLICKABLE ELEMENT:
+- Thumbnail: https://img.youtube.com/vi/${youtube_video_id}/maxresdefault.jpg
+- Link: https://youtube.com/watch?v=${youtube_video_id}
+- Make this a prominent, clickable image with a "▶ WATCH THE REPLAY" overlay
+- Style it like a film still or concert photo — with border effects matching the theme
+- Add a glow/border treatment so it pops` : ""}
+
+POSTER DESIGN PRINCIPLES:
+- MASSIVE typography: Headers should be 36-48px, uppercase, with heavy letter-spacing (0.2-0.4em) and text-shadow
+- The speakers are HEADLINERS — their names should be the biggest text on the poster after the title
+- Use CSS transforms (rotate slight angles -1deg to 2deg) on elements for that hand-placed poster feel
+- Layer elements: overlapping borders, stacked sections, asymmetric padding
+- Use thick borders (3-4px) in accent colors, not subtle 1px lines
+- Add "torn edge" or "stamp" effects using creative border-radius and box-shadow combos
+- Date/time should look like it's STAMPED on — rotated, bold, with a border box around it
+- Pull-quotes from the transcript should be HUGE, in accent colors, with quotation marks as decorative elements
+
+${effectiveTranscript ? `PULL-QUOTES — CRITICAL:
+- Extract 2-3 of the most interesting, funny, or insightful quotes from the transcript
+- Display them as massive pull-quotes (24-32px font) with decorative quotation marks
+- Style them like graffiti tags or highlighted text with background accent colors
+- Attribute each quote to the speaker` : ""}
+
+HTML RULES:
+- All styles INLINE (this will also be used in email)
 - Background: #0a0612, text: #f5f0e8
-- Use the theme colors (${theme.accent1}, ${theme.accent2}, ${theme.accent3}) throughout
-- Add CSS box-shadows for glow effects: box-shadow: 0 0 20px ${theme.accent1}40
-- Use border-radius, padding, and background gradients to create card-like sections
-- Speaker names should be LARGE (24px+) and in the primary accent color
-- Add a "header banner" section that looks like a concert/party poster title
-- Include decorative separators between sections (styled <hr> or div borders)
-- The overall email should be max-width 600px, centered
+- Use the theme colors (${theme.accent1}, ${theme.accent2}, ${theme.accent3}) liberally
+- Box-shadows for glow: box-shadow: 0 0 30px ${theme.accent1}60, 0 0 60px ${theme.accent1}20
+- Max-width: 680px, centered, but content should feel like it's BURSTING out of the frame
+- Use background gradients on sections for depth
+- NO bland email patterns — no "Hi there!" or "Click here to read more"
 
-Generate a newsletter with these sections:
-1. **🎪 THE LINEUP** — Present upcoming speakers like concert headliners. Big names, their topics as "set descriptions", socials as connection points. This should be the HERO section.
-2. **🔥 LAST WEEK'S SET** — Recap styled like a concert review / after-party report. Engaging, vivid, makes you feel like you missed out.
-3. **🌐 COMMUNITY SPOTLIGHT** — A brief community highlight styled like a "local artist feature"
-4. **🎫 GET YOUR TICKET** — Date/time/links styled like an actual event ticket or wristband. Discord, Twitter, YouTube links.
+SECTIONS (think of these as ZONES of the poster):
+1. **🔥 HEADER BANNER** — WIP logo + issue title styled like a concert poster header. MASSIVE. BOLD. The title should feel like an event name.
+2. **🎪 THE LINEUP** — Speakers as headliners. Big names in accent colors, topics as "set descriptions", socials as ways to connect. Style like a festival lineup poster.
+3. **📼 LAST WEEK'S REPLAY** — ${youtube_video_id ? "Clickable YouTube thumbnail with watch overlay." : "Brief recap."} If transcript quotes are available, feature them prominently here as pull-quotes.
+4. **🎫 THE DETAILS** — Date, time, links — styled like a ticket stub or wristband. Discord, Twitter, YouTube links as "entry points". Make it feel like tearing off a ticket.
 
-Output JSON with these fields:
+Output JSON:
 {
-  "title": "catchy headline that sounds like an event name (e.g. 'WIP SESSIONS VOL.47: The Future Builders')",
-  "subtitle": "one-line teaser that creates FOMO",
-  "body_html": "full HTML newsletter with ALL inline styles — must look incredible",
-  "body_markdown": "clean Markdown version",
-  "recap_summary": "2-sentence recap for card preview — punchy and exciting"
+  "title": "event-style name (e.g. 'WIP SESSIONS VOL.47: THE FUTURE BUILDERS')",
+  "subtitle": "one-line FOMO-inducing teaser",
+  "body_html": "full poster-style HTML with ALL inline styles",
+  "body_markdown": "clean Markdown version with the same energy",
+  "recap_summary": "2-sentence punchy recap for card preview"
 }`;
 
-  const userPrompt = `Generate this week's WIP Weekly newsletter using the "${theme.name}" visual theme.
-Make it feel like the most exclusive, exciting invitation anyone has ever received.
+  const userPrompt = `Generate this week's WIP Weekly poster using the "${theme.name}" visual theme.
+This should look like the illest block party flyer / punk rock show poster anyone has ever seen.
+NOT an email. A POSTER.
 
 **THIS THURSDAY'S HEADLINERS:**
 ${speakerList}
 ${videoContext}
 ${transcriptSection}
 
-Community links (include in the "ticket" section):
+Community links (style as "entry points" in the ticket section):
 - Discord: https://discord.gg/XHDcUdm3
 - Twitter/X: https://twitter.com/theWIPmeetup
 - YouTube: https://youtube.com/@thewipmeetup
