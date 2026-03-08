@@ -31,14 +31,14 @@ const API_BASE =
   "https://api.thewipmeetup.com";
 
 export async function fetchNewsletters(): Promise<NewsletterIssue[]> {
-  const res = await fetch(`${API_BASE}/api/newsletter-list`);
+  const res = await fetch(`${API_BASE}/api/newsletter`);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const data = (await res.json()) as { newsletters: NewsletterIssue[] };
   return data.newsletters ?? [];
 }
 
 export async function fetchNewsletter(id: string): Promise<NewsletterIssue | null> {
-  const res = await fetch(`${API_BASE}/api/newsletter-list?id=${encodeURIComponent(id)}`);
+  const res = await fetch(`${API_BASE}/api/newsletter?id=${encodeURIComponent(id)}`);
   if (!res.ok) return null;
   const data = (await res.json()) as { newsletter: NewsletterIssue };
   return data.newsletter ?? null;
@@ -49,7 +49,7 @@ export async function generateNewsletter(payload: {
   transcript?: string;
   youtube_video_id?: string;
 }): Promise<NewsletterIssue> {
-  const res = await fetch(`${API_BASE}/api/newsletter-generate`, {
+  const res = await fetch(`${API_BASE}/api/newsletter?action=generate`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
