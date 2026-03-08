@@ -132,47 +132,81 @@ async function handleGenerate(req: VercelRequest, res: VercelResponse) {
     ? `\n\nHere is a transcript/notes from last week's event to use for the recap:\n${transcript}`
     : "\n\n(No transcript provided — create a brief general recap mentioning the speakers and topics.)";
 
-  const systemPrompt = `You are the editor of "The WIP Weekly" — the weekly newsletter for The WIP Meetup, 
-a vibrant Web3/metaverse community that meets every Thursday at 3 PM ET. The community is warm, creative, 
-and passionate about building in the metaverse, NFTs, DAOs, and digital culture.
+  // Rotating visual themes for week-to-week variety
+  const visualThemes = [
+    { name: "Block Party", vibe: "street art, bold graffiti typography, neon spray-paint accents, warehouse party energy, brick texture backgrounds", accent1: "#ff2d55", accent2: "#ffcc00", accent3: "#00ff88" },
+    { name: "Indie Concert Poster", vibe: "vintage gig poster, torn paper edges, halftone dots, bold woodblock type, underground music venue energy", accent1: "#ff6b35", accent2: "#f7c948", accent3: "#7b61ff" },
+    { name: "Cyberpunk Rave", vibe: "glitch art, scan lines, terminal green on black, futuristic HUD elements, matrix-style rain effects", accent1: "#00ffcc", accent2: "#ff00ff", accent3: "#00ccff" },
+    { name: "Zine Culture", vibe: "cut-and-paste collage, xerox aesthetic, punk DIY energy, handwritten annotations, photocopied textures", accent1: "#ff4081", accent2: "#e0e0e0", accent3: "#ffeb3b" },
+    { name: "Festival Wristband", vibe: "music festival lineup poster, sunset gradient vibes, psychedelic swirls, Coachella meets Burning Man energy", accent1: "#ff6ec7", accent2: "#7b68ee", accent3: "#ffa500" },
+    { name: "Gallery Opening", vibe: "minimalist art gallery invite, stark contrasts, elegant sans-serif, single bold accent color, sophisticated rebel energy", accent1: "#ff3366", accent2: "#ffffff", accent3: "#1a1a2e" },
+    { name: "Retro Arcade", vibe: "pixel art borders, 8-bit style decorations, CRT screen glow, neon cabinet colors, press-start energy", accent1: "#39ff14", accent2: "#ff073a", accent3: "#0ff" },
+  ];
+  const weekIndex = Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000));
+  const theme = visualThemes[weekIndex % visualThemes.length];
 
-Your writing style is:
-- Energetic and authentic, never corporate
-- Uses emojis tastefully (not excessively)
-- Speaks directly to the community ("you", "we", "us")
-- Celebrates the speakers and their work
-- Includes calls to action (join Discord, tune in live, follow speakers)
+  const systemPrompt = `You are the creative director of "The WIP Weekly" — the weekly newsletter for The WIP Meetup,
+a vibrant Web3/metaverse community that meets every Thursday at 3 PM ET.
+
+THIS WEEK'S VISUAL THEME: "${theme.name}"
+Design vibe: ${theme.vibe}
+Color palette: primary=${theme.accent1}, secondary=${theme.accent2}, highlight=${theme.accent3}
+Background: dark (#0a0612)
+
+CRITICAL DESIGN MANDATE: This newsletter must look like an INVITATION TO THE COOLEST EVENT EVER.
+Think: indie concert flyer meets block party invitation meets underground art show announcement.
+Every issue should feel like a collector's item that people screenshot and share.
+
+Your design principles:
+- BOLD typography: Use large, attention-grabbing headers with CSS text-transform, letter-spacing, and text-shadow
+- VISUAL hierarchy: The speakers are the HEADLINERS — treat them like concert lineup acts
+- ENERGY: Use emoji strategically as visual punctuation 🔥⚡🎤🌐✨ but don't overdo it
+- INTERACTIVE feel: CSS hover states, gradient borders, glowing accents
+- SECTIONS should feel like distinct "zones" of a party/venue
+- Speaker cards should look like artist lineup cards with their socials as "tickets to connect"
+- Include decorative CSS elements: borders, dividers, background patterns using CSS gradients
+- The date/time should feel like an EVENT STAMP — bold, unmissable, like a concert ticket
+
+HTML STYLING RULES:
+- All styles must be INLINE (email compatible)
+- Background: #0a0612, text: #f5f0e8
+- Use the theme colors (${theme.accent1}, ${theme.accent2}, ${theme.accent3}) throughout
+- Add CSS box-shadows for glow effects: box-shadow: 0 0 20px ${theme.accent1}40
+- Use border-radius, padding, and background gradients to create card-like sections
+- Speaker names should be LARGE (24px+) and in the primary accent color
+- Add a "header banner" section that looks like a concert/party poster title
+- Include decorative separators between sections (styled <hr> or div borders)
+- The overall email should be max-width 600px, centered
 
 Generate a newsletter with these sections:
-1. **🎙️ This Week's Spotlight** — Preview the upcoming speakers with excitement
-2. **🔥 Last Week's Recap** — Engaging summary of what happened
-3. **🌐 Community Corner** — A brief community highlight or fun fact
-4. **📅 Don't Miss** — Date/time reminder + links
+1. **🎪 THE LINEUP** — Present upcoming speakers like concert headliners. Big names, their topics as "set descriptions", socials as connection points. This should be the HERO section.
+2. **🔥 LAST WEEK'S SET** — Recap styled like a concert review / after-party report. Engaging, vivid, makes you feel like you missed out.
+3. **🌐 COMMUNITY SPOTLIGHT** — A brief community highlight styled like a "local artist feature"
+4. **🎫 GET YOUR TICKET** — Date/time/links styled like an actual event ticket or wristband. Discord, Twitter, YouTube links.
 
-Output the newsletter in both HTML (styled for email with inline styles using a dark theme: bg #0a0612, text #f5f0e8, 
-accent pink #ec4899, cyan #2dd4bf) and clean Markdown.
-
-Return a JSON object with these fields:
+Output JSON with these fields:
 {
-  "title": "catchy newsletter title",
-  "subtitle": "one-line teaser",
-  "body_html": "full HTML newsletter",
-  "body_markdown": "full Markdown newsletter",
-  "recap_summary": "2-sentence recap for card preview"
+  "title": "catchy headline that sounds like an event name (e.g. 'WIP SESSIONS VOL.47: The Future Builders')",
+  "subtitle": "one-line teaser that creates FOMO",
+  "body_html": "full HTML newsletter with ALL inline styles — must look incredible",
+  "body_markdown": "clean Markdown version",
+  "recap_summary": "2-sentence recap for card preview — punchy and exciting"
 }`;
 
-  const userPrompt = `Generate this week's WIP Weekly newsletter.
+  const userPrompt = `Generate this week's WIP Weekly newsletter using the "${theme.name}" visual theme.
+Make it feel like the most exclusive, exciting invitation anyone has ever received.
 
-**Upcoming Speakers (this Thursday):**
+**THIS THURSDAY'S HEADLINERS:**
 ${speakerList}
 ${videoContext}
 ${transcriptSection}
 
-Community links:
+Community links (include in the "ticket" section):
 - Discord: https://discord.gg/XHDcUdm3
-- Twitter: https://twitter.com/theWIPmeetup
+- Twitter/X: https://twitter.com/theWIPmeetup
 - YouTube: https://youtube.com/@thewipmeetup
-- Farcaster: https://farcaster.xyz/~/channel/thewipmeetup`;
+- Farcaster: https://farcaster.xyz/~/channel/thewipmeetup
+- Website: https://thewipmeetup.com`;
 
   try {
     const openaiRes = await fetch("https://api.openai.com/v1/chat/completions", {
