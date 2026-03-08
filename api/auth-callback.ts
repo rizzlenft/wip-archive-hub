@@ -30,7 +30,7 @@ export default async function handler(
   res: VercelResponse,
 ) {
   try {
-    setCorsHeaders(res);
+    setCorsHeaders(res, req);
 
     if (req.method === "OPTIONS") {
       return res.status(204).end();
