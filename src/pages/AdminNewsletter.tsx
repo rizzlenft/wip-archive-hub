@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  Sparkles, Plus, Trash2, Send, Eye, Save, Loader2, ArrowLeft, Youtube,
+  Sparkles, Plus, Trash2, Send, Eye, Save, Loader2, ArrowLeft, Youtube, ImagePlus, User,
 } from "lucide-react";
 import {
   type NewsletterSpeaker,
@@ -28,6 +28,7 @@ const AdminNewsletter = () => {
   ]);
   const [transcript, setTranscript] = useState("");
   const [youtubeVideoId, setYoutubeVideoId] = useState("");
+  const [customImageUrls, setCustomImageUrls] = useState<string[]>([]);
   const [autoFetchingVideo, setAutoFetchingVideo] = useState(false);
 
   const [draft, setDraft] = useState<NewsletterIssue | null>(null);
@@ -96,6 +97,7 @@ const AdminNewsletter = () => {
         speakers: validSpeakers,
         transcript: transcript.trim() || undefined,
         youtube_video_id: youtubeVideoId.trim() || undefined,
+        custom_image_urls: customImageUrls.filter((u) => u.trim()) || undefined,
       });
       setDraft(issue);
       setEditableHtml(issue.body_html);
@@ -297,16 +299,38 @@ const AdminNewsletter = () => {
                         className="bg-card"
                       />
                       <Input
+                        placeholder="@farcaster handle (auto-fetches PFP)"
+                        value={speaker.farcaster || ""}
+                        onChange={(e) => updateSpeaker(idx, "farcaster", e.target.value)}
+                        className="bg-card"
+                      />
+                      <Input
                         placeholder="@twitter handle"
                         value={speaker.twitter || ""}
                         onChange={(e) => updateSpeaker(idx, "twitter", e.target.value)}
                         className="bg-card"
                       />
+                    </div>
+                    {/* PFP Preview */}
+                    <div className="flex items-center gap-3">
+                      {(speaker.farcaster || speaker.twitter) && (
+                        <img
+                          src={
+                            speaker.profile_image_url ||
+                            (speaker.farcaster
+                              ? `https://unavatar.io/farcaster/${speaker.farcaster.replace(/^@/, "")}`
+                              : `https://unavatar.io/twitter/${speaker.twitter?.replace(/^@/, "")}`)
+                          }
+                          alt={`${speaker.name} avatar`}
+                          className="w-10 h-10 rounded-full border-2 border-accent object-cover"
+                          onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                        />
+                      )}
                       <Input
-                        placeholder="@farcaster handle"
-                        value={speaker.farcaster || ""}
-                        onChange={(e) => updateSpeaker(idx, "farcaster", e.target.value)}
-                        className="bg-card"
+                        placeholder="Profile image URL (optional — auto-fetched from Farcaster)"
+                        value={speaker.profile_image_url || ""}
+                        onChange={(e) => updateSpeaker(idx, "profile_image_url", e.target.value)}
+                        className="bg-card flex-1"
                       />
                     </div>
                   </div>
@@ -327,6 +351,58 @@ const AdminNewsletter = () => {
                   rows={8}
                   className="bg-background"
                 />
+              </section>
+
+              {/* Custom Event Images */}
+              <section className="rounded-lg border border-border bg-card p-5 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <ImagePlus className="w-5 h-5 text-accent" />
+                    <h2 className="text-lg font-semibold">Event Screenshots</h2>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCustomImageUrls((prev) => [...prev, ""])}
+                  >
+                    <Plus className="w-4 h-4" />
+                    Add Image
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Paste URLs to screenshots from Discord, metaverse events, or social media. These will be woven into the poster as event photography.
+                </p>
+                {customImageUrls.map((url, idx) => (
+                  <div key={idx} className="flex items-center gap-2">
+                    {url && (
+                      <img
+                        src={url}
+                        alt={`Event image ${idx + 1}`}
+                        className="w-12 h-12 rounded border border-border object-cover shrink-0"
+                        onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                      />
+                    )}
+                    <Input
+                      placeholder="Paste image URL..."
+                      value={url}
+                      onChange={(e) =>
+                        setCustomImageUrls((prev) =>
+                          prev.map((u, i) => (i === idx ? e.target.value : u))
+                        )
+                      }
+                      className="bg-background flex-1"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setCustomImageUrls((prev) => prev.filter((_, i) => i !== idx))}
+                    >
+                      <Trash2 className="w-4 h-4 text-destructive" />
+                    </Button>
+                  </div>
+                ))}
               </section>
 
               {/* Generate */}
