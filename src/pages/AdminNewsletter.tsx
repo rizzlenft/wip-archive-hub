@@ -169,30 +169,35 @@ const AdminNewsletter = () => {
                 Generate and publish the weekly newsletter
               </p>
             </div>
-            <div className="flex gap-2">
-              <Button
-                variant={view === "compose" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setView("compose")}
-              >
-                Compose
-              </Button>
-              <Button
-                variant={view === "preview" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setView("preview")}
-                disabled={!draft}
-              >
-                <Eye className="w-4 h-4" />
-                Preview
-              </Button>
-              <Button
-                variant={view === "history" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setView("history")}
-              >
-                History
-              </Button>
+            <div className="flex gap-1">
+              {(["compose", "preview", "history"] as const).map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setView(tab)}
+                  disabled={tab === "preview" && !draft}
+                  className={`
+                    relative px-5 py-2.5 text-xs font-bold uppercase tracking-[0.15em] 
+                    border-2 border-dashed transition-all duration-200
+                    disabled:opacity-30 disabled:cursor-not-allowed
+                    ${view === tab
+                      ? "bg-accent text-accent-foreground border-accent shadow-[0_0_12px_hsl(var(--accent)/0.4)] -rotate-1 scale-105 z-10"
+                      : "bg-card text-muted-foreground border-border/60 hover:border-accent/50 hover:text-foreground rotate-[0.5deg]"
+                    }
+                  `}
+                  style={{
+                    clipPath: "polygon(4% 0%, 100% 0%, 96% 100%, 0% 100%)",
+                    borderRadius: "2px",
+                  }}
+                >
+                  <span className="flex items-center gap-1.5">
+                    {tab === "preview" && <Eye className="w-3.5 h-3.5" />}
+                    {tab === "compose" ? "✏️ Compose" : tab === "preview" ? "Preview" : "📦 History"}
+                  </span>
+                  {view === tab && (
+                    <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-3/4 h-0.5 bg-accent rounded-full" />
+                  )}
+                </button>
+              ))}
             </div>
           </div>
 
