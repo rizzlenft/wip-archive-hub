@@ -230,73 +230,81 @@ a vibrant Web3/metaverse community that meets every Thursday at 3 PM ET.
 
 THIS WEEK'S VISUAL THEME: "${theme.name}"
 Design vibe: ${theme.vibe}
-Color palette: primary=${theme.accent1}, secondary=${theme.accent2}, highlight=${theme.accent3}
-Background: dark (#0a0612)
+PRIMARY COLOR PALETTE — Use these as the core colors, inspired by The WIP Meetup brand:
+- Deep background: #0a0612
+- Warm pink/magenta: hsl(330, 85%, 65%) — primary brand color
+- Coral: hsl(15, 90%, 65%)
+- Yellow: hsl(50, 95%, 60%)
+- Green: hsl(150, 75%, 55%)
+- Cyan: hsl(175, 80%, 55%)
+- Purple: hsl(270, 70%, 60%)
+- Text: #f5f0e8
+Theme accent colors (use sparingly as highlights): ${theme.accent1}, ${theme.accent2}, ${theme.accent3}
 
 CRITICAL DESIGN MANDATE — THINK POSTER, NOT EMAIL:
 - This should look like it was wheat-pasted to a wall in Brooklyn
 - Like a punk rock show flyer you'd rip off a telephone pole and keep
-- Like the dopest block party invitation that makes you cancel all other plans
 - NOT a corporate newsletter. NOT an email template. NO "Dear reader" energy.
 - Every issue should feel like a collector's item that people screenshot and share
 
-WIP LOGO — MUST INCLUDE:
-- URL: ${WIP_LOGO_URL}
-- Place it prominently at the top as the "promoter logo" — like a record label or venue logo on a concert poster
-- Style it large (120-160px), centered, with a glow effect matching the theme
+HEADER — MUST BE EXACTLY THIS:
+- WIP logo: <img src="${WIP_LOGO_URL}" style="width:80px;height:80px;display:block;margin:0 auto 12px;" alt="WIP" />
+- Below the logo, centered text: "The WIP Meetup" (32-40px, bold, white with subtle glow)
+- Below that: "Every Thursday · 3 PM ET" (16-18px, muted color)
+- Below that: a small Discord link styled as a ticket stub: "Join → discord.gg/XHDcUdm3"
+- That's it for the header. Clean. No "VOL. 50" or "SESSIONS" — just the meetup name and next event info.
 
-${youtube_video_id ? `LAST WEEK'S EVENT VIDEO — MUST INCLUDE AS CLICKABLE ELEMENT:
+${youtube_video_id ? `LAST WEEK'S EVENT VIDEO — include lower in the poster:
 - Thumbnail: https://img.youtube.com/vi/${youtube_video_id}/maxresdefault.jpg
 - Link: https://youtube.com/watch?v=${youtube_video_id}
-- Make this a prominent, clickable image with a "▶ WATCH THE REPLAY" overlay
-- Style it like a film still or concert photo — with border effects matching the theme
-- Add a glow/border treatment so it pops` : ""}
+- Make this a clickable image with ONLY a tiny "▶ WATCH" pill badge (12-14px) in the bottom-right corner
+- Do NOT make a giant overlay or banner. The thumbnail speaks for itself.` : ""}
 
 POSTER DESIGN PRINCIPLES:
-- MASSIVE typography: Headers should be 36-48px, uppercase, with heavy letter-spacing (0.2-0.4em) and text-shadow
-- The speakers are HEADLINERS — their names should be the biggest text on the poster after the title
+- MASSIVE typography for speaker names and quotes (36-48px), moderate for everything else
+- The speakers are HEADLINERS — their names and quotes go RIGHT AFTER the header, at the very top
 - Use CSS transforms (rotate slight angles -1deg to 2deg) on elements for that hand-placed poster feel
 - Layer elements: overlapping borders, stacked sections, asymmetric padding
 - Use thick borders (3-4px) in accent colors, not subtle 1px lines
-- Add "torn edge" or "stamp" effects using creative border-radius and box-shadow combos
-- Date/time should look like it's STAMPED on — rotated, bold, with a border box around it
-- Pull-quotes from the transcript should be HUGE, in accent colors, with quotation marks as decorative elements
+- Pull-quotes from the transcript should be HUGE, in accent colors, with decorative quotation marks
 
-CRITICAL LAYOUT RULES:
-- The "WATCH THE REPLAY" button/overlay must be SMALL and subtle — a compact pill/badge (14-16px font, inline) overlaid on the thumbnail corner. NOT a giant banner. The video thumbnail itself should be the star, the button is just a small "▶ WATCH" tag.
-- Do NOT use a "CANDID SHOTS" header or any header for event images. Just place them naturally throughout the poster as if they were taped/pinned to the poster at slight angles — no announcement, no section header, just vibes.
-- Do NOT include a "THE DETAILS" header. Instead, make the date/time/links section look like ACTUAL CONCERT TICKET STUBS — with perforated edges (dashed borders), a tear-off stub feel, each link styled as its own mini ticket with the platform name as the headliner. Use a ticket-stub layout: left side has the info, right side has a "tear here" dashed line.
-- ALL community links (Discord, X, YouTube, Farcaster, Web) should be styled as individual torn ticket stubs — slightly rotated, with dashed perforated borders, themed colors, and a raw punk aesthetic. NOT flat buttons.
+SPEAKER PROFILE IMAGES — CRITICAL:
+- Each speaker with a [PROFILE IMAGE: url] tag MUST have their photo rendered as an <img> tag
+- Use the EXACT URL provided — do NOT modify or omit it
+- Show as circular images (80-100px): style="width:90px;height:90px;border-radius:50%;object-fit:cover;border:3px solid ${theme.accent1}"
+- Place next to their name AND next to any quotes attributed to them
+- If no profile image URL is provided for a speaker, skip the image — do NOT use a placeholder
 
-${effectiveTranscript ? `PULL-QUOTES — THIS IS THE MOST IMPORTANT SECTION:
+${effectiveTranscript ? `PULL-QUOTES — PLACE THESE RIGHT AFTER THE HEADER, WITH THE SPEAKERS:
 - Extract 2-3 of the most INSIGHTFUL, mind-blowing, or hilarious quotes from the transcript
-- These quotes should make the reader think "damn, I need to be at the next event"
-- Display them as MASSIVE pull-quotes (28-36px font) with oversized decorative quotation marks (❝❞ or giant " marks at 60-80px)
-- Style them like graffiti tags or highlighted text with background accent colors
+- These go at the TOP of the poster, right under the header, paired with the speaker who said them
+- Display as MASSIVE pull-quotes (28-36px font) with oversized decorative quotation marks (❝❞ at 60-80px)
 - Each quote gets its own visual treatment — rotated, bordered, glowing
-- Attribute each quote to the speaker with their name styled in accent color
-- If a speaker has a profile image, show a small circular avatar next to their quote attribution` : ""}
+- Show the speaker's circular PFP next to their quote attribution
+- These quotes should make the reader think "damn, I need to be at the next event"` : ""}
+
+CUSTOM EVENT IMAGES — IMPORTANT CONTEXT:
+- These images are from LAST WEEK'S event — they show the community, NOT this week's speakers
+- Do NOT caption them with this week's speaker names or associate them with specific speakers
+- Place them naturally throughout the poster as scattered photos — slight rotation, tape/pin aesthetic
+- NO section header like "CANDID SHOTS" — just place them organically between sections
+${custom_image_urls && custom_image_urls.length > 0 ? custom_image_urls.map((url, i) => `- Image ${i + 1}: ${url}`).join("\n") : "- (No custom images provided this week)"}
+
+LAYOUT RULES:
+- Do NOT use a "CANDID SHOTS" header or any header for event images
+- Do NOT include a "THE DETAILS" header
+- ALL community links should be styled as individual CONCERT TICKET STUBS — rectangular with dashed perforated borders, platform name as bold text, slightly rotated
 
 HTML RULES:
 - All styles INLINE (this will also be used in email)
-- Background: #0a0612, text: #f5f0e8
-- Use the theme colors (${theme.accent1}, ${theme.accent2}, ${theme.accent3}) liberally
-- Box-shadows for glow: box-shadow: 0 0 30px ${theme.accent1}60, 0 0 60px ${theme.accent1}20
-- Max-width: 680px, centered, but content should feel like it's BURSTING out of the frame
+- Max-width: 680px, centered
 - Use background gradients on sections for depth
-- NO bland email patterns — no "Hi there!" or "Click here to read more"
 
-SPEAKER PROFILE IMAGES — MUST INCLUDE:
-- Each speaker with a [PROFILE IMAGE: url] MUST have their photo displayed
-- Show as circular images (80-100px) with thick accent-colored borders and glow effects
-- Place next to their name in the lineup section, and next to any quotes attributed to them
-- Style like VIP badges or artist photos on a concert poster
-
-SECTIONS (think of these as ZONES of the poster):
-1. **🔥 HEADER BANNER** — WIP logo + issue title styled like a concert poster header. MASSIVE. BOLD. The title should feel like an event name.
-2. **🎪 THE LINEUP** — Speakers as headliners with their PROFILE PHOTOS displayed prominently. Big names in accent colors, circular PFPs with glow borders, topics as "set descriptions", socials as ways to connect. Style like a festival lineup poster.
-3. **📼 LAST WEEK'S REPLAY** — ${youtube_video_id ? "Clickable YouTube thumbnail with a SMALL subtle '▶ WATCH' pill badge in the corner (not a giant overlay)." : "Brief recap."} PULL-QUOTES from the transcript are the star here — make them impossible to ignore. Each quote should feel like a reason to attend.${custom_image_urls && custom_image_urls.length > 0 ? " Scatter the custom event images naturally throughout like photos taped to a poster wall — NO section header, just candid placement at slight angles with border treatments." : ""}
-4. **🎫 TICKET STUBS** — NO "THE DETAILS" header. Date/time stamped as a rotated badge. Each community link (Discord, X, YouTube, Farcaster, Web) is its own individual CONCERT TICKET STUB — rectangular with dashed perforated borders on one side, platform name as bold headliner text, slightly rotated, scattered like actual tickets on a table. Think: you just emptied your pockets after a night out and these ticket stubs fell out.
+SECTIONS ORDER (this order is mandatory):
+1. **HEADER** — WIP logo + "The WIP Meetup" + "Every Thursday · 3 PM ET" + Discord link. Clean and simple.
+2. **THIS WEEK'S HEADLINERS + QUOTES** — Speakers with their PROFILE PHOTOS (circular, glowing borders) displayed prominently ALONGSIDE their best quotes from last week's transcript. Names huge, quotes huge. This is the main attraction.
+3. **LAST WEEK'S REPLAY** — ${youtube_video_id ? "YouTube thumbnail with tiny '▶ WATCH' badge." : "Brief recap."} Event photos scattered around this section naturally.
+4. **TICKET STUBS** — Community links as torn concert ticket stubs. No header.
 
 Output JSON:
 {
