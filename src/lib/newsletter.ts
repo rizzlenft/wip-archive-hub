@@ -49,6 +49,7 @@ export async function generateNewsletter(payload: {
   speakers: NewsletterSpeaker[];
   transcript?: string;
   youtube_video_id?: string;
+  custom_image_urls?: string[];
 }): Promise<NewsletterIssue> {
   const maxAttempts = 3;
   let lastError = "Generation failed";
