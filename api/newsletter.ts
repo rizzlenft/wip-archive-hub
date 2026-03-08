@@ -15,6 +15,7 @@ interface Speaker {
   farcaster?: string;
   topic?: string;
   bio?: string;
+  profile_image_url?: string;
 }
 
 function getRedis() {
@@ -112,10 +113,11 @@ async function handleGenerate(req: VercelRequest, res: VercelResponse) {
   const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
   if (!GEMINI_API_KEY) return res.status(500).json({ error: "GEMINI_API_KEY not configured — add it in Vercel env vars (get one free at aistudio.google.com)" });
 
-  const { speakers, transcript, youtube_video_id } = req.body as {
+  const { speakers, transcript, youtube_video_id, custom_image_urls } = req.body as {
     speakers?: Speaker[];
     transcript?: string;
     youtube_video_id?: string;
+    custom_image_urls?: string[];
   };
 
   if (!speakers || speakers.length === 0) {
@@ -167,10 +169,23 @@ async function handleGenerate(req: VercelRequest, res: VercelResponse) {
 YouTube Thumbnail (MUST include as clickable image): https://img.youtube.com/vi/${youtube_video_id}/maxresdefault.jpg`;
   }
 
-  const speakerList = speakers
+  // Resolve speaker profile images via unavatar.io (Farcaster preferred)
+  const speakersWithImages = speakers.map((s) => {
+    if (s.profile_image_url) return s;
+    // unavatar.io will resolve Farcaster, Twitter, etc. for free
+    if (s.farcaster) {
+      return { ...s, profile_image_url: `https://unavatar.io/farcaster/${s.farcaster.replace(/^@/, "")}` };
+    }
+    if (s.twitter) {
+      return { ...s, profile_image_url: `https://unavatar.io/twitter/${s.twitter.replace(/^@/, "")}` };
+    }
+    return s;
+  });
+
+  const speakerList = speakersWithImages
     .map(
       (s) =>
-        `- ${s.name}${s.twitter ? ` (@${s.twitter} on X/Twitter)` : ""}${s.farcaster ? ` (@${s.farcaster} on Farcaster)` : ""}${s.topic ? ` — Topic: ${s.topic}` : ""}${s.bio ? ` — Bio: ${s.bio}` : ""}`
+        `- ${s.name}${s.profile_image_url ? ` [PROFILE IMAGE: ${s.profile_image_url}]` : ""}${s.twitter ? ` (@${s.twitter} on X/Twitter)` : ""}${s.farcaster ? ` (@${s.farcaster} on Farcaster)` : ""}${s.topic ? ` — Topic: ${s.topic}` : ""}${s.bio ? ` — Bio: ${s.bio}` : ""}`
     )
     .join("\n");
 

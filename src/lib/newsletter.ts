@@ -8,6 +8,7 @@ export interface NewsletterSpeaker {
   farcaster?: string;
   topic?: string;
   bio?: string;
+  profile_image_url?: string;
 }
 
 export interface NewsletterIssue {
