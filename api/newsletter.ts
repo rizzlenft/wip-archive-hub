@@ -1,4 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
+import { Redis } from "@upstash/redis";
 import { setCorsHeaders } from "./_cors.js";
 
 /**
@@ -14,6 +15,14 @@ interface Speaker {
   farcaster?: string;
   topic?: string;
   bio?: string;
+}
+
+function getRedis() {
+  // Support both Vercel KV and direct Upstash env var names
+  const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+  if (!url || !token) throw new Error("Redis not configured: missing KV_REST_API_URL/UPSTASH_REDIS_REST_URL");
+  return new Redis({ url, token });
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -35,20 +44,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
 async function handleList(req: VercelRequest, res: VercelResponse) {
   try {
-    const { kv } = await import("@vercel/kv");
+    const redis = getRedis();
     const { id, status } = req.query as { id?: string; status?: string };
 
     if (id) {
-      const raw = (await kv.get(`newsletter:${id}`)) as string | null;
+      const raw = await redis.get<string>(`newsletter:${id}`);
       if (!raw) return res.status(404).json({ error: "Not found" });
       const newsletter = typeof raw === "string" ? JSON.parse(raw) : raw;
       return res.status(200).json({ newsletter });
     }
 
-    const index = ((await kv.get("newsletter:index")) as string[] | null) || [];
+    const index = (await redis.get<string[]>("newsletter:index")) || [];
     const newsletters = [];
     for (const nid of index) {
-      const raw = (await kv.get(`newsletter:${nid}`)) as string | null;
+      const raw = await redis.get<string>(`newsletter:${nid}`);
       if (!raw) continue;
       const issue = typeof raw === "string" ? JSON.parse(raw) : raw;
       if (status && issue.status !== status) continue;
@@ -69,19 +78,19 @@ async function handleSave(req: VercelRequest, res: VercelResponse) {
   if (!id) return res.status(400).json({ error: "Missing newsletter id" });
 
   try {
-    const { kv } = await import("@vercel/kv");
-    const existing = (await kv.get(`newsletter:${id}`)) as string | object | null;
+    const redis = getRedis();
+    const existing = await redis.get<string>(`newsletter:${id}`);
     const current = existing
       ? typeof existing === "string" ? JSON.parse(existing) : existing
       : {};
     const merged = { ...current, ...body };
 
-    await kv.set(`newsletter:${id}`, JSON.stringify(merged));
+    await redis.set(`newsletter:${id}`, JSON.stringify(merged));
 
-    const index = ((await kv.get("newsletter:index")) as string[] | null) || [];
+    const index = (await redis.get<string[]>("newsletter:index")) || [];
     if (!index.includes(id)) {
       index.unshift(id);
-      await kv.set("newsletter:index", index);
+      await redis.set("newsletter:index", index);
     }
     return res.status(200).json({ success: true, newsletter: merged });
   } catch (err) {
@@ -223,11 +232,11 @@ Community links:
     };
 
     try {
-      const { kv } = await import("@vercel/kv");
-      await kv.set(`newsletter:${id}`, JSON.stringify(issue));
-      const index = ((await kv.get("newsletter:index")) as string[] | null) || [];
+      const redis = getRedis();
+      await redis.set(`newsletter:${id}`, JSON.stringify(issue));
+      const index = (await redis.get<string[]>("newsletter:index")) || [];
       index.unshift(id);
-      await kv.set("newsletter:index", index);
+      await redis.set("newsletter:index", index);
     } catch (kvErr) {
       console.warn("KV save skipped (not configured?):", kvErr);
     }
