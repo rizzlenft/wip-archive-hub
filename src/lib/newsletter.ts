@@ -63,7 +63,7 @@ export async function generateNewsletter(payload: {
 }
 
 export async function saveNewsletter(issue: Partial<NewsletterIssue> & { id: string }): Promise<void> {
-  const res = await fetch(`${API_BASE}/api/newsletter-save`, {
+  const res = await fetch(`${API_BASE}/api/newsletter?action=save`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
@@ -73,7 +73,7 @@ export async function saveNewsletter(issue: Partial<NewsletterIssue> & { id: str
 }
 
 export async function publishNewsletter(id: string): Promise<void> {
-  const res = await fetch(`${API_BASE}/api/newsletter-save`, {
+  const res = await fetch(`${API_BASE}/api/newsletter?action=save`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
