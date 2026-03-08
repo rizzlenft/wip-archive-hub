@@ -311,27 +311,55 @@ const AdminNewsletter = () => {
                         className="bg-card"
                       />
                     </div>
-                    {/* PFP Preview */}
-                    <div className="flex items-center gap-3">
-                      {(speaker.farcaster || speaker.twitter) && (
-                        <img
-                          src={
-                            speaker.profile_image_url ||
-                            (speaker.farcaster
-                              ? `https://unavatar.io/farcaster/${speaker.farcaster.replace(/^@/, "")}`
-                              : `https://unavatar.io/twitter/${speaker.twitter?.replace(/^@/, "")}`)
-                          }
-                          alt={`${speaker.name} avatar`}
-                          className="w-10 h-10 rounded-full border-2 border-accent object-cover"
-                          onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                    {/* PFP Section */}
+                    <div className="flex items-center gap-3 pt-1">
+                      <div className="relative shrink-0">
+                        {(speaker.profile_image_url || speaker.farcaster || speaker.twitter) ? (
+                          <img
+                            src={
+                              speaker.profile_image_url ||
+                              (speaker.farcaster
+                                ? `https://unavatar.io/farcaster/${speaker.farcaster.replace(/^@/, "")}`
+                                : `https://unavatar.io/twitter/${speaker.twitter?.replace(/^@/, "")}`)
+                            }
+                            alt={`${speaker.name} avatar`}
+                            className="w-14 h-14 rounded-full border-2 border-accent object-cover"
+                            onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                          />
+                        ) : (
+                          <div className="w-14 h-14 rounded-full border-2 border-dashed border-muted-foreground/40 flex items-center justify-center">
+                            <User className="w-6 h-6 text-muted-foreground/40" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 space-y-1">
+                        <label className="text-xs text-muted-foreground font-medium">Profile Image URL (paste from socials)</label>
+                        <Input
+                          placeholder="Paste profile image URL — auto-fetched from Farcaster if left empty"
+                          value={speaker.profile_image_url || ""}
+                          onChange={(e) => updateSpeaker(idx, "profile_image_url", e.target.value)}
+                          onPaste={(e) => {
+                            // Handle pasting image data directly
+                            const items = e.clipboardData?.items;
+                            if (!items) return;
+                            for (const item of Array.from(items)) {
+                              if (item.type.startsWith("image/")) {
+                                e.preventDefault();
+                                const blob = item.getAsFile();
+                                if (blob) {
+                                  const reader = new FileReader();
+                                  reader.onload = () => {
+                                    updateSpeaker(idx, "profile_image_url", reader.result as string);
+                                  };
+                                  reader.readAsDataURL(blob);
+                                }
+                                return;
+                              }
+                            }
+                          }}
+                          className="bg-card text-xs"
                         />
-                      )}
-                      <Input
-                        placeholder="Profile image URL (optional — auto-fetched from Farcaster)"
-                        value={speaker.profile_image_url || ""}
-                        onChange={(e) => updateSpeaker(idx, "profile_image_url", e.target.value)}
-                        className="bg-card flex-1"
-                      />
+                      </div>
                     </div>
                   </div>
                 ))}

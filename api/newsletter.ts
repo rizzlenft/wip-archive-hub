@@ -262,6 +262,12 @@ POSTER DESIGN PRINCIPLES:
 - Date/time should look like it's STAMPED on — rotated, bold, with a border box around it
 - Pull-quotes from the transcript should be HUGE, in accent colors, with quotation marks as decorative elements
 
+CRITICAL LAYOUT RULES:
+- The "WATCH THE REPLAY" button/overlay must be SMALL and subtle — a compact pill/badge (14-16px font, inline) overlaid on the thumbnail corner. NOT a giant banner. The video thumbnail itself should be the star, the button is just a small "▶ WATCH" tag.
+- Do NOT use a "CANDID SHOTS" header or any header for event images. Just place them naturally throughout the poster as if they were taped/pinned to the poster at slight angles — no announcement, no section header, just vibes.
+- Do NOT include a "THE DETAILS" header. Instead, make the date/time/links section look like ACTUAL CONCERT TICKET STUBS — with perforated edges (dashed borders), a tear-off stub feel, each link styled as its own mini ticket with the platform name as the headliner. Use a ticket-stub layout: left side has the info, right side has a "tear here" dashed line.
+- ALL community links (Discord, X, YouTube, Farcaster, Web) should be styled as individual torn ticket stubs — slightly rotated, with dashed perforated borders, themed colors, and a raw punk aesthetic. NOT flat buttons.
+
 ${effectiveTranscript ? `PULL-QUOTES — THIS IS THE MOST IMPORTANT SECTION:
 - Extract 2-3 of the most INSIGHTFUL, mind-blowing, or hilarious quotes from the transcript
 - These quotes should make the reader think "damn, I need to be at the next event"
@@ -289,8 +295,8 @@ SPEAKER PROFILE IMAGES — MUST INCLUDE:
 SECTIONS (think of these as ZONES of the poster):
 1. **🔥 HEADER BANNER** — WIP logo + issue title styled like a concert poster header. MASSIVE. BOLD. The title should feel like an event name.
 2. **🎪 THE LINEUP** — Speakers as headliners with their PROFILE PHOTOS displayed prominently. Big names in accent colors, circular PFPs with glow borders, topics as "set descriptions", socials as ways to connect. Style like a festival lineup poster.
-3. **📼 LAST WEEK'S REPLAY** — ${youtube_video_id ? "Clickable YouTube thumbnail with watch overlay." : "Brief recap."} PULL-QUOTES from the transcript are the star here — make them impossible to ignore. Each quote should feel like a reason to attend.${custom_image_urls && custom_image_urls.length > 0 ? " Include the custom event images as candid event photography." : ""}
-4. **🎫 THE DETAILS** — Date, time, links — styled like a ticket stub or wristband. Discord, Twitter, YouTube links as "entry points". Make it feel like tearing off a ticket.
+3. **📼 LAST WEEK'S REPLAY** — ${youtube_video_id ? "Clickable YouTube thumbnail with a SMALL subtle '▶ WATCH' pill badge in the corner (not a giant overlay)." : "Brief recap."} PULL-QUOTES from the transcript are the star here — make them impossible to ignore. Each quote should feel like a reason to attend.${custom_image_urls && custom_image_urls.length > 0 ? " Scatter the custom event images naturally throughout like photos taped to a poster wall — NO section header, just candid placement at slight angles with border treatments." : ""}
+4. **🎫 TICKET STUBS** — NO "THE DETAILS" header. Date/time stamped as a rotated badge. Each community link (Discord, X, YouTube, Farcaster, Web) is its own individual CONCERT TICKET STUB — rectangular with dashed perforated borders on one side, platform name as bold headliner text, slightly rotated, scattered like actual tickets on a table. Think: you just emptied your pockets after a night out and these ticket stubs fell out.
 
 Output JSON:
 {
