@@ -2,10 +2,10 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { setCorsHeaders } from "./_cors.js";
 
 /**
- * POST /api/newsletter-generate
- * Body: { speakers: [...], transcript?: string, youtube_video_id?: string }
- * Uses OpenAI to generate a newsletter draft.
- * Requires env: OPENAI_API_KEY
+ * Unified newsletter endpoint:
+ *   GET  /api/newsletter              → list newsletters (query: ?id=xxx or ?status=published)
+ *   POST /api/newsletter?action=save  → save/update a newsletter
+ *   POST /api/newsletter?action=generate → AI-generate a newsletter
  */
 
 interface Speaker {
@@ -18,17 +18,83 @@ interface Speaker {
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   setCorsHeaders(res);
-
   if (req.method === "OPTIONS") return res.status(200).end();
-  if (req.method !== "POST") {
-    res.setHeader("Allow", "POST, OPTIONS");
-    return res.status(405).end("Method Not Allowed");
+
+  if (req.method === "GET") return handleList(req, res);
+  if (req.method === "POST") {
+    const action = (req.query.action as string) || "save";
+    if (action === "generate") return handleGenerate(req, res);
+    return handleSave(req, res);
   }
 
-  const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-  if (!OPENAI_API_KEY) {
-    return res.status(500).json({ error: "OPENAI_API_KEY not configured" });
+  res.setHeader("Allow", "GET, POST, OPTIONS");
+  return res.status(405).end("Method Not Allowed");
+}
+
+// ─── LIST ────────────────────────────────────────────────────────────────────
+
+async function handleList(req: VercelRequest, res: VercelResponse) {
+  try {
+    const { kv } = await import("@vercel/kv");
+    const { id, status } = req.query as { id?: string; status?: string };
+
+    if (id) {
+      const raw = (await kv.get(`newsletter:${id}`)) as string | null;
+      if (!raw) return res.status(404).json({ error: "Not found" });
+      const newsletter = typeof raw === "string" ? JSON.parse(raw) : raw;
+      return res.status(200).json({ newsletter });
+    }
+
+    const index = ((await kv.get("newsletter:index")) as string[] | null) || [];
+    const newsletters = [];
+    for (const nid of index) {
+      const raw = (await kv.get(`newsletter:${nid}`)) as string | null;
+      if (!raw) continue;
+      const issue = typeof raw === "string" ? JSON.parse(raw) : raw;
+      if (status && issue.status !== status) continue;
+      newsletters.push(issue);
+    }
+    return res.status(200).json({ newsletters });
+  } catch (err) {
+    console.error("newsletter list error:", err);
+    return res.status(500).json({ error: "Failed to load newsletters", newsletters: [] });
   }
+}
+
+// ─── SAVE ────────────────────────────────────────────────────────────────────
+
+async function handleSave(req: VercelRequest, res: VercelResponse) {
+  const body = req.body as Record<string, unknown>;
+  const id = body?.id as string | undefined;
+  if (!id) return res.status(400).json({ error: "Missing newsletter id" });
+
+  try {
+    const { kv } = await import("@vercel/kv");
+    const existing = (await kv.get(`newsletter:${id}`)) as string | object | null;
+    const current = existing
+      ? typeof existing === "string" ? JSON.parse(existing) : existing
+      : {};
+    const merged = { ...current, ...body };
+
+    await kv.set(`newsletter:${id}`, JSON.stringify(merged));
+
+    const index = ((await kv.get("newsletter:index")) as string[] | null) || [];
+    if (!index.includes(id)) {
+      index.unshift(id);
+      await kv.set("newsletter:index", index);
+    }
+    return res.status(200).json({ success: true, newsletter: merged });
+  } catch (err) {
+    console.error("newsletter save error:", err);
+    return res.status(500).json({ error: "Failed to save newsletter" });
+  }
+}
+
+// ─── GENERATE ────────────────────────────────────────────────────────────────
+
+async function handleGenerate(req: VercelRequest, res: VercelResponse) {
+  const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+  if (!OPENAI_API_KEY) return res.status(500).json({ error: "OPENAI_API_KEY not configured" });
 
   const { speakers, transcript, youtube_video_id } = req.body as {
     speakers?: Speaker[];
@@ -40,7 +106,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: "At least one speaker is required" });
   }
 
-  // Fetch latest YouTube video info for context
   let videoContext = "";
   if (youtube_video_id) {
     videoContext = `\nThe latest WIP Meetup recording: https://youtube.com/watch?v=${youtube_video_id}`;
@@ -127,9 +192,7 @@ Community links:
       choices: { message: { content: string } }[];
     };
     const raw = completion.choices?.[0]?.message?.content;
-    if (!raw) {
-      return res.status(502).json({ error: "Empty AI response" });
-    }
+    if (!raw) return res.status(502).json({ error: "Empty AI response" });
 
     const generated = JSON.parse(raw) as {
       title: string;
@@ -159,11 +222,9 @@ Community links:
       week_of: now,
     };
 
-    // Auto-save to KV if available
     try {
       const { kv } = await import("@vercel/kv");
       await kv.set(`newsletter:${id}`, JSON.stringify(issue));
-      // Update the index
       const index = ((await kv.get("newsletter:index")) as string[] | null) || [];
       index.unshift(id);
       await kv.set("newsletter:index", index);
