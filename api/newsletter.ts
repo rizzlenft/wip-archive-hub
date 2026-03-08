@@ -103,8 +103,8 @@ async function handleSave(req: VercelRequest, res: VercelResponse) {
 // ─── GENERATE ────────────────────────────────────────────────────────────────
 
 async function handleGenerate(req: VercelRequest, res: VercelResponse) {
-  const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-  if (!OPENAI_API_KEY) return res.status(500).json({ error: "OPENAI_API_KEY not configured" });
+  const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+  if (!GEMINI_API_KEY) return res.status(500).json({ error: "GEMINI_API_KEY not configured — add it in Vercel env vars (get one free at aistudio.google.com)" });
 
   const { speakers, transcript, youtube_video_id } = req.body as {
     speakers?: Speaker[];
