@@ -476,10 +476,24 @@ const AdminNewsletter = () => {
           {/* PREVIEW VIEW */}
           {view === "preview" && draft && (
             <div className="space-y-6">
-              <Button variant="ghost" size="sm" onClick={() => setView("compose")}>
-                <ArrowLeft className="w-4 h-4" />
-                Back to compose
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="sm" onClick={() => setView("compose")}>
+                  <ArrowLeft className="w-4 h-4" />
+                  Back to compose
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={generating}
+                  onClick={(e) => handleGenerate(e as unknown as FormEvent)}
+                >
+                  {generating ? (
+                    <><Loader2 className="w-4 h-4 animate-spin" /> Regenerating…</>
+                  ) : (
+                    <><Sparkles className="w-4 h-4" /> Regenerate</>
+                  )}
+                </Button>
+              </div>
 
               {/* Editable title */}
               <Input
