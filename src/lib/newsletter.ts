@@ -49,17 +49,39 @@ export async function generateNewsletter(payload: {
   transcript?: string;
   youtube_video_id?: string;
 }): Promise<NewsletterIssue> {
-  const res = await fetch(`${API_BASE}/api/newsletter?action=generate`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    credentials: "include",
-    body: JSON.stringify(payload),
-  });
-  if (!res.ok) {
+  const maxAttempts = 3;
+  let lastError = "Generation failed";
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    const res = await fetch(`${API_BASE}/api/newsletter?action=generate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(payload),
+    });
+
+    if (res.ok) {
+      return (await res.json()) as NewsletterIssue;
+    }
+
     const err = await res.json().catch(() => ({}));
-    throw new Error((err as { error?: string }).error || `HTTP ${res.status}`);
+    const detail = (err as { error?: string }).error || `HTTP ${res.status}`;
+    lastError = detail;
+
+    const retryable = [429, 502, 503, 504].includes(res.status);
+    if (!retryable || attempt === maxAttempts) {
+      throw new Error(detail);
+    }
+
+    const retryAfterHeader = Number(res.headers.get("retry-after") || "");
+    const delayMs = Number.isFinite(retryAfterHeader) && retryAfterHeader > 0
+      ? retryAfterHeader * 1000
+      : Math.min(12000, 1200 * 2 ** (attempt - 1));
+
+    await new Promise((resolve) => setTimeout(resolve, delayMs));
   }
-  return (await res.json()) as NewsletterIssue;
+
+  throw new Error(lastError);
 }
 
 export async function saveNewsletter(issue: Partial<NewsletterIssue> & { id: string }): Promise<void> {
