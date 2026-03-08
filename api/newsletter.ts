@@ -215,65 +215,88 @@ Community links (include in the "ticket" section):
 - Website: https://thewipmeetup.com`;
 
   try {
-    const maxAttempts = 4;
+    // Models to try in order — fallback on rate limits
+    const models = [
+      "gemini-2.0-flash",
+      "gemini-2.5-flash-lite",
+    ];
+
+    const maxAttemptsPerModel = 2;
     let geminiRes: Response | null = null;
     let lastErrorDetail = "AI generation failed";
+    let totalAttempts = 0;
 
-    for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
-      geminiRes = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [
-              { role: "user", parts: [{ text: `${systemPrompt}\n\n---\n\n${userPrompt}` }] },
-            ],
-            generationConfig: {
-              temperature: 0.8,
-              responseMimeType: "application/json",
-            },
-          }),
+    for (const model of models) {
+      let modelWorked = false;
+
+      for (let attempt = 1; attempt <= maxAttemptsPerModel; attempt += 1) {
+        totalAttempts += 1;
+        console.log(`Trying model ${model}, attempt ${attempt}/${maxAttemptsPerModel}`);
+
+        geminiRes = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [
+                { role: "user", parts: [{ text: `${systemPrompt}\n\n---\n\n${userPrompt}` }] },
+              ],
+              generationConfig: {
+                temperature: 0.8,
+                responseMimeType: "application/json",
+              },
+            }),
+          }
+        );
+
+        if (geminiRes.ok) {
+          modelWorked = true;
+          break;
         }
-      );
 
-      if (geminiRes.ok) break;
+        const errText = await geminiRes.text();
+        console.error(`Gemini error (${model}):`, geminiRes.status, errText);
 
-      const errText = await geminiRes.text();
-      console.error("Gemini error:", geminiRes.status, errText);
+        let detail = "AI generation failed";
+        try {
+          const parsed = JSON.parse(errText);
+          detail = parsed?.error?.message || detail;
+        } catch {
+          // Use default detail
+        }
 
-      let detail = "AI generation failed";
-      try {
-        const parsed = JSON.parse(errText);
-        detail = parsed?.error?.message || detail;
-      } catch {
-        // Use default detail
+        if (geminiRes.status === 429) {
+          detail = `Rate limited on ${model} — trying fallback`;
+        }
+        if (geminiRes.status === 400) detail = "Invalid request to Gemini — check GEMINI_API_KEY";
+        if (geminiRes.status === 401) detail = "Invalid GEMINI_API_KEY";
+
+        lastErrorDetail = detail;
+
+        // Non-retryable errors (except 429 which we handle by model fallback)
+        const hardFail = [400, 401, 403].includes(geminiRes.status);
+        if (hardFail) {
+          return res.status(502).json({ error: detail, retry_attempts: totalAttempts });
+        }
+
+        // For 429, break to next model immediately
+        if (geminiRes.status === 429) break;
+
+        // For 5xx, retry with backoff
+        const jitterMs = Math.floor(Math.random() * 300);
+        const backoffMs = Math.min(8000, 1000 * 2 ** (attempt - 1) + jitterMs);
+        await new Promise((resolve) => setTimeout(resolve, backoffMs));
       }
 
-      if (geminiRes.status === 429) {
-        detail = detail.includes("quota")
-          ? `Gemini quota exceeded — ${detail}`
-          : "Gemini rate limit exceeded — retrying automatically";
-      }
-      if (geminiRes.status === 400) detail = "Invalid request to Gemini — check GEMINI_API_KEY";
-      if (geminiRes.status === 401) detail = "Invalid GEMINI_API_KEY";
+      if (modelWorked) break;
+    }
 
-      lastErrorDetail = detail;
-      const retryable = [429, 500, 502, 503, 504].includes(geminiRes.status);
-      if (!retryable || attempt === maxAttempts) {
-        return res.status(502).json({
-          error: detail,
-          retry_attempts: attempt,
-        });
-      }
-
-      const retryAfterHeader = Number(geminiRes.headers.get("retry-after") || "");
-      const jitterMs = Math.floor(Math.random() * 300);
-      const backoffMs = Number.isFinite(retryAfterHeader) && retryAfterHeader > 0
-        ? retryAfterHeader * 1000
-        : Math.min(12000, 1000 * 2 ** (attempt - 1) + jitterMs);
-
-      await new Promise((resolve) => setTimeout(resolve, backoffMs));
+    if (!geminiRes || !geminiRes.ok) {
+      return res.status(502).json({
+        error: `All models rate-limited. ${lastErrorDetail}`,
+        retry_attempts: totalAttempts,
+      });
     }
 
     if (!geminiRes || !geminiRes.ok) {
