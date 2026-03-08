@@ -191,9 +191,9 @@ YouTube Thumbnail (MUST include as clickable image): https://img.youtube.com/vi/
 
   // Build custom images context
   const customImagesContext = custom_image_urls && custom_image_urls.length > 0
-    ? `\n\nCUSTOM EVENT IMAGES (MUST incorporate these throughout the poster as event photography):
-${custom_image_urls.map((url, i) => `- Image ${i + 1}: ${url} — style with border treatments, slight rotation, and glow matching theme`).join("\n")}
-Place these as "event photos" throughout the poster — like candid shots pinned to a corkboard or taped to a wall.`
+    ? `\n\nCUSTOM EVENT IMAGES FROM LAST WEEK (these are community photos from LAST WEEK's event — NOT this week's speakers):
+${custom_image_urls.map((url, i) => `- Image ${i + 1}: ${url}`).join("\n")}
+These are general community vibes — scatter them naturally through the poster at slight angles. Do NOT associate them with this week's speakers.`
     : "";
 
   const transcriptSection = effectiveTranscript
