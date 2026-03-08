@@ -191,7 +191,7 @@ YouTube Thumbnail (MUST include as clickable image): https://img.youtube.com/vi/
   const weekIndex = Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000));
   const theme = visualThemes[weekIndex % visualThemes.length];
 
-  const WIP_LOGO_URL = "https://thewipmeetup.com/assets/wip-logo-static-BLWp2V4x.png";
+  const WIP_LOGO_URL = "https://thewipmeetup.com/images/wip-logo-static.png";
 
   const systemPrompt = `You are the creative director of "The WIP Weekly" — the weekly poster/flyer for The WIP Meetup,
 a vibrant Web3/metaverse community that meets every Thursday at 3 PM ET.
