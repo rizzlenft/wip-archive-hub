@@ -215,34 +215,69 @@ Community links (include in the "ticket" section):
 - Website: https://thewipmeetup.com`;
 
   try {
-    const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [
-            { role: "user", parts: [{ text: `${systemPrompt}\n\n---\n\n${userPrompt}` }] },
-          ],
-          generationConfig: {
-            temperature: 0.8,
-            responseMimeType: "application/json",
-          },
-        }),
-      }
-    );
+    const maxAttempts = 4;
+    let geminiRes: Response | null = null;
+    let lastErrorDetail = "AI generation failed";
 
-    if (!geminiRes.ok) {
+    for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+      geminiRes = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [
+              { role: "user", parts: [{ text: `${systemPrompt}\n\n---\n\n${userPrompt}` }] },
+            ],
+            generationConfig: {
+              temperature: 0.8,
+              responseMimeType: "application/json",
+            },
+          }),
+        }
+      );
+
+      if (geminiRes.ok) break;
+
       const errText = await geminiRes.text();
       console.error("Gemini error:", geminiRes.status, errText);
+
       let detail = "AI generation failed";
       try {
         const parsed = JSON.parse(errText);
         detail = parsed?.error?.message || detail;
-      } catch { /* use default */ }
-      if (geminiRes.status === 429) detail = "Gemini rate limit exceeded — wait a minute and try again";
+      } catch {
+        // Use default detail
+      }
+
+      if (geminiRes.status === 429) {
+        detail = detail.includes("quota")
+          ? `Gemini quota exceeded — ${detail}`
+          : "Gemini rate limit exceeded — retrying automatically";
+      }
       if (geminiRes.status === 400) detail = "Invalid request to Gemini — check GEMINI_API_KEY";
-      return res.status(502).json({ error: detail });
+      if (geminiRes.status === 401) detail = "Invalid GEMINI_API_KEY";
+
+      lastErrorDetail = detail;
+      const retryable = [429, 500, 502, 503, 504].includes(geminiRes.status);
+      if (!retryable || attempt === maxAttempts) {
+        return res.status(502).json({
+          error: detail,
+          retry_attempts: attempt,
+        });
+      }
+
+      const retryAfterHeader = Number(geminiRes.headers.get("retry-after") || "");
+      const jitterMs = Math.floor(Math.random() * 300);
+      const backoffMs = Number.isFinite(retryAfterHeader) && retryAfterHeader > 0
+        ? retryAfterHeader * 1000
+        : Math.min(12000, 1000 * 2 ** (attempt - 1) + jitterMs);
+
+      await new Promise((resolve) => setTimeout(resolve, backoffMs));
+    }
+
+    if (!geminiRes || !geminiRes.ok) {
+      return res.status(502).json({ error: lastErrorDetail });
     }
 
     const geminiData = (await geminiRes.json()) as {
