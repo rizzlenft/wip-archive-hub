@@ -209,40 +209,40 @@ Community links (include in the "ticket" section):
 - Website: https://thewipmeetup.com`;
 
   try {
-    const openaiRes = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${OPENAI_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "gpt-4o",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt },
-        ],
-        response_format: { type: "json_object" },
-        temperature: 0.8,
-      }),
-    });
+    const geminiRes = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [
+            { role: "user", parts: [{ text: `${systemPrompt}\n\n---\n\n${userPrompt}` }] },
+          ],
+          generationConfig: {
+            temperature: 0.8,
+            responseMimeType: "application/json",
+          },
+        }),
+      }
+    );
 
-    if (!openaiRes.ok) {
-      const errText = await openaiRes.text();
-      console.error("OpenAI error:", openaiRes.status, errText);
+    if (!geminiRes.ok) {
+      const errText = await geminiRes.text();
+      console.error("Gemini error:", geminiRes.status, errText);
       let detail = "AI generation failed";
       try {
         const parsed = JSON.parse(errText);
         detail = parsed?.error?.message || detail;
       } catch { /* use default */ }
-      if (openaiRes.status === 429) detail = "OpenAI rate limit or quota exceeded — check your billing at platform.openai.com";
-      if (openaiRes.status === 401) detail = "Invalid OpenAI API key — check OPENAI_API_KEY in Vercel env vars";
+      if (geminiRes.status === 429) detail = "Gemini rate limit exceeded — wait a minute and try again";
+      if (geminiRes.status === 400) detail = "Invalid request to Gemini — check GEMINI_API_KEY";
       return res.status(502).json({ error: detail });
     }
 
-    const completion = (await openaiRes.json()) as {
-      choices: { message: { content: string } }[];
+    const geminiData = (await geminiRes.json()) as {
+      candidates?: { content?: { parts?: { text?: string }[] } }[];
     };
-    const raw = completion.choices?.[0]?.message?.content;
+    const raw = geminiData.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!raw) return res.status(502).json({ error: "Empty AI response" });
 
     const generated = JSON.parse(raw) as {
