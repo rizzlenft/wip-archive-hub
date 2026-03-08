@@ -44,12 +44,7 @@ const App = () => (
             <Route path="/guests" element={<Guests />} />
             <Route path="/merch" element={<Merch />} />
             <Route path="/newsletter" element={<Newsletter />} />
-            <Route
-              path="/admin/newsletter"
-              element={
-                <ProtectedRoute>
-                  <AdminNewsletter />
-                </ProtectedRoute>
+            <Route path="/admin/newsletter" element={<AdminNewsletter />} />
               }
             />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
