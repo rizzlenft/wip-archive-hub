@@ -93,8 +93,20 @@ const AdminNewsletter = () => {
     setGenerating(true);
     setFeedback(null);
     try {
+      // Strip base64 data URLs from profile images (too large for API)
+      // Keep only http/https URLs; if base64 and has farcaster handle, use unavatar
+      const cleanedSpeakers = validSpeakers.map((s) => {
+        let pfp = s.profile_image_url || "";
+        if (pfp.startsWith("data:")) {
+          // Replace with unavatar URL if farcaster handle exists
+          const fc = s.farcaster?.replace(/^@/, "").trim();
+          pfp = fc ? `https://unavatar.io/farcaster/${fc}` : "";
+        }
+        return { ...s, profile_image_url: pfp || undefined };
+      });
+
       const issue = await generateNewsletter({
-        speakers: validSpeakers,
+        speakers: cleanedSpeakers,
         transcript: transcript.trim() || undefined,
         youtube_video_id: youtubeVideoId.trim() || undefined,
         custom_image_urls: customImageUrls.filter((u) => u.trim()) || undefined,
