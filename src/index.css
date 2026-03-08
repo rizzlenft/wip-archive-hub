@@ -226,3 +226,20 @@
 ::-webkit-scrollbar-thumb:hover {
   background: hsl(330, 85%, 65%, 0.5);
 }
+
+/* Newsletter poster preview — let the generated HTML breathe */
+.newsletter-poster-preview {
+  width: 100%;
+  overflow: hidden;
+}
+.newsletter-poster-preview img {
+  max-width: 100%;
+  height: auto;
+}
+.newsletter-poster-preview a {
+  color: inherit;
+  text-decoration: underline;
+}
+.newsletter-poster-preview a:hover {
+  opacity: 0.85;
+}
