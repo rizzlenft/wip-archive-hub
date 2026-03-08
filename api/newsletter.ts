@@ -189,8 +189,23 @@ YouTube Thumbnail (MUST include as clickable image): https://img.youtube.com/vi/
     )
     .join("\n");
 
+  // Build custom images context
+  const customImagesContext = custom_image_urls && custom_image_urls.length > 0
+    ? `\n\nCUSTOM EVENT IMAGES (MUST incorporate these throughout the poster as event photography):
+${custom_image_urls.map((url, i) => `- Image ${i + 1}: ${url} — style with border treatments, slight rotation, and glow matching theme`).join("\n")}
+Place these as "event photos" throughout the poster — like candid shots pinned to a corkboard or taped to a wall.`
+    : "";
+
   const transcriptSection = effectiveTranscript
-    ? `\n\nHere is a transcript/notes from last week's event. EXTRACT 2-3 of the best, most quotable moments and feature them prominently as pull-quotes with speaker attribution:\n${effectiveTranscript}`
+    ? `\n\nHere is a transcript/notes from last week's event. THIS IS CRITICAL — you MUST extract the 2-3 most INSIGHTFUL, thought-provoking, or exciting quotes. Look for:
+- Bold predictions about Web3/metaverse/tech that would make someone stop scrolling
+- Funny or memorable one-liners that capture the community vibe  
+- Controversial or surprising takes that spark curiosity
+- Moments of real insight that show WHY this community is worth joining
+
+Feature these quotes PROMINENTLY as massive pull-quotes (28-36px) with decorative oversized quotation marks. Each quote should feel like a reason to attend the next event.
+
+TRANSCRIPT:\n${effectiveTranscript}`
     : "\n\n(No transcript provided — create a brief general recap mentioning the speakers and topics.)";
 
   // Rotating visual themes for week-to-week variety
@@ -247,11 +262,14 @@ POSTER DESIGN PRINCIPLES:
 - Date/time should look like it's STAMPED on — rotated, bold, with a border box around it
 - Pull-quotes from the transcript should be HUGE, in accent colors, with quotation marks as decorative elements
 
-${effectiveTranscript ? `PULL-QUOTES — CRITICAL:
-- Extract 2-3 of the most interesting, funny, or insightful quotes from the transcript
-- Display them as massive pull-quotes (24-32px font) with decorative quotation marks
+${effectiveTranscript ? `PULL-QUOTES — THIS IS THE MOST IMPORTANT SECTION:
+- Extract 2-3 of the most INSIGHTFUL, mind-blowing, or hilarious quotes from the transcript
+- These quotes should make the reader think "damn, I need to be at the next event"
+- Display them as MASSIVE pull-quotes (28-36px font) with oversized decorative quotation marks (❝❞ or giant " marks at 60-80px)
 - Style them like graffiti tags or highlighted text with background accent colors
-- Attribute each quote to the speaker` : ""}
+- Each quote gets its own visual treatment — rotated, bordered, glowing
+- Attribute each quote to the speaker with their name styled in accent color
+- If a speaker has a profile image, show a small circular avatar next to their quote attribution` : ""}
 
 HTML RULES:
 - All styles INLINE (this will also be used in email)
@@ -262,10 +280,16 @@ HTML RULES:
 - Use background gradients on sections for depth
 - NO bland email patterns — no "Hi there!" or "Click here to read more"
 
+SPEAKER PROFILE IMAGES — MUST INCLUDE:
+- Each speaker with a [PROFILE IMAGE: url] MUST have their photo displayed
+- Show as circular images (80-100px) with thick accent-colored borders and glow effects
+- Place next to their name in the lineup section, and next to any quotes attributed to them
+- Style like VIP badges or artist photos on a concert poster
+
 SECTIONS (think of these as ZONES of the poster):
 1. **🔥 HEADER BANNER** — WIP logo + issue title styled like a concert poster header. MASSIVE. BOLD. The title should feel like an event name.
-2. **🎪 THE LINEUP** — Speakers as headliners. Big names in accent colors, topics as "set descriptions", socials as ways to connect. Style like a festival lineup poster.
-3. **📼 LAST WEEK'S REPLAY** — ${youtube_video_id ? "Clickable YouTube thumbnail with watch overlay." : "Brief recap."} If transcript quotes are available, feature them prominently here as pull-quotes.
+2. **🎪 THE LINEUP** — Speakers as headliners with their PROFILE PHOTOS displayed prominently. Big names in accent colors, circular PFPs with glow borders, topics as "set descriptions", socials as ways to connect. Style like a festival lineup poster.
+3. **📼 LAST WEEK'S REPLAY** — ${youtube_video_id ? "Clickable YouTube thumbnail with watch overlay." : "Brief recap."} PULL-QUOTES from the transcript are the star here — make them impossible to ignore. Each quote should feel like a reason to attend.${custom_image_urls && custom_image_urls.length > 0 ? " Include the custom event images as candid event photography." : ""}
 4. **🎫 THE DETAILS** — Date, time, links — styled like a ticket stub or wristband. Discord, Twitter, YouTube links as "entry points". Make it feel like tearing off a ticket.
 
 Output JSON:
@@ -285,6 +309,7 @@ NOT an email. A POSTER.
 ${speakerList}
 ${videoContext}
 ${transcriptSection}
+${customImagesContext}
 
 Community links (style as "entry points" in the ticket section):
 - Discord: https://discord.gg/XHDcUdm3
