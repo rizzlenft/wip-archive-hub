@@ -229,7 +229,14 @@ Community links (include in the "ticket" section):
     if (!openaiRes.ok) {
       const errText = await openaiRes.text();
       console.error("OpenAI error:", openaiRes.status, errText);
-      return res.status(502).json({ error: "AI generation failed" });
+      let detail = "AI generation failed";
+      try {
+        const parsed = JSON.parse(errText);
+        detail = parsed?.error?.message || detail;
+      } catch { /* use default */ }
+      if (openaiRes.status === 429) detail = "OpenAI rate limit or quota exceeded — check your billing at platform.openai.com";
+      if (openaiRes.status === 401) detail = "Invalid OpenAI API key — check OPENAI_API_KEY in Vercel env vars";
+      return res.status(502).json({ error: detail });
     }
 
     const completion = (await openaiRes.json()) as {
