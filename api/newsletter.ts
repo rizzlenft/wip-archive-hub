@@ -66,7 +66,8 @@ async function handleList(req: VercelRequest, res: VercelResponse) {
     return res.status(200).json({ newsletters });
   } catch (err) {
     console.error("newsletter list error:", err);
-    return res.status(500).json({ error: "Failed to load newsletters", newsletters: [] });
+    const msg = err instanceof Error ? err.message : String(err);
+    return res.status(500).json({ error: msg, newsletters: [] });
   }
 }
 
