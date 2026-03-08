@@ -26,18 +26,24 @@ function getRedis() {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  setCorsHeaders(res, req);
-  if (req.method === "OPTIONS") return res.status(200).end();
+  try {
+    setCorsHeaders(res, req);
+    if (req.method === "OPTIONS") return res.status(200).end();
 
-  if (req.method === "GET") return handleList(req, res);
-  if (req.method === "POST") {
-    const action = (req.query.action as string) || "save";
-    if (action === "generate") return handleGenerate(req, res);
-    return handleSave(req, res);
+    if (req.method === "GET") return handleList(req, res);
+    if (req.method === "POST") {
+      const action = (req.query.action as string) || "save";
+      if (action === "generate") return handleGenerate(req, res);
+      return handleSave(req, res);
+    }
+
+    res.setHeader("Allow", "GET, POST, OPTIONS");
+    return res.status(405).end("Method Not Allowed");
+  } catch (err) {
+    console.error("newsletter top-level error:", err);
+    const msg = err instanceof Error ? err.message : String(err);
+    return res.status(500).json({ error: `Unhandled: ${msg}` });
   }
-
-  res.setHeader("Allow", "GET, POST, OPTIONS");
-  return res.status(405).end("Method Not Allowed");
 }
 
 // ─── LIST ────────────────────────────────────────────────────────────────────
