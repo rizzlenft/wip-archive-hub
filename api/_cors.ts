@@ -1,14 +1,25 @@
-import type { VercelResponse } from "@vercel/node";
+import type { VercelRequest, VercelResponse } from "@vercel/node";
 
-const ALLOWED_ORIGIN =
-  process.env.APP_URL || process.env.FRONTEND_ORIGIN || "*";
+const ALLOWED_ORIGINS = [
+  process.env.APP_URL || "https://thewipmeetup.com",
+  "https://wip-archive-hub.lovable.app",
+];
+
+// Also allow any *.lovableproject.com or *.lovable.app preview origins
+function isAllowedOrigin(origin: string | undefined): string | null {
+  if (!origin) return ALLOWED_ORIGINS[0];
+  if (ALLOWED_ORIGINS.includes(origin)) return origin;
+  if (origin.endsWith(".lovableproject.com") || origin.endsWith(".lovable.app")) return origin;
+  return null;
+}
 
 /**
- * Set CORS headers so the frontend (e.g. thewipmeetup.com) can call this API from another origin.
- * Call this before sending the response in any API route the frontend fetches.
+ * Set CORS headers so the frontend can call this API from allowed origins.
  */
-export function setCorsHeaders(res: VercelResponse): void {
-  res.setHeader("Access-Control-Allow-Origin", ALLOWED_ORIGIN);
+export function setCorsHeaders(res: VercelResponse, req?: VercelRequest): void {
+  const origin = req?.headers?.origin as string | undefined;
+  const allowed = isAllowedOrigin(origin) || ALLOWED_ORIGINS[0];
+  res.setHeader("Access-Control-Allow-Origin", allowed);
   res.setHeader("Access-Control-Allow-Credentials", "true");
   res.setHeader(
     "Access-Control-Allow-Methods",
