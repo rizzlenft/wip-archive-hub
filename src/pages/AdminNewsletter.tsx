@@ -354,11 +354,21 @@ const AdminNewsletter = () => {
   const handleCopyAndOpenSubstack = async () => {
     if (!editableHtml) return;
     try {
-      await navigator.clipboard.writeText(editableHtml);
-      setFeedback({ type: "success", msg: "📋 HTML copied! Paste it into your Substack post editor." });
+      // Copy as rich text so Substack's editor accepts it as formatted content
+      const blob = new Blob([editableHtml], { type: "text/html" });
+      const item = new ClipboardItem({ "text/html": blob, "text/plain": new Blob([editableHtml], { type: "text/plain" }) });
+      await navigator.clipboard.write([item]);
+      setFeedback({ type: "success", msg: "📋 Rich content copied! Open Substack and paste (Ctrl+V / Cmd+V) into the editor." });
       window.open("https://thewipmeetup.substack.com/publish/post", "_blank");
     } catch {
-      setFeedback({ type: "error", msg: "Failed to copy to clipboard" });
+      // Fallback to plain text copy
+      try {
+        await navigator.clipboard.writeText(editableHtml);
+        setFeedback({ type: "success", msg: "📋 HTML copied (as text). Paste into Substack's HTML editor via the </> code view." });
+        window.open("https://thewipmeetup.substack.com/publish/post", "_blank");
+      } catch {
+        setFeedback({ type: "error", msg: "Failed to copy to clipboard" });
+      }
     }
   };
 
