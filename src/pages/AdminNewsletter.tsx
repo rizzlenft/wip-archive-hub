@@ -520,7 +520,6 @@ const AdminNewsletter = () => {
                                 key={pfpUrl}
                                 src={pfpUrl}
                                 referrerPolicy="no-referrer"
-                                loading="lazy"
                                 alt={`${speaker.name} avatar`}
                                 className="w-14 h-14 rounded-full border-2 border-accent object-cover"
                                 onLoad={() =>
