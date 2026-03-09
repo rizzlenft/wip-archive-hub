@@ -119,7 +119,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     setCorsHeaders(res, req);
     if (req.method === "OPTIONS") return res.status(200).end();
 
-    if (req.method === "GET") return handleList(req, res);
+    if (req.method === "GET") {
+      const action = (req.query.action as string) || "";
+      if (action === "avatar") return handleAvatar(req, res);
+      return handleList(req, res);
+    }
+
     if (req.method === "POST") {
       const action = (req.query.action as string) || "save";
       if (action === "generate") return handleGenerate(req, res);
@@ -132,6 +137,101 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     console.error("newsletter top-level error:", err);
     const msg = err instanceof Error ? err.message : String(err);
     return res.status(500).json({ error: `Unhandled: ${msg}` });
+  }
+}
+
+// ─── AVATAR PROXY ────────────────────────────────────────────────────────────
+
+function getRequestOrigin(req: VercelRequest): string {
+  const proto = (req.headers["x-forwarded-proto"] as string | undefined) || "https";
+  const host =
+    (req.headers["x-forwarded-host"] as string | undefined) ||
+    (req.headers.host as string | undefined) ||
+    "api.thewipmeetup.com";
+  return `${proto}://${host}`;
+}
+
+const ALLOWED_AVATAR_HOSTS = new Set([
+  "unavatar.io",
+  "pbs.twimg.com",
+  "res.cloudinary.com",
+  "imagedelivery.net",
+  "i.imgur.com",
+  "cdn.discordapp.com",
+  "ipfs.io",
+  "gateway.pinata.cloud",
+]);
+
+function isAllowedAvatarUrl(raw: string): boolean {
+  try {
+    const u = new URL(raw);
+    if (u.protocol !== "https:") return false;
+    const host = u.hostname.replace(/^www\./, "").toLowerCase();
+    if (!ALLOWED_AVATAR_HOSTS.has(host)) return false;
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function handleAvatar(req: VercelRequest, res: VercelResponse) {
+  try {
+    const q = req.query as { farcaster?: string; twitter?: string; url?: string };
+
+    const fc = normalizeFarcasterHandle(q.farcaster);
+    const tw = normalizeTwitterHandle(q.twitter);
+    const url = q.url?.trim();
+
+    let upstream: string | null = null;
+
+    if (url) {
+      if (!isAllowedAvatarUrl(url)) {
+        return res.status(400).json({ error: "Avatar URL host not allowed" });
+      }
+      upstream = url;
+    } else if (fc) {
+      upstream = `https://unavatar.io/farcaster/${fc}`;
+    } else if (tw) {
+      upstream = `https://unavatar.io/twitter/${tw}`;
+    }
+
+    if (!upstream) return res.status(400).json({ error: "Missing farcaster/twitter/url" });
+
+    const upstreamRes = await fetch(upstream, {
+      redirect: "follow",
+      headers: {
+        Accept: "image/*,*/*;q=0.8",
+        "User-Agent": "wip-newsletter-avatar-proxy",
+      },
+    });
+
+    if (!upstreamRes.ok) {
+      return res.status(404).json({ error: `Avatar fetch failed: HTTP ${upstreamRes.status}` });
+    }
+
+    const contentType = upstreamRes.headers.get("content-type") || "";
+    if (!contentType.toLowerCase().startsWith("image/")) {
+      return res.status(415).json({ error: "Upstream did not return an image" });
+    }
+
+    const contentLength = Number(upstreamRes.headers.get("content-length") || "0");
+    if (Number.isFinite(contentLength) && contentLength > 5_000_000) {
+      return res.status(413).json({ error: "Avatar too large" });
+    }
+
+    const buf = Buffer.from(await upstreamRes.arrayBuffer());
+
+    res.setHeader("Content-Type", contentType);
+    res.setHeader(
+      "Cache-Control",
+      "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800",
+    );
+    res.setHeader("Content-Length", String(buf.length));
+    return res.status(200).send(buf);
+  } catch (err) {
+    console.error("avatar proxy error:", err);
+    const msg = err instanceof Error ? err.message : String(err);
+    return res.status(500).json({ error: msg || "Avatar proxy failed" });
   }
 }
 
@@ -262,11 +362,24 @@ async function handleGenerate(req: VercelRequest, res: VercelResponse) {
 YouTube Thumbnail (MUST include as clickable image): https://img.youtube.com/vi/${youtube_video_id}/maxresdefault.jpg`;
   }
 
-  // Resolve speaker profile images via unavatar.io (Farcaster preferred)
+  const origin = getRequestOrigin(req);
+  const avatarBase = `${origin}/api/newsletter?action=avatar`;
+
+  // Ensure speaker profile images are ALWAYS same-origin (proxy) to avoid ORB/CORS breaks in the browser.
   const speakersWithImages = normalizedSpeakers.map((s) => {
-    if (s.profile_image_url) return s;
-    if (s.farcaster) return { ...s, profile_image_url: `https://unavatar.io/farcaster/${s.farcaster}` };
-    if (s.twitter) return { ...s, profile_image_url: `https://unavatar.io/twitter/${s.twitter}` };
+    const alreadyProxied = typeof s.profile_image_url === "string" && s.profile_image_url.startsWith(avatarBase);
+
+    if (alreadyProxied) return s;
+
+    if (s.profile_image_url) {
+      return { ...s, profile_image_url: `${avatarBase}&url=${encodeURIComponent(s.profile_image_url)}` };
+    }
+    if (s.farcaster) {
+      return { ...s, profile_image_url: `${avatarBase}&farcaster=${encodeURIComponent(s.farcaster)}` };
+    }
+    if (s.twitter) {
+      return { ...s, profile_image_url: `${avatarBase}&twitter=${encodeURIComponent(s.twitter)}` };
+    }
     return s;
   });
 

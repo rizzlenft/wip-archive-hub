@@ -7,6 +7,21 @@ import { ArrowLeft, Calendar, User, ExternalLink } from "lucide-react";
 import { type NewsletterIssue, fetchNewsletters, fetchNewsletter } from "@/lib/newsletter";
 import wipLogo from "@/assets/wip-logo-static.png";
 
+const API_BASE =
+  (import.meta.env.VITE_BACKEND_URL as string | undefined) ||
+  "https://api.thewipmeetup.com";
+
+function proxyUnavatarHtml(html: string): string {
+  // Back-compat for older issues that stored unavatar URLs directly.
+  return html.replace(
+    /https:\/\/unavatar\.io\/(farcaster|twitter)\/([a-zA-Z0-9_.-]+)/g,
+    (_m, service: string, handle: string) => {
+      const key = service === "farcaster" ? "farcaster" : "twitter";
+      return `${API_BASE}/api/newsletter?action=avatar&${key}=${encodeURIComponent(handle)}`;
+    },
+  );
+}
+
 const Newsletter = () => {
   const [issues, setIssues] = useState<NewsletterIssue[]>([]);
   const [selected, setSelected] = useState<NewsletterIssue | null>(null);
@@ -85,8 +100,8 @@ const Newsletter = () => {
               {/* Newsletter poster content */}
               <div
                 className="newsletter-poster-preview rounded-xl overflow-hidden"
-                style={{ background: '#0a0612' }}
-                dangerouslySetInnerHTML={{ __html: selected.body_html }}
+                style={{ background: "#0a0612" }}
+                dangerouslySetInnerHTML={{ __html: proxyUnavatarHtml(selected.body_html) }}
               />
 
               {/* CTA */}
