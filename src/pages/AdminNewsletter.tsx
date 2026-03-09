@@ -188,6 +188,7 @@ const AdminNewsletter = () => {
 
     setGenerating(true);
     setFeedback(null);
+    try {
       // Normalize handles/URLs so PFPs reliably resolve (even when pasting full profile links)
       // and ALWAYS route through our API proxy to avoid browser ORB/CORS issues.
       const cleanedSpeakers = validSpeakers.map((s) => {
@@ -225,6 +226,14 @@ const AdminNewsletter = () => {
       setEditableTitle(issue.title);
       setView("preview");
       setFeedback({ type: "success", msg: "Newsletter generated! Review and edit below." });
+    } catch (err) {
+      setFeedback({
+        type: "error",
+        msg: err instanceof Error ? err.message : "Generation failed",
+      });
+    } finally {
+      setGenerating(false);
+    }
     } catch (err) {
       setFeedback({
         type: "error",
