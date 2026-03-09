@@ -351,6 +351,94 @@ const AdminNewsletter = () => {
     }
   };
 
+  const handleSendToSubstack = async () => {
+    if (!draft || !editableHtml) return;
+    setSendingToSubstack(true);
+    setFeedback(null);
+    try {
+      const res = await fetch(`${API_BASE}/api/newsletter?action=send-substack`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          id: draft.id,
+          title: editableTitle || draft.title,
+          body_html: editableHtml,
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error((err as { error?: string }).error || `HTTP ${res.status}`);
+      }
+      setFeedback({ type: "success", msg: "📧 Newsletter sent to Substack! Check your Substack dashboard to publish." });
+    } catch (err) {
+      setFeedback({
+        type: "error",
+        msg: `Substack send failed: ${err instanceof Error ? err.message : "Unknown error"}`,
+      });
+    } finally {
+      setSendingToSubstack(false);
+    }
+  };
+
+  // ── Auth gate ──────────────────────────────────────────────────────────────
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  const userEmail = user?.email?.toLowerCase();
+  const isAuthorized = isAuthenticated && userEmail && ALLOWED_ADMIN_EMAILS.includes(userEmail);
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        <main className="min-h-screen flex items-center justify-center px-4">
+          <div className="text-center space-y-4 max-w-md">
+            <div className="w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mx-auto">
+              <AlertCircle className="w-8 h-8 text-destructive" />
+            </div>
+            <h1 className="text-2xl font-bold">Sign In Required</h1>
+            <p className="text-muted-foreground">
+              You need to sign in to access the newsletter editor.
+            </p>
+            <Button onClick={() => login("/admin/newsletter")}>
+              Sign In with TokenSmart
+            </Button>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (!isAuthorized) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        <main className="min-h-screen flex items-center justify-center px-4">
+          <div className="text-center space-y-4 max-w-md">
+            <div className="w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mx-auto">
+              <XCircle className="w-8 h-8 text-destructive" />
+            </div>
+            <h1 className="text-2xl font-bold">Access Denied</h1>
+            <p className="text-muted-foreground">
+              Your account ({userEmail}) does not have permission to access the newsletter editor. Contact the WIP team for access.
+            </p>
+            <Button variant="outline" onClick={() => window.location.href = "/"}>
+              Return to Homepage
+            </Button>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
