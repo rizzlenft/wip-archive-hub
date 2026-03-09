@@ -365,105 +365,135 @@ const AdminNewsletter = () => {
                     Add Speaker
                   </Button>
                 </div>
-                {speakers.map((speaker, idx) => (
-                  <div
-                    key={idx}
-                    className="rounded-md border border-border/50 bg-background p-4 space-y-3"
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-muted-foreground">
-                        Speaker {idx + 1}
-                      </span>
-                      {speakers.length > 1 && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeSpeaker(idx)}
-                        >
-                          <Trash2 className="w-4 h-4 text-destructive" />
-                        </Button>
-                      )}
-                    </div>
-                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                      <Input
-                        placeholder="Name *"
-                        value={speaker.name}
-                        onChange={(e) => updateSpeaker(idx, "name", e.target.value)}
-                        className="bg-card"
-                        required={idx === 0}
-                      />
-                      <Input
-                        placeholder="Topic / what they'll discuss"
-                        value={speaker.topic || ""}
-                        onChange={(e) => updateSpeaker(idx, "topic", e.target.value)}
-                        className="bg-card"
-                      />
-                      <Input
-                        placeholder="@farcaster handle (auto-fetches PFP)"
-                        value={speaker.farcaster || ""}
-                        onChange={(e) => updateSpeaker(idx, "farcaster", e.target.value)}
-                        className="bg-card"
-                      />
-                      <Input
-                        placeholder="@twitter handle"
-                        value={speaker.twitter || ""}
-                        onChange={(e) => updateSpeaker(idx, "twitter", e.target.value)}
-                        className="bg-card"
-                      />
-                    </div>
-                    {/* PFP Section */}
-                    <div className="flex items-center gap-3 pt-1">
-                      <div className="relative shrink-0">
-                        {(speaker.profile_image_url || speaker.farcaster || speaker.twitter) ? (
-                          <img
-                            src={
-                              speaker.profile_image_url ||
-                              (speaker.farcaster
-                                ? `https://unavatar.io/farcaster/${speaker.farcaster.replace(/^@/, "")}`
-                                : `https://unavatar.io/twitter/${speaker.twitter?.replace(/^@/, "")}`)
-                            }
-                            alt={`${speaker.name} avatar`}
-                            className="w-14 h-14 rounded-full border-2 border-accent object-cover"
-                            onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+
+                <div className={`grid grid-cols-1 gap-4 ${speakers.length >= 2 ? "sm:grid-cols-2" : ""}`}>
+                  {speakers.map((speaker, idx) => {
+                    const fc = normalizeFarcasterHandle(speaker.farcaster);
+                    const tw = normalizeTwitterHandle(speaker.twitter);
+                    const normalizedProfileUrl = speaker.profile_image_url
+                      ? normalizeProfileImageUrlFromText(speaker.profile_image_url)
+                      : null;
+
+                    const pfpUrl =
+                      normalizedProfileUrl ||
+                      (fc ? `https://unavatar.io/farcaster/${fc}` : "") ||
+                      (tw ? `https://unavatar.io/twitter/${tw}` : "");
+
+                    return (
+                      <div
+                        key={idx}
+                        className="rounded-md border border-border/50 bg-background p-4 space-y-3"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium text-muted-foreground">
+                            Speaker {idx + 1}
+                          </span>
+                          {speakers.length > 1 && (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => removeSpeaker(idx)}
+                            >
+                              <Trash2 className="w-4 h-4 text-destructive" />
+                            </Button>
+                          )}
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                          <Input
+                            placeholder="Name *"
+                            value={speaker.name}
+                            onChange={(e) => updateSpeaker(idx, "name", e.target.value)}
+                            className="bg-card"
+                            required={idx === 0}
                           />
-                        ) : (
-                          <div className="w-14 h-14 rounded-full border-2 border-dashed border-muted-foreground/40 flex items-center justify-center">
-                            <User className="w-6 h-6 text-muted-foreground/40" />
+                          <Input
+                            placeholder="Topic / what they'll discuss"
+                            value={speaker.topic || ""}
+                            onChange={(e) => updateSpeaker(idx, "topic", e.target.value)}
+                            className="bg-card"
+                          />
+                          <Input
+                            placeholder="@farcaster handle (auto-fetches PFP)"
+                            value={speaker.farcaster || ""}
+                            onChange={(e) => updateSpeaker(idx, "farcaster", e.target.value)}
+                            onBlur={(e) => updateSpeaker(idx, "farcaster", normalizeFarcasterHandle(e.target.value))}
+                            className="bg-card"
+                          />
+                          <Input
+                            placeholder="@twitter handle"
+                            value={speaker.twitter || ""}
+                            onChange={(e) => updateSpeaker(idx, "twitter", e.target.value)}
+                            onBlur={(e) => updateSpeaker(idx, "twitter", normalizeTwitterHandle(e.target.value))}
+                            className="bg-card"
+                          />
+                        </div>
+
+                        {/* PFP Section */}
+                        <div className="flex items-center gap-3 pt-1">
+                          <div className="relative shrink-0">
+                            {pfpUrl ? (
+                              <img
+                                src={pfpUrl}
+                                alt={`${speaker.name} avatar`}
+                                className="w-14 h-14 rounded-full border-2 border-accent object-cover"
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).style.display = "none";
+                                }}
+                              />
+                            ) : (
+                              <div className="w-14 h-14 rounded-full border-2 border-dashed border-muted-foreground/40 flex items-center justify-center">
+                                <User className="w-6 h-6 text-muted-foreground/40" />
+                              </div>
+                            )}
                           </div>
-                        )}
-                      </div>
-                      <div className="flex-1 space-y-1">
-                        <label className="text-xs text-muted-foreground font-medium">Profile Image URL (paste from socials)</label>
-                        <Input
-                          placeholder="Paste profile image URL — auto-fetched from Farcaster if left empty"
-                          value={speaker.profile_image_url || ""}
-                          onChange={(e) => updateSpeaker(idx, "profile_image_url", e.target.value)}
-                          onPaste={(e) => {
-                            // Handle pasting image data directly
-                            const items = e.clipboardData?.items;
-                            if (!items) return;
-                            for (const item of Array.from(items)) {
-                              if (item.type.startsWith("image/")) {
-                                e.preventDefault();
-                                const blob = item.getAsFile();
-                                if (blob) {
-                                  const reader = new FileReader();
-                                  reader.onload = () => {
-                                    updateSpeaker(idx, "profile_image_url", reader.result as string);
-                                  };
-                                  reader.readAsDataURL(blob);
+
+                          <div className="flex-1 space-y-1">
+                            <label className="text-xs text-muted-foreground font-medium">
+                              Profile Image URL (paste from socials)
+                            </label>
+                            <Input
+                              placeholder="Paste a Twitter/X or Farcaster profile URL — or a direct image URL"
+                              value={speaker.profile_image_url || ""}
+                              onChange={(e) => updateSpeaker(idx, "profile_image_url", e.target.value)}
+                              onBlur={(e) => {
+                                const normalized = normalizeProfileImageUrlFromText(e.target.value);
+                                if (normalized) updateSpeaker(idx, "profile_image_url", normalized);
+                              }}
+                              onPaste={(e) => {
+                                const text = e.clipboardData?.getData("text/plain")?.trim();
+                                if (text) {
+                                  const normalized = normalizeProfileImageUrlFromText(text);
+                                  if (normalized) {
+                                    e.preventDefault();
+                                    updateSpeaker(idx, "profile_image_url", normalized);
+                                    return;
+                                  }
                                 }
-                                return;
-                              }
-                            }
-                          }}
-                          className="bg-card text-xs"
-                        />
+
+                                // If the user pasted an actual image, we can't persist it (no upload flow here)
+                                const items = e.clipboardData?.items;
+                                if (!items) return;
+                                for (const item of Array.from(items)) {
+                                  if (item.type.startsWith("image/")) {
+                                    e.preventDefault();
+                                    setFeedback({
+                                      type: "error",
+                                      msg: "Pasted an image file — please paste a profile link/handle or a direct image URL instead.",
+                                    });
+                                    return;
+                                  }
+                                }
+                              }}
+                              className="bg-card text-xs"
+                            />
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                ))}
+                    );
+                  })}
+                </div>
               </section>
 
               {/* Transcript / Notes */}

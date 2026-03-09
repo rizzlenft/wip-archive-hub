@@ -199,7 +199,12 @@ async function handleSave(req: VercelRequest, res: VercelResponse) {
 
 async function handleGenerate(req: VercelRequest, res: VercelResponse) {
   const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-  if (!GEMINI_API_KEY) return res.status(500).json({ error: "GEMINI_API_KEY not configured — add it in Vercel env vars (get one free at aistudio.google.com)" });
+  if (!GEMINI_API_KEY) {
+    return res.status(500).json({
+      error:
+        "GEMINI_API_KEY not configured — add it in Vercel env vars (get one free at aistudio.google.com)",
+    });
+  }
 
   const { speakers, transcript, youtube_video_id, custom_image_urls } = req.body as {
     speakers?: Speaker[];
@@ -212,14 +217,14 @@ async function handleGenerate(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: "At least one speaker is required" });
   }
 
+  const normalizedSpeakers = speakers.map(normalizeSpeaker);
+
   // ── Auto-fetch YouTube transcript if available ──────────────────────────
   let autoTranscript = "";
   if (youtube_video_id && !transcript) {
     try {
       // Try fetching auto-generated captions via a public proxy
-      const captionRes = await fetch(
-        `https://www.youtube.com/watch?v=${youtube_video_id}`
-      );
+      const captionRes = await fetch(`https://www.youtube.com/watch?v=${youtube_video_id}`);
       if (captionRes.ok) {
         const html = await captionRes.text();
         // Extract caption track URL from the page
@@ -258,31 +263,28 @@ YouTube Thumbnail (MUST include as clickable image): https://img.youtube.com/vi/
   }
 
   // Resolve speaker profile images via unavatar.io (Farcaster preferred)
-  const speakersWithImages = speakers.map((s) => {
+  const speakersWithImages = normalizedSpeakers.map((s) => {
     if (s.profile_image_url) return s;
-    // unavatar.io will resolve Farcaster, Twitter, etc. for free
-    if (s.farcaster) {
-      return { ...s, profile_image_url: `https://unavatar.io/farcaster/${s.farcaster.replace(/^@/, "")}` };
-    }
-    if (s.twitter) {
-      return { ...s, profile_image_url: `https://unavatar.io/twitter/${s.twitter.replace(/^@/, "")}` };
-    }
+    if (s.farcaster) return { ...s, profile_image_url: `https://unavatar.io/farcaster/${s.farcaster}` };
+    if (s.twitter) return { ...s, profile_image_url: `https://unavatar.io/twitter/${s.twitter}` };
     return s;
   });
 
   const speakerList = speakersWithImages
-    .map(
-      (s) =>
-        `- ${s.name}${s.profile_image_url ? ` [PROFILE IMAGE: ${s.profile_image_url}]` : ""}${s.twitter ? ` (@${s.twitter} on X/Twitter)` : ""}${s.farcaster ? ` (@${s.farcaster} on Farcaster)` : ""}${s.topic ? ` — Topic: ${s.topic}` : ""}${s.bio ? ` — Bio: ${s.bio}` : ""}`
-    )
+    .map((s) => {
+      const tw = normalizeTwitterHandle(s.twitter);
+      const fc = normalizeFarcasterHandle(s.farcaster);
+      return `- ${s.name}${s.profile_image_url ? ` [PROFILE IMAGE: ${s.profile_image_url}]` : ""}${tw ? ` (@${tw} on X/Twitter)` : ""}${fc ? ` (@${fc} on Farcaster)` : ""}${s.topic ? ` — Topic: ${s.topic}` : ""}${s.bio ? ` — Bio: ${s.bio}` : ""}`;
+    })
     .join("\n");
 
   // Build custom images context
-  const customImagesContext = custom_image_urls && custom_image_urls.length > 0
-    ? `\n\nCUSTOM EVENT IMAGES FROM LAST WEEK (these are community photos from LAST WEEK's event — NOT this week's speakers):
+  const customImagesContext =
+    custom_image_urls && custom_image_urls.length > 0
+      ? `\n\nCUSTOM EVENT IMAGES FROM LAST WEEK (these are community photos from LAST WEEK's event — NOT this week's speakers):
 ${custom_image_urls.map((url, i) => `- Image ${i + 1}: ${url}`).join("\n")}
 These are general community vibes — scatter them naturally through the poster at slight angles. Do NOT associate them with this week's speakers.`
-    : "";
+      : "";
 
   const transcriptSection = effectiveTranscript
     ? `\n\nHere is a transcript/notes from last week's event. THIS IS CRITICAL — you MUST extract the 2-3 most INSIGHTFUL, thought-provoking, or exciting quotes. Look for:
@@ -298,13 +300,55 @@ TRANSCRIPT:\n${effectiveTranscript}`
 
   // Rotating visual themes for week-to-week variety
   const visualThemes = [
-    { name: "Block Party", vibe: "street art, bold graffiti typography, neon spray-paint accents, warehouse party energy, brick texture backgrounds", accent1: "#ff2d55", accent2: "#ffcc00", accent3: "#00ff88" },
-    { name: "Indie Concert Poster", vibe: "vintage gig poster, torn paper edges, halftone dots, bold woodblock type, underground music venue energy", accent1: "#ff6b35", accent2: "#f7c948", accent3: "#7b61ff" },
-    { name: "Cyberpunk Rave", vibe: "glitch art, scan lines, terminal green on black, futuristic HUD elements, matrix-style rain effects", accent1: "#00ffcc", accent2: "#ff00ff", accent3: "#00ccff" },
-    { name: "Zine Culture", vibe: "cut-and-paste collage, xerox aesthetic, punk DIY energy, handwritten annotations, photocopied textures", accent1: "#ff4081", accent2: "#e0e0e0", accent3: "#ffeb3b" },
-    { name: "Festival Wristband", vibe: "music festival lineup poster, sunset gradient vibes, psychedelic swirls, Coachella meets Burning Man energy", accent1: "#ff6ec7", accent2: "#7b68ee", accent3: "#ffa500" },
-    { name: "Gallery Opening", vibe: "minimalist art gallery invite, stark contrasts, elegant sans-serif, single bold accent color, sophisticated rebel energy", accent1: "#ff3366", accent2: "#ffffff", accent3: "#1a1a2e" },
-    { name: "Retro Arcade", vibe: "pixel art borders, 8-bit style decorations, CRT screen glow, neon cabinet colors, press-start energy", accent1: "#39ff14", accent2: "#ff073a", accent3: "#0ff" },
+    {
+      name: "Block Party",
+      vibe: "street art, bold graffiti typography, neon spray-paint accents, warehouse party energy, brick texture backgrounds",
+      accent1: "#ff2d55",
+      accent2: "#ffcc00",
+      accent3: "#00ff88",
+    },
+    {
+      name: "Indie Concert Poster",
+      vibe: "vintage gig poster, torn paper edges, halftone dots, bold woodblock type, underground music venue energy",
+      accent1: "#ff6b35",
+      accent2: "#f7c948",
+      accent3: "#7b61ff",
+    },
+    {
+      name: "Cyberpunk Rave",
+      vibe: "glitch art, scan lines, terminal green on black, futuristic HUD elements, matrix-style rain effects",
+      accent1: "#00ffcc",
+      accent2: "#ff00ff",
+      accent3: "#00ccff",
+    },
+    {
+      name: "Zine Culture",
+      vibe: "cut-and-paste collage, xerox aesthetic, punk DIY energy, handwritten annotations, photocopied textures",
+      accent1: "#ff4081",
+      accent2: "#e0e0e0",
+      accent3: "#ffeb3b",
+    },
+    {
+      name: "Festival Wristband",
+      vibe: "music festival lineup poster, sunset gradient vibes, psychedelic swirls, Coachella meets Burning Man energy",
+      accent1: "#ff6ec7",
+      accent2: "#7b68ee",
+      accent3: "#ffa500",
+    },
+    {
+      name: "Gallery Opening",
+      vibe: "minimalist art gallery invite, stark contrasts, elegant sans-serif, single bold accent color, sophisticated rebel energy",
+      accent1: "#ff3366",
+      accent2: "#ffffff",
+      accent3: "#1a1a2e",
+    },
+    {
+      name: "Retro Arcade",
+      vibe: "pixel art borders, 8-bit style decorations, CRT screen glow, neon cabinet colors, press-start energy",
+      accent1: "#39ff14",
+      accent2: "#ff073a",
+      accent3: "#0ff",
+    },
   ];
   const weekIndex = Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000));
   const theme = visualThemes[weekIndex % visualThemes.length];
@@ -312,7 +356,7 @@ TRANSCRIPT:\n${effectiveTranscript}`
   const WIP_LOGO_URL = "https://thewipmeetup.com/images/wip-logo-static.png";
 
   const systemPrompt = `You are the creative director of "The WIP Weekly" — the weekly poster/flyer for The WIP Meetup,
-a vibrant Web3/metaverse community that meets every Thursday at 3 PM ET.
+ a vibrant Web3/metaverse community that meets every Thursday at 3 PM ET.
 
 ⚠️ THIS IS NOT AN EMAIL. THIS IS A POSTER. A FLYER. A BLOCK PARTY INVITATION. ⚠️
 
@@ -422,10 +466,7 @@ Community links (style as "entry points" in the ticket section):
 
   try {
     // Models to try in order — fallback on rate limits
-    const models = [
-      "gemini-2.0-flash",
-      "gemini-2.5-flash-lite",
-    ];
+    const models = ["gemini-2.0-flash", "gemini-2.5-flash-lite"];
 
     const maxAttemptsPerModel = 2;
     let geminiRes: Response | null = null;
@@ -445,15 +486,13 @@ Community links (style as "entry points" in the ticket section):
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              contents: [
-                { role: "user", parts: [{ text: `${systemPrompt}\n\n---\n\n${userPrompt}` }] },
-              ],
+              contents: [{ role: "user", parts: [{ text: `${systemPrompt}\n\n---\n\n${userPrompt}` }] }],
               generationConfig: {
                 temperature: 0.8,
                 responseMimeType: "application/json",
               },
             }),
-          }
+          },
         );
 
         if (geminiRes.ok) {
@@ -469,27 +508,22 @@ Community links (style as "entry points" in the ticket section):
           const parsed = JSON.parse(errText);
           detail = parsed?.error?.message || detail;
         } catch {
-          // Use default detail
+          // ignore
         }
 
-        if (geminiRes.status === 429) {
-          detail = `Rate limited on ${model} — trying fallback`;
-        }
+        if (geminiRes.status === 429) detail = `Rate limited on ${model} — trying fallback`;
         if (geminiRes.status === 400) detail = "Invalid request to Gemini — check GEMINI_API_KEY";
         if (geminiRes.status === 401) detail = "Invalid GEMINI_API_KEY";
 
         lastErrorDetail = detail;
 
-        // Non-retryable errors (except 429 which we handle by model fallback)
         const hardFail = [400, 401, 403].includes(geminiRes.status);
         if (hardFail) {
           return res.status(502).json({ error: detail, retry_attempts: totalAttempts });
         }
 
-        // For 429, break to next model immediately
         if (geminiRes.status === 429) break;
 
-        // For 5xx, retry with backoff
         const jitterMs = Math.floor(Math.random() * 300);
         const backoffMs = Math.min(8000, 1000 * 2 ** (attempt - 1) + jitterMs);
         await new Promise((resolve) => setTimeout(resolve, backoffMs));
@@ -505,23 +539,28 @@ Community links (style as "entry points" in the ticket section):
       });
     }
 
-    if (!geminiRes || !geminiRes.ok) {
-      return res.status(502).json({ error: lastErrorDetail });
-    }
-
     const geminiData = (await geminiRes.json()) as {
       candidates?: { content?: { parts?: { text?: string }[] } }[];
     };
+
     const raw = geminiData.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!raw) return res.status(502).json({ error: "Empty AI response" });
 
-    const generated = JSON.parse(raw) as {
+    let generated: {
       title: string;
       subtitle?: string;
       body_html: string;
       body_markdown: string;
       recap_summary?: string;
     };
+
+    try {
+      generated = JSON.parse(raw);
+    } catch (parseErr) {
+      console.error("Gemini returned non-JSON:", raw);
+      const msg = parseErr instanceof Error ? parseErr.message : String(parseErr);
+      return res.status(502).json({ error: `AI returned invalid JSON: ${msg}` });
+    }
 
     const id = `wip-weekly-${Date.now()}`;
     const now = new Date().toISOString();
@@ -532,7 +571,7 @@ Community links (style as "entry points" in the ticket section):
       subtitle: generated.subtitle || "",
       body_html: generated.body_html,
       body_markdown: generated.body_markdown,
-      speakers,
+      speakers: speakersWithImages,
       recap_summary: generated.recap_summary || "",
       youtube_video_id: youtube_video_id || "",
       cover_image: youtube_video_id
@@ -556,6 +595,7 @@ Community links (style as "entry points" in the ticket section):
     return res.status(200).json(issue);
   } catch (err) {
     console.error("newsletter-generate error:", err);
-    return res.status(500).json({ error: "Internal server error" });
+    const msg = err instanceof Error ? err.message : String(err);
+    return res.status(500).json({ error: msg || "Internal server error" });
   }
 }
