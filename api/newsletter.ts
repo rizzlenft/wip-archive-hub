@@ -386,6 +386,26 @@ async function handleGenerate(req: VercelRequest, res: VercelResponse) {
 
   const normalizedSpeakers = speakers.map(normalizeSpeaker);
 
+  // ── Auto-fetch last week's speakers from the most recent published newsletter ──
+  let lastWeekSpeakers: Speaker[] = [];
+  let lastWeekTitle = "";
+  try {
+    const redis = getRedis();
+    const index = (await redis.get<string[]>("newsletter:index")) || [];
+    for (const nid of index) {
+      const raw = await redis.get<string>(`newsletter:${nid}`);
+      if (!raw) continue;
+      const issue = typeof raw === "string" ? JSON.parse(raw) : raw;
+      if (issue.status === "published" && issue.speakers?.length > 0) {
+        lastWeekSpeakers = (issue.speakers as Speaker[]).map(normalizeSpeaker);
+        lastWeekTitle = issue.title || "";
+        break; // most recent published
+      }
+    }
+  } catch (err) {
+    console.warn("Failed to fetch previous newsletter speakers:", err);
+  }
+
   // ── Auto-fetch YouTube transcript if available ──────────────────────────
   let autoTranscript = "";
   if (youtube_video_id && !transcript) {
