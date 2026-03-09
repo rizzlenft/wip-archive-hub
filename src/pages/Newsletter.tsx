@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Calendar, User, ExternalLink } from "lucide-react";
 import { type NewsletterIssue, fetchNewsletters, fetchNewsletter } from "@/lib/newsletter";
+import { useNewsletterLogoFallback } from "@/hooks/use-newsletter-logo-fallback";
 import wipLogo from "@/assets/wip-logo-static.png";
 
 const API_BASE =
@@ -26,6 +27,8 @@ const Newsletter = () => {
   const [issues, setIssues] = useState<NewsletterIssue[]>([]);
   const [selected, setSelected] = useState<NewsletterIssue | null>(null);
   const [loading, setLoading] = useState(true);
+  const posterRef = useRef<HTMLDivElement>(null);
+  useNewsletterLogoFallback(posterRef, selected?.body_html || "");
 
   useEffect(() => {
     fetchNewsletters()
@@ -100,6 +103,7 @@ const Newsletter = () => {
 
               {/* Newsletter poster content */}
               <div
+                ref={posterRef}
                 className="newsletter-poster-preview rounded-xl overflow-hidden"
                 style={{ background: "#0a0612" }}
                 dangerouslySetInnerHTML={{ __html: proxyUnavatarHtml(selected.body_html) }}

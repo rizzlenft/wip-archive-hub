@@ -1,4 +1,4 @@
-import { useState, useEffect, type FormEvent } from "react";
+import { useState, useEffect, useRef, type FormEvent } from "react";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ import {
   publishNewsletter,
   fetchNewsletters,
 } from "@/lib/newsletter";
+import { useNewsletterLogoFallback } from "@/hooks/use-newsletter-logo-fallback";
 
 const API_BASE =
   (import.meta.env.VITE_BACKEND_URL as string | undefined) ||
@@ -140,6 +141,9 @@ const AdminNewsletter = () => {
 
   // Track PFP load status per speaker: "loading" | "resolved" | "failed"
   const [pfpStatus, setPfpStatus] = useState<Record<number, { status: "loading" | "resolved" | "failed"; source?: string; triedFallback?: boolean; resolvedUrl?: string }>>({});
+
+  const posterPreviewRef = useRef<HTMLDivElement>(null);
+  useNewsletterLogoFallback(posterPreviewRef, editableHtml);
 
   // Probe avatar URLs via JS Image objects (more reliable than inline img onError for cross-origin)
   useEffect(() => {
@@ -782,6 +786,7 @@ const AdminNewsletter = () => {
                   </span>
                 </div>
                 <div
+                  ref={posterPreviewRef}
                   className="newsletter-poster-preview"
                   dangerouslySetInnerHTML={{ __html: editableHtml }}
                 />
