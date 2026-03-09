@@ -513,9 +513,10 @@ async function handleGenerate(req: VercelRequest, res: VercelResponse) {
 
   const normalizedSpeakers = speakers.map(normalizeSpeaker);
 
-  // ── Auto-fetch last week's speakers from the most recent published newsletter ──
+  // ── Auto-fetch last week's speakers & video ID from the most recent published newsletter ──
   let lastWeekSpeakers: Speaker[] = [];
   let lastWeekTitle = "";
+  let lastWeekVideoId = "";
   try {
     const redis = getRedis();
     const index = (await redis.get<string[]>("newsletter:index")) || [];
@@ -526,6 +527,7 @@ async function handleGenerate(req: VercelRequest, res: VercelResponse) {
       if (issue.status === "published" && issue.speakers?.length > 0) {
         lastWeekSpeakers = (issue.speakers as Speaker[]).map(normalizeSpeaker);
         lastWeekTitle = issue.title || "";
+        lastWeekVideoId = issue.youtube_video_id || "";
         break; // most recent published
       }
     }
@@ -533,42 +535,21 @@ async function handleGenerate(req: VercelRequest, res: VercelResponse) {
     console.warn("Failed to fetch previous newsletter speakers:", err);
   }
 
-  // ── Auto-fetch YouTube transcript if available ──────────────────────────
+  // ── Auto-fetch YouTube transcript for current video ──────────────────────
   let autoTranscript = "";
   if (youtube_video_id && !transcript) {
-    try {
-      // Try fetching auto-generated captions via a public proxy
-      const captionRes = await fetch(`https://www.youtube.com/watch?v=${youtube_video_id}`);
-      if (captionRes.ok) {
-        const html = await captionRes.text();
-        // Extract caption track URL from the page
-        const captionMatch = html.match(/"captionTracks":\[.*?"baseUrl":"(.*?)"/);
-        if (captionMatch) {
-          const captionUrl = captionMatch[1].replace(/\\u0026/g, "&");
-          const subRes = await fetch(captionUrl);
-          if (subRes.ok) {
-            const subXml = await subRes.text();
-            // Strip XML tags to get plain text
-            autoTranscript = subXml
-              .replace(/<[^>]+>/g, " ")
-              .replace(/&amp;/g, "&")
-              .replace(/&lt;/g, "<")
-              .replace(/&gt;/g, ">")
-              .replace(/&#39;/g, "'")
-              .replace(/&quot;/g, '"')
-              .replace(/\s+/g, " ")
-              .trim()
-              .slice(0, 4000); // Limit to avoid token overflow
-            console.log(`Auto-fetched transcript: ${autoTranscript.length} chars`);
-          }
-        }
-      }
-    } catch (err) {
-      console.warn("Failed to auto-fetch YouTube transcript:", err);
+    autoTranscript = await fetchYouTubeTranscript(youtube_video_id);
+  }
+  const effectiveTranscript = transcript || autoTranscript;
+
+  // ── Auto-fetch last week's YouTube transcript for recap synopsis ─────────
+  let lastWeekTranscript = "";
+  if (lastWeekVideoId) {
+    lastWeekTranscript = await fetchYouTubeTranscript(lastWeekVideoId);
+    if (lastWeekTranscript) {
+      console.log(`Auto-fetched last week's transcript (${lastWeekVideoId}): ${lastWeekTranscript.length} chars`);
     }
   }
-
-  const effectiveTranscript = transcript || autoTranscript;
 
   let videoContext = "";
   if (youtube_video_id) {
