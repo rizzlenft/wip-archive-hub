@@ -106,6 +106,133 @@ function normalizeSpeaker(s: Speaker): Speaker {
     profile_image_url,
   };
 }
+
+// ─── SOCIAL MEDIA CONTENT FETCHING ──────────────────────────────────────────
+
+interface SpeakerSocialContent {
+  bio: string;
+  recentPosts: string[];
+  source: "farcaster" | "twitter" | "none";
+}
+
+async function fetchFarcasterContent(handle: string): Promise<SpeakerSocialContent> {
+  const result: SpeakerSocialContent = { bio: "", recentPosts: [], source: "farcaster" };
+  try {
+    // 1. Get user profile + FID
+    const userRes = await fetch(
+      `https://api.warpcast.com/v2/user-by-username?username=${encodeURIComponent(handle)}`,
+      { headers: { Accept: "application/json", "User-Agent": "wip-newsletter" } },
+    );
+    if (!userRes.ok) return result;
+    const userData = await userRes.json();
+    const user = userData?.result?.user;
+    if (!user) return result;
+
+    result.bio = user.profile?.bio?.text || "";
+    const fid = user.fid;
+    if (!fid) return result;
+
+    // 2. Get recent casts (limit to 15, filter to text-only, pick best)
+    const castsRes = await fetch(
+      `https://api.warpcast.com/v2/casts?fid=${fid}&limit=15`,
+      { headers: { Accept: "application/json", "User-Agent": "wip-newsletter" } },
+    );
+    if (!castsRes.ok) return result;
+    const castsData = await castsRes.json();
+    const casts = castsData?.result?.casts || [];
+
+    for (const cast of casts) {
+      const text = cast.text?.trim();
+      if (!text || text.length < 20) continue; // skip very short / empty
+      if (text.startsWith("RT ") || text.startsWith("@")) continue; // skip replies/RTs
+      // Clean up and add (limit to 280 chars per post for prompt efficiency)
+      result.recentPosts.push(text.slice(0, 280));
+      if (result.recentPosts.length >= 5) break;
+    }
+  } catch (err) {
+    console.warn(`Failed to fetch Farcaster content for @${handle}:`, err);
+  }
+  return result;
+}
+
+async function fetchTwitterContent(handle: string): Promise<SpeakerSocialContent> {
+  const result: SpeakerSocialContent = { bio: "", recentPosts: [], source: "twitter" };
+  try {
+    // Try fetching bio from Nitter or similar public endpoint
+    // Since Twitter API requires auth, we'll try to get basic profile info
+    // via a lightweight approach
+    const profileRes = await fetch(
+      `https://syndication.twitter.com/srv/timeline-profile/screen-name/${encodeURIComponent(handle)}`,
+      { headers: { Accept: "text/html", "User-Agent": "wip-newsletter" } },
+    );
+    if (profileRes.ok) {
+      const html = await profileRes.text();
+      // Extract bio from meta description or profile data
+      const bioMatch = html.match(/<meta\s+name=["']description["']\s+content=["'](.*?)["']/i);
+      if (bioMatch) {
+        result.bio = bioMatch[1]
+          .replace(/&amp;/g, "&")
+          .replace(/&lt;/g, "<")
+          .replace(/&gt;/g, ">")
+          .replace(/&#39;/g, "'")
+          .replace(/&quot;/g, '"')
+          .trim();
+      }
+      // Try to extract recent tweets from the syndication response
+      const tweetMatches = html.match(/data-tweet-id[\s\S]*?<p[^>]*>([\s\S]*?)<\/p>/gi);
+      if (tweetMatches) {
+        for (const m of tweetMatches) {
+          const textMatch = m.match(/<p[^>]*>([\s\S]*?)<\/p>/i);
+          if (textMatch) {
+            const text = textMatch[1]
+              .replace(/<[^>]+>/g, "")
+              .replace(/&amp;/g, "&")
+              .replace(/&#39;/g, "'")
+              .replace(/&quot;/g, '"')
+              .trim();
+            if (text.length >= 20) {
+              result.recentPosts.push(text.slice(0, 280));
+              if (result.recentPosts.length >= 5) break;
+            }
+          }
+        }
+      }
+    }
+  } catch (err) {
+    console.warn(`Failed to fetch Twitter content for @${handle}:`, err);
+  }
+  return result;
+}
+
+async function fetchSpeakerSocialContent(speaker: Speaker): Promise<SpeakerSocialContent> {
+  const fc = normalizeFarcasterHandle(speaker.farcaster);
+  const tw = normalizeTwitterHandle(speaker.twitter);
+
+  // Try Farcaster first (more reliable, no auth needed)
+  if (fc) {
+    const fcContent = await fetchFarcasterContent(fc);
+    if (fcContent.recentPosts.length > 0 || fcContent.bio) {
+      // Also try Twitter for additional context
+      if (tw) {
+        const twContent = await fetchTwitterContent(tw);
+        if (twContent.bio && !fcContent.bio) fcContent.bio = twContent.bio;
+        // Merge unique Twitter posts
+        for (const post of twContent.recentPosts) {
+          if (fcContent.recentPosts.length < 8) fcContent.recentPosts.push(`[from X/Twitter] ${post}`);
+        }
+      }
+      return fcContent;
+    }
+  }
+
+  // Fallback to Twitter
+  if (tw) {
+    return await fetchTwitterContent(tw);
+  }
+
+  return { bio: "", recentPosts: [], source: "none" };
+}
+
 function getRedis() {
   // Support both Vercel KV and direct Upstash env var names
   const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
