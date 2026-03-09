@@ -21,6 +21,19 @@ const API_BASE =
   (import.meta.env.VITE_BACKEND_URL as string | undefined) ||
   "https://api.thewipmeetup.com";
 
+function buildAvatarProxyUrl(params: { url?: string | null; farcaster?: string; twitter?: string }): string {
+  const base = `${API_BASE}/api/newsletter?action=avatar`;
+
+  if (params.url) return `${base}&url=${encodeURIComponent(params.url)}`;
+  if (params.farcaster) return `${base}&farcaster=${encodeURIComponent(params.farcaster)}`;
+  if (params.twitter) return `${base}&twitter=${encodeURIComponent(params.twitter)}`;
+  return "";
+}
+
+function isAvatarProxyUrl(url?: string): boolean {
+  return Boolean(url && url.startsWith(`${API_BASE}/api/newsletter?action=avatar`));
+}
+
 function tryParseUrl(raw: string): URL | null {
   const v = raw.trim();
   if (!v) return null;
@@ -177,6 +190,7 @@ const AdminNewsletter = () => {
     setFeedback(null);
     try {
       // Normalize handles/URLs so PFPs reliably resolve (even when pasting full profile links)
+      // and ALWAYS route through our API proxy to avoid browser ORB/CORS issues.
       const cleanedSpeakers = validSpeakers.map((s) => {
         const twitter = normalizeTwitterHandle(s.twitter);
         const farcaster = normalizeFarcasterHandle(s.farcaster);
@@ -186,9 +200,10 @@ const AdminNewsletter = () => {
           : null;
 
         const profile_image_url =
-          normalizedPfp ||
-          (farcaster ? `https://unavatar.io/farcaster/${farcaster}` : "") ||
-          (twitter ? `https://unavatar.io/twitter/${twitter}` : "") ||
+          (isAvatarProxyUrl(s.profile_image_url) ? s.profile_image_url : undefined) ||
+          (normalizedPfp ? buildAvatarProxyUrl({ url: normalizedPfp }) : "") ||
+          (farcaster ? buildAvatarProxyUrl({ farcaster }) : "") ||
+          (twitter ? buildAvatarProxyUrl({ twitter }) : "") ||
           undefined;
 
         return {
@@ -380,9 +395,9 @@ const AdminNewsletter = () => {
                       : null;
 
                     const pfpUrl =
-                      normalizedProfileUrl ||
-                      (fc ? `https://unavatar.io/farcaster/${fc}` : "") ||
-                      (tw ? `https://unavatar.io/twitter/${tw}` : "");
+                      (normalizedProfileUrl ? buildAvatarProxyUrl({ url: normalizedProfileUrl }) : "") ||
+                      (fc ? buildAvatarProxyUrl({ farcaster: fc }) : "") ||
+                      (tw ? buildAvatarProxyUrl({ twitter: tw }) : "");
 
                     return (
                       <div
@@ -441,6 +456,8 @@ const AdminNewsletter = () => {
                             {pfpUrl ? (
                               <img
                                 src={pfpUrl}
+                                referrerPolicy="no-referrer"
+                                loading="lazy"
                                 alt={`${speaker.name} avatar`}
                                 className="w-14 h-14 rounded-full border-2 border-accent object-cover"
                                 onError={(e) => {
