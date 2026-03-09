@@ -351,20 +351,209 @@ const AdminNewsletter = () => {
     }
   };
 
+  /**
+   * Convert poster-style HTML to Substack-compatible semantic HTML.
+   * Substack strips ALL inline styles, tables, and complex layout.
+   * It preserves: h1-h3, p, img, a, blockquote, hr, strong, em, ul/li.
+   */
+  const convertToSubstackHtml = (html: string): string => {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, "text/html");
+
+    // Helper: extract text content from an element, preserving links and formatting
+    const serializeInline = (el: Element): string => {
+      let result = "";
+      for (const node of Array.from(el.childNodes)) {
+        if (node.nodeType === Node.TEXT_NODE) {
+          result += node.textContent || "";
+        } else if (node.nodeType === Node.ELEMENT_NODE) {
+          const child = node as Element;
+          const tag = child.tagName.toLowerCase();
+          if (tag === "a") {
+            const href = child.getAttribute("href") || "";
+            result += `<a href="${href}">${serializeInline(child)}</a>`;
+          } else if (tag === "strong" || tag === "b") {
+            result += `<strong>${serializeInline(child)}</strong>`;
+          } else if (tag === "em" || tag === "i") {
+            result += `<em>${serializeInline(child)}</em>`;
+          } else if (tag === "br") {
+            result += "<br>";
+          } else if (tag === "img") {
+            const src = child.getAttribute("src") || "";
+            const alt = child.getAttribute("alt") || "";
+            const width = child.getAttribute("width");
+            result += `<img src="${src}" alt="${alt}"${width ? ` width="${width}"` : ""} />`;
+          } else {
+            result += serializeInline(child);
+          }
+        }
+      }
+      return result;
+    };
+
+    const out: string[] = [];
+    out.push('<div style="max-width:680px;margin:0 auto;">');
+
+    // Walk all elements in body
+    const walk = (root: Element) => {
+      for (const node of Array.from(root.children)) {
+        const tag = node.tagName.toLowerCase();
+        const text = (node.textContent || "").trim();
+
+        // Images — keep as standalone blocks
+        if (tag === "img") {
+          const src = node.getAttribute("src") || "";
+          const alt = node.getAttribute("alt") || "";
+          const width = node.getAttribute("width");
+          // Skip tiny spacer images
+          if (parseInt(width || "999") < 10) continue;
+          out.push(`<img src="${src}" alt="${alt}"${width ? ` width="${width}"` : ""} style="max-width:100%;display:block;margin:16px auto;" />`);
+          continue;
+        }
+
+        // Headings — preserve
+        if (/^h[1-6]$/.test(tag)) {
+          out.push(`<${tag}>${serializeInline(node)}</${tag}>`);
+          continue;
+        }
+
+        // HR — preserve
+        if (tag === "hr") {
+          out.push("<hr>");
+          continue;
+        }
+
+        // Blockquote — preserve
+        if (tag === "blockquote") {
+          out.push(`<blockquote>${serializeInline(node)}</blockquote>`);
+          continue;
+        }
+
+        // Links that are block-level (buttons/CTAs)
+        if (tag === "a" && node.children.length <= 1) {
+          const href = node.getAttribute("href") || "";
+          if (!text) continue;
+          // Check if it wraps an image
+          const innerImg = node.querySelector("img");
+          if (innerImg) {
+            const src = innerImg.getAttribute("src") || "";
+            const alt = innerImg.getAttribute("alt") || "";
+            out.push(`<a href="${href}"><img src="${src}" alt="${alt}" style="max-width:100%;display:block;margin:16px auto;" /></a>`);
+          } else {
+            out.push(`<p><strong><a href="${href}">${text}</a></strong></p>`);
+          }
+          continue;
+        }
+
+        // Tables — flatten: recurse into cells
+        if (tag === "table" || tag === "tbody" || tag === "thead" || tag === "tr") {
+          walk(node);
+          continue;
+        }
+
+        // Table cells — treat as content blocks
+        if (tag === "td" || tag === "th") {
+          // Check for background-image (event photos) — convert to an actual <img>
+          const style = node.getAttribute("style") || "";
+          const bgMatch = style.match(/background-image:\s*url\(['"]?(.*?)['"]?\)/i);
+          if (bgMatch && bgMatch[1] && !bgMatch[1].startsWith("data:")) {
+            out.push(`<img src="${bgMatch[1]}" alt="Event photo" style="max-width:100%;display:block;margin:16px auto;border-radius:8px;" />`);
+          }
+          walk(node);
+          continue;
+        }
+
+        // Divs/spans/sections — recurse but check for meaningful content first
+        if (tag === "div" || tag === "span" || tag === "section" || tag === "center") {
+          // Check for background-image
+          const style = node.getAttribute("style") || "";
+          const bgMatch = style.match(/background-image:\s*url\(['"]?(.*?)['"]?\)/i);
+          if (bgMatch && bgMatch[1] && !bgMatch[1].startsWith("data:")) {
+            out.push(`<img src="${bgMatch[1]}" alt="Event photo" style="max-width:100%;display:block;margin:16px auto;border-radius:8px;" />`);
+          }
+
+          // Check if this div has only inline content (no block children)
+          const hasBlockChildren = Array.from(node.children).some((c) =>
+            /^(div|table|tr|td|section|h[1-6]|p|blockquote|ul|ol|hr|img)$/i.test(c.tagName)
+          );
+          if (!hasBlockChildren && text) {
+            // Detect if it's a heading-like element (large font, bold)
+            const fontSize = parseInt(style.match(/font-size:\s*(\d+)/)?.[1] || "0");
+            const isBold = /font-weight:\s*(bold|[7-9]00)/i.test(style);
+            const isSmallLabel = /letter-spacing:\s*[3-9]px/i.test(style) || /text-transform:\s*uppercase/i.test(style);
+
+            if (fontSize >= 36 || (fontSize >= 28 && isBold)) {
+              out.push(`<h1>${serializeInline(node)}</h1>`);
+            } else if (fontSize >= 24 || (fontSize >= 20 && isBold)) {
+              out.push(`<h2>${serializeInline(node)}</h2>`);
+            } else if (isSmallLabel) {
+              out.push(`<h3>${serializeInline(node)}</h3>`);
+            } else if (/font-style:\s*italic/i.test(style)) {
+              out.push(`<blockquote>${serializeInline(node)}</blockquote>`);
+            } else if (text.length > 0) {
+              out.push(`<p>${serializeInline(node)}</p>`);
+            }
+          } else {
+            walk(node);
+          }
+          continue;
+        }
+
+        // Paragraphs
+        if (tag === "p") {
+          if (!text) continue;
+          out.push(`<p>${serializeInline(node)}</p>`);
+          continue;
+        }
+
+        // Lists
+        if (tag === "ul" || tag === "ol") {
+          out.push(`<${tag}>`);
+          for (const li of Array.from(node.children)) {
+            if (li.tagName?.toLowerCase() === "li") {
+              out.push(`<li>${serializeInline(li)}</li>`);
+            }
+          }
+          out.push(`</${tag}>`);
+          continue;
+        }
+
+        // Any other element — recurse
+        if (node.children.length > 0) {
+          walk(node);
+        } else if (text) {
+          out.push(`<p>${serializeInline(node)}</p>`);
+        }
+      }
+    };
+
+    // Find all images in the doc to preserve them
+    walk(doc.body);
+
+    out.push("</div>");
+
+    // Clean up: remove empty paragraphs, deduplicate HRs
+    return out
+      .filter((line) => line !== "<p></p>" && line !== "<p> </p>")
+      .join("\n")
+      .replace(/(<hr>\s*){2,}/g, "<hr>");
+  };
+
   const handleCopyAndOpenSubstack = async () => {
     if (!editableHtml) return;
     try {
-      // Copy as rich text so Substack's editor accepts it as formatted content
-      const blob = new Blob([editableHtml], { type: "text/html" });
-      const item = new ClipboardItem({ "text/html": blob, "text/plain": new Blob([editableHtml], { type: "text/plain" }) });
+      const substackHtml = convertToSubstackHtml(editableHtml);
+      const blob = new Blob([substackHtml], { type: "text/html" });
+      const plainBlob = new Blob([substackHtml], { type: "text/plain" });
+      const item = new ClipboardItem({ "text/html": blob, "text/plain": plainBlob });
       await navigator.clipboard.write([item]);
-      setFeedback({ type: "success", msg: "📋 Rich content copied! Open Substack and paste (Ctrl+V / Cmd+V) into the editor." });
+      setFeedback({ type: "success", msg: "📋 Substack-optimized content copied! Paste (Ctrl+V / Cmd+V) into the Substack editor." });
       window.open("https://thewipmeetup.substack.com/publish/post", "_blank");
     } catch {
-      // Fallback to plain text copy
       try {
-        await navigator.clipboard.writeText(editableHtml);
-        setFeedback({ type: "success", msg: "📋 HTML copied (as text). Paste into Substack's HTML editor via the </> code view." });
+        const substackHtml = convertToSubstackHtml(editableHtml);
+        await navigator.clipboard.writeText(substackHtml);
+        setFeedback({ type: "success", msg: "📋 HTML copied (as text). Paste into Substack's code view (</>)." });
         window.open("https://thewipmeetup.substack.com/publish/post", "_blank");
       } catch {
         setFeedback({ type: "error", msg: "Failed to copy to clipboard" });
