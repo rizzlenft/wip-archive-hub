@@ -835,31 +835,53 @@ const AdminNewsletter = () => {
                   {pastIssues.map((issue) => (
                     <div
                       key={issue.id}
-                      className="rounded-lg border border-border bg-card p-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between cursor-pointer hover:bg-muted/30 transition-colors"
-                      onClick={() => {
-                        setDraft(issue);
-                        setEditableHtml(issue.body_html);
-                        setEditableMarkdown(issue.body_markdown);
-                        setEditableTitle(issue.title);
-                        setView("preview");
-                      }}
+                      className="rounded-lg border border-border bg-card p-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between hover:bg-muted/30 transition-colors"
                     >
-                      <div>
+                      <div
+                        className="flex-1 cursor-pointer"
+                        onClick={() => {
+                          setDraft(issue);
+                          setEditableHtml(issue.body_html);
+                          setEditableMarkdown(issue.body_markdown);
+                          setEditableTitle(issue.title);
+                          setView("preview");
+                        }}
+                      >
                         <div className="font-medium">{issue.title}</div>
                         <div className="text-xs text-muted-foreground">
                           {new Date(issue.created_at).toLocaleDateString()} •{" "}
                           {issue.speakers?.map((s) => s.name).join(", ") || "No speakers"}
                         </div>
                       </div>
-                      <span
-                        className={`text-xs px-2 py-0.5 rounded-full shrink-0 ${
-                          issue.status === "published"
-                            ? "bg-accent/20 text-accent"
-                            : "bg-wip-yellow/20 text-foreground"
-                        }`}
-                      >
-                        {issue.status}
-                      </span>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span
+                          className={`text-xs px-2 py-0.5 rounded-full ${
+                            issue.status === "published"
+                              ? "bg-accent/20 text-accent"
+                              : "bg-wip-yellow/20 text-foreground"
+                          }`}
+                        >
+                          {issue.status}
+                        </span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            if (!confirm(`Delete "${issue.title}"? This cannot be undone.`)) return;
+                            try {
+                              await deleteNewsletter(issue.id);
+                              setPastIssues((prev) => prev.filter((i) => i.id !== issue.id));
+                              setFeedback({ type: "success", msg: `Deleted "${issue.title}"` });
+                            } catch {
+                              setFeedback({ type: "error", msg: "Failed to delete" });
+                            }
+                          }}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </div>
                   ))}
                 </div>
