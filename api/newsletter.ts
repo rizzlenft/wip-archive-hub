@@ -779,14 +779,49 @@ CRITICAL DESIGN MANDATE — THINK POSTER, NOT EMAIL:
 - NOT a corporate newsletter. NOT an email template. NO "Dear reader" energy.
 - Every issue should feel like a collector's item that people screenshot and share
 
+🔥 DYNAMIC VISUAL EFFECTS (MANDATORY — these are what make it NOT flat):
+
+1. **ANIMATED GRADIENT BORDERS** — Use CSS @keyframes in a <style> tag at the top of the HTML:
+   <style>
+   @keyframes borderGlow { 0%,100% { border-color: ${theme.accent1}; box-shadow: 0 0 15px ${theme.accent1}40; } 50% { border-color: ${theme.accent2}; box-shadow: 0 0 25px ${theme.accent2}60; } }
+   @keyframes shimmer { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
+   @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.7; } }
+   @keyframes float { 0%,100% { transform: translateY(0px); } 50% { transform: translateY(-4px); } }
+   </style>
+   - Apply borderGlow animation to speaker cards: animation: borderGlow 3s ease-in-out infinite;
+   - Apply shimmer to section dividers using a gradient background: background: linear-gradient(90deg, transparent, ${theme.accent1}40, transparent); background-size: 200% 100%; animation: shimmer 2s linear infinite;
+   - Apply pulse to accent elements like the "LIVE" badge or countdown
+   - Apply float to the WIP logo for a subtle hovering effect
+
+2. **COUNTDOWN TICKER** — Right after the header, add a bold banner:
+   <div style="text-align:center;padding:12px 20px;background:linear-gradient(135deg,${theme.accent1}20,${theme.accent2}20);border:2px solid ${theme.accent1};margin:8px 0 16px;">
+     <span style="font-size:11px;letter-spacing:3px;text-transform:uppercase;color:${theme.accent2};font-weight:bold;">NEXT EVENT IN</span><br/>
+     <span style="font-size:42px;font-weight:900;color:#f5f0e8;font-family:monospace;letter-spacing:4px;text-shadow:0 0 20px ${theme.accent1}80;">THIS THURSDAY</span><br/>
+     <span style="font-size:14px;color:${theme.accent2};">3 PM ET · Hyperfy Metaverse</span>
+   </div>
+
+3. **LAYERED DEPTH & SHADOWS** — Every card/section MUST have:
+   - Multiple box-shadows for depth: box-shadow: 0 4px 20px rgba(0,0,0,0.5), 0 0 40px ${theme.accent1}15, inset 0 1px 0 rgba(255,255,255,0.05);
+   - Slight CSS transforms on alternating cards: transform: rotate(-0.7deg); and transform: rotate(0.5deg);
+   - Overlapping elements: use negative margins (-8px to -12px) so cards feel layered
+   - Background texture: use repeating-linear-gradient for subtle noise/grid patterns behind sections
+   - Speaker cards should have a glossy inner highlight: background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, transparent 50%);
+
+4. **BOLD TYPOGRAPHIC HIERARCHY** — Mandatory sizes:
+   - Speaker names: 48-60px, font-weight:900, letter-spacing:-2px, text-shadow with accent color glow
+   - Section labels ("THIS WEEK" / "LAST WEEK"): 11-12px, letter-spacing:5px, uppercase, in accent color, with a small decorative line/bar before them
+   - Quotes: 28-36px italic with massive decorative quotation marks (60-80px) in accent color, positioned as absolute/offset elements
+   - Body text: 15-16px, line-height:1.6
+   - Ticket stub text: 13px, monospace font, uppercase
+
 HEADER — MUST BE EXACTLY THIS (copy-paste these HTML tags verbatim):
-- WIP logo: <img src="${WIP_LOGO_URL}" onerror="this.onerror=null;this.src='${WIP_LOGO_FALLBACK}';" style="width:80px;height:80px;display:block;margin:0 auto 8px;border-radius:16px;border:3px solid ${theme.accent1};" alt="WIP" />
-- Below the logo, centered text: "The WIP Meetup" (32-40px, bold, white with subtle glow)
+- WIP logo: <img src="${WIP_LOGO_URL}" onerror="this.onerror=null;this.src='${WIP_LOGO_FALLBACK}';" style="width:80px;height:80px;display:block;margin:0 auto 8px;border-radius:16px;border:3px solid ${theme.accent1};animation:float 3s ease-in-out infinite;" alt="WIP" />
+- Below the logo, centered text: "The WIP Meetup" (36-44px, font-weight:900, white with text-shadow glow in accent color)
 - Below that: "Every Thursday · 3 PM ET" (14-16px, muted color, margin-bottom:12px)
 - Below that: TWO call-to-action buttons side by side in a flex row (gap:12px, centered):
-  1. <a href="https://thewipmeetup.com" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:10px 24px;border:2px solid ${theme.accent1};font-weight:bold;color:#f5f0e8;text-decoration:none;border-radius:4px;">Visit Website</a>
-  2. <a href="https://discord.gg/XHDcUdm3" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:10px 24px;border:2px dashed #999;font-weight:bold;color:${theme.accent2};text-decoration:none;border-radius:4px;">Join Discord</a>
-- That's it for the header.
+  1. <a href="https://thewipmeetup.com" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:12px 28px;border:2px solid ${theme.accent1};font-weight:bold;color:#f5f0e8;text-decoration:none;border-radius:4px;box-shadow:0 0 15px ${theme.accent1}40;transition:all 0.2s;">Visit Website</a>
+  2. <a href="https://discord.gg/XHDcUdm3" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:12px 28px;border:2px dashed #999;font-weight:bold;color:${theme.accent2};text-decoration:none;border-radius:4px;">Join Discord</a>
+- Then the COUNTDOWN TICKER (described above)
 
 CRITICAL URL RULES:
 - Speaker profile images: Use the EXACT URLs from the [PROFILE IMAGE: ...] tags. Do NOT modify, shorten, or invent avatar URLs.
@@ -808,23 +843,24 @@ ${youtube_video_id ? `LAST WEEK'S EVENT VIDEO — include lower in the poster:
 - For the transcript section (last week's recap), quotes from the transcript ARE real and can be used freely.
 
 POSTER DESIGN PRINCIPLES:
-- MASSIVE typography for speaker names and quotes (36-48px), moderate for everything else
-- The speakers are HEADLINERS — their names and quotes go RIGHT AFTER the header, at the very top
+- MASSIVE typography for speaker names and quotes (48-60px names, 28-36px quotes)
+- The speakers are HEADLINERS — their names and quotes go RIGHT AFTER the countdown ticker
 - Use CSS transforms (rotate slight angles -1deg to 2deg) on elements for that hand-placed poster feel
-- Layer elements: overlapping borders, stacked sections, asymmetric padding
-- Use thick borders (3-4px) in accent colors, not subtle 1px lines
-- Pull-quotes should be HUGE, in accent colors, with decorative quotation marks
+- Layer elements: overlapping borders, stacked sections with negative margins, asymmetric padding
+- Use thick borders (3-4px) in accent colors with animated glow, not subtle 1px lines
+- Pull-quotes should be HUGE, in accent colors, with decorative quotation marks (60-80px)
 
 HEADLINERS LAYOUT — CRITICAL (NO PRIORITY):
-- Render ALL speakers in ONE equal-weight grid right after the header
-- Use a flex-wrap grid container
-- Each speaker block should be the SAME visual weight so 2-4 speakers can sit side-by-side
-- Put each speaker's best REAL quote or bio excerpt inside their own block
+- Render ALL speakers in ONE equal-weight grid right after the countdown
+- Use a flex-wrap grid container with gap:16px
+- Each speaker card: thick animated-glow border, slight rotation, deep box-shadow, inner gradient highlight
+- Speaker name at 48-60px with text-shadow glow
+- Put each speaker's best REAL quote or bio excerpt inside their own block as a styled pull-quote
 
 SPEAKER PROFILE IMAGES — CRITICAL:
 - Each speaker with a [PROFILE IMAGE: url] tag MUST have their photo rendered as an <img> tag
 - Use the EXACT URL provided — do NOT modify or omit it
-- Show as circular images (80-100px) with a 3px border in the accent color
+- Show as circular images (90-110px) with a 3px animated-glow border
 - If no profile image URL is provided for a speaker, skip the image
 
 SPEAKER SOCIAL LINKS — MUST INCLUDE:
@@ -843,25 +879,29 @@ ${custom_image_urls && custom_image_urls.length > 0 ? custom_image_urls.map((url
 
 LAYOUT RULES:
 - Do NOT use a "CANDID SHOTS" header or any header for event images
-- ALL community links should be styled as individual CONCERT TICKET STUBS
+- ALL community links should be styled as individual CONCERT TICKET STUBS with torn-edge effect (use clip-path or dashed borders)
+- Each ticket stub gets a deep box-shadow and slight rotation for that scattered-on-table feel
 
 HTML RULES:
-- All styles INLINE (this will also be used in email)
+- Include a <style> block at the very start with all @keyframes animations (borderGlow, shimmer, pulse, float)
+- All other styles INLINE (this will also be used in email)
 - Max-width: 680px, centered
-- TIGHT SPACING: Keep padding between sections to 16-24px max.
+- TIGHT SPACING: Keep padding between sections to 16-24px max. Use negative margins for overlap.
 - MOBILE-FIRST: All content must look great on 320px-wide screens. Use max-width:100% on images, flex-wrap on grids.
 
 SECTIONS ORDER (mandatory):
-1. **HEADER** — WIP logo + "The WIP Meetup" + "Every Thursday · 3 PM ET" + Website & Discord CTAs.
-2. **THIS WEEK'S HEADLINERS** — All speakers in ONE equal-weight grid with circular PFP, clickable social links, and their best REAL quote or bio excerpt.
-3. **LAST WEEK'S RECAP** — ${lastWeekSpeakersWithImages.length > 0 ? "Feature last week's guests with their circular PFPs, names as clickable social links, alongside the YouTube replay." : "YouTube replay or brief recap."} Event images as atmospheric background texture.
-4. **TICKET STUBS** — Community links as torn concert ticket stubs. No header.
+1. **<style> BLOCK** — All @keyframes animations at the top.
+2. **HEADER** — WIP logo (with float animation) + "The WIP Meetup" (huge, glowing) + "Every Thursday · 3 PM ET" + Website & Discord CTAs.
+3. **COUNTDOWN TICKER** — Bold "NEXT EVENT IN / THIS THURSDAY / 3 PM ET" banner with gradient background.
+4. **THIS WEEK'S HEADLINERS** — All speakers in ONE equal-weight grid with animated-border cards, circular PFP, clickable social links, and their best REAL quote or bio excerpt as a styled pull-quote.
+5. **LAST WEEK'S RECAP** — ${lastWeekSpeakersWithImages.length > 0 ? "Feature last week's guests with their circular PFPs, names as clickable social links, alongside the YouTube replay and a transcript-based synopsis." : "YouTube replay or brief recap."} Event images as atmospheric background texture.
+6. **TICKET STUBS** — Community links as torn concert ticket stubs scattered with slight rotations. No header.
 
 Output JSON:
 {
   "title": "event-style name",
   "subtitle": "one-line FOMO-inducing teaser",
-  "body_html": "full poster-style HTML with ALL inline styles",
+  "body_html": "full poster-style HTML with <style> block + ALL inline styles",
   "body_markdown": "clean Markdown version with the same energy",
   "recap_summary": "2-sentence punchy recap for card preview"
 }`;
