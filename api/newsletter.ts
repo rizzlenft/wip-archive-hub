@@ -792,6 +792,16 @@ TRANSCRIPT:\n${effectiveTranscript}`
   const theme = visualThemes[weekIndex % visualThemes.length];
 
   const WIP_LOGO_URL = "https://thewipmeetup.com/images/wip-logo-static.png";
+  const WIP_LOGO_GIF_URL = "https://wip-archive-hub.lovable.app/images/wip-logo.gif";
+
+  // Compute next Thursday date for the title
+  const now = new Date();
+  const dayOfWeek = now.getUTCDay(); // 0=Sun
+  let daysUntilThursday = (4 - dayOfWeek + 7) % 7;
+  if (daysUntilThursday === 0) daysUntilThursday = 7; // if today is Thursday, next one
+  const nextThursday = new Date(now);
+  nextThursday.setUTCDate(nextThursday.getUTCDate() + daysUntilThursday);
+  const meetupDateStr = `${nextThursday.getUTCMonth() + 1}/${nextThursday.getUTCDate()}/${nextThursday.getUTCFullYear()}`;
 
   // Inline SVG fallback for the WIP logo (simple "WIP" text badge) encoded as a data URI
   const WIP_LOGO_FALLBACK = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' rx='16' fill='%230a0612'/%3E%3Crect x='2' y='2' width='76' height='76' rx='14' fill='none' stroke='%23e84393' stroke-width='3'/%3E%3Ctext x='40' y='48' font-family='Arial,sans-serif' font-size='28' font-weight='bold' fill='%23f5f0e8' text-anchor='middle'%3EWIP%3C/text%3E%3C/svg%3E`;
