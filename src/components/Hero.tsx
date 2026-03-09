@@ -31,6 +31,7 @@ export const Hero = () => {
           src={wipLogo} 
           alt="" 
           className="w-[500px] h-[500px] md:w-[700px] md:h-[700px] lg:w-[900px] lg:h-[900px]"
+          loading="lazy"
         />
       </motion.div>
 
@@ -53,6 +54,8 @@ export const Hero = () => {
               src={wipLogo} 
               alt="The WIP Logo" 
               className="w-40 h-40 md:w-56 md:h-56 lg:w-64 lg:h-64 animate-float"
+              width={256}
+              height={256}
             />
           </motion.div>
 
