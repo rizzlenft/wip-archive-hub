@@ -785,8 +785,7 @@ Community links (style as "entry points" in the ticket section):
       },
     );
 
-    // 3) Replace WIP logo: use inline SVG data URI as primary src for guaranteed rendering
-    //    (onerror doesn't fire inside dangerouslySetInnerHTML in React)
+    // 3) Ensure WIP logo uses the real image with inline SVG fallback via onerror
     const logoSvgDataUri = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' rx='16' fill='%230a0612'/%3E%3Crect x='2' y='2' width='76' height='76' rx='14' fill='none' stroke='%23e84393' stroke-width='3'/%3E%3Ctext x='40' y='48' font-family='Arial,sans-serif' font-size='28' font-weight='bold' fill='%23f5f0e8' text-anchor='middle'%3EWIP%3C/text%3E%3C/svg%3E`;
     generated.body_html = generated.body_html.replace(
       /<img\s([^>]*?)(\s*\/?>)/gi,
@@ -794,11 +793,14 @@ Community links (style as "entry points" in the ticket section):
         const isLogo = /wip-logo|wip-archive-hub\.lovable|thewipmeetup\.com\/images/i.test(attrs)
           || (/alt=["']WIP["']/i.test(attrs) && /width.*?80|height.*?80/i.test(attrs));
         if (!isLogo) return full;
-        // Replace the src with the reliable SVG data URI
+        // Keep the real logo URL as src, add onerror fallback
+        const hasSrc = /src=["']([^"']*)["']/i.exec(attrs);
+        const currentSrc = hasSrc?.[1] || "";
+        const realSrc = currentSrc.startsWith("data:") ? WIP_LOGO_URL : currentSrc || WIP_LOGO_URL;
         const cleanAttrs = attrs
-          .replace(/src=["'][^"']*["']/gi, `src="${logoSvgDataUri}"`)
+          .replace(/src=["'][^"']*["']/gi, `src="${realSrc}"`)
           .replace(/\s*onerror=["'][^"']*["']/gi, "");
-        return `<img ${cleanAttrs}${close}`;
+        return `<img ${cleanAttrs} onerror="this.onerror=null;this.src='${logoSvgDataUri}';"${close}`;
       },
     );
 
