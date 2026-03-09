@@ -825,7 +825,7 @@ TRANSCRIPT:\n${effectiveTranscript}`
 THIS IS NOT AN EMAIL. THIS IS A POSTER. A FLYER. A BLOCK PARTY INVITATION.
 But it MUST be built with EMAIL-COMPATIBLE HTML so it looks IDENTICAL when pasted into Substack.
 
-THIS WEEK'S VISUAL THEME: "${theme.name}"
+THIS WEEK'S VISUAL THEME INSPIRATION (internal use only — do NOT display the theme name anywhere):
 Design vibe: ${theme.vibe}
 PRIMARY COLOR PALETTE:
 - Deep background: #0a0612
@@ -837,6 +837,8 @@ PRIMARY COLOR PALETTE:
 - Purple: #a29bfe
 - Text: #f5f0e8
 Theme accent colors (use sparingly): ${theme.accent1}, ${theme.accent2}, ${theme.accent3}
+
+⚠️ CRITICAL — DO NOT display the theme name ("${theme.name}") ANYWHERE in the newsletter. It is purely internal inspiration.
 
 ⚠️ CRITICAL — EMAIL/SUBSTACK COMPATIBLE HTML ONLY:
 - Do NOT use a <style> block or @keyframes — Substack strips them entirely
@@ -908,29 +910,38 @@ SPEAKER PROFILE IMAGES — CRITICAL:
 - Show as circular images (90-110px) with a 3px border in accent color and box-shadow glow
 - If no profile image URL is provided for a speaker, skip the image
 
-SPEAKER SOCIAL LINKS — MUST BE CLICKABLE:
+SPEAKER SOCIAL LINKS — MUST BE CLICKABLE WITH SPECIFIC COLORS:
 - For EVERY speaker, render their social media handles as CLICKABLE <a> links below their name
-- Twitter/X: <a href="https://x.com/HANDLE" target="_blank" style="color:${theme.accent2};text-decoration:none;">@HANDLE on X/Twitter</a>
-- Farcaster: <a href="https://warpcast.com/HANDLE" target="_blank" style="color:#a29bfe;text-decoration:none;">@HANDLE on Farcaster</a>
+- Twitter/X links MUST be BLUE: <a href="https://x.com/HANDLE" target="_blank" style="color:#1DA1F2;text-decoration:none;font-weight:bold;">𝕏 @HANDLE</a>
+- Farcaster links MUST be PURPLE: <a href="https://warpcast.com/HANDLE" target="_blank" style="color:#8B5CF6;text-decoration:none;font-weight:bold;">🟣 @HANDLE on Farcaster</a>
 - Show both if available, each on its own line
 - These go directly under each speaker's name in their headliner card
 
-SPEAKER TOPIC — MUST BE HANDLED:
-- If the topic field contains a URL (starts with http), make it a clickable link: <a href="TOPIC_URL" target="_blank" style="color:${theme.accent1};text-decoration:underline;">TOPIC_URL</a>
-- If the topic is plain text, display as: "Topic: TOPIC_TEXT" in muted styling
-- Show topic below social links
+SPEAKER TOPIC — MUST ALWAYS BE DISPLAYED AS STYLED TEXT:
+- ALWAYS show the topic with the label prefix "Topic: " in a consistent styled format
+- If the topic contains a URL (starts with http), display as: <div style="color:${theme.accent1};font-size:14px;margin-top:8px;">Topic: <a href="TOPIC_URL" target="_blank" style="color:${theme.accent1};text-decoration:underline;">TOPIC_URL</a></div>
+- If the topic is plain text, display as: <div style="color:${theme.accent1};font-size:14px;margin-top:8px;">Topic: TOPIC_TEXT</div>
+- Show topic below social links, ALWAYS with the same visual format regardless of whether it's a URL or text
 
 ${transcriptQuoteNote}
 CUSTOM EVENT IMAGES — BOLD, VISIBLE BACKGROUNDS:
 - These images are from LAST WEEK's event — they capture the community energy
 - Use them AS FULL-WIDTH BACKGROUND IMAGES across MAJOR sections of the newsletter (not just one small area)
 - Apply them as background-image on table cells with background-size:cover; background-position:center;
-- Use a dark overlay div on top: background:rgba(10,6,18,0.65) — translucent enough that the images CLEARLY show through
+- Use a dark overlay div on top: background:rgba(10,6,18,0.55) — translucent enough that the images CLEARLY show through
 - The ENTIRE newsletter should feel like it has community imagery woven throughout — NOT just a solid black background
 - If multiple images provided, use DIFFERENT images for DIFFERENT sections (header area, speaker section, recap section, footer)
 - Make the images PROMINENT — they should be one of the first things someone notices
 - Also include at least ONE image as a full-width standalone <img> element (not just background) to ensure it appears in Substack too
 ${custom_image_urls && custom_image_urls.length > 0 ? custom_image_urls.map((url, i) => `- Image ${i + 1}: ${url}`).join("\n") : "- (No custom images provided this week)"}
+
+LAST WEEK'S RECAP — TRANSCRIPT SYNOPSIS IS MANDATORY:
+- If a transcript is provided below, you MUST write a compelling 3-5 sentence synopsis summarizing what happened
+- The synopsis should highlight the most interesting discussion points, surprising moments, and key takeaways
+- It should make readers WANT to watch the replay
+- Place the synopsis PROMINENTLY in the "Last Week's Recap" section, ABOVE the guest PFPs
+- Include a "▶ Watch the Replay" CTA linking to the YouTube video
+- If NO transcript is provided, write a general teaser like "Missed last week? Our guests dropped some incredible insights — catch the replay!"
 
 LAYOUT RULES:
 - Use TABLE-BASED layout throughout (for email compatibility)
@@ -941,8 +952,8 @@ LAYOUT RULES:
 
 SECTIONS ORDER (mandatory):
 1. **HEADER** — WIP logo + "The WIP Meetup" (huge, glowing text-shadow) + "Every Thursday · 3 PM ET" + Website & Discord CTAs.
-2. **THIS WEEK'S HEADLINERS** — All speakers in ONE equal-weight TABLE row with glowing-border cells, circular PFP, CLICKABLE social links, topic (linked if URL), and their bio as a styled description.
-3. **LAST WEEK'S RECAP** — ${lastWeekSpeakersWithImages.length > 0 ? "Feature last week's guests with their circular PFPs, names as clickable social links, alongside the YouTube replay and a transcript-based synopsis." : "YouTube replay or brief recap."} Use custom event images as visible background-image on this section.
+2. **THIS WEEK'S HEADLINERS** — All speakers in ONE equal-weight TABLE row with glowing-border cells, circular PFP, CLICKABLE social links (Twitter in blue #1DA1F2, Farcaster in purple #8B5CF6), topic (ALWAYS with "Topic:" prefix, linked if URL), and their bio as a styled description.
+3. **LAST WEEK'S RECAP** — ${lastWeekSpeakersWithImages.length > 0 ? "Feature last week's guests with their circular PFPs, names as clickable social links, alongside the YouTube replay and a transcript-based synopsis." : "YouTube replay or brief recap."} Use custom event images as visible background-image on this section. MUST include a transcript synopsis if transcript data is available.
 4. **TICKET STUBS** — Community links as ticket stubs with thick dashed borders and box-shadow. No header.
 
 Output JSON:
@@ -954,7 +965,8 @@ Output JSON:
   "recap_summary": "2-sentence punchy recap for card preview"
 }
 IMPORTANT: The title MUST be exactly "WIP Meetup - ${meetupDateStr}" — do not change the format.
-IMPORTANT: Do NOT include any <style> block. ALL styles must be inline.`;
+IMPORTANT: Do NOT include any <style> block. ALL styles must be inline.
+IMPORTANT: Do NOT display the theme name "${theme.name}" anywhere in the output.`;
 
   // Build last week's transcript synopsis context
   const lastWeekRecapTranscript = lastWeekTranscript
