@@ -160,6 +160,10 @@ const ALLOWED_AVATAR_HOSTS = new Set([
   "cdn.discordapp.com",
   "ipfs.io",
   "gateway.pinata.cloud",
+  "i.warpcast.com",
+  "warpcast.com",
+  "res.cloudinary.com",
+  "imagedelivery.net",
 ]);
 
 function isAllowedAvatarUrl(raw: string): boolean {
@@ -197,13 +201,55 @@ async function handleAvatar(req: VercelRequest, res: VercelResponse) {
 
     if (!upstream) return res.status(400).json({ error: "Missing farcaster/twitter/url" });
 
-    const upstreamRes = await fetch(upstream, {
+    let upstreamRes = await fetch(upstream, {
       redirect: "follow",
       headers: {
         Accept: "image/*,*/*;q=0.8",
         "User-Agent": "wip-newsletter-avatar-proxy",
       },
     });
+
+    // Fallback: if unavatar.io failed for Farcaster, try Warpcast API directly
+    if (!upstreamRes.ok && fc) {
+      try {
+        const warpcastApiRes = await fetch(
+          `https://api.warpcast.com/v2/user-by-username?username=${encodeURIComponent(fc)}`,
+          {
+            headers: {
+              Accept: "application/json",
+              "User-Agent": "wip-newsletter-avatar-proxy",
+            },
+          },
+        );
+        if (warpcastApiRes.ok) {
+          const warpcastData = await warpcastApiRes.json();
+          const pfpUrl =
+            warpcastData?.result?.user?.pfp?.url ||
+            warpcastData?.result?.user?.pfp?.verified?.[0] ||
+            null;
+          if (pfpUrl && isAllowedAvatarUrl(pfpUrl)) {
+            upstreamRes = await fetch(pfpUrl, {
+              redirect: "follow",
+              headers: {
+                Accept: "image/*,*/*;q=0.8",
+                "User-Agent": "wip-newsletter-avatar-proxy",
+              },
+            });
+          } else if (pfpUrl) {
+            // PFP URL from an unknown host — try it anyway but verify it's an image
+            upstreamRes = await fetch(pfpUrl, {
+              redirect: "follow",
+              headers: {
+                Accept: "image/*,*/*;q=0.8",
+                "User-Agent": "wip-newsletter-avatar-proxy",
+              },
+            });
+          }
+        }
+      } catch {
+        // Warpcast API fallback failed silently — will return original 404 below
+      }
+    }
 
     if (!upstreamRes.ok) {
       return res.status(404).json({ error: `Avatar fetch failed: HTTP ${upstreamRes.status}` });
