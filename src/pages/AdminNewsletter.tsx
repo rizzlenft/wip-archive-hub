@@ -524,11 +524,21 @@ const AdminNewsletter = () => {
                                   }))
                                 }
                                 onError={(e) => {
-                                  (e.target as HTMLImageElement).style.display = "none";
-                                  setPfpStatus((prev) => ({
-                                    ...prev,
-                                    [idx]: { status: "failed", source: pfpSource },
-                                  }));
+                                  const currentStatus = pfpStatus[idx];
+                                  // If Farcaster failed and we have a Twitter handle, try fallback
+                                  if (pfpSource === "farcaster" && tw && !currentStatus?.triedFallback) {
+                                    (e.target as HTMLImageElement).style.display = "none";
+                                    setPfpStatus((prev) => ({
+                                      ...prev,
+                                      [idx]: { status: "loading", source: "farcaster", triedFallback: true },
+                                    }));
+                                  } else {
+                                    (e.target as HTMLImageElement).style.display = "none";
+                                    setPfpStatus((prev) => ({
+                                      ...prev,
+                                      [idx]: { status: "failed", source: pfpSource, triedFallback: currentStatus?.triedFallback },
+                                    }));
+                                  }
                                 }}
                               />
                             ) : (
