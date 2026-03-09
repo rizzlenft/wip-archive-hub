@@ -351,33 +351,14 @@ const AdminNewsletter = () => {
     }
   };
 
-  const handleSendToSubstack = async () => {
-    if (!draft || !editableHtml) return;
-    setSendingToSubstack(true);
-    setFeedback(null);
+  const handleCopyAndOpenSubstack = async () => {
+    if (!editableHtml) return;
     try {
-      const res = await fetch(`${API_BASE}/api/newsletter?action=send-substack`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          id: draft.id,
-          title: editableTitle || draft.title,
-          body_html: editableHtml,
-        }),
-      });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error((err as { error?: string }).error || `HTTP ${res.status}`);
-      }
-      setFeedback({ type: "success", msg: "📧 Newsletter sent to Substack! Check your Substack dashboard to publish." });
-    } catch (err) {
-      setFeedback({
-        type: "error",
-        msg: `Substack send failed: ${err instanceof Error ? err.message : "Unknown error"}`,
-      });
-    } finally {
-      setSendingToSubstack(false);
+      await navigator.clipboard.writeText(editableHtml);
+      setFeedback({ type: "success", msg: "📋 HTML copied! Paste it into your Substack post editor." });
+      window.open("https://thewipmeetup.substack.com/publish/post", "_blank");
+    } catch {
+      setFeedback({ type: "error", msg: "Failed to copy to clipboard" });
     }
   };
 
