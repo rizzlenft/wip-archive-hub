@@ -597,11 +597,29 @@ YouTube Thumbnail (MUST include as clickable image): https://img.youtube.com/vi/
     return s;
   });
 
+  // ── Fetch real social media content for each speaker ──────────────────
+  console.log("Fetching social media content for speakers...");
+  const socialContentMap = new Map<string, SpeakerSocialContent>();
+  await Promise.all(
+    speakersWithImages.map(async (s) => {
+      const content = await fetchSpeakerSocialContent(s);
+      socialContentMap.set(s.name, content);
+      console.log(
+        `Social content for ${s.name}: bio=${content.bio.length}chars, posts=${content.recentPosts.length}, source=${content.source}`,
+      );
+    }),
+  );
+
   const speakerList = speakersWithImages
     .map((s) => {
       const tw = normalizeTwitterHandle(s.twitter);
       const fc = normalizeFarcasterHandle(s.farcaster);
-      return `- ${s.name}${s.profile_image_url ? ` [PROFILE IMAGE: ${s.profile_image_url}]` : ""}${tw ? ` (@${tw} on X/Twitter, link: https://x.com/${tw})` : ""}${fc ? ` (@${fc} on Farcaster, link: https://farcaster.xyz/${fc})` : ""}${s.topic ? ` — Topic: ${s.topic}` : ""}${s.bio ? ` — Bio: ${s.bio}` : ""}`;
+      const social = socialContentMap.get(s.name);
+      const bioText = social?.bio || s.bio || "";
+      const postsText = social?.recentPosts?.length
+        ? `\n    REAL RECENT POSTS (use these for quotes — do NOT fabricate):\n${social.recentPosts.map((p, i) => `      ${i + 1}. "${p}"`).join("\n")}`
+        : "";
+      return `- ${s.name}${s.profile_image_url ? ` [PROFILE IMAGE: ${s.profile_image_url}]` : ""}${tw ? ` (@${tw} on X/Twitter, link: https://x.com/${tw})` : ""}${fc ? ` (@${fc} on Farcaster, link: https://farcaster.xyz/${fc})` : ""}${s.topic ? ` — Topic: ${s.topic}` : ""}${bioText ? `\n    BIO: ${bioText}` : ""}${postsText}`;
     })
     .join("\n");
 
