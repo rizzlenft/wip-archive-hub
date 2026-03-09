@@ -419,9 +419,41 @@ const AdminNewsletter = () => {
                         className="rounded-md border border-border/50 bg-background p-4 space-y-3"
                       >
                         <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium text-muted-foreground">
-                            Speaker {idx + 1}
-                          </span>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-sm font-medium text-muted-foreground">
+                              Speaker {idx + 1}
+                            </span>
+                            {/* PFP Status Badge */}
+                            {pfpUrl && (
+                              speakerPfpStatus?.status === "loading" ? (
+                                <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold bg-muted text-muted-foreground border border-border/50">
+                                  <Loader2 className="w-2.5 h-2.5 animate-spin" />
+                                  Checking…
+                                </span>
+                              ) : speakerPfpStatus?.status === "resolved" ? (
+                                <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold bg-green-500/10 text-green-400 border border-green-500/20">
+                                  <CheckCircle2 className="w-2.5 h-2.5" />
+                                  {speakerPfpStatus.source === "farcaster" ? "Farcaster" : speakerPfpStatus.source === "twitter" ? "Twitter/X" : "Direct URL"}
+                                </span>
+                              ) : speakerPfpStatus?.status === "failed" ? (
+                                <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold bg-destructive/10 text-destructive border border-destructive/20">
+                                  <XCircle className="w-2.5 h-2.5" />
+                                  Failed — check handle
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold bg-accent/10 text-accent border border-accent/20">
+                                  <AlertCircle className="w-2.5 h-2.5" />
+                                  {pfpSource === "farcaster" ? "via Farcaster" : pfpSource === "twitter" ? "via Twitter/X" : "via URL"}
+                                </span>
+                              )
+                            )}
+                            {!pfpUrl && (fc || tw || speaker.profile_image_url) && (
+                              <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold bg-destructive/10 text-destructive border border-destructive/20">
+                                <XCircle className="w-2.5 h-2.5" />
+                                No PFP resolved
+                              </span>
+                            )}
+                          </div>
                           {speakers.length > 1 && (
                             <Button
                               type="button"
@@ -451,14 +483,20 @@ const AdminNewsletter = () => {
                           <Input
                             placeholder="@farcaster handle (auto-fetches PFP)"
                             value={speaker.farcaster || ""}
-                            onChange={(e) => updateSpeaker(idx, "farcaster", e.target.value)}
+                            onChange={(e) => {
+                              updateSpeaker(idx, "farcaster", e.target.value);
+                              setPfpStatus((prev) => ({ ...prev, [idx]: { status: "loading", source: "farcaster" } }));
+                            }}
                             onBlur={(e) => updateSpeaker(idx, "farcaster", normalizeFarcasterHandle(e.target.value))}
                             className="bg-card"
                           />
                           <Input
                             placeholder="@twitter handle"
                             value={speaker.twitter || ""}
-                            onChange={(e) => updateSpeaker(idx, "twitter", e.target.value)}
+                            onChange={(e) => {
+                              updateSpeaker(idx, "twitter", e.target.value);
+                              setPfpStatus((prev) => ({ ...prev, [idx]: { status: "loading", source: "twitter" } }));
+                            }}
                             onBlur={(e) => updateSpeaker(idx, "twitter", normalizeTwitterHandle(e.target.value))}
                             className="bg-card"
                           />
@@ -474,8 +512,18 @@ const AdminNewsletter = () => {
                                 loading="lazy"
                                 alt={`${speaker.name} avatar`}
                                 className="w-14 h-14 rounded-full border-2 border-accent object-cover"
+                                onLoad={() =>
+                                  setPfpStatus((prev) => ({
+                                    ...prev,
+                                    [idx]: { status: "resolved", source: pfpSource },
+                                  }))
+                                }
                                 onError={(e) => {
                                   (e.target as HTMLImageElement).style.display = "none";
+                                  setPfpStatus((prev) => ({
+                                    ...prev,
+                                    [idx]: { status: "failed", source: pfpSource },
+                                  }));
                                 }}
                               />
                             ) : (
@@ -492,7 +540,10 @@ const AdminNewsletter = () => {
                             <Input
                               placeholder="Paste a Twitter/X or Farcaster profile URL — or a direct image URL"
                               value={speaker.profile_image_url || ""}
-                              onChange={(e) => updateSpeaker(idx, "profile_image_url", e.target.value)}
+                              onChange={(e) => {
+                                updateSpeaker(idx, "profile_image_url", e.target.value);
+                                setPfpStatus((prev) => ({ ...prev, [idx]: { status: "loading", source: "url" } }));
+                              }}
                               onBlur={(e) => {
                                 const normalized = normalizeProfileImageUrlFromText(e.target.value);
                                 if (normalized) updateSpeaker(idx, "profile_image_url", normalized);
@@ -504,6 +555,7 @@ const AdminNewsletter = () => {
                                   if (normalized) {
                                     e.preventDefault();
                                     updateSpeaker(idx, "profile_image_url", normalized);
+                                    setPfpStatus((prev) => ({ ...prev, [idx]: { status: "loading", source: "url" } }));
                                     return;
                                   }
                                 }
