@@ -919,14 +919,18 @@ ${youtube_video_id ? `LAST WEEK'S EVENT VIDEO — include lower in the poster:
 - If no bio is available, show only their name, PFP, social links, and topic — NO made-up description.
 - NEVER fabricate, invent, or paraphrase content for speakers.
 
-SPEAKER CARDS — CRITICAL LAYOUT:
-- Use a TABLE layout: one table row with equal-width cells for each speaker
-- If 2 speakers: 50%/50%. If 3: 33%/33%/33%. If 1: full width but centered, max-width 400px.
-- Each speaker card cell: padding:20px, vertical-align:top, background with subtle gradient
-- NO dead space — cards should fill their cells completely
+SPEAKER CARDS — CRITICAL LAYOUT (SIDE-BY-SIDE, EQUAL WEIGHT):
+- ALL speakers MUST appear SIDE BY SIDE in a SINGLE TABLE ROW — never stacked vertically.
+- Use a <table width="100%"><tr> with one <td> per speaker, each with equal width:
+  - 1 speaker: one <td width="100%" style="max-width:400px;margin:0 auto">
+  - 2 speakers: two <td width="50%"> cells
+  - 3 speakers: three <td width="33%"> cells
+  - 4 speakers: four <td width="25%"> cells
+- Each <td> gets: padding:20px, vertical-align:top, background with subtle gradient
 - Each card gets: thick accent border, box-shadow glow, inner gradient highlight
 - Speaker name at 36-48px with text-shadow glow
 - Speaker bio as styled italic description below their name
+- NO speaker should appear more prominent than another — equal sizing, equal styling
 
 SPEAKER PROFILE IMAGES — CRITICAL:
 - Each speaker with a [PROFILE IMAGE: url] tag MUST have their photo rendered as an <img> tag
