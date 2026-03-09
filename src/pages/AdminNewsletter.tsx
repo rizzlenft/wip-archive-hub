@@ -395,21 +395,28 @@ const AdminNewsletter = () => {
                       ? normalizeProfileImageUrlFromText(speaker.profile_image_url)
                       : null;
 
-                    // Determine PFP source for badge display
+                    const speakerPfpStatus = pfpStatus[idx];
+
+                    // Determine PFP source for badge display, with fallback logic
                     let pfpUrl = "";
                     let pfpSource: "farcaster" | "twitter" | "url" | "" = "";
                     if (normalizedProfileUrl) {
                       pfpUrl = buildAvatarProxyUrl({ url: normalizedProfileUrl });
                       pfpSource = "url";
-                    } else if (fc) {
-                      pfpUrl = buildAvatarProxyUrl({ farcaster: fc });
-                      pfpSource = "farcaster";
+                    } else if (fc && !(speakerPfpStatus?.triedFallback && speakerPfpStatus?.source === "farcaster")) {
+                      // Try Farcaster first, unless it already failed and we're trying fallback
+                      if (speakerPfpStatus?.triedFallback && tw) {
+                        // Farcaster failed, fallback to Twitter
+                        pfpUrl = buildAvatarProxyUrl({ twitter: tw });
+                        pfpSource = "twitter";
+                      } else {
+                        pfpUrl = buildAvatarProxyUrl({ farcaster: fc });
+                        pfpSource = "farcaster";
+                      }
                     } else if (tw) {
                       pfpUrl = buildAvatarProxyUrl({ twitter: tw });
                       pfpSource = "twitter";
                     }
-
-                    const speakerPfpStatus = pfpStatus[idx];
 
                     return (
                       <div
