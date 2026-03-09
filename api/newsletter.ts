@@ -681,6 +681,17 @@ Community links (style as "entry points" in the ticket section):
       return res.status(502).json({ error: `AI returned invalid JSON: ${msg}` });
     }
 
+    // Post-process: the AI sometimes ignores our proxy URLs and writes direct
+    // unavatar.io URLs in the HTML. Rewrite them to our avatar proxy so PFPs
+    // render in browsers without ORB/CORS issues.
+    generated.body_html = generated.body_html.replace(
+      /https:\/\/unavatar\.io\/(farcaster|twitter)\/([a-zA-Z0-9_.%-]+)/g,
+      (_m: string, service: string, handle: string) => {
+        const key = service === "farcaster" ? "farcaster" : "twitter";
+        return `${avatarBase}&${key}=${encodeURIComponent(handle)}`;
+      },
+    );
+
     const id = `wip-weekly-${Date.now()}`;
     const now = new Date().toISOString();
 
