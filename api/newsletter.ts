@@ -888,27 +888,26 @@ ${youtube_video_id ? `LAST WEEK'S EVENT VIDEO — include lower in the poster:
 - Make this a clickable image with ONLY a tiny "▶ WATCH" pill badge (12-14px) in the bottom-right corner
 - Do NOT make a giant overlay or banner. The thumbnail speaks for itself.` : ""}
 
-⚠️ CRITICAL — ACCURACY MANDATE FOR SPEAKER QUOTES AND BIOS:
-- NEVER fabricate, invent, or paraphrase quotes. Only use REAL content provided in the speaker data below.
-- If "REAL RECENT POSTS" are listed for a speaker, pick the most compelling one as their featured quote. Use the EXACT words — do not rewrite or embellish.
-- If no recent posts are available but a BIO is provided, use a relevant excerpt from their bio instead. You may label it as a bio excerpt rather than a quote.
-- If neither posts nor bio are available, show only their name, PFP, social links, and topic — NO quote at all. It is better to have no quote than a fake one.
+⚠️ CRITICAL — SPEAKER BIOS (NOT QUOTES):
+- Do NOT use quotes or social media posts for speakers. Instead, display their BIO as a short description/tagline on their card.
+- If a BIO is provided, show it as a styled description (16-18px, italic, muted color) below their name and social links.
+- If no bio is available, show only their name, PFP, social links, and topic — NO made-up description.
+- NEVER fabricate, invent, or paraphrase content for speakers.
 - For the transcript section (last week's recap), quotes from the transcript ARE real and can be used freely.
 
 POSTER DESIGN PRINCIPLES:
-- MASSIVE typography for speaker names and quotes (48-60px names, 28-36px quotes)
-- The speakers are HEADLINERS — their names and quotes go RIGHT AFTER the countdown ticker
+- MASSIVE typography for speaker names (48-60px names)
+- The speakers are HEADLINERS — their names and bios go RIGHT AFTER the header
 - Use CSS transforms (rotate slight angles -1deg to 2deg) on elements for that hand-placed poster feel
 - Layer elements: overlapping borders, stacked sections with negative margins, asymmetric padding
 - Use thick borders (3-4px) in accent colors with animated glow, not subtle 1px lines
-- Pull-quotes should be HUGE, in accent colors, with decorative quotation marks (60-80px)
 
 HEADLINERS LAYOUT — CRITICAL (NO PRIORITY):
-- Render ALL speakers in ONE equal-weight grid right after the countdown
+- Render ALL speakers in ONE equal-weight grid right after the header
 - Use a flex-wrap grid container with gap:16px
 - Each speaker card: thick animated-glow border, slight rotation, deep box-shadow, inner gradient highlight
 - Speaker name at 48-60px with text-shadow glow
-- Put each speaker's best REAL quote or bio excerpt inside their own block as a styled pull-quote
+- Show each speaker's bio as a styled description below their name (NOT as a quote with quotation marks)
 
 SPEAKER PROFILE IMAGES — CRITICAL:
 - Each speaker with a [PROFILE IMAGE: url] tag MUST have their photo rendered as an <img> tag
