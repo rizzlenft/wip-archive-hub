@@ -562,12 +562,18 @@ CRITICAL DESIGN MANDATE — THINK POSTER, NOT EMAIL:
 - NOT a corporate newsletter. NOT an email template. NO "Dear reader" energy.
 - Every issue should feel like a collector's item that people screenshot and share
 
-HEADER — MUST BE EXACTLY THIS:
-- WIP logo: <img src="${WIP_LOGO_URL}" onerror="this.onerror=null;this.src='${WIP_LOGO_FALLBACK}';" style="width:80px;height:80px;display:block;margin:0 auto 12px;" alt="WIP" />
+HEADER — MUST BE EXACTLY THIS (copy-paste these HTML tags verbatim):
+- WIP logo: <img src="${WIP_LOGO_URL}" style="width:80px;height:80px;display:block;margin:0 auto 12px;" alt="WIP" />
 - Below the logo, centered text: "The WIP Meetup" (32-40px, bold, white with subtle glow)
 - Below that: "Every Thursday · 3 PM ET" (16-18px, muted color)
-- Below that: a clickable Discord button linking to https://discord.gg/XHDcUdm3 — styled as a ticket stub with dashed border, background color ${theme.accent3}, bold text reading "Join Discord" (NOT the raw URL). Use an <a> tag with href.
+- Below that: <a href="https://discord.gg/XHDcUdm3" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:10px 24px;border:2px dashed #999;font-weight:bold;color:${theme.accent2};text-decoration:none;">Join Discord</a>
 - That's it for the header. Clean. No "VOL. 50" or "SESSIONS" — just the meetup name and next event info.
+
+⚠️ CRITICAL URL RULES — VIOLATING THESE WILL BREAK THE POSTER:
+- Speaker profile images: Use the EXACT URLs from the [PROFILE IMAGE: ...] tags. Do NOT modify, shorten, or invent avatar URLs.
+- Discord: ALWAYS use <a href="https://discord.gg/XHDcUdm3">Join Discord</a> — NEVER show the raw URL as visible text.
+- YouTube thumbnails: Use https://img.youtube.com/vi/VIDEO_ID/maxresdefault.jpg — NEVER invent or modify.
+- Community links: ALL must be clickable <a> tags with proper href attributes.
 
 ${youtube_video_id ? `LAST WEEK'S EVENT VIDEO — include lower in the poster:
 - Thumbnail: https://img.youtube.com/vi/${youtube_video_id}/maxresdefault.jpg
