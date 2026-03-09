@@ -532,6 +532,56 @@ async function handleDelete(req: VercelRequest, res: VercelResponse) {
   }
 }
 
+// ─── SEND TO SUBSTACK VIA EMAIL ──────────────────────────────────────────────
+
+async function handleSendSubstack(req: VercelRequest, res: VercelResponse) {
+  const SUBSTACK_EMAIL = process.env.SUBSTACK_IMPORT_EMAIL;
+  const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
+  const FROM_EMAIL = process.env.NEWSLETTER_FROM_EMAIL || "newsletter@thewipmeetup.com";
+
+  if (!SUBSTACK_EMAIL) {
+    return res.status(500).json({ error: "SUBSTACK_IMPORT_EMAIL not configured — add your Substack import email address in Vercel env vars" });
+  }
+  if (!SENDGRID_API_KEY) {
+    return res.status(500).json({ error: "SENDGRID_API_KEY not configured — add it in Vercel env vars to enable email sending" });
+  }
+
+  const { title, body_html } = req.body as { id?: string; title?: string; body_html?: string };
+  if (!title || !body_html) {
+    return res.status(400).json({ error: "Missing title or body_html" });
+  }
+
+  try {
+    const emailRes = await fetch("https://api.sendgrid.com/v3/mail/send", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${SENDGRID_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        personalizations: [{ to: [{ email: SUBSTACK_EMAIL }] }],
+        from: { email: FROM_EMAIL, name: "The WIP Weekly" },
+        subject: title,
+        content: [
+          { type: "text/html", value: body_html },
+        ],
+      }),
+    });
+
+    if (!emailRes.ok) {
+      const errText = await emailRes.text();
+      console.error("SendGrid error:", emailRes.status, errText);
+      return res.status(502).json({ error: `Email send failed: HTTP ${emailRes.status}` });
+    }
+
+    console.log(`Newsletter "${title}" sent to Substack via ${SUBSTACK_EMAIL}`);
+    return res.status(200).json({ success: true, message: "Sent to Substack import email" });
+  } catch (err) {
+    console.error("send-substack error:", err);
+    const msg = err instanceof Error ? err.message : String(err);
+    return res.status(500).json({ error: msg });
+  }
+}
 
 async function handleGenerate(req: VercelRequest, res: VercelResponse) {
   const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
