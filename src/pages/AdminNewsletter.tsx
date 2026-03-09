@@ -352,104 +352,150 @@ const AdminNewsletter = () => {
   };
 
   /**
-   * Convert the markdown version to Substack-compatible HTML.
-   * Instead of parsing the complex poster HTML, we use the already-clean markdown
-   * and convert it to simple semantic HTML that Substack natively supports.
+   * Extract clean, Substack-compatible HTML from the poster HTML by walking
+   * the rendered DOM and pulling out semantic content (headings, paragraphs,
+   * images, links).  This avoids any issues with the AI-generated markdown
+   * echoing raw prompt artefacts.
    */
-  const markdownToSubstackHtml = (md: string): string => {
-    if (!md.trim()) return "";
-    
-    const lines = md.split("\n");
+  const extractSubstackHtml = (posterHtml: string): string => {
+    if (!posterHtml.trim()) return "";
+
+    const container = document.createElement("div");
+    container.innerHTML = posterHtml;
+
     const out: string[] = [];
-    let inList = false;
-    
-    for (const line of lines) {
-      const trimmed = line.trim();
-      if (!trimmed) {
-        if (inList) { out.push("</ul>"); inList = false; }
-        continue;
+
+    const walkNode = (node: Node) => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        const t = (node.textContent || "").trim();
+        if (t) out.push(`<p>${t}</p>`);
+        return;
       }
-      
+      if (node.nodeType !== Node.ELEMENT_NODE) return;
+      const el = node as HTMLElement;
+      const tag = el.tagName.toLowerCase();
+
+      // Skip hidden / zero-size decorative elements
+      if (tag === "style" || tag === "script") return;
+
+      // Images – keep as-is (Substack handles <img> fine)
+      if (tag === "img") {
+        const src = el.getAttribute("src") || "";
+        const alt = el.getAttribute("alt") || "";
+        if (src) {
+          // If the image is wrapped in a link, the parent handler will take care of it
+          const parentTag = (el.parentElement?.tagName || "").toLowerCase();
+          if (parentTag !== "a") {
+            out.push(`<img src="${src}" alt="${alt}" />`);
+          }
+        }
+        return;
+      }
+
+      // Links
+      if (tag === "a") {
+        const href = el.getAttribute("href") || "";
+        const img = el.querySelector("img");
+        if (img) {
+          // Clickable image
+          const src = img.getAttribute("src") || "";
+          const alt = img.getAttribute("alt") || "";
+          out.push(`<a href="${href}"><img src="${src}" alt="${alt}" /></a>`);
+        } else {
+          const text = (el.textContent || "").trim();
+          if (text && href) out.push(`<p><a href="${href}">${text}</a></p>`);
+        }
+        return;
+      }
+
       // Headings
-      if (trimmed.startsWith("### ")) {
-        if (inList) { out.push("</ul>"); inList = false; }
-        out.push(`<h3>${processInline(trimmed.slice(4))}</h3>`);
-      } else if (trimmed.startsWith("## ")) {
-        if (inList) { out.push("</ul>"); inList = false; }
-        out.push(`<h2>${processInline(trimmed.slice(3))}</h2>`);
-      } else if (trimmed.startsWith("# ")) {
-        if (inList) { out.push("</ul>"); inList = false; }
-        out.push(`<h1>${processInline(trimmed.slice(2))}</h1>`);
+      if (/^h[1-6]$/.test(tag)) {
+        const text = (el.textContent || "").trim();
+        if (text) out.push(`<${tag}>${text}</${tag}>`);
+        return;
       }
-      // Images: ![alt](src)
-      else if (/^!\[([^\]]*)\]\(([^)]+)\)$/.test(trimmed)) {
-        if (inList) { out.push("</ul>"); inList = false; }
-        const m = trimmed.match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
-        if (m) out.push(`<img src="${m[2]}" alt="${m[1]}" />`);
-      }
-      // Horizontal rule
-      else if (/^[-*_]{3,}$/.test(trimmed)) {
-        if (inList) { out.push("</ul>"); inList = false; }
+
+      // HR
+      if (tag === "hr") {
         out.push("<hr>");
+        return;
       }
-      // List items
-      else if (/^[-*]\s+/.test(trimmed)) {
-        if (!inList) { out.push("<ul>"); inList = true; }
-        out.push(`<li>${processInline(trimmed.replace(/^[-*]\s+/, ""))}</li>`);
-      }
+
       // Blockquote
-      else if (trimmed.startsWith("> ")) {
-        if (inList) { out.push("</ul>"); inList = false; }
-        out.push(`<blockquote><p>${processInline(trimmed.slice(2))}</p></blockquote>`);
+      if (tag === "blockquote") {
+        const text = (el.textContent || "").trim();
+        if (text) out.push(`<blockquote><p>${text}</p></blockquote>`);
+        return;
       }
-      // Regular paragraph
-      else {
-        if (inList) { out.push("</ul>"); inList = false; }
-        out.push(`<p>${processInline(trimmed)}</p>`);
+
+      // For table cells / divs / spans — check for meaningful direct text content
+      // and recurse into children
+      const children = Array.from(node.childNodes);
+      
+      // If this element has only inline text (no block children), emit as a paragraph
+      const hasBlockChild = children.some(c => {
+        if (c.nodeType !== Node.ELEMENT_NODE) return false;
+        const ct = (c as HTMLElement).tagName.toLowerCase();
+        return ["div", "table", "tr", "td", "th", "p", "h1", "h2", "h3", "h4", "h5", "h6", "blockquote", "ul", "ol", "li", "img", "a", "hr"].includes(ct);
+      });
+
+      if (!hasBlockChild) {
+        // Leaf container — extract text + any inline links
+        const html = el.innerHTML;
+        // Check if it contains <a> tags (social links etc.)
+        if (/<a\s/i.test(html)) {
+          // Preserve links by extracting them
+          const tempDiv = document.createElement("div");
+          tempDiv.innerHTML = html;
+          const text = Array.from(tempDiv.childNodes).map(cn => {
+            if (cn.nodeType === Node.TEXT_NODE) return (cn.textContent || "").trim();
+            if (cn.nodeType === Node.ELEMENT_NODE && (cn as HTMLElement).tagName === "A") {
+              const a = cn as HTMLAnchorElement;
+              return `<a href="${a.href}">${(a.textContent || "").trim()}</a>`;
+            }
+            return (cn.textContent || "").trim();
+          }).filter(Boolean).join(" ");
+          if (text) out.push(`<p>${text}</p>`);
+        } else {
+          const text = (el.textContent || "").trim();
+          if (text && text.length > 1) out.push(`<p>${text}</p>`);
+        }
+        return;
       }
+
+      // Recurse into children
+      children.forEach(walkNode);
+    };
+
+    walkNode(container);
+
+    // Deduplicate consecutive identical entries
+    const deduped: string[] = [];
+    for (const line of out) {
+      if (deduped[deduped.length - 1] !== line) deduped.push(line);
     }
-    if (inList) out.push("</ul>");
-    
-    return out.join("\n");
-  };
-  
-  /** Process inline markdown: bold, italic, links, images */
-  const processInline = (text: string): string => {
-    return text
-      // Images inline: ![alt](src)
-      .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" />')
-      // Links: [text](url)
-      .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
-      // Bold
-      .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-      // Italic
-      .replace(/\*(.+?)\*/g, "<em>$1</em>")
-      // Inline code
-      .replace(/`([^`]+)`/g, "$1");
+
+    return deduped.join("\n");
   };
 
   const handleCopyAndOpenSubstack = async () => {
-    if (!editableMarkdown && !editableHtml) return;
+    if (!editableHtml && !editableMarkdown) return;
     try {
-      // Use the markdown version (already clean) and convert to simple HTML
-      const substackHtml = editableMarkdown 
-        ? markdownToSubstackHtml(editableMarkdown)
-        : editableHtml; // fallback to raw HTML if no markdown
-      
+      // Extract clean HTML directly from the poster HTML DOM
+      const substackHtml = extractSubstackHtml(editableHtml);
+
       // Use modern Clipboard API with text/html MIME type
       const htmlBlob = new Blob([substackHtml], { type: "text/html" });
-      // Also provide plain text (strip HTML tags) for fallback
-      const plainText = substackHtml.replace(/<[^>]+>/g, "").replace(/\n{3,}/g, "\n\n");
+      const plainText = substackHtml.replace(/<[^>]+>/g, " ").replace(/\s{2,}/g, " ").replace(/\n{3,}/g, "\n\n").trim();
       const textBlob = new Blob([plainText], { type: "text/plain" });
-      
+
       await navigator.clipboard.write([
         new ClipboardItem({ "text/html": htmlBlob, "text/plain": textBlob })
       ]);
-      
+
       setFeedback({ type: "success", msg: "📋 Newsletter copied! Paste (Ctrl+V / Cmd+V) into Substack." });
       window.open("https://thewipmeetup.substack.com/publish/post", "_blank");
     } catch {
-      // Fallback: copy markdown as plain text
       try {
         await navigator.clipboard.writeText(editableMarkdown || editableHtml);
         setFeedback({ type: "success", msg: "📋 Copied as text. Paste into Substack." });
