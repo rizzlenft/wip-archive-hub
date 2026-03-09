@@ -635,6 +635,11 @@ async function handleGenerate(req: VercelRequest, res: VercelResponse) {
   const effectiveTranscript = transcript || autoTranscript;
 
   // ── Auto-fetch last week's YouTube transcript for recap synopsis ─────────
+  // If no previous newsletter exists, fall back to using the current video for recap
+  if (!lastWeekVideoId && youtube_video_id) {
+    lastWeekVideoId = youtube_video_id;
+    console.log("No previous newsletter found — using current video for recap transcript");
+  }
   let lastWeekTranscript = "";
   if (lastWeekVideoId) {
     lastWeekTranscript = await fetchYouTubeTranscript(lastWeekVideoId);
