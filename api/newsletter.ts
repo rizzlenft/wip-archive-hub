@@ -921,12 +921,15 @@ SPEAKER TOPIC — MUST BE HANDLED:
 - Show topic below social links
 
 ${transcriptQuoteNote}
-CUSTOM EVENT IMAGES — VISIBLE BACKGROUNDS:
-- These images are from LAST WEEK's event — they show the community
-- Use them as VISIBLE background images on section cells: background-image:url(IMAGE_URL); background-size:cover; background-position:center;
-- Overlay a semi-transparent dark layer on top: use a nested div with background:rgba(10,6,18,0.75)
-- They should be VISIBLE and add energy/atmosphere but not obscure text
-- Do NOT make them tiny thumbnails or a separate gallery section
+CUSTOM EVENT IMAGES — BOLD, VISIBLE BACKGROUNDS:
+- These images are from LAST WEEK's event — they capture the community energy
+- Use them AS FULL-WIDTH BACKGROUND IMAGES across MAJOR sections of the newsletter (not just one small area)
+- Apply them as background-image on table cells with background-size:cover; background-position:center;
+- Use a dark overlay div on top: background:rgba(10,6,18,0.65) — translucent enough that the images CLEARLY show through
+- The ENTIRE newsletter should feel like it has community imagery woven throughout — NOT just a solid black background
+- If multiple images provided, use DIFFERENT images for DIFFERENT sections (header area, speaker section, recap section, footer)
+- Make the images PROMINENT — they should be one of the first things someone notices
+- Also include at least ONE image as a full-width standalone <img> element (not just background) to ensure it appears in Substack too
 ${custom_image_urls && custom_image_urls.length > 0 ? custom_image_urls.map((url, i) => `- Image ${i + 1}: ${url}`).join("\n") : "- (No custom images provided this week)"}
 
 LAYOUT RULES:
