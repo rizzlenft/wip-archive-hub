@@ -510,7 +510,7 @@ TRANSCRIPT:\n${effectiveTranscript}`
   const weekIndex = Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000));
   const theme = visualThemes[weekIndex % visualThemes.length];
 
-  const WIP_LOGO_URL = "https://wip-archive-hub.lovable.app/images/wip-logo-static.png";
+  const WIP_LOGO_URL = "https://thewipmeetup.com/images/wip-logo-static.png";
 
   const systemPrompt = `You are the creative director of "The WIP Weekly" — the weekly poster/flyer for The WIP Meetup,
  a vibrant Web3/metaverse community that meets every Thursday at 3 PM ET.
@@ -540,7 +540,7 @@ HEADER — MUST BE EXACTLY THIS:
 - WIP logo: <img src="${WIP_LOGO_URL}" style="width:80px;height:80px;display:block;margin:0 auto 12px;" alt="WIP" />
 - Below the logo, centered text: "The WIP Meetup" (32-40px, bold, white with subtle glow)
 - Below that: "Every Thursday · 3 PM ET" (16-18px, muted color)
-- Below that: a small Discord link styled as a ticket stub: "Join → discord.gg/XHDcUdm3"
+- Below that: a clickable Discord button linking to https://discord.gg/XHDcUdm3 — styled as a ticket stub with dashed border, background color ${theme.accent3}, bold text reading "Join Discord" (NOT the raw URL). Use an <a> tag with href.
 - That's it for the header. Clean. No "VOL. 50" or "SESSIONS" — just the meetup name and next event info.
 
 ${youtube_video_id ? `LAST WEEK'S EVENT VIDEO — include lower in the poster:
