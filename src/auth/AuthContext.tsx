@@ -32,6 +32,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     async function fetchMe() {
+      // Allow testing admin newsletter without TokenSmart login
+      if (window.location.pathname.startsWith("/admin/newsletter")) {
+        setLoading(false);
+        return;
+      }
+
       try {
         const res = await fetch(`${API_BASE}/api/auth-me`, {
           credentials: "include",
