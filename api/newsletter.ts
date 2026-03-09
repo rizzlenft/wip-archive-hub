@@ -909,7 +909,7 @@ ${youtube_video_id ? `LAST WEEK'S EVENT VIDEO — include lower in the poster:
   * background-image: url(https://img.youtube.com/vi/${youtube_video_id}/maxresdefault.jpg); background-size:cover; background-position:center;
   * height: 360px (or similar)
   * A nested div with background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 50%, transparent 100%) covering the full cell
-  * The VIDEO TITLE rendered as large bold white text (22-26px, font-weight:900, text-shadow: 0 2px 8px rgba(0,0,0,0.9)) at the bottom of the cell using vertical-align:bottom; padding:20px;
+  * The VIDEO TITLE "${lastWeekVideoTitle || "(use the title from the YouTube video)"}" rendered as large bold white text (22-26px, font-weight:900, text-shadow: 0 2px 8px rgba(0,0,0,0.9)) at the bottom of the cell using vertical-align:bottom; padding:20px;
   * This tells viewers exactly what the video is about and who was on
 - Below the image, add a "▶ Watch the Replay" CTA link` : ""}
 
