@@ -233,6 +233,47 @@ async function fetchSpeakerSocialContent(speaker: Speaker): Promise<SpeakerSocia
   return { bio: "", recentPosts: [], source: "none" };
 }
 
+// ─── YOUTUBE TRANSCRIPT FETCHING ─────────────────────────────────────────────
+
+async function fetchYouTubeTranscript(videoId: string): Promise<string> {
+  try {
+    const captionRes = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept-Language": "en-US,en;q=0.9",
+      },
+      signal: AbortSignal.timeout(10000),
+    });
+    if (!captionRes.ok) return "";
+
+    const html = await captionRes.text();
+    const captionMatch = html.match(/"captionTracks":\[.*?"baseUrl":"(.*?)"/);
+    if (!captionMatch) return "";
+
+    const captionUrl = captionMatch[1].replace(/\\u0026/g, "&");
+    const subRes = await fetch(captionUrl, { signal: AbortSignal.timeout(8000) });
+    if (!subRes.ok) return "";
+
+    const subXml = await subRes.text();
+    const transcript = subXml
+      .replace(/<[^>]+>/g, " ")
+      .replace(/&amp;/g, "&")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&#39;/g, "'")
+      .replace(/&quot;/g, '"')
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 5000); // Limit to avoid token overflow
+
+    console.log(`Fetched YouTube transcript for ${videoId}: ${transcript.length} chars`);
+    return transcript;
+  } catch (err) {
+    console.warn(`Failed to fetch YouTube transcript for ${videoId}:`, err);
+    return "";
+  }
+}
+
 function getRedis() {
   // Support both Vercel KV and direct Upstash env var names
   const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
