@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  Sparkles, Plus, Trash2, Send, Eye, Save, Loader2, ArrowLeft, Youtube, ImagePlus, User,
+  Sparkles, Plus, Trash2, Send, Eye, Save, Loader2, ArrowLeft, Youtube, ImagePlus, User, CheckCircle2, XCircle, AlertCircle,
 } from "lucide-react";
 import {
   type NewsletterSpeaker,
@@ -139,6 +139,9 @@ const AdminNewsletter = () => {
 
   const [pastIssues, setPastIssues] = useState<NewsletterIssue[]>([]);
   const [view, setView] = useState<"compose" | "preview" | "history">("compose");
+
+  // Track PFP load status per speaker: "loading" | "resolved" | "failed"
+  const [pfpStatus, setPfpStatus] = useState<Record<number, { status: "loading" | "resolved" | "failed"; source?: string }>>({});
 
   // Auto-fetch latest YouTube video
   useEffect(() => {
