@@ -21,6 +21,89 @@ const API_BASE =
   (import.meta.env.VITE_BACKEND_URL as string | undefined) ||
   "https://api.thewipmeetup.com";
 
+function tryParseUrl(raw: string): URL | null {
+  const v = raw.trim();
+  if (!v) return null;
+
+  try {
+    return new URL(v);
+  } catch {
+    // If someone pasted "x.com/user" without protocol
+    if (/^(?:www\.)?(x\.com|twitter\.com|warpcast\.com|farcaster\.xyz)\//i.test(v)) {
+      try {
+        return new URL(`https://${v}`);
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  }
+}
+
+function normalizeTwitterHandle(input?: string): string {
+  if (!input) return "";
+  let v = input.trim();
+  if (!v) return "";
+
+  v = v.replace(/^@/, "");
+
+  const url = tryParseUrl(v);
+  if (url && /(x\.com|twitter\.com)$/i.test(url.hostname.replace(/^www\./, ""))) {
+    const seg = url.pathname.split("/").filter(Boolean)[0] || "";
+    v = seg;
+  }
+
+  v = v.replace(/^@/, "").trim();
+  // keep common handle chars
+  v = v.replace(/[^a-zA-Z0-9_\.]/g, "");
+  return v;
+}
+
+function normalizeFarcasterHandle(input?: string): string {
+  if (!input) return "";
+  let v = input.trim();
+  if (!v) return "";
+
+  v = v.replace(/^@/, "");
+
+  const url = tryParseUrl(v);
+  if (url && /(warpcast\.com|farcaster\.xyz)$/i.test(url.hostname.replace(/^www\./, ""))) {
+    const seg = url.pathname.split("/").filter(Boolean)[0] || "";
+    // ignore non-user paths like /~/channel/...
+    v = seg.startsWith("~") ? "" : seg;
+  }
+
+  v = v.replace(/^@/, "").trim();
+  v = v.replace(/[^a-zA-Z0-9_\.\-]/g, "");
+  return v;
+}
+
+function normalizeProfileImageUrlFromText(input: string): string | null {
+  const raw = input.trim();
+  if (!raw) return null;
+  if (raw.startsWith("data:")) return null;
+
+  const url = tryParseUrl(raw);
+  if (url) {
+    const host = url.hostname.replace(/^www\./, "").toLowerCase();
+
+    if (host === "x.com" || host === "twitter.com") {
+      const handle = normalizeTwitterHandle(raw);
+      return handle ? `https://unavatar.io/twitter/${handle}` : null;
+    }
+
+    if (host === "warpcast.com" || host === "farcaster.xyz") {
+      const handle = normalizeFarcasterHandle(raw);
+      return handle ? `https://unavatar.io/farcaster/${handle}` : null;
+    }
+
+    // If it's already a direct URL (image or otherwise), keep it as-is
+    return raw;
+  }
+
+  return null;
+}
+
 const AdminNewsletter = () => {
   const { user } = useAuth();
   const [speakers, setSpeakers] = useState<NewsletterSpeaker[]>([

@@ -18,6 +18,94 @@ interface Speaker {
   profile_image_url?: string;
 }
 
+function tryParseUrl(raw: string): URL | null {
+  const v = raw.trim();
+  if (!v) return null;
+
+  try {
+    return new URL(v);
+  } catch {
+    if (/^(?:www\.)?(x\.com|twitter\.com|warpcast\.com|farcaster\.xyz)\//i.test(v)) {
+      try {
+        return new URL(`https://${v}`);
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  }
+}
+
+function normalizeTwitterHandle(input?: string): string | undefined {
+  if (!input) return undefined;
+  let v = input.trim();
+  if (!v) return undefined;
+
+  v = v.replace(/^@/, "");
+
+  const url = tryParseUrl(v);
+  if (url && /(x\.com|twitter\.com)$/i.test(url.hostname.replace(/^www\./, ""))) {
+    const seg = url.pathname.split("/").filter(Boolean)[0] || "";
+    v = seg;
+  }
+
+  v = v.replace(/^@/, "").trim();
+  v = v.replace(/[^a-zA-Z0-9_\.]/g, "");
+  return v || undefined;
+}
+
+function normalizeFarcasterHandle(input?: string): string | undefined {
+  if (!input) return undefined;
+  let v = input.trim();
+  if (!v) return undefined;
+
+  v = v.replace(/^@/, "");
+
+  const url = tryParseUrl(v);
+  if (url && /(warpcast\.com|farcaster\.xyz)$/i.test(url.hostname.replace(/^www\./, ""))) {
+    const seg = url.pathname.split("/").filter(Boolean)[0] || "";
+    v = seg.startsWith("~") ? "" : seg;
+  }
+
+  v = v.replace(/^@/, "").trim();
+  v = v.replace(/[^a-zA-Z0-9_\.\-]/g, "");
+  return v || undefined;
+}
+
+function normalizeProfileImageUrlFromText(input?: string): string | undefined {
+  if (!input) return undefined;
+  const raw = input.trim();
+  if (!raw) return undefined;
+  if (raw.startsWith("data:")) return undefined;
+
+  const url = tryParseUrl(raw);
+  if (!url) return raw; // already a URL-ish string; let it pass
+
+  const host = url.hostname.replace(/^www\./, "").toLowerCase();
+  if (host === "x.com" || host === "twitter.com") {
+    const handle = normalizeTwitterHandle(raw);
+    return handle ? `https://unavatar.io/twitter/${handle}` : undefined;
+  }
+  if (host === "warpcast.com" || host === "farcaster.xyz") {
+    const handle = normalizeFarcasterHandle(raw);
+    return handle ? `https://unavatar.io/farcaster/${handle}` : undefined;
+  }
+
+  return raw;
+}
+
+function normalizeSpeaker(s: Speaker): Speaker {
+  const twitter = normalizeTwitterHandle(s.twitter);
+  const farcaster = normalizeFarcasterHandle(s.farcaster);
+  const profile_image_url = normalizeProfileImageUrlFromText(s.profile_image_url);
+
+  return {
+    ...s,
+    twitter,
+    farcaster,
+    profile_image_url,
+  };
+}
 function getRedis() {
   // Support both Vercel KV and direct Upstash env var names
   const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
