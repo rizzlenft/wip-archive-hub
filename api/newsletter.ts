@@ -512,6 +512,9 @@ TRANSCRIPT:\n${effectiveTranscript}`
 
   const WIP_LOGO_URL = "https://thewipmeetup.com/images/wip-logo-static.png";
 
+  // Inline SVG fallback for the WIP logo (simple "WIP" text badge) encoded as a data URI
+  const WIP_LOGO_FALLBACK = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' rx='16' fill='%230a0612'/%3E%3Crect x='2' y='2' width='76' height='76' rx='14' fill='none' stroke='%23e84393' stroke-width='3'/%3E%3Ctext x='40' y='48' font-family='Arial,sans-serif' font-size='28' font-weight='bold' fill='%23f5f0e8' text-anchor='middle'%3EWIP%3C/text%3E%3C/svg%3E`;
+
   const systemPrompt = `You are the creative director of "The WIP Weekly" — the weekly poster/flyer for The WIP Meetup,
  a vibrant Web3/metaverse community that meets every Thursday at 3 PM ET.
 
@@ -537,7 +540,7 @@ CRITICAL DESIGN MANDATE — THINK POSTER, NOT EMAIL:
 - Every issue should feel like a collector's item that people screenshot and share
 
 HEADER — MUST BE EXACTLY THIS:
-- WIP logo: <img src="${WIP_LOGO_URL}" style="width:80px;height:80px;display:block;margin:0 auto 12px;" alt="WIP" />
+- WIP logo: <img src="${WIP_LOGO_URL}" onerror="this.onerror=null;this.src='${WIP_LOGO_FALLBACK}';" style="width:80px;height:80px;display:block;margin:0 auto 12px;" alt="WIP" />
 - Below the logo, centered text: "The WIP Meetup" (32-40px, bold, white with subtle glow)
 - Below that: "Every Thursday · 3 PM ET" (16-18px, muted color)
 - Below that: a clickable Discord button linking to https://discord.gg/XHDcUdm3 — styled as a ticket stub with dashed border, background color ${theme.accent3}, bold text reading "Join Discord" (NOT the raw URL). Use an <a> tag with href.
@@ -734,6 +737,15 @@ Community links (style as "entry points" in the ticket section):
         const key = service === "farcaster" ? "farcaster" : "twitter";
         return `${avatarBase}&${key}=${encodeURIComponent(handle)}`;
       },
+    );
+
+    // Post-process: inject onerror fallback on WIP logo images that the AI may have
+    // rendered without the fallback attribute.
+    const logoFallback = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' rx='16' fill='%230a0612'/%3E%3Crect x='2' y='2' width='76' height='76' rx='14' fill='none' stroke='%23e84393' stroke-width='3'/%3E%3Ctext x='40' y='48' font-family='Arial,sans-serif' font-size='28' font-weight='bold' fill='%23f5f0e8' text-anchor='middle'%3EWIP%3C/text%3E%3C/svg%3E`;
+    // Match logo img tags that DON'T already have onerror
+    generated.body_html = generated.body_html.replace(
+      /(<img\s[^>]*?src=["'][^"']*wip-logo[^"']*["'])(?![^>]*onerror)([^>]*>)/gi,
+      `$1 onerror="this.onerror=null;this.src='${logoFallback}';"$2`,
     );
 
     const id = `wip-weekly-${Date.now()}`;
