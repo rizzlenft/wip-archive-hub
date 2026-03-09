@@ -234,14 +234,6 @@ const AdminNewsletter = () => {
     } finally {
       setGenerating(false);
     }
-    } catch (err) {
-      setFeedback({
-        type: "error",
-        msg: err instanceof Error ? err.message : "Generation failed",
-      });
-    } finally {
-      setGenerating(false);
-    }
   };
 
   const handleSave = async () => {
