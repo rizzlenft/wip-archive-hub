@@ -720,14 +720,22 @@ TRANSCRIPT:\n${effectiveTranscript}`
   // Inline SVG fallback for the WIP logo (simple "WIP" text badge) encoded as a data URI
   const WIP_LOGO_FALLBACK = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' rx='16' fill='%230a0612'/%3E%3Crect x='2' y='2' width='76' height='76' rx='14' fill='none' stroke='%23e84393' stroke-width='3'/%3E%3Ctext x='40' y='48' font-family='Arial,sans-serif' font-size='28' font-weight='bold' fill='%23f5f0e8' text-anchor='middle'%3EWIP%3C/text%3E%3C/svg%3E`;
 
+  const transcriptQuoteNote = effectiveTranscript
+    ? `\nPULL-QUOTES FROM TRANSCRIPT (LAST WEEK'S RECAP ONLY):
+- Extract 2-3 of the most INSIGHTFUL quotes from the transcript for the RECAP section
+- These are REAL quotes from last week's event and CAN be used
+- Display as MASSIVE pull-quotes (28-36px font) with oversized decorative quotation marks
+- Show the speaker's circular PFP next to their quote attribution\n`
+    : "";
+
   const systemPrompt = `You are the creative director of "The WIP Weekly" — the weekly poster/flyer for The WIP Meetup,
  a vibrant Web3/metaverse community that meets every Thursday at 3 PM ET.
 
-⚠️ THIS IS NOT AN EMAIL. THIS IS A POSTER. A FLYER. A BLOCK PARTY INVITATION. ⚠️
+THIS IS NOT AN EMAIL. THIS IS A POSTER. A FLYER. A BLOCK PARTY INVITATION.
 
 THIS WEEK'S VISUAL THEME: "${theme.name}"
 Design vibe: ${theme.vibe}
-PRIMARY COLOR PALETTE — Use these as the core colors, inspired by The WIP Meetup brand:
+PRIMARY COLOR PALETTE:
 - Deep background: #0a0612
 - Warm pink/magenta: hsl(330, 85%, 65%) — primary brand color
 - Coral: hsl(15, 90%, 65%)
@@ -736,7 +744,7 @@ PRIMARY COLOR PALETTE — Use these as the core colors, inspired by The WIP Meet
 - Cyan: hsl(175, 80%, 55%)
 - Purple: hsl(270, 70%, 60%)
 - Text: #f5f0e8
-Theme accent colors (use sparingly as highlights): ${theme.accent1}, ${theme.accent2}, ${theme.accent3}
+Theme accent colors (use sparingly): ${theme.accent1}, ${theme.accent2}, ${theme.accent3}
 
 CRITICAL DESIGN MANDATE — THINK POSTER, NOT EMAIL:
 - This should look like it was wheat-pasted to a wall in Brooklyn
@@ -751,12 +759,12 @@ HEADER — MUST BE EXACTLY THIS (copy-paste these HTML tags verbatim):
 - Below that: TWO call-to-action buttons side by side in a flex row (gap:12px, centered):
   1. <a href="https://thewipmeetup.com" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:10px 24px;border:2px solid ${theme.accent1};font-weight:bold;color:#f5f0e8;text-decoration:none;border-radius:4px;">Visit Website</a>
   2. <a href="https://discord.gg/XHDcUdm3" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:10px 24px;border:2px dashed #999;font-weight:bold;color:${theme.accent2};text-decoration:none;border-radius:4px;">Join Discord</a>
-- That's it for the header. Clean. No "VOL. 50" or "SESSIONS" — just the meetup name, next event info, and two CTAs.
+- That's it for the header.
 
-⚠️ CRITICAL URL RULES — VIOLATING THESE WILL BREAK THE POSTER:
+CRITICAL URL RULES:
 - Speaker profile images: Use the EXACT URLs from the [PROFILE IMAGE: ...] tags. Do NOT modify, shorten, or invent avatar URLs.
-- Discord: ALWAYS use <a href="https://discord.gg/XHDcUdm3">Join Discord</a> — NEVER show the raw URL as visible text.
-- YouTube thumbnails: Use https://img.youtube.com/vi/VIDEO_ID/maxresdefault.jpg — NEVER invent or modify.
+- Discord: ALWAYS use <a href="https://discord.gg/XHDcUdm3">Join Discord</a>
+- YouTube thumbnails: Use https://img.youtube.com/vi/VIDEO_ID/maxresdefault.jpg
 - Community links: ALL must be clickable <a> tags with proper href attributes.
 
 ${youtube_video_id ? `LAST WEEK'S EVENT VIDEO — include lower in the poster:
@@ -765,71 +773,66 @@ ${youtube_video_id ? `LAST WEEK'S EVENT VIDEO — include lower in the poster:
 - Make this a clickable image with ONLY a tiny "▶ WATCH" pill badge (12-14px) in the bottom-right corner
 - Do NOT make a giant overlay or banner. The thumbnail speaks for itself.` : ""}
 
+⚠️ CRITICAL — ACCURACY MANDATE FOR SPEAKER QUOTES AND BIOS:
+- NEVER fabricate, invent, or paraphrase quotes. Only use REAL content provided in the speaker data below.
+- If "REAL RECENT POSTS" are listed for a speaker, pick the most compelling one as their featured quote. Use the EXACT words — do not rewrite or embellish.
+- If no recent posts are available but a BIO is provided, use a relevant excerpt from their bio instead. You may label it as a bio excerpt rather than a quote.
+- If neither posts nor bio are available, show only their name, PFP, social links, and topic — NO quote at all. It is better to have no quote than a fake one.
+- For the transcript section (last week's recap), quotes from the transcript ARE real and can be used freely.
+
 POSTER DESIGN PRINCIPLES:
 - MASSIVE typography for speaker names and quotes (36-48px), moderate for everything else
 - The speakers are HEADLINERS — their names and quotes go RIGHT AFTER the header, at the very top
 - Use CSS transforms (rotate slight angles -1deg to 2deg) on elements for that hand-placed poster feel
 - Layer elements: overlapping borders, stacked sections, asymmetric padding
 - Use thick borders (3-4px) in accent colors, not subtle 1px lines
-- Pull-quotes from the transcript should be HUGE, in accent colors, with decorative quotation marks
+- Pull-quotes should be HUGE, in accent colors, with decorative quotation marks
 
 HEADLINERS LAYOUT — CRITICAL (NO PRIORITY):
-- Render ALL speakers in ONE equal-weight grid right after the header (do NOT stack full-width speaker sections)
-- Use a flex-wrap grid container like: style="display:flex;flex-wrap:wrap;gap:16px;justify-content:center;align-items:stretch;"
-- Each speaker block should be the SAME visual weight: style="flex:1 1 260px;max-width:320px;min-width:240px;" so 2–4 speakers can sit side-by-side
-- Put each speaker’s best quote inside their own block so nobody is visually prioritized
+- Render ALL speakers in ONE equal-weight grid right after the header
+- Use a flex-wrap grid container
+- Each speaker block should be the SAME visual weight so 2-4 speakers can sit side-by-side
+- Put each speaker's best REAL quote or bio excerpt inside their own block
 
 SPEAKER PROFILE IMAGES — CRITICAL:
 - Each speaker with a [PROFILE IMAGE: url] tag MUST have their photo rendered as an <img> tag
 - Use the EXACT URL provided — do NOT modify or omit it
-- Show as circular images (80-100px): style="width:90px;height:90px;border-radius:50%;object-fit:cover;border:3px solid ${theme.accent1}"
-- Place next to their name AND next to any quotes attributed to them
-- If no profile image URL is provided for a speaker, skip the image — do NOT use a placeholder
+- Show as circular images (80-100px) with a 3px border in the accent color
+- If no profile image URL is provided for a speaker, skip the image
 
 SPEAKER SOCIAL LINKS — MUST INCLUDE:
 - For EVERY speaker, render their social media handles as clickable links below their name
-- Twitter/X: render as <a href="https://x.com/HANDLE" target="_blank" style="color:${theme.accent2};text-decoration:none;font-size:13px;">@HANDLE</a> with an "𝕏" or "✕" prefix
-- Farcaster: render as <a href="https://farcaster.xyz/HANDLE" target="_blank" style="color:${theme.accent3};text-decoration:none;font-size:13px;">@HANDLE</a> with a "🟣" prefix
-- Show both if available, separated by a " · " divider
+- Twitter/X: clickable @HANDLE link to https://x.com/HANDLE with an X prefix
+- Farcaster: clickable @HANDLE link to https://farcaster.xyz/HANDLE with a purple circle prefix
+- Show both if available, separated by a divider
 - These go directly under each speaker's name in their headliner card
 
-${effectiveTranscript ? `PULL-QUOTES — PLACE THESE RIGHT AFTER THE HEADER, WITH THE SPEAKERS:
-- Extract 2-3 of the most INSIGHTFUL, mind-blowing, or hilarious quotes from the transcript
-- These go at the TOP of the poster, right under the header, paired with the speaker who said them
-- Display as MASSIVE pull-quotes (28-36px font) with oversized decorative quotation marks (❝❞ at 60-80px)
-- Each quote gets its own visual treatment — rotated, bordered, glowing
-- Show the speaker's circular PFP next to their quote attribution
-- These quotes should make the reader think "damn, I need to be at the next event"` : ""}
-
+${transcriptQuoteNote}
 CUSTOM EVENT IMAGES — BACKGROUND ONLY:
-- These images are from LAST WEEK'S event — they show the community, NOT this week's speakers
-- Do NOT caption them with this week's speaker names or associate them with specific speakers
-- Use them as atmospheric background layers: opacity ~0.20–0.30, slight blur (1–2px), position behind content (z-index:-1 inside a relative wrapper)
-- They should be VISIBLE enough to give texture and energy but not compete with text/speaker content
+- These images are from LAST WEEK's event — they show the community, NOT this week's speakers
+- Use them as atmospheric background layers: opacity 0.20-0.30, slight blur, behind content
 - Do NOT feature them as big foreground photos, and NO section header like "CANDID SHOTS"
 ${custom_image_urls && custom_image_urls.length > 0 ? custom_image_urls.map((url, i) => `- Image ${i + 1}: ${url}`).join("\n") : "- (No custom images provided this week)"}
 
 LAYOUT RULES:
 - Do NOT use a "CANDID SHOTS" header or any header for event images
-- Do NOT include a "THE DETAILS" header
-- ALL community links should be styled as individual CONCERT TICKET STUBS — rectangular with dashed perforated borders, platform name as bold text, slightly rotated
+- ALL community links should be styled as individual CONCERT TICKET STUBS
 
 HTML RULES:
 - All styles INLINE (this will also be used in email)
 - Max-width: 680px, centered
-- Use background gradients on sections for depth
-- TIGHT SPACING: Keep padding between sections to 16-24px max. No huge gaps. The poster should feel dense and packed with energy.
-- MOBILE-FIRST: All content must look great on 320px-wide screens. Use max-width:100% on images, flex-wrap on grids, and avoid fixed pixel widths over 300px. Speaker grid items should stack to full-width on narrow screens (min-width:240px with flex:1 1 100%).
+- TIGHT SPACING: Keep padding between sections to 16-24px max.
+- MOBILE-FIRST: All content must look great on 320px-wide screens. Use max-width:100% on images, flex-wrap on grids.
 
-SECTIONS ORDER (this order is mandatory):
+SECTIONS ORDER (mandatory):
 1. **HEADER** — WIP logo + "The WIP Meetup" + "Every Thursday · 3 PM ET" + Website & Discord CTAs.
-2. **THIS WEEK'S HEADLINERS + QUOTES** — All speakers in ONE equal-weight grid with circular PFP, clickable social links, and their best quote.
-3. **LAST WEEK'S RECAP** — ${lastWeekSpeakersWithImages.length > 0 ? `Feature last week's guests with their circular PFPs in a compact row, names as clickable social links, alongside the YouTube replay thumbnail.` : `${youtube_video_id ? "YouTube thumbnail with tiny '▶ WATCH' badge." : "Brief recap."}`}${youtube_video_id ? ` Include YouTube thumbnail with tiny "▶ WATCH" badge.` : ""} Event images appear as atmospheric background texture.
+2. **THIS WEEK'S HEADLINERS** — All speakers in ONE equal-weight grid with circular PFP, clickable social links, and their best REAL quote or bio excerpt.
+3. **LAST WEEK'S RECAP** — ${lastWeekSpeakersWithImages.length > 0 ? "Feature last week's guests with their circular PFPs, names as clickable social links, alongside the YouTube replay." : "YouTube replay or brief recap."} Event images as atmospheric background texture.
 4. **TICKET STUBS** — Community links as torn concert ticket stubs. No header.
 
 Output JSON:
 {
-  "title": "event-style name (e.g. 'WIP SESSIONS VOL.47: THE FUTURE BUILDERS')",
+  "title": "event-style name",
   "subtitle": "one-line FOMO-inducing teaser",
   "body_html": "full poster-style HTML with ALL inline styles",
   "body_markdown": "clean Markdown version with the same energy",
