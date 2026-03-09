@@ -463,7 +463,7 @@ YouTube Thumbnail (MUST include as clickable image): https://img.youtube.com/vi/
     custom_image_urls && custom_image_urls.length > 0
       ? `\n\nCUSTOM EVENT IMAGES FROM LAST WEEK (these are community photos from LAST WEEK's event — NOT this week's speakers):
 ${custom_image_urls.map((url, i) => `- Image ${i + 1}: ${url}`).join("\n")}
-Use these ONLY as subtle background texture layers (low opacity ~0.12, slight blur, behind content). Do NOT feature them as big foreground photos and do NOT associate them with a specific speaker.`
+Use these as atmospheric background layers (opacity ~0.20-0.30, slight blur, behind content). They should be VISIBLE and add energy. Do NOT feature them as big foreground photos and do NOT associate them with a specific speaker.`
       : "";
 
   const transcriptSection = effectiveTranscript
