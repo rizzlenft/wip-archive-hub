@@ -15,6 +15,7 @@ import {
   publishNewsletter,
   fetchNewsletters,
 } from "@/lib/newsletter";
+import { useNewsletterLogoFallback } from "@/hooks/use-newsletter-logo-fallback";
 
 const API_BASE =
   (import.meta.env.VITE_BACKEND_URL as string | undefined) ||
