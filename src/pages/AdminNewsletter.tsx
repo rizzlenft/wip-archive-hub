@@ -119,7 +119,14 @@ function normalizeProfileImageUrlFromText(input: string): string | null {
   return null;
 }
 
+const ALLOWED_ADMIN_EMAILS = [
+  "rizzlenft@gmail.com",
+  "dragonatebusiness@gmail.com",
+];
+
 const AdminNewsletter = () => {
+  const { user, loading: authLoading, isAuthenticated, login } = useAuth();
+
   const [speakers, setSpeakers] = useState<NewsletterSpeaker[]>([
     { name: "", twitter: "", farcaster: "", topic: "" },
   ]);
