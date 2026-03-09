@@ -397,10 +397,21 @@ const AdminNewsletter = () => {
                       ? normalizeProfileImageUrlFromText(speaker.profile_image_url)
                       : null;
 
-                    const pfpUrl =
-                      (normalizedProfileUrl ? buildAvatarProxyUrl({ url: normalizedProfileUrl }) : "") ||
-                      (fc ? buildAvatarProxyUrl({ farcaster: fc }) : "") ||
-                      (tw ? buildAvatarProxyUrl({ twitter: tw }) : "");
+                    // Determine PFP source for badge display
+                    let pfpUrl = "";
+                    let pfpSource: "farcaster" | "twitter" | "url" | "" = "";
+                    if (normalizedProfileUrl) {
+                      pfpUrl = buildAvatarProxyUrl({ url: normalizedProfileUrl });
+                      pfpSource = "url";
+                    } else if (fc) {
+                      pfpUrl = buildAvatarProxyUrl({ farcaster: fc });
+                      pfpSource = "farcaster";
+                    } else if (tw) {
+                      pfpUrl = buildAvatarProxyUrl({ twitter: tw });
+                      pfpSource = "twitter";
+                    }
+
+                    const speakerPfpStatus = pfpStatus[idx];
 
                     return (
                       <div
