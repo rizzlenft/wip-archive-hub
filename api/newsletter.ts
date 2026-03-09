@@ -648,6 +648,23 @@ async function handleGenerate(req: VercelRequest, res: VercelResponse) {
     }
   }
 
+  // Fetch the YouTube video title for overlay on the thumbnail
+  let lastWeekVideoTitle = "";
+  if (lastWeekVideoId) {
+    try {
+      const ytRes = await fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${lastWeekVideoId}`, {
+        signal: AbortSignal.timeout(5000),
+      });
+      if (ytRes.ok) {
+        const ytData = await ytRes.json() as { title?: string };
+        lastWeekVideoTitle = ytData.title || "";
+        console.log(`Fetched video title: "${lastWeekVideoTitle}"`);
+      }
+    } catch {
+      console.log("Could not fetch video title for overlay");
+    }
+  }
+
   let videoContext = "";
   if (youtube_video_id) {
     videoContext = `\nThe latest WIP Meetup recording: https://youtube.com/watch?v=${youtube_video_id}
