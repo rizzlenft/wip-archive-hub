@@ -917,6 +917,19 @@ const AdminNewsletter = () => {
                   )}
                   {draft.status === "published" ? "Published ✓" : "Publish"}
                 </Button>
+                <Button
+                  variant="outline"
+                  onClick={handleSendToSubstack}
+                  disabled={sendingToSubstack}
+                  className="border-accent/50 text-accent hover:bg-accent/10"
+                >
+                  {sendingToSubstack ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Mail className="w-4 h-4" />
+                  )}
+                  {sendingToSubstack ? "Sending…" : "Send to Substack"}
+                </Button>
               </div>
             </div>
           )}
