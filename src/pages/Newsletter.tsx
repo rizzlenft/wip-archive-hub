@@ -46,6 +46,7 @@ const Newsletter = () => {
       <SEO
         title="WIP Weekly Newsletter"
         description="Catch up on the latest from The WIP Meetup — weekly recaps, speaker spotlights, and community highlights."
+        canonical="/newsletter"
       />
       <Navigation />
 

@@ -1,4 +1,7 @@
 User-agent: *
 Allow: /
+Disallow: /admin/
+Disallow: /login
+Disallow: /events
 
-Sitemap: https://wip-archive-hub.lovable.app/sitemap.xml
+Sitemap: https://thewipmeetup.com/sitemap.xml

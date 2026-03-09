@@ -162,8 +162,6 @@ const ALLOWED_AVATAR_HOSTS = new Set([
   "gateway.pinata.cloud",
   "i.warpcast.com",
   "warpcast.com",
-  "res.cloudinary.com",
-  "imagedelivery.net",
 ]);
 
 function isAllowedAvatarUrl(raw: string): boolean {
