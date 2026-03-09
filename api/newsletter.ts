@@ -463,7 +463,7 @@ YouTube Thumbnail (MUST include as clickable image): https://img.youtube.com/vi/
     custom_image_urls && custom_image_urls.length > 0
       ? `\n\nCUSTOM EVENT IMAGES FROM LAST WEEK (these are community photos from LAST WEEK's event — NOT this week's speakers):
 ${custom_image_urls.map((url, i) => `- Image ${i + 1}: ${url}`).join("\n")}
-Use these ONLY as subtle background texture layers (low opacity ~0.12, slight blur, behind content). Do NOT feature them as big foreground photos and do NOT associate them with a specific speaker.`
+Use these as atmospheric background layers (opacity ~0.20-0.30, slight blur, behind content). They should be VISIBLE and add energy. Do NOT feature them as big foreground photos and do NOT associate them with a specific speaker.`
       : "";
 
   const transcriptSection = effectiveTranscript
@@ -563,11 +563,13 @@ CRITICAL DESIGN MANDATE — THINK POSTER, NOT EMAIL:
 - Every issue should feel like a collector's item that people screenshot and share
 
 HEADER — MUST BE EXACTLY THIS (copy-paste these HTML tags verbatim):
-- WIP logo: <img src="${WIP_LOGO_URL}" style="width:80px;height:80px;display:block;margin:0 auto 12px;" alt="WIP" />
+- WIP logo: <img src="${WIP_LOGO_URL}" onerror="this.onerror=null;this.src='${WIP_LOGO_FALLBACK}';" style="width:80px;height:80px;display:block;margin:0 auto 8px;border-radius:16px;border:3px solid ${theme.accent1};" alt="WIP" />
 - Below the logo, centered text: "The WIP Meetup" (32-40px, bold, white with subtle glow)
-- Below that: "Every Thursday · 3 PM ET" (16-18px, muted color)
-- Below that: <a href="https://discord.gg/XHDcUdm3" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:10px 24px;border:2px dashed #999;font-weight:bold;color:${theme.accent2};text-decoration:none;">Join Discord</a>
-- That's it for the header. Clean. No "VOL. 50" or "SESSIONS" — just the meetup name and next event info.
+- Below that: "Every Thursday · 3 PM ET" (14-16px, muted color, margin-bottom:12px)
+- Below that: TWO call-to-action buttons side by side in a flex row (gap:12px, centered):
+  1. <a href="https://thewipmeetup.com" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:10px 24px;border:2px solid ${theme.accent1};font-weight:bold;color:#f5f0e8;text-decoration:none;border-radius:4px;">Visit Website</a>
+  2. <a href="https://discord.gg/XHDcUdm3" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:10px 24px;border:2px dashed #999;font-weight:bold;color:${theme.accent2};text-decoration:none;border-radius:4px;">Join Discord</a>
+- That's it for the header. Clean. No "VOL. 50" or "SESSIONS" — just the meetup name, next event info, and two CTAs.
 
 ⚠️ CRITICAL URL RULES — VIOLATING THESE WILL BREAK THE POSTER:
 - Speaker profile images: Use the EXACT URLs from the [PROFILE IMAGE: ...] tags. Do NOT modify, shorten, or invent avatar URLs.
@@ -613,7 +615,8 @@ ${effectiveTranscript ? `PULL-QUOTES — PLACE THESE RIGHT AFTER THE HEADER, WIT
 CUSTOM EVENT IMAGES — BACKGROUND ONLY:
 - These images are from LAST WEEK'S event — they show the community, NOT this week's speakers
 - Do NOT caption them with this week's speaker names or associate them with specific speakers
-- Use them as subtle background texture layers: opacity ~0.10–0.16, slight blur (1–2px), and position them behind content (z-index:-1 inside a relative wrapper)
+- Use them as atmospheric background layers: opacity ~0.20–0.30, slight blur (1–2px), position behind content (z-index:-1 inside a relative wrapper)
+- They should be VISIBLE enough to give texture and energy but not compete with text/speaker content
 - Do NOT feature them as big foreground photos, and NO section header like "CANDID SHOTS"
 ${custom_image_urls && custom_image_urls.length > 0 ? custom_image_urls.map((url, i) => `- Image ${i + 1}: ${url}`).join("\n") : "- (No custom images provided this week)"}
 
@@ -626,6 +629,8 @@ HTML RULES:
 - All styles INLINE (this will also be used in email)
 - Max-width: 680px, centered
 - Use background gradients on sections for depth
+- TIGHT SPACING: Keep padding between sections to 16-24px max. No huge gaps. The poster should feel dense and packed with energy.
+- MOBILE-FIRST: All content must look great on 320px-wide screens. Use max-width:100% on images, flex-wrap on grids, and avoid fixed pixel widths over 300px. Speaker grid items should stack to full-width on narrow screens (min-width:240px with flex:1 1 100%).
 
 SECTIONS ORDER (this order is mandatory):
 1. **HEADER** — WIP logo + "The WIP Meetup" + "Every Thursday · 3 PM ET" + Discord link. Clean and simple.
@@ -780,8 +785,7 @@ Community links (style as "entry points" in the ticket section):
       },
     );
 
-    // 3) Replace WIP logo: use inline SVG data URI as primary src for guaranteed rendering
-    //    (onerror doesn't fire inside dangerouslySetInnerHTML in React)
+    // 3) Ensure WIP logo uses the real image with inline SVG fallback via onerror
     const logoSvgDataUri = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' rx='16' fill='%230a0612'/%3E%3Crect x='2' y='2' width='76' height='76' rx='14' fill='none' stroke='%23e84393' stroke-width='3'/%3E%3Ctext x='40' y='48' font-family='Arial,sans-serif' font-size='28' font-weight='bold' fill='%23f5f0e8' text-anchor='middle'%3EWIP%3C/text%3E%3C/svg%3E`;
     generated.body_html = generated.body_html.replace(
       /<img\s([^>]*?)(\s*\/?>)/gi,
@@ -789,11 +793,14 @@ Community links (style as "entry points" in the ticket section):
         const isLogo = /wip-logo|wip-archive-hub\.lovable|thewipmeetup\.com\/images/i.test(attrs)
           || (/alt=["']WIP["']/i.test(attrs) && /width.*?80|height.*?80/i.test(attrs));
         if (!isLogo) return full;
-        // Replace the src with the reliable SVG data URI
+        // Keep the real logo URL as src, add onerror fallback
+        const hasSrc = /src=["']([^"']*)["']/i.exec(attrs);
+        const currentSrc = hasSrc?.[1] || "";
+        const realSrc = currentSrc.startsWith("data:") ? WIP_LOGO_URL : currentSrc || WIP_LOGO_URL;
         const cleanAttrs = attrs
-          .replace(/src=["'][^"']*["']/gi, `src="${logoSvgDataUri}"`)
+          .replace(/src=["'][^"']*["']/gi, `src="${realSrc}"`)
           .replace(/\s*onerror=["'][^"']*["']/gi, "");
-        return `<img ${cleanAttrs}${close}`;
+        return `<img ${cleanAttrs} onerror="this.onerror=null;this.src='${logoSvgDataUri}';"${close}`;
       },
     );
 
