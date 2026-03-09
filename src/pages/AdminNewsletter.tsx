@@ -142,6 +142,9 @@ const AdminNewsletter = () => {
   // Track PFP load status per speaker: "loading" | "resolved" | "failed"
   const [pfpStatus, setPfpStatus] = useState<Record<number, { status: "loading" | "resolved" | "failed"; source?: string; triedFallback?: boolean; resolvedUrl?: string }>>({});
 
+  const posterPreviewRef = useRef<HTMLDivElement>(null);
+  useNewsletterLogoFallback(posterPreviewRef, editableHtml);
+
   // Probe avatar URLs via JS Image objects (more reliable than inline img onError for cross-origin)
   useEffect(() => {
     speakers.forEach((speaker, idx) => {
