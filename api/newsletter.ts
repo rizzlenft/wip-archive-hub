@@ -128,6 +128,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method === "POST") {
       const action = (req.query.action as string) || "save";
       if (action === "generate") return handleGenerate(req, res);
+      if (action === "delete") return handleDelete(req, res);
       return handleSave(req, res);
     }
 
@@ -339,7 +340,29 @@ async function handleSave(req: VercelRequest, res: VercelResponse) {
   }
 }
 
-// ─── GENERATE ────────────────────────────────────────────────────────────────
+// ─── DELETE ──────────────────────────────────────────────────────────────────
+
+async function handleDelete(req: VercelRequest, res: VercelResponse) {
+  const body = req.body as Record<string, unknown>;
+  const id = body?.id as string | undefined;
+  if (!id) return res.status(400).json({ error: "Missing newsletter id" });
+
+  try {
+    const redis = getRedis();
+    await redis.del(`newsletter:${id}`);
+
+    // Remove from index
+    const index = (await redis.get<string[]>("newsletter:index")) || [];
+    const updated = index.filter((nid) => nid !== id);
+    await redis.set("newsletter:index", updated);
+
+    return res.status(200).json({ success: true });
+  } catch (err) {
+    console.error("newsletter delete error:", err);
+    return res.status(500).json({ error: "Failed to delete newsletter" });
+  }
+}
+
 
 async function handleGenerate(req: VercelRequest, res: VercelResponse) {
   const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
