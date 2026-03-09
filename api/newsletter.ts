@@ -944,19 +944,19 @@ HTML RULES:
 SECTIONS ORDER (mandatory):
 1. **<style> BLOCK** — All @keyframes animations at the top.
 2. **HEADER** — WIP logo (with float animation) + "The WIP Meetup" (huge, glowing) + "Every Thursday · 3 PM ET" + Website & Discord CTAs.
-3. **COUNTDOWN TICKER** — Bold "NEXT EVENT IN / THIS THURSDAY / 3 PM ET" banner with gradient background.
-4. **THIS WEEK'S HEADLINERS** — All speakers in ONE equal-weight grid with animated-border cards, circular PFP, clickable social links, and their best REAL quote or bio excerpt as a styled pull-quote.
-5. **LAST WEEK'S RECAP** — ${lastWeekSpeakersWithImages.length > 0 ? "Feature last week's guests with their circular PFPs, names as clickable social links, alongside the YouTube replay and a transcript-based synopsis." : "YouTube replay or brief recap."} Event images as atmospheric background texture.
-6. **TICKET STUBS** — Community links as torn concert ticket stubs scattered with slight rotations. No header.
+3. **THIS WEEK'S HEADLINERS** — All speakers in ONE equal-weight grid with animated-border cards, circular PFP, clickable social links, and their bio as a styled description.
+4. **LAST WEEK'S RECAP** — ${lastWeekSpeakersWithImages.length > 0 ? "Feature last week's guests with their circular PFPs, names as clickable social links, alongside the YouTube replay and a transcript-based synopsis." : "YouTube replay or brief recap."} Event images as atmospheric background texture.
+5. **TICKET STUBS** — Community links as torn concert ticket stubs scattered with slight rotations. No header.
 
 Output JSON:
 {
-  "title": "event-style name",
+  "title": "WIP Meetup - ${meetupDateStr}",
   "subtitle": "one-line FOMO-inducing teaser",
   "body_html": "full poster-style HTML with <style> block + ALL inline styles",
   "body_markdown": "clean Markdown version with the same energy",
   "recap_summary": "2-sentence punchy recap for card preview"
-}`;
+}
+IMPORTANT: The title MUST be exactly "WIP Meetup - ${meetupDateStr}" — do not change the format.`;
 
   // Build last week's transcript synopsis context
   const lastWeekRecapTranscript = lastWeekTranscript
