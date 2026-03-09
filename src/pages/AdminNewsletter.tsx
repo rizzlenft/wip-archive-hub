@@ -134,7 +134,7 @@ const AdminNewsletter = () => {
   const [youtubeVideoId, setYoutubeVideoId] = useState("");
   const [customImageUrls, setCustomImageUrls] = useState<string[]>([]);
   const [autoFetchingVideo, setAutoFetchingVideo] = useState(false);
-  const [sendingToSubstack, setSendingToSubstack] = useState(false);
+  
 
   const [draft, setDraft] = useState<NewsletterIssue | null>(null);
   const [editableHtml, setEditableHtml] = useState("");
