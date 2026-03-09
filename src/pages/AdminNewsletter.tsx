@@ -403,19 +403,18 @@ const AdminNewsletter = () => {
                     if (normalizedProfileUrl) {
                       pfpUrl = buildAvatarProxyUrl({ url: normalizedProfileUrl });
                       pfpSource = "url";
-                    } else if (fc && !(speakerPfpStatus?.triedFallback && speakerPfpStatus?.source === "farcaster")) {
-                      // Try Farcaster first, unless it already failed and we're trying fallback
-                      if (speakerPfpStatus?.triedFallback && tw) {
-                        // Farcaster failed, fallback to Twitter
-                        pfpUrl = buildAvatarProxyUrl({ twitter: tw });
-                        pfpSource = "twitter";
-                      } else {
-                        pfpUrl = buildAvatarProxyUrl({ farcaster: fc });
-                        pfpSource = "farcaster";
-                      }
+                    } else if (fc && !speakerPfpStatus?.triedFallback) {
+                      // Try Farcaster first if we haven't already tried fallback
+                      pfpUrl = buildAvatarProxyUrl({ farcaster: fc });
+                      pfpSource = "farcaster";
                     } else if (tw) {
+                      // Use Twitter if no Farcaster, or if Farcaster failed (triedFallback=true)
                       pfpUrl = buildAvatarProxyUrl({ twitter: tw });
                       pfpSource = "twitter";
+                    } else if (fc) {
+                      // Farcaster-only with no Twitter fallback available
+                      pfpUrl = buildAvatarProxyUrl({ farcaster: fc });
+                      pfpSource = "farcaster";
                     }
 
                     return (
