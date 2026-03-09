@@ -474,9 +474,26 @@ YouTube Thumbnail (MUST include as clickable image): https://img.youtube.com/vi/
     .map((s) => {
       const tw = normalizeTwitterHandle(s.twitter);
       const fc = normalizeFarcasterHandle(s.farcaster);
-      return `- ${s.name}${s.profile_image_url ? ` [PROFILE IMAGE: ${s.profile_image_url}]` : ""}${tw ? ` (@${tw} on X/Twitter)` : ""}${fc ? ` (@${fc} on Farcaster)` : ""}${s.topic ? ` — Topic: ${s.topic}` : ""}${s.bio ? ` — Bio: ${s.bio}` : ""}`;
+      return `- ${s.name}${s.profile_image_url ? ` [PROFILE IMAGE: ${s.profile_image_url}]` : ""}${tw ? ` (@${tw} on X/Twitter, link: https://x.com/${tw})` : ""}${fc ? ` (@${fc} on Farcaster, link: https://farcaster.xyz/${fc})` : ""}${s.topic ? ` — Topic: ${s.topic}` : ""}${s.bio ? ` — Bio: ${s.bio}` : ""}`;
     })
     .join("\n");
+
+  // Build last week's speakers context with proxied PFPs
+  const lastWeekSpeakersWithImages = lastWeekSpeakers.map((s) => {
+    if (s.profile_image_url?.startsWith(avatarBase)) return s;
+    if (s.profile_image_url) return { ...s, profile_image_url: `${avatarBase}&url=${encodeURIComponent(s.profile_image_url)}` };
+    if (s.farcaster) return { ...s, profile_image_url: `${avatarBase}&farcaster=${encodeURIComponent(s.farcaster)}` };
+    if (s.twitter) return { ...s, profile_image_url: `${avatarBase}&twitter=${encodeURIComponent(s.twitter)}` };
+    return s;
+  });
+
+  const lastWeekSpeakerList = lastWeekSpeakersWithImages.length > 0
+    ? lastWeekSpeakersWithImages.map((s) => {
+        const tw = normalizeTwitterHandle(s.twitter);
+        const fc = normalizeFarcasterHandle(s.farcaster);
+        return `- ${s.name}${s.profile_image_url ? ` [PROFILE IMAGE: ${s.profile_image_url}]` : ""}${tw ? ` (@${tw}, link: https://x.com/${tw})` : ""}${fc ? ` (@${fc}, link: https://farcaster.xyz/${fc})` : ""}`;
+      }).join("\n")
+    : "(No previous speakers found)";
 
   // Build custom images context
   const customImagesContext =
