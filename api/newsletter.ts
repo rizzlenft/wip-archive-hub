@@ -869,13 +869,12 @@ CRITICAL DESIGN MANDATE — THINK POSTER, NOT EMAIL:
    - Ticket stub text: 13px, monospace font, uppercase
 
 HEADER — MUST BE EXACTLY THIS (copy-paste these HTML tags verbatim):
-- WIP logo: <img src="${WIP_LOGO_URL}" onerror="this.onerror=null;this.src='${WIP_LOGO_FALLBACK}';" style="width:80px;height:80px;display:block;margin:0 auto 8px;border-radius:16px;border:3px solid ${theme.accent1};animation:float 3s ease-in-out infinite;" alt="WIP" />
+- WIP logo: <img src="${WIP_LOGO_GIF_URL}" onerror="this.onerror=null;this.src='${WIP_LOGO_FALLBACK}';" style="width:80px;height:80px;display:block;margin:0 auto 8px;border-radius:16px;border:3px solid ${theme.accent1};animation:float 3s ease-in-out infinite;" alt="WIP" />
 - Below the logo, centered text: "The WIP Meetup" (36-44px, font-weight:900, white with text-shadow glow in accent color)
 - Below that: "Every Thursday · 3 PM ET" (14-16px, muted color, margin-bottom:12px)
 - Below that: TWO call-to-action buttons side by side in a flex row (gap:12px, centered):
   1. <a href="https://thewipmeetup.com" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:12px 28px;border:2px solid ${theme.accent1};font-weight:bold;color:#f5f0e8;text-decoration:none;border-radius:4px;box-shadow:0 0 15px ${theme.accent1}40;transition:all 0.2s;">Visit Website</a>
   2. <a href="https://discord.gg/XHDcUdm3" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:12px 28px;border:2px dashed #999;font-weight:bold;color:${theme.accent2};text-decoration:none;border-radius:4px;">Join Discord</a>
-- Then the COUNTDOWN TICKER (described above)
 
 CRITICAL URL RULES:
 - Speaker profile images: Use the EXACT URLs from the [PROFILE IMAGE: ...] tags. Do NOT modify, shorten, or invent avatar URLs.
