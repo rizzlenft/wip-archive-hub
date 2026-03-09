@@ -297,6 +297,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const action = (req.query.action as string) || "save";
       if (action === "generate") return handleGenerate(req, res);
       if (action === "delete") return handleDelete(req, res);
+      if (action === "send-substack") return handleSendSubstack(req, res);
       return handleSave(req, res);
     }
 
