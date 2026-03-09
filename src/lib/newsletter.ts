@@ -105,3 +105,13 @@ export async function publishNewsletter(id: string): Promise<void> {
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
 }
+
+export async function deleteNewsletter(id: string): Promise<void> {
+  const res = await fetch(`${API_BASE}/api/newsletter?action=delete`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ id }),
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+}
