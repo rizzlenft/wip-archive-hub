@@ -986,7 +986,7 @@ Output JSON:
   "title": "WIP Meetup - ${meetupDateStr}",
   "subtitle": "one-line FOMO-inducing teaser",
   "body_html": "full poster-style HTML with ALL inline styles, NO style block, TABLE-based layout",
-  "body_markdown": "clean Markdown version with the same energy",
+  "body_markdown": "clean readable Markdown version — use proper markdown syntax: # headings, ![alt](src) for images, [text](url) for links, **bold**, *italic*. Do NOT echo the raw prompt format (no [PROFILE IMAGE: ...], no (@handle on X/Twitter, link: ...), no BIO: quotes). Write natural prose with proper markdown links.",
   "recap_summary": "2-sentence punchy recap for card preview"
 }
 IMPORTANT: The title MUST be exactly "WIP Meetup - ${meetupDateStr}" — do not change the format.
