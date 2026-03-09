@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode, type FormEvent } from "react";
 import { useAuth } from "@/auth/AuthContext";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
+import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { LogOut, Mail, Calendar } from "lucide-react";
@@ -229,6 +230,7 @@ const EventsPage = () => {
 
   const layout = (content: ReactNode) => (
     <div className="min-h-screen bg-background">
+      <SEO title="My Events" description="View your WIP Meetup check-ins, upcoming events, and subscribe to the newsletter." noindex />
       <Navigation />
       {content}
       <Footer />
@@ -354,7 +356,7 @@ const EventsPage = () => {
 
               setSubstackStatus("loading");
               try {
-                const res = await fetch("/api/substack-subscribe", {
+                const res = await fetch(`${API_BASE}/api/substack-subscribe`, {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify({ email: substackEmail.trim() }),

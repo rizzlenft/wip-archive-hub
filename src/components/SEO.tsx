@@ -14,7 +14,7 @@ const DEFAULT_DESCRIPTION =
   "The longest-running web3 metaverse meetup since 2019. Builders, creators, and artists gather every Thursday at 12 PM PT in the metaverse. 3,700+ community members strong.";
 const DEFAULT_OG_IMAGE =
   "https://storage.googleapis.com/gpt-engineer-file-uploads/DM2lONnsGyMlKagJreu03ZO2vI43/social-images/social-1770403201523-wip_logo.gif";
-const SITE_URL = "https://wip-archive-hub.lovable.app";
+const SITE_URL = "https://thewipmeetup.com";
 
 export const SEO = ({
   title,
