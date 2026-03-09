@@ -103,6 +103,7 @@ const Newsletter = () => {
 
               {/* Newsletter poster content */}
               <div
+                ref={posterRef}
                 className="newsletter-poster-preview rounded-xl overflow-hidden"
                 style={{ background: "#0a0612" }}
                 dangerouslySetInnerHTML={{ __html: proxyUnavatarHtml(selected.body_html) }}
