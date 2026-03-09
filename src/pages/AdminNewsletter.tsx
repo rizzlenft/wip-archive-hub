@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  Sparkles, Plus, Trash2, Send, Eye, Save, Loader2, ArrowLeft, Youtube, ImagePlus, User, CheckCircle2, XCircle, AlertCircle,
+  Sparkles, Plus, Trash2, Send, Eye, Save, Loader2, ArrowLeft, Youtube, ImagePlus, User, CheckCircle2, XCircle, AlertCircle, Mail, Clock,
 } from "lucide-react";
+import { useAuth } from "@/auth/AuthContext";
 import {
   type NewsletterSpeaker,
   type NewsletterIssue,
