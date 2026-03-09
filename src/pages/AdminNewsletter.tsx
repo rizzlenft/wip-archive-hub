@@ -139,7 +139,66 @@ const AdminNewsletter = () => {
   const [view, setView] = useState<"compose" | "preview" | "history">("compose");
 
   // Track PFP load status per speaker: "loading" | "resolved" | "failed"
-  const [pfpStatus, setPfpStatus] = useState<Record<number, { status: "loading" | "resolved" | "failed"; source?: string; triedFallback?: boolean }>>({});
+  const [pfpStatus, setPfpStatus] = useState<Record<number, { status: "loading" | "resolved" | "failed"; source?: string; triedFallback?: boolean; resolvedUrl?: string }>>({});
+
+  // Probe avatar URLs via JS Image objects (more reliable than inline img onError for cross-origin)
+  useEffect(() => {
+    speakers.forEach((speaker, idx) => {
+      const status = pfpStatus[idx];
+      if (!status || status.status !== "loading") return;
+
+      const fc = normalizeFarcasterHandle(speaker.farcaster);
+      const tw = normalizeTwitterHandle(speaker.twitter);
+      const normalizedProfileUrl = speaker.profile_image_url
+        ? normalizeProfileImageUrlFromText(speaker.profile_image_url)
+        : null;
+
+      let urlToTry = "";
+      let source: "farcaster" | "twitter" | "url" | "" = "";
+
+      if (normalizedProfileUrl) {
+        urlToTry = buildAvatarProxyUrl({ url: normalizedProfileUrl });
+        source = "url";
+      } else if (fc && !status.triedFallback) {
+        urlToTry = buildAvatarProxyUrl({ farcaster: fc });
+        source = "farcaster";
+      } else if (tw) {
+        urlToTry = buildAvatarProxyUrl({ twitter: tw });
+        source = "twitter";
+      } else if (fc) {
+        urlToTry = buildAvatarProxyUrl({ farcaster: fc });
+        source = "farcaster";
+      }
+
+      if (!urlToTry) {
+        setPfpStatus((prev) => ({ ...prev, [idx]: { ...prev[idx], status: "failed" } }));
+        return;
+      }
+
+      const img = new Image();
+      img.onload = () => {
+        setPfpStatus((prev) => ({
+          ...prev,
+          [idx]: { status: "resolved", source, triedFallback: prev[idx]?.triedFallback, resolvedUrl: urlToTry },
+        }));
+      };
+      img.onerror = () => {
+        // If Farcaster failed and we have a Twitter handle, try fallback
+        if (source === "farcaster" && tw && !status.triedFallback) {
+          setPfpStatus((prev) => ({
+            ...prev,
+            [idx]: { status: "loading", source: "farcaster", triedFallback: true },
+          }));
+        } else {
+          setPfpStatus((prev) => ({
+            ...prev,
+            [idx]: { status: "failed", source, triedFallback: status.triedFallback },
+          }));
+        }
+      };
+      img.src = urlToTry;
+    });
+  }, [speakers, pfpStatus]);
 
   // Auto-fetch latest YouTube video
   useEffect(() => {
