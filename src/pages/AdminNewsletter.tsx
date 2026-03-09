@@ -353,14 +353,36 @@ const AdminNewsletter = () => {
 
   /**
    * Convert poster-style HTML to Substack-compatible semantic HTML.
-   * Substack strips ALL inline styles, tables, and complex layout.
+   * Substack strips ALL inline styles, tables, and complex CSS.
    * It preserves: h1-h3, p, img, a, blockquote, hr, strong, em, ul/li.
+   * 
+   * Strategy: Rather than walking the DOM generically, we extract structured
+   * content blocks and re-emit them as clean Substack-native HTML.
    */
   const convertToSubstackHtml = (html: string): string => {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, "text/html");
+    const out: string[] = [];
 
-    // Helper: extract text content from an element, preserving links and formatting
+    // Collect all images (including background-images) in order
+    const collectImages = (el: Element): string[] => {
+      const imgs: string[] = [];
+      const style = el.getAttribute("style") || "";
+      const bgMatch = style.match(/background-image:\s*url\(['"]?(.*?)['"]?\)/i);
+      if (bgMatch?.[1] && !bgMatch[1].startsWith("data:")) {
+        imgs.push(bgMatch[1]);
+      }
+      if (el.tagName === "IMG") {
+        const src = el.getAttribute("src") || "";
+        if (src && !src.startsWith("data:")) imgs.push(src);
+      }
+      for (const child of Array.from(el.children)) {
+        imgs.push(...collectImages(child));
+      }
+      return imgs;
+    };
+
+    // Serialize inline content preserving links, bold, italic
     const serializeInline = (el: Element): string => {
       let result = "";
       for (const node of Array.from(el.childNodes)) {
@@ -379,10 +401,7 @@ const AdminNewsletter = () => {
           } else if (tag === "br") {
             result += "<br>";
           } else if (tag === "img") {
-            const src = child.getAttribute("src") || "";
-            const alt = child.getAttribute("alt") || "";
-            const width = child.getAttribute("width");
-            result += `<img src="${src}" alt="${alt}"${width ? ` width="${width}"` : ""} />`;
+            // skip inline images, we handle them separately
           } else {
             result += serializeInline(child);
           }
@@ -391,150 +410,178 @@ const AdminNewsletter = () => {
       return result;
     };
 
-    const out: string[] = [];
-    out.push('<div style="max-width:680px;margin:0 auto;">');
+    // Collect ALL text content blocks in document order
+    const blocks: Array<{ type: "heading" | "text" | "image" | "link" | "hr" | "quote"; content: string; level?: number; href?: string; src?: string; alt?: string }> = [];
 
-    // Walk all elements in body
-    const walk = (root: Element) => {
-      for (const node of Array.from(root.children)) {
-        const tag = node.tagName.toLowerCase();
-        const text = (node.textContent || "").trim();
+    const extractBlocks = (el: Element) => {
+      const tag = el.tagName.toLowerCase();
+      const text = (el.textContent || "").trim();
+      const style = el.getAttribute("style") || "";
 
-        // Images — keep as standalone blocks
-        if (tag === "img") {
-          const src = node.getAttribute("src") || "";
-          const alt = node.getAttribute("alt") || "";
-          const width = node.getAttribute("width");
-          // Skip tiny spacer images
-          if (parseInt(width || "999") < 10) continue;
-          out.push(`<img src="${src}" alt="${alt}"${width ? ` width="${width}"` : ""} style="max-width:100%;display:block;margin:16px auto;" />`);
-          continue;
+      // Background images → standalone image block
+      const bgMatch = style.match(/background-image:\s*url\(['"]?(.*?)['"]?\)/i);
+      if (bgMatch?.[1] && !bgMatch[1].startsWith("data:")) {
+        blocks.push({ type: "image", content: "", src: bgMatch[1], alt: "Event photo" });
+      }
+
+      // IMG elements
+      if (tag === "img") {
+        const src = el.getAttribute("src") || "";
+        const alt = el.getAttribute("alt") || "";
+        const w = parseInt(el.getAttribute("width") || "999");
+        if (src && !src.startsWith("data:") && w > 10) {
+          // Check if parent is a link
+          const parentA = el.closest("a");
+          const href = parentA?.getAttribute("href") || "";
+          blocks.push({ type: "image", content: "", src, alt, href: href || undefined });
         }
+        return;
+      }
 
-        // Headings — preserve
-        if (/^h[1-6]$/.test(tag)) {
-          out.push(`<${tag}>${serializeInline(node)}</${tag}>`);
-          continue;
-        }
+      // Headings
+      if (/^h[1-6]$/.test(tag)) {
+        const level = parseInt(tag[1]);
+        blocks.push({ type: "heading", content: serializeInline(el), level });
+        return;
+      }
 
-        // HR — preserve
-        if (tag === "hr") {
-          out.push("<hr>");
-          continue;
-        }
+      // HR
+      if (tag === "hr") {
+        blocks.push({ type: "hr", content: "" });
+        return;
+      }
 
-        // Blockquote — preserve
-        if (tag === "blockquote") {
-          out.push(`<blockquote>${serializeInline(node)}</blockquote>`);
-          continue;
-        }
+      // Blockquote
+      if (tag === "blockquote") {
+        blocks.push({ type: "quote", content: serializeInline(el) });
+        return;
+      }
 
-        // Links that are block-level (buttons/CTAs)
-        if (tag === "a" && node.children.length <= 1) {
-          const href = node.getAttribute("href") || "";
-          if (!text) continue;
-          // Check if it wraps an image
-          const innerImg = node.querySelector("img");
-          if (innerImg) {
-            const src = innerImg.getAttribute("src") || "";
-            const alt = innerImg.getAttribute("alt") || "";
-            out.push(`<a href="${href}"><img src="${src}" alt="${alt}" style="max-width:100%;display:block;margin:16px auto;" /></a>`);
-          } else {
-            out.push(`<p><strong><a href="${href}">${text}</a></strong></p>`);
-          }
-          continue;
-        }
+      // Tables, divs, sections → recurse into children
+      if (tag === "table" || tag === "tbody" || tag === "thead" || tag === "tr" || tag === "td" || tag === "th" || tag === "div" || tag === "span" || tag === "section" || tag === "center") {
+        // Check if this is a leaf element with text content but no block children
+        const hasBlockChildren = Array.from(el.children).some(c =>
+          /^(div|table|tr|td|section|h[1-6]|p|blockquote|ul|ol|hr|img|center)$/i.test(c.tagName)
+        );
 
-        // Tables — flatten: recurse into cells
-        if (tag === "table" || tag === "tbody" || tag === "thead" || tag === "tr") {
-          walk(node);
-          continue;
-        }
+        if (!hasBlockChildren && text) {
+          // Determine what kind of block this is based on styling
+          const fontSize = parseInt(style.match(/font-size:\s*(\d+)/)?.[1] || "0");
+          const isBold = /font-weight:\s*(bold|[7-9]00)/i.test(style);
+          const isUppercase = /text-transform:\s*uppercase/i.test(style) || /letter-spacing:\s*[3-9]px/i.test(style);
+          const isItalic = /font-style:\s*italic/i.test(style);
 
-        // Table cells — treat as content blocks
-        if (tag === "td" || tag === "th") {
-          // Check for background-image (event photos) — convert to an actual <img>
-          const style = node.getAttribute("style") || "";
-          const bgMatch = style.match(/background-image:\s*url\(['"]?(.*?)['"]?\)/i);
-          if (bgMatch && bgMatch[1] && !bgMatch[1].startsWith("data:")) {
-            out.push(`<img src="${bgMatch[1]}" alt="Event photo" style="max-width:100%;display:block;margin:16px auto;border-radius:8px;" />`);
-          }
-          walk(node);
-          continue;
-        }
-
-        // Divs/spans/sections — recurse but check for meaningful content first
-        if (tag === "div" || tag === "span" || tag === "section" || tag === "center") {
-          // Check for background-image
-          const style = node.getAttribute("style") || "";
-          const bgMatch = style.match(/background-image:\s*url\(['"]?(.*?)['"]?\)/i);
-          if (bgMatch && bgMatch[1] && !bgMatch[1].startsWith("data:")) {
-            out.push(`<img src="${bgMatch[1]}" alt="Event photo" style="max-width:100%;display:block;margin:16px auto;border-radius:8px;" />`);
-          }
-
-          // Check if this div has only inline content (no block children)
-          const hasBlockChildren = Array.from(node.children).some((c) =>
-            /^(div|table|tr|td|section|h[1-6]|p|blockquote|ul|ol|hr|img)$/i.test(c.tagName)
-          );
-          if (!hasBlockChildren && text) {
-            // Detect if it's a heading-like element (large font, bold)
-            const fontSize = parseInt(style.match(/font-size:\s*(\d+)/)?.[1] || "0");
-            const isBold = /font-weight:\s*(bold|[7-9]00)/i.test(style);
-            const isSmallLabel = /letter-spacing:\s*[3-9]px/i.test(style) || /text-transform:\s*uppercase/i.test(style);
-
-            if (fontSize >= 36 || (fontSize >= 28 && isBold)) {
-              out.push(`<h1>${serializeInline(node)}</h1>`);
-            } else if (fontSize >= 24 || (fontSize >= 20 && isBold)) {
-              out.push(`<h2>${serializeInline(node)}</h2>`);
-            } else if (isSmallLabel) {
-              out.push(`<h3>${serializeInline(node)}</h3>`);
-            } else if (/font-style:\s*italic/i.test(style)) {
-              out.push(`<blockquote>${serializeInline(node)}</blockquote>`);
-            } else if (text.length > 0) {
-              out.push(`<p>${serializeInline(node)}</p>`);
-            }
-          } else {
-            walk(node);
-          }
-          continue;
-        }
-
-        // Paragraphs
-        if (tag === "p") {
-          if (!text) continue;
-          out.push(`<p>${serializeInline(node)}</p>`);
-          continue;
-        }
-
-        // Lists
-        if (tag === "ul" || tag === "ol") {
-          out.push(`<${tag}>`);
-          for (const li of Array.from(node.children)) {
-            if (li.tagName?.toLowerCase() === "li") {
-              out.push(`<li>${serializeInline(li)}</li>`);
+          if (fontSize >= 36 || (fontSize >= 28 && isBold)) {
+            blocks.push({ type: "heading", content: serializeInline(el), level: 1 });
+          } else if (fontSize >= 24 || (fontSize >= 20 && isBold)) {
+            blocks.push({ type: "heading", content: serializeInline(el), level: 2 });
+          } else if (isUppercase && text.length < 40) {
+            blocks.push({ type: "heading", content: serializeInline(el), level: 3 });
+          } else if (isItalic && text.length > 30) {
+            blocks.push({ type: "quote", content: serializeInline(el) });
+          } else if (text.length > 0) {
+            // Check if it's a standalone link
+            const links = el.querySelectorAll("a");
+            if (links.length === 1 && links[0].textContent?.trim() === text) {
+              blocks.push({ type: "link", content: serializeInline(el), href: links[0].getAttribute("href") || "" });
+            } else {
+              blocks.push({ type: "text", content: serializeInline(el) });
             }
           }
-          out.push(`</${tag}>`);
-          continue;
+          return;
         }
 
-        // Any other element — recurse
-        if (node.children.length > 0) {
-          walk(node);
+        // Recurse
+        for (const child of Array.from(el.children)) {
+          extractBlocks(child);
+        }
+        return;
+      }
+
+      // Paragraphs
+      if (tag === "p") {
+        if (text) blocks.push({ type: "text", content: serializeInline(el) });
+        return;
+      }
+
+      // Links (block-level)
+      if (tag === "a") {
+        const href = el.getAttribute("href") || "";
+        const innerImg = el.querySelector("img");
+        if (innerImg) {
+          blocks.push({ type: "image", content: "", src: innerImg.getAttribute("src") || "", alt: innerImg.getAttribute("alt") || "", href });
         } else if (text) {
-          out.push(`<p>${serializeInline(node)}</p>`);
+          blocks.push({ type: "link", content: text, href });
         }
+        return;
+      }
+
+      // Lists
+      if (tag === "ul" || tag === "ol") {
+        let listHtml = `<${tag}>`;
+        for (const li of Array.from(el.children)) {
+          if (li.tagName?.toLowerCase() === "li") {
+            listHtml += `<li>${serializeInline(li)}</li>`;
+          }
+        }
+        listHtml += `</${tag}>`;
+        blocks.push({ type: "text", content: listHtml });
+        return;
+      }
+
+      // Other elements with children → recurse
+      if (el.children.length > 0) {
+        for (const child of Array.from(el.children)) {
+          extractBlocks(child);
+        }
+      } else if (text) {
+        blocks.push({ type: "text", content: serializeInline(el) });
       }
     };
 
-    // Find all images in the doc to preserve them
-    walk(doc.body);
+    extractBlocks(doc.body);
 
-    out.push("</div>");
+    // Deduplicate consecutive identical blocks and emit clean HTML
+    const seen = new Set<string>();
+    for (const block of blocks) {
+      const key = `${block.type}:${block.content || block.src || ""}`;
+      // Allow duplicate text/images that are genuinely different content
+      const isDupe = block.type === "hr" ? false : seen.has(key);
+      if (isDupe) continue;
+      seen.add(key);
 
-    // Clean up: remove empty paragraphs, deduplicate HRs
+      switch (block.type) {
+        case "heading":
+          // Skip theme names that leak into output
+          if (/^(gallery opening|block party|indie concert|cyberpunk rave|zine culture|festival wristband|retro arcade)/i.test(block.content.replace(/<[^>]*>/g, "").trim())) continue;
+          const hTag = `h${Math.min(block.level || 2, 3)}`;
+          out.push(`<${hTag}>${block.content}</${hTag}>`);
+          break;
+        case "text":
+          out.push(`<p>${block.content}</p>`);
+          break;
+        case "image":
+          if (block.href) {
+            out.push(`<a href="${block.href}"><img src="${block.src}" alt="${block.alt || ""}" /></a>`);
+          } else {
+            out.push(`<img src="${block.src}" alt="${block.alt || ""}" />`);
+          }
+          break;
+        case "link":
+          out.push(`<p><strong><a href="${block.href}">${block.content}</a></strong></p>`);
+          break;
+        case "hr":
+          out.push("<hr>");
+          break;
+        case "quote":
+          out.push(`<blockquote>${block.content}</blockquote>`);
+          break;
+      }
+    }
+
+    // Clean up empty paragraphs and consecutive HRs
     return out
-      .filter((line) => line !== "<p></p>" && line !== "<p> </p>")
+      .filter(line => line !== "<p></p>" && line !== "<p> </p>")
       .join("\n")
       .replace(/(<hr>\s*){2,}/g, "<hr>");
   };
