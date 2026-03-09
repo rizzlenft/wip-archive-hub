@@ -438,7 +438,13 @@ const AdminNewsletter = () => {
                               ) : speakerPfpStatus?.status === "resolved" ? (
                                 <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold bg-green-500/10 text-green-400 border border-green-500/20">
                                   <CheckCircle2 className="w-2.5 h-2.5" />
-                                  {speakerPfpStatus.source === "farcaster" ? "Farcaster" : speakerPfpStatus.source === "twitter" ? "Twitter/X" : "Direct URL"}
+                                  {speakerPfpStatus.triedFallback && pfpSource === "twitter" 
+                                    ? "Fallback: Twitter/X" 
+                                    : speakerPfpStatus.source === "farcaster" 
+                                      ? "Farcaster" 
+                                      : speakerPfpStatus.source === "twitter" 
+                                        ? "Twitter/X" 
+                                        : "Direct URL"}
                                 </span>
                               ) : speakerPfpStatus?.status === "failed" ? (
                                 <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold bg-destructive/10 text-destructive border border-destructive/20">
