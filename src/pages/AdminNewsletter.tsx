@@ -786,6 +786,7 @@ const AdminNewsletter = () => {
                   </span>
                 </div>
                 <div
+                  ref={posterPreviewRef}
                   className="newsletter-poster-preview"
                   dangerouslySetInnerHTML={{ __html: editableHtml }}
                 />
