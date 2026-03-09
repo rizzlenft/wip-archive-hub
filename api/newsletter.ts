@@ -128,6 +128,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method === "POST") {
       const action = (req.query.action as string) || "save";
       if (action === "generate") return handleGenerate(req, res);
+      if (action === "delete") return handleDelete(req, res);
       return handleSave(req, res);
     }
 
