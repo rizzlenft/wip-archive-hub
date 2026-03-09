@@ -852,12 +852,7 @@ CRITICAL DESIGN MANDATE — THINK POSTER, NOT EMAIL:
    - Apply pulse to accent elements like the "LIVE" badge or countdown
    - Apply float to the WIP logo for a subtle hovering effect
 
-2. **COUNTDOWN TICKER** — Right after the header, add a bold banner:
-   <div style="text-align:center;padding:12px 20px;background:linear-gradient(135deg,${theme.accent1}20,${theme.accent2}20);border:2px solid ${theme.accent1};margin:8px 0 16px;">
-     <span style="font-size:11px;letter-spacing:3px;text-transform:uppercase;color:${theme.accent2};font-weight:bold;">NEXT EVENT IN</span><br/>
-     <span style="font-size:42px;font-weight:900;color:#f5f0e8;font-family:monospace;letter-spacing:4px;text-shadow:0 0 20px ${theme.accent1}80;">THIS THURSDAY</span><br/>
-     <span style="font-size:14px;color:${theme.accent2};">3 PM ET · Hyperfy Metaverse</span>
-   </div>
+2. (REMOVED — no countdown ticker)
 
 3. **LAYERED DEPTH & SHADOWS** — Every card/section MUST have:
    - Multiple box-shadows for depth: box-shadow: 0 4px 20px rgba(0,0,0,0.5), 0 0 40px ${theme.accent1}15, inset 0 1px 0 rgba(255,255,255,0.05);
