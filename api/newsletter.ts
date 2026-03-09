@@ -823,19 +823,29 @@ TRANSCRIPT:\n${effectiveTranscript}`
  a vibrant Web3/metaverse community that meets every Thursday at 3 PM ET.
 
 THIS IS NOT AN EMAIL. THIS IS A POSTER. A FLYER. A BLOCK PARTY INVITATION.
+But it MUST be built with EMAIL-COMPATIBLE HTML so it looks IDENTICAL when pasted into Substack.
 
 THIS WEEK'S VISUAL THEME: "${theme.name}"
 Design vibe: ${theme.vibe}
 PRIMARY COLOR PALETTE:
 - Deep background: #0a0612
-- Warm pink/magenta: hsl(330, 85%, 65%) — primary brand color
-- Coral: hsl(15, 90%, 65%)
-- Yellow: hsl(50, 95%, 60%)
-- Green: hsl(150, 75%, 55%)
-- Cyan: hsl(175, 80%, 55%)
-- Purple: hsl(270, 70%, 60%)
+- Warm pink/magenta: #e84393 — primary brand color
+- Coral: #e17055
+- Yellow: #fdcb6e
+- Green: #55efc4
+- Cyan: #00cec9
+- Purple: #a29bfe
 - Text: #f5f0e8
 Theme accent colors (use sparingly): ${theme.accent1}, ${theme.accent2}, ${theme.accent3}
+
+⚠️ CRITICAL — EMAIL/SUBSTACK COMPATIBLE HTML ONLY:
+- Do NOT use a <style> block or @keyframes — Substack strips them entirely
+- Do NOT use CSS animations, transforms, or transitions — they get removed
+- ALL styles MUST be INLINE on each element (style="...")
+- Use TABLE-BASED LAYOUT for structure (tables render identically everywhere)
+- Use static box-shadows, static borders, static gradients for visual depth
+- Background images: use inline style background-image on table cells
+- This ensures the newsletter looks EXACTLY the same in preview AND Substack
 
 CRITICAL DESIGN MANDATE — THINK POSTER, NOT EMAIL:
 - This should look like it was wheat-pasted to a wall in Brooklyn
@@ -843,42 +853,27 @@ CRITICAL DESIGN MANDATE — THINK POSTER, NOT EMAIL:
 - NOT a corporate newsletter. NOT an email template. NO "Dear reader" energy.
 - Every issue should feel like a collector's item that people screenshot and share
 
-🔥 DYNAMIC VISUAL EFFECTS (MANDATORY — these are what make it NOT flat):
+VISUAL DEPTH WITHOUT ANIMATIONS (MANDATORY):
+1. **GLOWING BORDERS** — Use thick solid borders (3-4px) in accent colors with box-shadow for glow:
+   border: 3px solid ${theme.accent1}; box-shadow: 0 0 15px ${theme.accent1}40, 0 0 30px ${theme.accent1}20;
 
-1. **ANIMATED GRADIENT BORDERS** — Use CSS @keyframes in a <style> tag at the top of the HTML:
-   <style>
-   @keyframes borderGlow { 0%,100% { border-color: ${theme.accent1}; box-shadow: 0 0 15px ${theme.accent1}40; } 50% { border-color: ${theme.accent2}; box-shadow: 0 0 25px ${theme.accent2}60; } }
-   @keyframes shimmer { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
-   @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.7; } }
-   @keyframes float { 0%,100% { transform: translateY(0px); } 50% { transform: translateY(-4px); } }
-   </style>
-   - Apply borderGlow animation to speaker cards: animation: borderGlow 3s ease-in-out infinite;
-   - Apply shimmer to section dividers using a gradient background: background: linear-gradient(90deg, transparent, ${theme.accent1}40, transparent); background-size: 200% 100%; animation: shimmer 2s linear infinite;
-   - Apply pulse to accent elements like the "LIVE" badge or countdown
-   - Apply float to the WIP logo for a subtle hovering effect
+2. **LAYERED DEPTH & SHADOWS** — Every card/section MUST have:
+   - Multiple box-shadows for depth: box-shadow: 0 4px 20px rgba(0,0,0,0.5), 0 0 40px ${theme.accent1}15;
+   - Inner gradient highlights: background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 50%), #0f0a1a;
+   - Speaker cards should feel glossy and premium
 
-2. (REMOVED — no countdown ticker)
-
-3. **LAYERED DEPTH & SHADOWS** — Every card/section MUST have:
-   - Multiple box-shadows for depth: box-shadow: 0 4px 20px rgba(0,0,0,0.5), 0 0 40px ${theme.accent1}15, inset 0 1px 0 rgba(255,255,255,0.05);
-   - Slight CSS transforms on alternating cards: transform: rotate(-0.7deg); and transform: rotate(0.5deg);
-   - Overlapping elements: use negative margins (-8px to -12px) so cards feel layered
-   - Background texture: use repeating-linear-gradient for subtle noise/grid patterns behind sections
-   - Speaker cards should have a glossy inner highlight: background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, transparent 50%);
-
-4. **BOLD TYPOGRAPHIC HIERARCHY** — Mandatory sizes:
-   - Speaker names: 48-60px, font-weight:900, letter-spacing:-2px, text-shadow with accent color glow
-   - Section labels ("THIS WEEK" / "LAST WEEK"): 11-12px, letter-spacing:5px, uppercase, in accent color, with a small decorative line/bar before them
-   - Quotes: 28-36px italic with massive decorative quotation marks (60-80px) in accent color, positioned as absolute/offset elements
+3. **BOLD TYPOGRAPHIC HIERARCHY** — Mandatory sizes:
+   - Speaker names: 36-48px, font-weight:900, letter-spacing:-1px, text-shadow with accent color glow
+   - Section labels ("THIS WEEK" / "LAST WEEK"): 11-12px, letter-spacing:5px, uppercase, in accent color
+   - Bio text: 14-16px, italic, lighter color
    - Body text: 15-16px, line-height:1.6
-   - Ticket stub text: 13px, monospace font, uppercase
 
 HEADER — MUST BE EXACTLY THIS (copy-paste these HTML tags verbatim):
-- WIP logo: <img src="${WIP_LOGO_GIF_URL}" onerror="this.onerror=null;this.src='${WIP_LOGO_FALLBACK}';" style="width:80px;height:80px;display:block;margin:0 auto 8px;border-radius:16px;border:3px solid ${theme.accent1};animation:float 3s ease-in-out infinite;" alt="WIP" />
+- WIP logo: <img src="${WIP_LOGO_GIF_URL}" onerror="this.onerror=null;this.src='${WIP_LOGO_FALLBACK}';" width="80" height="80" style="display:block;margin:0 auto 8px;border-radius:16px;border:3px solid ${theme.accent1};box-shadow:0 0 15px ${theme.accent1}40;" alt="WIP" />
 - Below the logo, centered text: "The WIP Meetup" (36-44px, font-weight:900, white with text-shadow glow in accent color)
 - Below that: "Every Thursday · 3 PM ET" (14-16px, muted color, margin-bottom:12px)
-- Below that: TWO call-to-action buttons side by side in a flex row (gap:12px, centered):
-  1. <a href="https://thewipmeetup.com" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:12px 28px;border:2px solid ${theme.accent1};font-weight:bold;color:#f5f0e8;text-decoration:none;border-radius:4px;box-shadow:0 0 15px ${theme.accent1}40;transition:all 0.2s;">Visit Website</a>
+- Below that: TWO call-to-action buttons side by side:
+  1. <a href="https://thewipmeetup.com" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:12px 28px;border:2px solid ${theme.accent1};font-weight:bold;color:#f5f0e8;text-decoration:none;border-radius:4px;box-shadow:0 0 15px ${theme.accent1}40;">Visit Website</a>
   2. <a href="https://discord.gg/XHDcUdm3" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:12px 28px;border:2px dashed #999;font-weight:bold;color:${theme.accent2};text-decoration:none;border-radius:4px;">Join Discord</a>
 
 CRITICAL URL RULES:
@@ -890,78 +885,73 @@ CRITICAL URL RULES:
 ${youtube_video_id ? `LAST WEEK'S EVENT VIDEO — include lower in the poster:
 - Thumbnail: https://img.youtube.com/vi/${youtube_video_id}/maxresdefault.jpg
 - Link: https://youtube.com/watch?v=${youtube_video_id}
-- Make this a clickable image with ONLY a tiny "▶ WATCH" pill badge (12-14px) in the bottom-right corner
-- Do NOT make a giant overlay or banner. The thumbnail speaks for itself.` : ""}
+- Make this a clickable image with a "▶ Watch the Replay" text below it` : ""}
 
 ⚠️ CRITICAL — SPEAKER BIOS (NOT QUOTES):
 - Do NOT use quotes or social media posts for speakers. Instead, display their BIO as a short description/tagline on their card.
-- If a BIO is provided, show it as a styled description (16-18px, italic, muted color) below their name and social links.
+- If a BIO is provided, show it as a styled description (14-16px, italic, color:#b0a8c0) below their name and social links.
 - If no bio is available, show only their name, PFP, social links, and topic — NO made-up description.
 - NEVER fabricate, invent, or paraphrase content for speakers.
-- For the transcript section (last week's recap), quotes from the transcript ARE real and can be used freely.
 
-POSTER DESIGN PRINCIPLES:
-- MASSIVE typography for speaker names (48-60px names)
-- The speakers are HEADLINERS — their names and bios go RIGHT AFTER the header
-- Use CSS transforms (rotate slight angles -1deg to 2deg) on elements for that hand-placed poster feel
-- Layer elements: overlapping borders, stacked sections with negative margins, asymmetric padding
-- Use thick borders (3-4px) in accent colors with animated glow, not subtle 1px lines
-
-HEADLINERS LAYOUT — CRITICAL (NO PRIORITY):
-- Render ALL speakers in ONE equal-weight grid right after the header
-- Use a flex-wrap grid container with gap:16px
-- Each speaker card: thick animated-glow border, slight rotation, deep box-shadow, inner gradient highlight
-- Speaker name at 48-60px with text-shadow glow
-- Show each speaker's bio as a styled description below their name (NOT as a quote with quotation marks)
+SPEAKER CARDS — CRITICAL LAYOUT:
+- Use a TABLE layout: one table row with equal-width cells for each speaker
+- If 2 speakers: 50%/50%. If 3: 33%/33%/33%. If 1: full width but centered, max-width 400px.
+- Each speaker card cell: padding:20px, vertical-align:top, background with subtle gradient
+- NO dead space — cards should fill their cells completely
+- Each card gets: thick accent border, box-shadow glow, inner gradient highlight
+- Speaker name at 36-48px with text-shadow glow
+- Speaker bio as styled italic description below their name
 
 SPEAKER PROFILE IMAGES — CRITICAL:
 - Each speaker with a [PROFILE IMAGE: url] tag MUST have their photo rendered as an <img> tag
 - Use the EXACT URL provided — do NOT modify or omit it
-- Show as circular images (90-110px) with a 3px animated-glow border
+- Show as circular images (90-110px) with a 3px border in accent color and box-shadow glow
 - If no profile image URL is provided for a speaker, skip the image
 
-SPEAKER SOCIAL LINKS — MUST INCLUDE:
-- For EVERY speaker, render their social media handles as clickable links below their name
-- Twitter/X: clickable @HANDLE link to https://x.com/HANDLE with an X prefix
-- Farcaster: clickable @HANDLE link to https://farcaster.xyz/HANDLE with a purple circle prefix
-- Show both if available, separated by a divider
+SPEAKER SOCIAL LINKS — MUST BE CLICKABLE:
+- For EVERY speaker, render their social media handles as CLICKABLE <a> links below their name
+- Twitter/X: <a href="https://x.com/HANDLE" target="_blank" style="color:${theme.accent2};text-decoration:none;">@HANDLE on X/Twitter</a>
+- Farcaster: <a href="https://warpcast.com/HANDLE" target="_blank" style="color:#a29bfe;text-decoration:none;">@HANDLE on Farcaster</a>
+- Show both if available, each on its own line
 - These go directly under each speaker's name in their headliner card
 
+SPEAKER TOPIC — MUST BE HANDLED:
+- If the topic field contains a URL (starts with http), make it a clickable link: <a href="TOPIC_URL" target="_blank" style="color:${theme.accent1};text-decoration:underline;">TOPIC_URL</a>
+- If the topic is plain text, display as: "Topic: TOPIC_TEXT" in muted styling
+- Show topic below social links
+
 ${transcriptQuoteNote}
-CUSTOM EVENT IMAGES — BACKGROUND ONLY:
-- These images are from LAST WEEK's event — they show the community, NOT this week's speakers
-- Use them as atmospheric background layers: opacity 0.20-0.30, slight blur, behind content
-- Do NOT feature them as big foreground photos, and NO section header like "CANDID SHOTS"
+CUSTOM EVENT IMAGES — VISIBLE BACKGROUNDS:
+- These images are from LAST WEEK's event — they show the community
+- Use them as VISIBLE background images on section cells: background-image:url(IMAGE_URL); background-size:cover; background-position:center;
+- Overlay a semi-transparent dark layer on top: use a nested div with background:rgba(10,6,18,0.75)
+- They should be VISIBLE and add energy/atmosphere but not obscure text
+- Do NOT make them tiny thumbnails or a separate gallery section
 ${custom_image_urls && custom_image_urls.length > 0 ? custom_image_urls.map((url, i) => `- Image ${i + 1}: ${url}`).join("\n") : "- (No custom images provided this week)"}
 
 LAYOUT RULES:
-- Do NOT use a "CANDID SHOTS" header or any header for event images
-- ALL community links should be styled as individual CONCERT TICKET STUBS with torn-edge effect (use clip-path or dashed borders)
-- Each ticket stub gets a deep box-shadow and slight rotation for that scattered-on-table feel
-
-HTML RULES:
-- Include a <style> block at the very start with all @keyframes animations (borderGlow, shimmer, pulse, float)
-- All other styles INLINE (this will also be used in email)
-- Max-width: 680px, centered
-- TIGHT SPACING: Keep padding between sections to 16-24px max. Use negative margins for overlap.
-- MOBILE-FIRST: All content must look great on 320px-wide screens. Use max-width:100% on images, flex-wrap on grids.
+- Use TABLE-BASED layout throughout (for email compatibility)
+- ALL community links should be styled as individual TICKET STUBS with thick dashed borders and box-shadow
+- Max-width: 680px, centered with margin:0 auto
+- TIGHT SPACING: Keep padding between sections to 16-24px max
+- MOBILE-FRIENDLY: Images use max-width:100%, tables use width:100%
 
 SECTIONS ORDER (mandatory):
-1. **<style> BLOCK** — All @keyframes animations at the top.
-2. **HEADER** — WIP logo (with float animation) + "The WIP Meetup" (huge, glowing) + "Every Thursday · 3 PM ET" + Website & Discord CTAs.
-3. **THIS WEEK'S HEADLINERS** — All speakers in ONE equal-weight grid with animated-border cards, circular PFP, clickable social links, and their bio as a styled description.
-4. **LAST WEEK'S RECAP** — ${lastWeekSpeakersWithImages.length > 0 ? "Feature last week's guests with their circular PFPs, names as clickable social links, alongside the YouTube replay and a transcript-based synopsis." : "YouTube replay or brief recap."} Event images as atmospheric background texture.
-5. **TICKET STUBS** — Community links as torn concert ticket stubs scattered with slight rotations. No header.
+1. **HEADER** — WIP logo + "The WIP Meetup" (huge, glowing text-shadow) + "Every Thursday · 3 PM ET" + Website & Discord CTAs.
+2. **THIS WEEK'S HEADLINERS** — All speakers in ONE equal-weight TABLE row with glowing-border cells, circular PFP, CLICKABLE social links, topic (linked if URL), and their bio as a styled description.
+3. **LAST WEEK'S RECAP** — ${lastWeekSpeakersWithImages.length > 0 ? "Feature last week's guests with their circular PFPs, names as clickable social links, alongside the YouTube replay and a transcript-based synopsis." : "YouTube replay or brief recap."} Use custom event images as visible background-image on this section.
+4. **TICKET STUBS** — Community links as ticket stubs with thick dashed borders and box-shadow. No header.
 
 Output JSON:
 {
   "title": "WIP Meetup - ${meetupDateStr}",
   "subtitle": "one-line FOMO-inducing teaser",
-  "body_html": "full poster-style HTML with <style> block + ALL inline styles",
+  "body_html": "full poster-style HTML with ALL inline styles, NO style block, TABLE-based layout",
   "body_markdown": "clean Markdown version with the same energy",
   "recap_summary": "2-sentence punchy recap for card preview"
 }
-IMPORTANT: The title MUST be exactly "WIP Meetup - ${meetupDateStr}" — do not change the format.`;
+IMPORTANT: The title MUST be exactly "WIP Meetup - ${meetupDateStr}" — do not change the format.
+IMPORTANT: Do NOT include any <style> block. ALL styles must be inline.`;
 
   // Build last week's transcript synopsis context
   const lastWeekRecapTranscript = lastWeekTranscript
