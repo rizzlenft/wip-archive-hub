@@ -641,6 +641,13 @@ SPEAKER PROFILE IMAGES — CRITICAL:
 - Place next to their name AND next to any quotes attributed to them
 - If no profile image URL is provided for a speaker, skip the image — do NOT use a placeholder
 
+SPEAKER SOCIAL LINKS — MUST INCLUDE:
+- For EVERY speaker, render their social media handles as clickable links below their name
+- Twitter/X: render as <a href="https://x.com/HANDLE" target="_blank" style="color:${theme.accent2};text-decoration:none;font-size:13px;">@HANDLE</a> with an "𝕏" or "✕" prefix
+- Farcaster: render as <a href="https://farcaster.xyz/HANDLE" target="_blank" style="color:${theme.accent3};text-decoration:none;font-size:13px;">@HANDLE</a> with a "🟣" prefix
+- Show both if available, separated by a " · " divider
+- These go directly under each speaker's name in their headliner card
+
 ${effectiveTranscript ? `PULL-QUOTES — PLACE THESE RIGHT AFTER THE HEADER, WITH THE SPEAKERS:
 - Extract 2-3 of the most INSIGHTFUL, mind-blowing, or hilarious quotes from the transcript
 - These go at the TOP of the poster, right under the header, paired with the speaker who said them
@@ -670,9 +677,9 @@ HTML RULES:
 - MOBILE-FIRST: All content must look great on 320px-wide screens. Use max-width:100% on images, flex-wrap on grids, and avoid fixed pixel widths over 300px. Speaker grid items should stack to full-width on narrow screens (min-width:240px with flex:1 1 100%).
 
 SECTIONS ORDER (this order is mandatory):
-1. **HEADER** — WIP logo + "The WIP Meetup" + "Every Thursday · 3 PM ET" + Discord link. Clean and simple.
-2. **THIS WEEK'S HEADLINERS + QUOTES** — All speakers rendered in ONE equal-weight grid (2–4 across on desktop, wrap as needed), each with their circular PFP and their best quote. No stacking that implies priority.
-3. **LAST WEEK'S REPLAY** — ${youtube_video_id ? "YouTube thumbnail with tiny '▶ WATCH' badge." : "Brief recap."} Event images appear only as subtle background texture.
+1. **HEADER** — WIP logo + "The WIP Meetup" + "Every Thursday · 3 PM ET" + Website & Discord CTAs.
+2. **THIS WEEK'S HEADLINERS + QUOTES** — All speakers in ONE equal-weight grid with circular PFP, clickable social links, and their best quote.
+3. **LAST WEEK'S RECAP** — ${lastWeekSpeakersWithImages.length > 0 ? `Feature last week's guests with their circular PFPs in a compact row, names as clickable social links, alongside the YouTube replay thumbnail.` : `${youtube_video_id ? "YouTube thumbnail with tiny '▶ WATCH' badge." : "Brief recap."}`}${youtube_video_id ? ` Include YouTube thumbnail with tiny "▶ WATCH" badge.` : ""} Event images appear as atmospheric background texture.
 4. **TICKET STUBS** — Community links as torn concert ticket stubs. No header.
 
 Output JSON:
