@@ -139,7 +139,66 @@ const AdminNewsletter = () => {
   const [view, setView] = useState<"compose" | "preview" | "history">("compose");
 
   // Track PFP load status per speaker: "loading" | "resolved" | "failed"
-  const [pfpStatus, setPfpStatus] = useState<Record<number, { status: "loading" | "resolved" | "failed"; source?: string; triedFallback?: boolean }>>({});
+  const [pfpStatus, setPfpStatus] = useState<Record<number, { status: "loading" | "resolved" | "failed"; source?: string; triedFallback?: boolean; resolvedUrl?: string }>>({});
+
+  // Probe avatar URLs via JS Image objects (more reliable than inline img onError for cross-origin)
+  useEffect(() => {
+    speakers.forEach((speaker, idx) => {
+      const status = pfpStatus[idx];
+      if (!status || status.status !== "loading") return;
+
+      const fc = normalizeFarcasterHandle(speaker.farcaster);
+      const tw = normalizeTwitterHandle(speaker.twitter);
+      const normalizedProfileUrl = speaker.profile_image_url
+        ? normalizeProfileImageUrlFromText(speaker.profile_image_url)
+        : null;
+
+      let urlToTry = "";
+      let source: "farcaster" | "twitter" | "url" | "" = "";
+
+      if (normalizedProfileUrl) {
+        urlToTry = buildAvatarProxyUrl({ url: normalizedProfileUrl });
+        source = "url";
+      } else if (fc && !status.triedFallback) {
+        urlToTry = buildAvatarProxyUrl({ farcaster: fc });
+        source = "farcaster";
+      } else if (tw) {
+        urlToTry = buildAvatarProxyUrl({ twitter: tw });
+        source = "twitter";
+      } else if (fc) {
+        urlToTry = buildAvatarProxyUrl({ farcaster: fc });
+        source = "farcaster";
+      }
+
+      if (!urlToTry) {
+        setPfpStatus((prev) => ({ ...prev, [idx]: { ...prev[idx], status: "failed" } }));
+        return;
+      }
+
+      const img = new Image();
+      img.onload = () => {
+        setPfpStatus((prev) => ({
+          ...prev,
+          [idx]: { status: "resolved", source, triedFallback: prev[idx]?.triedFallback, resolvedUrl: urlToTry },
+        }));
+      };
+      img.onerror = () => {
+        // If Farcaster failed and we have a Twitter handle, try fallback
+        if (source === "farcaster" && tw && !status.triedFallback) {
+          setPfpStatus((prev) => ({
+            ...prev,
+            [idx]: { status: "loading", source: "farcaster", triedFallback: true },
+          }));
+        } else {
+          setPfpStatus((prev) => ({
+            ...prev,
+            [idx]: { status: "failed", source, triedFallback: status.triedFallback },
+          }));
+        }
+      };
+      img.src = urlToTry;
+    });
+  }, [speakers, pfpStatus]);
 
   // Auto-fetch latest YouTube video
   useEffect(() => {
@@ -403,19 +462,18 @@ const AdminNewsletter = () => {
                     if (normalizedProfileUrl) {
                       pfpUrl = buildAvatarProxyUrl({ url: normalizedProfileUrl });
                       pfpSource = "url";
-                    } else if (fc && !(speakerPfpStatus?.triedFallback && speakerPfpStatus?.source === "farcaster")) {
-                      // Try Farcaster first, unless it already failed and we're trying fallback
-                      if (speakerPfpStatus?.triedFallback && tw) {
-                        // Farcaster failed, fallback to Twitter
-                        pfpUrl = buildAvatarProxyUrl({ twitter: tw });
-                        pfpSource = "twitter";
-                      } else {
-                        pfpUrl = buildAvatarProxyUrl({ farcaster: fc });
-                        pfpSource = "farcaster";
-                      }
+                    } else if (fc && !speakerPfpStatus?.triedFallback) {
+                      // Try Farcaster first if we haven't already tried fallback
+                      pfpUrl = buildAvatarProxyUrl({ farcaster: fc });
+                      pfpSource = "farcaster";
                     } else if (tw) {
+                      // Use Twitter if no Farcaster, or if Farcaster failed (triedFallback=true)
                       pfpUrl = buildAvatarProxyUrl({ twitter: tw });
                       pfpSource = "twitter";
+                    } else if (fc) {
+                      // Farcaster-only with no Twitter fallback available
+                      pfpUrl = buildAvatarProxyUrl({ farcaster: fc });
+                      pfpSource = "farcaster";
                     }
 
                     return (
@@ -516,36 +574,12 @@ const AdminNewsletter = () => {
                         {/* PFP Section */}
                         <div className="flex items-center gap-3 pt-1">
                           <div className="relative shrink-0">
-                            {pfpUrl ? (
+                            {speakerPfpStatus?.resolvedUrl ? (
                               <img
-                                src={pfpUrl}
+                                src={speakerPfpStatus.resolvedUrl}
                                 referrerPolicy="no-referrer"
-                                loading="lazy"
                                 alt={`${speaker.name} avatar`}
                                 className="w-14 h-14 rounded-full border-2 border-accent object-cover"
-                                onLoad={() =>
-                                  setPfpStatus((prev) => ({
-                                    ...prev,
-                                    [idx]: { status: "resolved", source: pfpSource },
-                                  }))
-                                }
-                                onError={(e) => {
-                                  const currentStatus = pfpStatus[idx];
-                                  // If Farcaster failed and we have a Twitter handle, try fallback
-                                  if (pfpSource === "farcaster" && tw && !currentStatus?.triedFallback) {
-                                    (e.target as HTMLImageElement).style.display = "none";
-                                    setPfpStatus((prev) => ({
-                                      ...prev,
-                                      [idx]: { status: "loading", source: "farcaster", triedFallback: true },
-                                    }));
-                                  } else {
-                                    (e.target as HTMLImageElement).style.display = "none";
-                                    setPfpStatus((prev) => ({
-                                      ...prev,
-                                      [idx]: { status: "failed", source: pfpSource, triedFallback: currentStatus?.triedFallback },
-                                    }));
-                                  }
-                                }}
                               />
                             ) : (
                               <div className="w-14 h-14 rounded-full border-2 border-dashed border-muted-foreground/40 flex items-center justify-center">
