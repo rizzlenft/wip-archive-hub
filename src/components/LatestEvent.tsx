@@ -1,9 +1,8 @@
 import { motion } from "framer-motion";
-import { Play, ExternalLink, Calendar, Users, Sparkles, Globe, X } from "lucide-react";
+import { Play, ExternalLink, Calendar, Users, Sparkles, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { fetchAllEpisodes } from "@/lib/youtube";
 import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
 
 interface VideoData {
   title: string;
@@ -11,10 +10,8 @@ interface VideoData {
   thumbnail: string;
 }
 
-// The WIP Meetup YouTube channel
 const CHANNEL_URL = "https://www.youtube.com/@thewipmeetup";
 const CHANNEL_ID = "UCRwQrMcwYE3K7gfP5nQVgng";
-// YouTube auto-generates an "uploads" playlist: replace UC with UU
 const UPLOADS_PLAYLIST_ID = "UU" + CHANNEL_ID.slice(2);
 
 export const LatestEvent = () => {
@@ -30,7 +27,7 @@ export const LatestEvent = () => {
         (import.meta.env.VITE_BACKEND_URL as string | undefined) ||
         "https://api.thewipmeetup.com";
 
-      // Strategy 1: Our own Vercel API (server-side, no CORS issues)
+      // Strategy 1: Our own Vercel API
       try {
         const response = await fetch(`${API_BASE}/api/youtube-latest`, {
           signal: AbortSignal.timeout(8000),
@@ -38,7 +35,6 @@ export const LatestEvent = () => {
         if (response.ok) {
           const data = await response.json();
           if (data.videoId && data.title) {
-            console.log("✅ Fetched latest video via API:", data.title);
             setVideo({
               title: data.title,
               videoId: data.videoId,
@@ -48,11 +44,11 @@ export const LatestEvent = () => {
             return;
           }
         }
-      } catch (err) {
-        console.log("API fetch failed, trying client-side fallbacks:", err);
+      } catch {
+        // fallback
       }
 
-      // Strategy 2: Try Invidious API instances (client-side)
+      // Strategy 2: Invidious
       const invidiousInstances = [
         "https://inv.nadeko.net",
         "https://invidious.fdn.fr",
@@ -70,7 +66,6 @@ export const LatestEvent = () => {
           const videos = await response.json();
           if (Array.isArray(videos) && videos.length > 0) {
             const latest = videos[0];
-            console.log("✅ Fetched latest video via Invidious:", latest.title);
             setVideo({
               title: latest.title,
               videoId: latest.videoId,
@@ -84,13 +79,11 @@ export const LatestEvent = () => {
         }
       }
 
-      // Strategy 3: Use latest archived episode
+      // Strategy 3: Archive
       try {
         const episodes = await fetchAllEpisodes();
         const latestEpisode = episodes[0];
-
         if (latestEpisode) {
-          console.log("⚠️ Live sources unavailable — using latest archived episode");
           setVideo({
             title: latestEpisode.title,
             videoId: latestEpisode.videoId,
@@ -100,11 +93,10 @@ export const LatestEvent = () => {
           return;
         }
       } catch {
-        // Continue to playlist fallback
+        // final fallback
       }
 
-      // Strategy 4: Final fallback — uploads playlist embed
-      console.log("⚠️ All sources failed — using YouTube playlist embed");
+      // Strategy 4: Playlist embed
       setSource("Playlist embed");
       setUseFallbackEmbed(true);
     };
@@ -121,10 +113,7 @@ export const LatestEvent = () => {
 
   return (
     <section id="about" className="py-16 pb-8 relative overflow-hidden">
-      {/* Background gradient */}
       <div className="absolute inset-0 bg-gradient-to-b from-background via-card/20 to-background" />
-      
-      {/* Background elements */}
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/5 rounded-full blur-3xl" />
 
@@ -146,7 +135,6 @@ export const LatestEvent = () => {
             explore projects, and build together. Everyone is welcome.
           </p>
           
-          {/* Quick stats */}
           <div className="flex flex-wrap justify-center gap-6 md:gap-8">
             <div className="flex items-center gap-2 text-muted-foreground">
               <Calendar className="w-5 h-5 text-primary" />
@@ -163,7 +151,7 @@ export const LatestEvent = () => {
           </div>
         </motion.div>
 
-        {/* Latest Event - Large Featured Video */}
+        {/* Latest Event */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -183,13 +171,13 @@ export const LatestEvent = () => {
           <div className="relative rounded-2xl overflow-hidden border-glow">
             <div className="relative aspect-video bg-card">
               {useFallbackEmbed ? (
-                /* Guaranteed auto-updating: YouTube uploads playlist always shows latest video */
                 <iframe
                   src={`https://www.youtube.com/embed/videoseries?list=${UPLOADS_PLAYLIST_ID}&rel=0`}
                   title="Latest WIP Meetup"
                   className="absolute inset-0 w-full h-full"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
+                  loading="lazy"
                 />
               ) : isPlaying && video ? (
                 <>
@@ -203,6 +191,7 @@ export const LatestEvent = () => {
                   <button
                     onClick={() => setIsPlaying(false)}
                     className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-background/80 hover:bg-background flex items-center justify-center transition-colors"
+                    aria-label="Close video"
                   >
                     <X className="w-5 h-5" />
                   </button>
@@ -211,6 +200,7 @@ export const LatestEvent = () => {
                 <button
                   onClick={() => setIsPlaying(true)}
                   className="group w-full h-full cursor-pointer block"
+                  aria-label="Play latest event video"
                 >
                   {video && (
                     <img
@@ -222,28 +212,24 @@ export const LatestEvent = () => {
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/20 to-transparent" />
                   
-                  {/* Play button overlay */}
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-primary/90 flex items-center justify-center group-hover:scale-110 group-hover:bg-primary transition-all duration-300 shadow-2xl">
                       <Play className="w-8 h-8 md:w-10 md:h-10 text-primary-foreground ml-1" fill="currentColor" />
                     </div>
                   </div>
 
-                  {/* Video info overlay */}
                   <div className="absolute bottom-0 left-0 right-0 p-6 text-left">
                     <h4 className="text-xl md:text-2xl font-bold text-white mb-2 line-clamp-2">
                       {video?.title}
                     </h4>
-                    <p className="text-white/70 text-sm">
-                      Click to watch
-                    </p>
+                    <p className="text-white/70 text-sm">Click to watch</p>
                   </div>
                 </button>
               )}
             </div>
           </div>
 
-          {/* Source badge — only visible with ?debug */}
+          {/* Source badge — debug only */}
           {source && new URLSearchParams(window.location.search).has("debug") && (
             <div className="flex justify-end mt-2">
               <span className="text-xs text-muted-foreground/60 font-mono">
@@ -252,7 +238,6 @@ export const LatestEvent = () => {
             </div>
           )}
 
-          {/* CTA */}
           <div className="flex justify-center mt-4">
             <Button variant="outline" size="lg" asChild>
               <a href={`${CHANNEL_URL}/streams`} target="_blank" rel="noopener noreferrer">

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -18,10 +18,9 @@ import iconHyperfy from "@/assets/icon-hyperfy.png";
 import iconSubstack from "@/assets/icon-substack.png";
 
 const navLinks = [
-  { name: "About", href: "/#about", isAnchor: true },
-  { name: "Episodes", href: "/episodes", isAnchor: false },
-  // { name: "Newsletter", href: "/newsletter", isAnchor: false }, // Hidden until fully tested
-  { name: "Merch", href: "/merch", isAnchor: false },
+  { name: "About", href: "/#about" },
+  { name: "Episodes", href: "/episodes" },
+  { name: "Merch", href: "/merch" },
 ];
 
 const socialLinks = [
@@ -35,18 +34,10 @@ const socialLinks = [
 ];
 
 export const Navigation = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { isAuthenticated, login, logout, user } = useAuth();
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  const closeMobile = useCallback(() => setIsMobileMenuOpen(false), []);
 
   return (
     <>
@@ -63,31 +54,23 @@ export const Navigation = () => {
                 src={wipLogo} 
                 alt="The WIP" 
                 className="w-10 h-10 group-hover:scale-110 transition-transform"
+                width={40}
+                height={40}
               />
               <span className="font-bold text-lg hidden sm:inline">The WIP</span>
             </Link>
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center gap-8">
-              {navLinks.map((link) => 
-                link.isAnchor ? (
-                  <Link
-                    key={link.name}
-                    to={link.href}
-                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {link.name}
-                  </Link>
-                ) : (
-                  <Link
-                    key={link.name}
-                    to={link.href}
-                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {link.name}
-                  </Link>
-                )
-              )}
+              {navLinks.map((link) => (
+                <Link
+                  key={link.name}
+                  to={link.href}
+                  className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {link.name}
+                </Link>
+              ))}
             </div>
 
             {/* Social Icons */}
@@ -101,7 +84,7 @@ export const Navigation = () => {
                   title={link.name}
                   className="w-8 h-8 flex items-center justify-center rounded-full bg-muted/50 hover:bg-primary/20 hover:scale-110 transition-all"
                 >
-                  <img src={link.icon} alt={link.name} className="w-5 h-5 object-contain" />
+                  <img src={link.icon} alt={link.name} className="w-5 h-5 object-contain" loading="lazy" width={20} height={20} />
                 </a>
               ))}
             </div>
@@ -144,9 +127,7 @@ export const Navigation = () => {
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                       className="text-destructive"
-                      onClick={() => {
-                        void logout();
-                      }}
+                      onClick={() => { void logout(); }}
                     >
                       Sign out
                     </DropdownMenuItem>
@@ -158,6 +139,7 @@ export const Navigation = () => {
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="md:hidden p-2 text-foreground"
+                aria-label="Toggle menu"
               >
                 {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
               </button>
@@ -177,51 +159,29 @@ export const Navigation = () => {
           >
             <div className="container mx-auto px-4 py-8">
               <div className="flex flex-col gap-6">
-                {navLinks.map((link) => 
-                  link.isAnchor ? (
-                    <Link
-                      key={link.name}
-                      to={link.href}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="text-2xl font-medium text-foreground hover:text-primary transition-colors"
-                    >
-                      {link.name}
-                    </Link>
-                  ) : (
-                    <Link
-                      key={link.name}
-                      to={link.href}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="text-2xl font-medium text-foreground hover:text-primary transition-colors"
-                    >
-                      {link.name}
-                    </Link>
-                  )
-                )}
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.name}
+                    to={link.href}
+                    onClick={closeMobile}
+                    className="text-2xl font-medium text-foreground hover:text-primary transition-colors"
+                  >
+                    {link.name}
+                  </Link>
+                ))}
                 {!isAuthenticated ? (
                   <Button
                     variant="outline"
                     size="lg"
                     className="mt-2"
-                    onClick={() => {
-                      setIsMobileMenuOpen(false);
-                      login("/events");
-                    }}
+                    onClick={() => { closeMobile(); login("/events"); }}
                   >
                     Sign in
                   </Button>
                 ) : (
                   <>
-                    <Button
-                      variant="ghost"
-                      size="lg"
-                      className="mt-2"
-                      asChild
-                    >
-                      <Link
-                        to="/events"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
+                    <Button variant="ghost" size="lg" className="mt-2" asChild>
+                      <Link to="/events" onClick={closeMobile}>
                         {user?.email || "My events"}
                       </Link>
                     </Button>
@@ -229,10 +189,7 @@ export const Navigation = () => {
                       variant="outline"
                       size="lg"
                       className="mt-2"
-                      onClick={() => {
-                        setIsMobileMenuOpen(false);
-                        void logout();
-                      }}
+                      onClick={() => { closeMobile(); void logout(); }}
                     >
                       Sign out
                     </Button>
@@ -256,7 +213,7 @@ export const Navigation = () => {
                       title={link.name}
                       className="w-10 h-10 flex items-center justify-center rounded-full bg-muted/50 hover:bg-primary/20 hover:scale-110 transition-all"
                     >
-                      <img src={link.icon} alt={link.name} className="w-5 h-5 object-contain" />
+                      <img src={link.icon} alt={link.name} className="w-5 h-5 object-contain" loading="lazy" width={20} height={20} />
                     </a>
                   ))}
                 </div>

@@ -102,6 +102,7 @@ export const CommunityPerks = () => {
                         exit={{ opacity: 0, scale: 1.05 }}
                         transition={{ duration: 0.5 }}
                         className="w-full h-full object-contain"
+                        loading="lazy"
                       />
                     </AnimatePresence>
                     <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
@@ -109,6 +110,7 @@ export const CommunityPerks = () => {
                         <button
                           key={i}
                           onClick={() => setCurrentNft(i)}
+                          aria-label={`View NFT ${i + 1}`}
                           className={`w-2 h-2 rounded-full transition-all ${i === currentNft ? 'bg-primary w-4' : 'bg-muted-foreground/40'}`}
                         />
                       ))}
@@ -120,6 +122,9 @@ export const CommunityPerks = () => {
                       src={wipLogo} 
                       alt="WIP Token" 
                       className="w-16 h-16 rounded-2xl group-hover:scale-110 transition-transform"
+                      loading="lazy"
+                      width={64}
+                      height={64}
                     />
                   </div>
                 ) : perk.icon ? (
@@ -132,7 +137,7 @@ export const CommunityPerks = () => {
                   {perk.description}
                 </p>
                 
-                {/* Live price chart for token */}
+                {/* Live price chart for token — lazy loaded */}
                 {perk.isToken && (
                   <div className="mb-6 rounded-xl overflow-hidden border border-border">
                     <iframe
@@ -142,6 +147,7 @@ export const CommunityPerks = () => {
                       frameBorder="0"
                       className="bg-background"
                       title="$WIP Price Chart"
+                      loading="lazy"
                     />
                   </div>
                 )}
@@ -194,7 +200,7 @@ export const CommunityPerks = () => {
           ))}
         </div>
 
-        {/* Support the community callout — horizontal banner style */}
+        {/* Support the community callout */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}

@@ -61,10 +61,13 @@ export default {
           ring: "hsl(var(--sidebar-ring))",
         },
         wip: {
-          electric: "hsl(var(--wip-electric))",
-          lightning: "hsl(var(--wip-lightning))",
-          "neon-pink": "hsl(var(--wip-neon-pink))",
-          "deep-space": "hsl(var(--wip-deep-space))",
+          pink: "hsl(var(--wip-pink))",
+          coral: "hsl(var(--wip-coral))",
+          yellow: "hsl(var(--wip-yellow))",
+          green: "hsl(var(--wip-green))",
+          cyan: "hsl(var(--wip-cyan))",
+          purple: "hsl(var(--wip-purple))",
+          deep: "hsl(var(--wip-deep))",
         },
       },
       borderRadius: {
