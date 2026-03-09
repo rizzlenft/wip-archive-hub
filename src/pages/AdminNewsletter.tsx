@@ -176,22 +176,27 @@ const AdminNewsletter = () => {
     setGenerating(true);
     setFeedback(null);
     try {
-      // Ensure profile image URLs are clean http(s) URLs
-      // If base64 data URL, replace with unavatar; if empty, pre-resolve from farcaster/twitter
+      // Normalize handles/URLs so PFPs reliably resolve (even when pasting full profile links)
       const cleanedSpeakers = validSpeakers.map((s) => {
-        let pfp = s.profile_image_url?.trim() || "";
-        if (pfp.startsWith("data:")) {
-          const fc = s.farcaster?.replace(/^@/, "").trim();
-          pfp = fc ? `https://unavatar.io/farcaster/${fc}` : "";
-        }
-        if (!pfp) {
-          // Pre-resolve so the backend/AI always gets a URL
-          const fc = s.farcaster?.replace(/^@/, "").trim();
-          const tw = s.twitter?.replace(/^@/, "").trim();
-          if (fc) pfp = `https://unavatar.io/farcaster/${fc}`;
-          else if (tw) pfp = `https://unavatar.io/twitter/${tw}`;
-        }
-        return { ...s, profile_image_url: pfp || undefined };
+        const twitter = normalizeTwitterHandle(s.twitter);
+        const farcaster = normalizeFarcasterHandle(s.farcaster);
+
+        const normalizedPfp = s.profile_image_url
+          ? normalizeProfileImageUrlFromText(s.profile_image_url)
+          : null;
+
+        const profile_image_url =
+          normalizedPfp ||
+          (farcaster ? `https://unavatar.io/farcaster/${farcaster}` : "") ||
+          (twitter ? `https://unavatar.io/twitter/${twitter}` : "") ||
+          undefined;
+
+        return {
+          ...s,
+          twitter: twitter || undefined,
+          farcaster: farcaster || undefined,
+          profile_image_url,
+        };
       });
 
       const issue = await generateNewsletter({

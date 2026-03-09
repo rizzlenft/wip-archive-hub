@@ -283,7 +283,7 @@ YouTube Thumbnail (MUST include as clickable image): https://img.youtube.com/vi/
     custom_image_urls && custom_image_urls.length > 0
       ? `\n\nCUSTOM EVENT IMAGES FROM LAST WEEK (these are community photos from LAST WEEK's event — NOT this week's speakers):
 ${custom_image_urls.map((url, i) => `- Image ${i + 1}: ${url}`).join("\n")}
-These are general community vibes — scatter them naturally through the poster at slight angles. Do NOT associate them with this week's speakers.`
+Use these ONLY as subtle background texture layers (low opacity ~0.12, slight blur, behind content). Do NOT feature them as big foreground photos and do NOT associate them with a specific speaker.`
       : "";
 
   const transcriptSection = effectiveTranscript
@@ -353,7 +353,7 @@ TRANSCRIPT:\n${effectiveTranscript}`
   const weekIndex = Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000));
   const theme = visualThemes[weekIndex % visualThemes.length];
 
-  const WIP_LOGO_URL = "https://thewipmeetup.com/images/wip-logo-static.png";
+  const WIP_LOGO_URL = "https://wip-archive-hub.lovable.app/images/wip-logo-static.png";
 
   const systemPrompt = `You are the creative director of "The WIP Weekly" — the weekly poster/flyer for The WIP Meetup,
  a vibrant Web3/metaverse community that meets every Thursday at 3 PM ET.
@@ -400,6 +400,12 @@ POSTER DESIGN PRINCIPLES:
 - Use thick borders (3-4px) in accent colors, not subtle 1px lines
 - Pull-quotes from the transcript should be HUGE, in accent colors, with decorative quotation marks
 
+HEADLINERS LAYOUT — CRITICAL (NO PRIORITY):
+- Render ALL speakers in ONE equal-weight grid right after the header (do NOT stack full-width speaker sections)
+- Use a flex-wrap grid container like: style="display:flex;flex-wrap:wrap;gap:16px;justify-content:center;align-items:stretch;"
+- Each speaker block should be the SAME visual weight: style="flex:1 1 260px;max-width:320px;min-width:240px;" so 2–4 speakers can sit side-by-side
+- Put each speaker’s best quote inside their own block so nobody is visually prioritized
+
 SPEAKER PROFILE IMAGES — CRITICAL:
 - Each speaker with a [PROFILE IMAGE: url] tag MUST have their photo rendered as an <img> tag
 - Use the EXACT URL provided — do NOT modify or omit it
@@ -415,11 +421,11 @@ ${effectiveTranscript ? `PULL-QUOTES — PLACE THESE RIGHT AFTER THE HEADER, WIT
 - Show the speaker's circular PFP next to their quote attribution
 - These quotes should make the reader think "damn, I need to be at the next event"` : ""}
 
-CUSTOM EVENT IMAGES — IMPORTANT CONTEXT:
+CUSTOM EVENT IMAGES — BACKGROUND ONLY:
 - These images are from LAST WEEK'S event — they show the community, NOT this week's speakers
 - Do NOT caption them with this week's speaker names or associate them with specific speakers
-- Place them naturally throughout the poster as scattered photos — slight rotation, tape/pin aesthetic
-- NO section header like "CANDID SHOTS" — just place them organically between sections
+- Use them as subtle background texture layers: opacity ~0.10–0.16, slight blur (1–2px), and position them behind content (z-index:-1 inside a relative wrapper)
+- Do NOT feature them as big foreground photos, and NO section header like "CANDID SHOTS"
 ${custom_image_urls && custom_image_urls.length > 0 ? custom_image_urls.map((url, i) => `- Image ${i + 1}: ${url}`).join("\n") : "- (No custom images provided this week)"}
 
 LAYOUT RULES:
@@ -434,8 +440,8 @@ HTML RULES:
 
 SECTIONS ORDER (this order is mandatory):
 1. **HEADER** — WIP logo + "The WIP Meetup" + "Every Thursday · 3 PM ET" + Discord link. Clean and simple.
-2. **THIS WEEK'S HEADLINERS + QUOTES** — Speakers with their PROFILE PHOTOS (circular, glowing borders) displayed prominently ALONGSIDE their best quotes from last week's transcript. Names huge, quotes huge. This is the main attraction.
-3. **LAST WEEK'S REPLAY** — ${youtube_video_id ? "YouTube thumbnail with tiny '▶ WATCH' badge." : "Brief recap."} Event photos scattered around this section naturally.
+2. **THIS WEEK'S HEADLINERS + QUOTES** — All speakers rendered in ONE equal-weight grid (2–4 across on desktop, wrap as needed), each with their circular PFP and their best quote. No stacking that implies priority.
+3. **LAST WEEK'S REPLAY** — ${youtube_video_id ? "YouTube thumbnail with tiny '▶ WATCH' badge." : "Brief recap."} Event images appear only as subtle background texture.
 4. **TICKET STUBS** — Community links as torn concert ticket stubs. No header.
 
 Output JSON:
