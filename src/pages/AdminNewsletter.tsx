@@ -574,35 +574,12 @@ const AdminNewsletter = () => {
                         {/* PFP Section */}
                         <div className="flex items-center gap-3 pt-1">
                           <div className="relative shrink-0">
-                            {pfpUrl ? (
+                            {speakerPfpStatus?.resolvedUrl ? (
                               <img
-                                key={pfpUrl}
-                                src={pfpUrl}
-                                crossOrigin="anonymous"
+                                src={speakerPfpStatus.resolvedUrl}
                                 referrerPolicy="no-referrer"
                                 alt={`${speaker.name} avatar`}
                                 className="w-14 h-14 rounded-full border-2 border-accent object-cover"
-                                onLoad={() =>
-                                  setPfpStatus((prev) => ({
-                                    ...prev,
-                                    [idx]: { status: "resolved", source: pfpSource, triedFallback: speakerPfpStatus?.triedFallback },
-                                  }))
-                                }
-                                onError={() => {
-                                  const currentStatus = pfpStatus[idx];
-                                  // If Farcaster failed and we have a Twitter handle, try fallback
-                                  if (pfpSource === "farcaster" && tw && !currentStatus?.triedFallback) {
-                                    setPfpStatus((prev) => ({
-                                      ...prev,
-                                      [idx]: { status: "loading", source: "farcaster", triedFallback: true },
-                                    }));
-                                  } else {
-                                    setPfpStatus((prev) => ({
-                                      ...prev,
-                                      [idx]: { status: "failed", source: pfpSource, triedFallback: currentStatus?.triedFallback },
-                                    }));
-                                  }
-                                }}
                               />
                             ) : (
                               <div className="w-14 h-14 rounded-full border-2 border-dashed border-muted-foreground/40 flex items-center justify-center">
