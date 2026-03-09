@@ -27,6 +27,8 @@ const Newsletter = () => {
   const [issues, setIssues] = useState<NewsletterIssue[]>([]);
   const [selected, setSelected] = useState<NewsletterIssue | null>(null);
   const [loading, setLoading] = useState(true);
+  const posterRef = useRef<HTMLDivElement>(null);
+  useNewsletterLogoFallback(posterRef, selected?.body_html || "");
 
   useEffect(() => {
     fetchNewsletters()
