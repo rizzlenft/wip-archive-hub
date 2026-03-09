@@ -139,7 +139,7 @@ const AdminNewsletter = () => {
   const [view, setView] = useState<"compose" | "preview" | "history">("compose");
 
   // Track PFP load status per speaker: "loading" | "resolved" | "failed"
-  const [pfpStatus, setPfpStatus] = useState<Record<number, { status: "loading" | "resolved" | "failed"; source?: string }>>({});
+  const [pfpStatus, setPfpStatus] = useState<Record<number, { status: "loading" | "resolved" | "failed"; source?: string; triedFallback?: boolean }>>({});
 
   // Auto-fetch latest YouTube video
   useEffect(() => {
