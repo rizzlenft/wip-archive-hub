@@ -691,6 +691,12 @@ Output JSON:
   "recap_summary": "2-sentence punchy recap for card preview"
 }`;
 
+  const lastWeekContext = lastWeekSpeakersWithImages.length > 0
+    ? `\n\n**LAST WEEK'S GUESTS (auto-pulled from previous newsletter${lastWeekTitle ? ` — "${lastWeekTitle}"` : ""}):**
+${lastWeekSpeakerList}
+Feature these guests in the "Last Week's Recap" section with their circular PFPs in a compact horizontal row, names as clickable social links. This is the recap of what happened LAST week — these are NOT this week's headliners.`
+    : "";
+
   const userPrompt = `Generate this week's WIP Weekly poster using the "${theme.name}" visual theme.
 This should look like the illest block party flyer / punk rock show poster anyone has ever seen.
 NOT an email. A POSTER.
@@ -700,6 +706,7 @@ ${speakerList}
 ${videoContext}
 ${transcriptSection}
 ${customImagesContext}
+${lastWeekContext}
 
 Community links (style as "entry points" in the ticket section):
 - Discord: https://discord.gg/XHDcUdm3
