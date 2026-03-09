@@ -519,6 +519,7 @@ const AdminNewsletter = () => {
                               <img
                                 key={pfpUrl}
                                 src={pfpUrl}
+                                crossOrigin="anonymous"
                                 referrerPolicy="no-referrer"
                                 alt={`${speaker.name} avatar`}
                                 className="w-14 h-14 rounded-full border-2 border-accent object-cover"
