@@ -689,15 +689,13 @@ YouTube Thumbnail (MUST include as clickable image): https://img.youtube.com/vi/
       const fc = normalizeFarcasterHandle(s.farcaster);
       const social = socialContentMap.get(s.name);
       const bioText = social?.bio || s.bio || "";
-      let postsText = "";
-      if (social?.recentPosts?.length) {
-        postsText = `\n    ⚠️ VERIFIED REAL POSTS FROM THIS PERSON'S SOCIAL MEDIA (YOU MUST USE ONE OF THESE VERBATIM AS THEIR QUOTE — DO NOT MAKE UP A DIFFERENT QUOTE):\n${social.recentPosts.map((p, i) => `      ${i + 1}. "${p}"`).join("\n")}\n    ➡️ PICK THE BEST ONE ABOVE AND USE IT WORD-FOR-WORD.`;
-      } else if (bioText) {
-        postsText = `\n    ⚠️ NO SOCIAL POSTS FOUND. USE THIS BIO EXCERPT INSTEAD (do NOT invent a quote):\n      BIO: "${bioText}"`;
+      let bioSection = "";
+      if (bioText) {
+        bioSection = `\n    BIO (use this as their description/tagline on their card): "${bioText}"`;
       } else {
-        postsText = `\n    ⚠️ NO SOCIAL CONTENT AVAILABLE. DO NOT INCLUDE ANY QUOTE FOR THIS SPEAKER.`;
+        bioSection = `\n    (No bio available — show only their name, PFP, social links, and topic)`;
       }
-      return `- ${s.name}${s.profile_image_url ? ` [PROFILE IMAGE: ${s.profile_image_url}]` : ""}${tw ? ` (@${tw} on X/Twitter, link: https://x.com/${tw})` : ""}${fc ? ` (@${fc} on Farcaster, link: https://farcaster.xyz/${fc})` : ""}${s.topic ? ` — Topic: ${s.topic}` : ""}${postsText}`;
+      return `- ${s.name}${s.profile_image_url ? ` [PROFILE IMAGE: ${s.profile_image_url}]` : ""}${tw ? ` (@${tw} on X/Twitter, link: https://x.com/${tw})` : ""}${fc ? ` (@${fc} on Farcaster, link: https://farcaster.xyz/${fc})` : ""}${s.topic ? ` — Topic: ${s.topic}` : ""}${bioSection}`;
     })
     .join("\n");
 
@@ -794,6 +792,16 @@ TRANSCRIPT:\n${effectiveTranscript}`
   const theme = visualThemes[weekIndex % visualThemes.length];
 
   const WIP_LOGO_URL = "https://thewipmeetup.com/images/wip-logo-static.png";
+  const WIP_LOGO_GIF_URL = "https://wip-archive-hub.lovable.app/images/wip-logo.gif";
+
+  // Compute next Thursday date for the title
+  const now = new Date();
+  const dayOfWeek = now.getUTCDay(); // 0=Sun
+  let daysUntilThursday = (4 - dayOfWeek + 7) % 7;
+  if (daysUntilThursday === 0) daysUntilThursday = 7; // if today is Thursday, next one
+  const nextThursday = new Date(now);
+  nextThursday.setUTCDate(nextThursday.getUTCDate() + daysUntilThursday);
+  const meetupDateStr = `${nextThursday.getUTCMonth() + 1}/${nextThursday.getUTCDate()}/${nextThursday.getUTCFullYear()}`;
 
   // Inline SVG fallback for the WIP logo (simple "WIP" text badge) encoded as a data URI
   const WIP_LOGO_FALLBACK = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' rx='16' fill='%230a0612'/%3E%3Crect x='2' y='2' width='76' height='76' rx='14' fill='none' stroke='%23e84393' stroke-width='3'/%3E%3Ctext x='40' y='48' font-family='Arial,sans-serif' font-size='28' font-weight='bold' fill='%23f5f0e8' text-anchor='middle'%3EWIP%3C/text%3E%3C/svg%3E`;
@@ -844,12 +852,7 @@ CRITICAL DESIGN MANDATE — THINK POSTER, NOT EMAIL:
    - Apply pulse to accent elements like the "LIVE" badge or countdown
    - Apply float to the WIP logo for a subtle hovering effect
 
-2. **COUNTDOWN TICKER** — Right after the header, add a bold banner:
-   <div style="text-align:center;padding:12px 20px;background:linear-gradient(135deg,${theme.accent1}20,${theme.accent2}20);border:2px solid ${theme.accent1};margin:8px 0 16px;">
-     <span style="font-size:11px;letter-spacing:3px;text-transform:uppercase;color:${theme.accent2};font-weight:bold;">NEXT EVENT IN</span><br/>
-     <span style="font-size:42px;font-weight:900;color:#f5f0e8;font-family:monospace;letter-spacing:4px;text-shadow:0 0 20px ${theme.accent1}80;">THIS THURSDAY</span><br/>
-     <span style="font-size:14px;color:${theme.accent2};">3 PM ET · Hyperfy Metaverse</span>
-   </div>
+2. (REMOVED — no countdown ticker)
 
 3. **LAYERED DEPTH & SHADOWS** — Every card/section MUST have:
    - Multiple box-shadows for depth: box-shadow: 0 4px 20px rgba(0,0,0,0.5), 0 0 40px ${theme.accent1}15, inset 0 1px 0 rgba(255,255,255,0.05);
@@ -866,13 +869,12 @@ CRITICAL DESIGN MANDATE — THINK POSTER, NOT EMAIL:
    - Ticket stub text: 13px, monospace font, uppercase
 
 HEADER — MUST BE EXACTLY THIS (copy-paste these HTML tags verbatim):
-- WIP logo: <img src="${WIP_LOGO_URL}" onerror="this.onerror=null;this.src='${WIP_LOGO_FALLBACK}';" style="width:80px;height:80px;display:block;margin:0 auto 8px;border-radius:16px;border:3px solid ${theme.accent1};animation:float 3s ease-in-out infinite;" alt="WIP" />
+- WIP logo: <img src="${WIP_LOGO_GIF_URL}" onerror="this.onerror=null;this.src='${WIP_LOGO_FALLBACK}';" style="width:80px;height:80px;display:block;margin:0 auto 8px;border-radius:16px;border:3px solid ${theme.accent1};animation:float 3s ease-in-out infinite;" alt="WIP" />
 - Below the logo, centered text: "The WIP Meetup" (36-44px, font-weight:900, white with text-shadow glow in accent color)
 - Below that: "Every Thursday · 3 PM ET" (14-16px, muted color, margin-bottom:12px)
 - Below that: TWO call-to-action buttons side by side in a flex row (gap:12px, centered):
   1. <a href="https://thewipmeetup.com" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:12px 28px;border:2px solid ${theme.accent1};font-weight:bold;color:#f5f0e8;text-decoration:none;border-radius:4px;box-shadow:0 0 15px ${theme.accent1}40;transition:all 0.2s;">Visit Website</a>
   2. <a href="https://discord.gg/XHDcUdm3" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:12px 28px;border:2px dashed #999;font-weight:bold;color:${theme.accent2};text-decoration:none;border-radius:4px;">Join Discord</a>
-- Then the COUNTDOWN TICKER (described above)
 
 CRITICAL URL RULES:
 - Speaker profile images: Use the EXACT URLs from the [PROFILE IMAGE: ...] tags. Do NOT modify, shorten, or invent avatar URLs.
@@ -886,27 +888,26 @@ ${youtube_video_id ? `LAST WEEK'S EVENT VIDEO — include lower in the poster:
 - Make this a clickable image with ONLY a tiny "▶ WATCH" pill badge (12-14px) in the bottom-right corner
 - Do NOT make a giant overlay or banner. The thumbnail speaks for itself.` : ""}
 
-⚠️ CRITICAL — ACCURACY MANDATE FOR SPEAKER QUOTES AND BIOS:
-- NEVER fabricate, invent, or paraphrase quotes. Only use REAL content provided in the speaker data below.
-- If "REAL RECENT POSTS" are listed for a speaker, pick the most compelling one as their featured quote. Use the EXACT words — do not rewrite or embellish.
-- If no recent posts are available but a BIO is provided, use a relevant excerpt from their bio instead. You may label it as a bio excerpt rather than a quote.
-- If neither posts nor bio are available, show only their name, PFP, social links, and topic — NO quote at all. It is better to have no quote than a fake one.
+⚠️ CRITICAL — SPEAKER BIOS (NOT QUOTES):
+- Do NOT use quotes or social media posts for speakers. Instead, display their BIO as a short description/tagline on their card.
+- If a BIO is provided, show it as a styled description (16-18px, italic, muted color) below their name and social links.
+- If no bio is available, show only their name, PFP, social links, and topic — NO made-up description.
+- NEVER fabricate, invent, or paraphrase content for speakers.
 - For the transcript section (last week's recap), quotes from the transcript ARE real and can be used freely.
 
 POSTER DESIGN PRINCIPLES:
-- MASSIVE typography for speaker names and quotes (48-60px names, 28-36px quotes)
-- The speakers are HEADLINERS — their names and quotes go RIGHT AFTER the countdown ticker
+- MASSIVE typography for speaker names (48-60px names)
+- The speakers are HEADLINERS — their names and bios go RIGHT AFTER the header
 - Use CSS transforms (rotate slight angles -1deg to 2deg) on elements for that hand-placed poster feel
 - Layer elements: overlapping borders, stacked sections with negative margins, asymmetric padding
 - Use thick borders (3-4px) in accent colors with animated glow, not subtle 1px lines
-- Pull-quotes should be HUGE, in accent colors, with decorative quotation marks (60-80px)
 
 HEADLINERS LAYOUT — CRITICAL (NO PRIORITY):
-- Render ALL speakers in ONE equal-weight grid right after the countdown
+- Render ALL speakers in ONE equal-weight grid right after the header
 - Use a flex-wrap grid container with gap:16px
 - Each speaker card: thick animated-glow border, slight rotation, deep box-shadow, inner gradient highlight
 - Speaker name at 48-60px with text-shadow glow
-- Put each speaker's best REAL quote or bio excerpt inside their own block as a styled pull-quote
+- Show each speaker's bio as a styled description below their name (NOT as a quote with quotation marks)
 
 SPEAKER PROFILE IMAGES — CRITICAL:
 - Each speaker with a [PROFILE IMAGE: url] tag MUST have their photo rendered as an <img> tag
@@ -943,19 +944,19 @@ HTML RULES:
 SECTIONS ORDER (mandatory):
 1. **<style> BLOCK** — All @keyframes animations at the top.
 2. **HEADER** — WIP logo (with float animation) + "The WIP Meetup" (huge, glowing) + "Every Thursday · 3 PM ET" + Website & Discord CTAs.
-3. **COUNTDOWN TICKER** — Bold "NEXT EVENT IN / THIS THURSDAY / 3 PM ET" banner with gradient background.
-4. **THIS WEEK'S HEADLINERS** — All speakers in ONE equal-weight grid with animated-border cards, circular PFP, clickable social links, and their best REAL quote or bio excerpt as a styled pull-quote.
-5. **LAST WEEK'S RECAP** — ${lastWeekSpeakersWithImages.length > 0 ? "Feature last week's guests with their circular PFPs, names as clickable social links, alongside the YouTube replay and a transcript-based synopsis." : "YouTube replay or brief recap."} Event images as atmospheric background texture.
-6. **TICKET STUBS** — Community links as torn concert ticket stubs scattered with slight rotations. No header.
+3. **THIS WEEK'S HEADLINERS** — All speakers in ONE equal-weight grid with animated-border cards, circular PFP, clickable social links, and their bio as a styled description.
+4. **LAST WEEK'S RECAP** — ${lastWeekSpeakersWithImages.length > 0 ? "Feature last week's guests with their circular PFPs, names as clickable social links, alongside the YouTube replay and a transcript-based synopsis." : "YouTube replay or brief recap."} Event images as atmospheric background texture.
+5. **TICKET STUBS** — Community links as torn concert ticket stubs scattered with slight rotations. No header.
 
 Output JSON:
 {
-  "title": "event-style name",
+  "title": "WIP Meetup - ${meetupDateStr}",
   "subtitle": "one-line FOMO-inducing teaser",
   "body_html": "full poster-style HTML with <style> block + ALL inline styles",
   "body_markdown": "clean Markdown version with the same energy",
   "recap_summary": "2-sentence punchy recap for card preview"
-}`;
+}
+IMPORTANT: The title MUST be exactly "WIP Meetup - ${meetupDateStr}" — do not change the format.`;
 
   // Build last week's transcript synopsis context
   const lastWeekRecapTranscript = lastWeekTranscript
@@ -1123,7 +1124,8 @@ Community links (style as "entry points" in the ticket section):
         // Keep the real logo URL as src, add onerror fallback
         const hasSrc = /src=["']([^"']*)["']/i.exec(attrs);
         const currentSrc = hasSrc?.[1] || "";
-        const realSrc = currentSrc.startsWith("data:") ? WIP_LOGO_URL : currentSrc || WIP_LOGO_URL;
+        const WIP_GIF = "https://wip-archive-hub.lovable.app/images/wip-logo.gif";
+        const realSrc = currentSrc.startsWith("data:") ? WIP_GIF : (currentSrc.includes("wip-logo") ? WIP_GIF : currentSrc || WIP_GIF);
         const cleanAttrs = attrs
           .replace(/src=["'][^"']*["']/gi, `src="${realSrc}"`)
           .replace(/\s*onerror=["'][^"']*["']/gi, "");
