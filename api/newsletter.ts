@@ -615,7 +615,8 @@ ${effectiveTranscript ? `PULL-QUOTES — PLACE THESE RIGHT AFTER THE HEADER, WIT
 CUSTOM EVENT IMAGES — BACKGROUND ONLY:
 - These images are from LAST WEEK'S event — they show the community, NOT this week's speakers
 - Do NOT caption them with this week's speaker names or associate them with specific speakers
-- Use them as subtle background texture layers: opacity ~0.10–0.16, slight blur (1–2px), and position them behind content (z-index:-1 inside a relative wrapper)
+- Use them as atmospheric background layers: opacity ~0.20–0.30, slight blur (1–2px), position behind content (z-index:-1 inside a relative wrapper)
+- They should be VISIBLE enough to give texture and energy but not compete with text/speaker content
 - Do NOT feature them as big foreground photos, and NO section header like "CANDID SHOTS"
 ${custom_image_urls && custom_image_urls.length > 0 ? custom_image_urls.map((url, i) => `- Image ${i + 1}: ${url}`).join("\n") : "- (No custom images provided this week)"}
 
