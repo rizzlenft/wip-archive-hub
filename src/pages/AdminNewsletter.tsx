@@ -1,5 +1,4 @@
 import { useState, useEffect, type FormEvent } from "react";
-import { useAuth } from "@/auth/AuthContext";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -118,7 +117,6 @@ function normalizeProfileImageUrlFromText(input: string): string | null {
 }
 
 const AdminNewsletter = () => {
-  const { user } = useAuth();
   const [speakers, setSpeakers] = useState<NewsletterSpeaker[]>([
     { name: "", twitter: "", farcaster: "", topic: "" },
   ]);
