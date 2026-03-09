@@ -562,12 +562,18 @@ CRITICAL DESIGN MANDATE — THINK POSTER, NOT EMAIL:
 - NOT a corporate newsletter. NOT an email template. NO "Dear reader" energy.
 - Every issue should feel like a collector's item that people screenshot and share
 
-HEADER — MUST BE EXACTLY THIS:
-- WIP logo: <img src="${WIP_LOGO_URL}" onerror="this.onerror=null;this.src='${WIP_LOGO_FALLBACK}';" style="width:80px;height:80px;display:block;margin:0 auto 12px;" alt="WIP" />
+HEADER — MUST BE EXACTLY THIS (copy-paste these HTML tags verbatim):
+- WIP logo: <img src="${WIP_LOGO_URL}" style="width:80px;height:80px;display:block;margin:0 auto 12px;" alt="WIP" />
 - Below the logo, centered text: "The WIP Meetup" (32-40px, bold, white with subtle glow)
 - Below that: "Every Thursday · 3 PM ET" (16-18px, muted color)
-- Below that: a clickable Discord button linking to https://discord.gg/XHDcUdm3 — styled as a ticket stub with dashed border, background color ${theme.accent3}, bold text reading "Join Discord" (NOT the raw URL). Use an <a> tag with href.
+- Below that: <a href="https://discord.gg/XHDcUdm3" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:10px 24px;border:2px dashed #999;font-weight:bold;color:${theme.accent2};text-decoration:none;">Join Discord</a>
 - That's it for the header. Clean. No "VOL. 50" or "SESSIONS" — just the meetup name and next event info.
+
+⚠️ CRITICAL URL RULES — VIOLATING THESE WILL BREAK THE POSTER:
+- Speaker profile images: Use the EXACT URLs from the [PROFILE IMAGE: ...] tags. Do NOT modify, shorten, or invent avatar URLs.
+- Discord: ALWAYS use <a href="https://discord.gg/XHDcUdm3">Join Discord</a> — NEVER show the raw URL as visible text.
+- YouTube thumbnails: Use https://img.youtube.com/vi/VIDEO_ID/maxresdefault.jpg — NEVER invent or modify.
+- Community links: ALL must be clickable <a> tags with proper href attributes.
 
 ${youtube_video_id ? `LAST WEEK'S EVENT VIDEO — include lower in the poster:
 - Thumbnail: https://img.youtube.com/vi/${youtube_video_id}/maxresdefault.jpg
@@ -751,9 +757,9 @@ Community links (style as "entry points" in the ticket section):
       return res.status(502).json({ error: `AI returned invalid JSON: ${msg}` });
     }
 
-    // Post-process: the AI sometimes ignores our proxy URLs and writes direct
-    // unavatar.io URLs in the HTML. Rewrite them to our avatar proxy so PFPs
-    // render in browsers without ORB/CORS issues.
+    // ── POST-PROCESSING: make generated HTML bulletproof ──────────────────
+
+    // 1) Rewrite any direct unavatar.io URLs → our avatar proxy
     generated.body_html = generated.body_html.replace(
       /https:\/\/unavatar\.io\/(farcaster|twitter)\/([a-zA-Z0-9_.%-]+)/g,
       (_m: string, service: string, handle: string) => {
@@ -762,21 +768,61 @@ Community links (style as "entry points" in the ticket section):
       },
     );
 
-    // Post-process: inject onerror fallback on WIP logo images.
-    // The AI may use various src URLs or omit the onerror attribute.
-    const logoFallback = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' rx='16' fill='%230a0612'/%3E%3Crect x='2' y='2' width='76' height='76' rx='14' fill='none' stroke='%23e84393' stroke-width='3'/%3E%3Ctext x='40' y='48' font-family='Arial,sans-serif' font-size='28' font-weight='bold' fill='%23f5f0e8' text-anchor='middle'%3EWIP%3C/text%3E%3C/svg%3E`;
-    // Match any img tag whose src contains "wip-logo" OR whose alt is "WIP" — strip any existing onerror, inject fresh one
+    // 2) Rewrite any Warpcast/Twitter profile image URLs the AI may have invented
+    generated.body_html = generated.body_html.replace(
+      /https:\/\/(?:i\.)?warpcast\.com\/[^\s"'<>]+/gi,
+      (match: string) => {
+        // Only rewrite if it looks like a PFP URL inside an img src
+        if (/\.(jpg|jpeg|png|gif|webp|avif)/i.test(match)) {
+          return `${avatarBase}&url=${encodeURIComponent(match)}`;
+        }
+        return match;
+      },
+    );
+
+    // 3) Replace WIP logo: use inline SVG data URI as primary src for guaranteed rendering
+    //    (onerror doesn't fire inside dangerouslySetInnerHTML in React)
+    const logoSvgDataUri = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' rx='16' fill='%230a0612'/%3E%3Crect x='2' y='2' width='76' height='76' rx='14' fill='none' stroke='%23e84393' stroke-width='3'/%3E%3Ctext x='40' y='48' font-family='Arial,sans-serif' font-size='28' font-weight='bold' fill='%23f5f0e8' text-anchor='middle'%3EWIP%3C/text%3E%3C/svg%3E`;
     generated.body_html = generated.body_html.replace(
       /<img\s([^>]*?)(\s*\/?>)/gi,
       (full: string, attrs: string, close: string) => {
         const isLogo = /wip-logo|wip-archive-hub\.lovable|thewipmeetup\.com\/images/i.test(attrs)
           || (/alt=["']WIP["']/i.test(attrs) && /width.*?80|height.*?80/i.test(attrs));
         if (!isLogo) return full;
-        // Remove any existing onerror
-        const cleanAttrs = attrs.replace(/\s*onerror=["'][^"']*["']/gi, "");
-        return `<img ${cleanAttrs} onerror="this.onerror=null;this.src='${logoFallback}';"${close}`;
+        // Replace the src with the reliable SVG data URI
+        const cleanAttrs = attrs
+          .replace(/src=["'][^"']*["']/gi, `src="${logoSvgDataUri}"`)
+          .replace(/\s*onerror=["'][^"']*["']/gi, "");
+        return `<img ${cleanAttrs}${close}`;
       },
     );
+
+    // 4) Ensure Discord links are proper <a> tags, not raw text
+    //    Replace bare "discord.gg/XHDcUdm3" text that isn't already inside an href
+    generated.body_html = generated.body_html.replace(
+      /(?<!href=["'](?:https?:\/\/)?)(?<!<a[^>]*>)(?:https?:\/\/)?discord\.gg\/XHDcUdm3(?![^<]*<\/a>)/gi,
+      `<a href="https://discord.gg/XHDcUdm3" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:underline;">discord.gg/XHDcUdm3</a>`,
+    );
+
+    // 5) Ensure all speaker PFP img tags use our proxy URLs (AI sometimes strips proxy or invents URLs)
+    for (const s of speakersWithImages) {
+      if (!s.profile_image_url || !s.name) continue;
+      // Find img tags near the speaker name that have a non-proxy src
+      const nameEscaped = s.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      // This ensures any avatar img within 500 chars of the speaker name uses the correct proxy URL
+      generated.body_html = generated.body_html.replace(
+        new RegExp(`(<img\\s[^>]*?src=["'])([^"']*?)(?=["'][^>]*?(?:${nameEscaped}|alt=["'][^"']*${nameEscaped}))`, "gi"),
+        (_full: string, prefix: string, src: string) => {
+          // If already proxied, keep it
+          if (src.includes("/api/newsletter?action=avatar")) return prefix + src;
+          // If it's a known avatar URL, proxy it
+          if (/unavatar|warpcast|pbs\.twimg|imagedelivery/i.test(src)) {
+            return prefix + `${avatarBase}&url=${encodeURIComponent(src)}`;
+          }
+          return prefix + src;
+        },
+      )
+    }
 
     const id = `wip-weekly-${Date.now()}`;
     const now = new Date().toISOString();

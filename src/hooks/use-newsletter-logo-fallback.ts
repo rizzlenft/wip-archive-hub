@@ -17,6 +17,11 @@ function patchImage(img: HTMLImageElement) {
   if (img.dataset.logoPatchApplied) return;
   img.dataset.logoPatchApplied = "1";
 
+  const src = img.getAttribute("src") || "";
+
+  // If already using the data URI, no need to patch
+  if (src.startsWith("data:")) return;
+
   const swap = () => {
     img.src = WIP_LOGO_FALLBACK_DATA_URI;
   };
@@ -33,6 +38,8 @@ function patchImage(img: HTMLImageElement) {
 /**
  * After dangerouslySetInnerHTML renders, find any WIP logo images
  * and attach error handlers to swap to an inline SVG fallback.
+ * For new newsletters the logo is already a data URI, but this
+ * handles older saved newsletters that reference external URLs.
  */
 export function useNewsletterLogoFallback(
   containerRef: React.RefObject<HTMLElement | null>,
