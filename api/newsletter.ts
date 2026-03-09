@@ -866,10 +866,20 @@ Output JSON:
   "recap_summary": "2-sentence punchy recap for card preview"
 }`;
 
+  // Build last week's transcript synopsis context
+  const lastWeekRecapTranscript = lastWeekTranscript
+    ? `\n\n**LAST WEEK'S EVENT TRANSCRIPT** (auto-scraped from YouTube captions for video ${lastWeekVideoId}):
+Use this transcript to create a compelling 3-5 sentence synopsis of what happened at last week's event. Extract the most interesting discussion points, surprising moments, and key takeaways. The synopsis should make readers WANT to watch the replay. Include a prominent "▶ Watch the Replay" CTA linking to https://youtube.com/watch?v=${lastWeekVideoId}.
+
+TRANSCRIPT:\n${lastWeekTranscript}`
+    : "";
+
   const lastWeekContext = lastWeekSpeakersWithImages.length > 0
     ? `\n\n**LAST WEEK'S GUESTS (auto-pulled from previous newsletter${lastWeekTitle ? ` — "${lastWeekTitle}"` : ""}):**
 ${lastWeekSpeakerList}
-Feature these guests in the "Last Week's Recap" section with their circular PFPs in a compact horizontal row, names as clickable social links. This is the recap of what happened LAST week — these are NOT this week's headliners.`
+Feature these guests in the "Last Week's Recap" section with their circular PFPs in a compact horizontal row, names as clickable social links. This is the recap of what happened LAST week — these are NOT this week's headliners.${lastWeekRecapTranscript}
+
+IMPORTANT: If a transcript was provided above, write a brief engaging synopsis (3-5 sentences) summarizing the highlights of last week's discussion. This synopsis should appear in the "Last Week's Recap" section above the guest PFPs. Make it punchy and curiosity-inducing so readers click "Watch the Replay". If NO transcript was provided, write a general teaser like "Missed last week? Our guests dropped some incredible insights — catch the replay!"`
     : "";
 
   const userPrompt = `Generate this week's WIP Weekly poster using the "${theme.name}" visual theme.
