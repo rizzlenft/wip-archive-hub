@@ -616,13 +616,15 @@ YouTube Thumbnail (MUST include as clickable image): https://img.youtube.com/vi/
       const fc = normalizeFarcasterHandle(s.farcaster);
       const social = socialContentMap.get(s.name);
       const bioText = social?.bio || s.bio || "";
-      const postsText = social?.recentPosts?.length
-        ? `\n    ⚠️ VERIFIED REAL POSTS FROM THIS PERSON'S SOCIAL MEDIA (YOU MUST USE ONE OF THESE VERBATIM AS THEIR QUOTE — DO NOT MAKE UP A DIFFERENT QUOTE):\n${social.recentPosts.map((p, i) => `      ${i + 1}. "${p}"`).join("\n")}\n    ➡️ PICK THE BEST ONE ABOVE AND USE IT WORD-FOR-WORD.`
-        : bioText
-          ? `\n    ⚠️ NO SOCIAL POSTS FOUND. USE THIS BIO EXCERPT INSTEAD (do NOT invent a quote):\n      BIO: "${bioText}"`
-          : `\n    ⚠️ NO SOCIAL CONTENT AVAILABLE. DO NOT INCLUDE ANY QUOTE FOR THIS SPEAKER.`;
-        : "";
-      return `- ${s.name}${s.profile_image_url ? ` [PROFILE IMAGE: ${s.profile_image_url}]` : ""}${tw ? ` (@${tw} on X/Twitter, link: https://x.com/${tw})` : ""}${fc ? ` (@${fc} on Farcaster, link: https://farcaster.xyz/${fc})` : ""}${s.topic ? ` — Topic: ${s.topic}` : ""}${bioText ? `\n    BIO: ${bioText}` : ""}${postsText}`;
+      let postsText = "";
+      if (social?.recentPosts?.length) {
+        postsText = `\n    ⚠️ VERIFIED REAL POSTS FROM THIS PERSON'S SOCIAL MEDIA (YOU MUST USE ONE OF THESE VERBATIM AS THEIR QUOTE — DO NOT MAKE UP A DIFFERENT QUOTE):\n${social.recentPosts.map((p, i) => `      ${i + 1}. "${p}"`).join("\n")}\n    ➡️ PICK THE BEST ONE ABOVE AND USE IT WORD-FOR-WORD.`;
+      } else if (bioText) {
+        postsText = `\n    ⚠️ NO SOCIAL POSTS FOUND. USE THIS BIO EXCERPT INSTEAD (do NOT invent a quote):\n      BIO: "${bioText}"`;
+      } else {
+        postsText = `\n    ⚠️ NO SOCIAL CONTENT AVAILABLE. DO NOT INCLUDE ANY QUOTE FOR THIS SPEAKER.`;
+      }
+      return `- ${s.name}${s.profile_image_url ? ` [PROFILE IMAGE: ${s.profile_image_url}]` : ""}${tw ? ` (@${tw} on X/Twitter, link: https://x.com/${tw})` : ""}${fc ? ` (@${fc} on Farcaster, link: https://farcaster.xyz/${fc})` : ""}${s.topic ? ` — Topic: ${s.topic}` : ""}${postsText}`;
     })
     .join("\n");
 
