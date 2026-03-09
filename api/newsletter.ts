@@ -739,6 +739,15 @@ Community links (style as "entry points" in the ticket section):
       },
     );
 
+    // Post-process: inject onerror fallback on WIP logo images that the AI may have
+    // rendered without the fallback attribute.
+    const logoFallback = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' rx='16' fill='%230a0612'/%3E%3Crect x='2' y='2' width='76' height='76' rx='14' fill='none' stroke='%23e84393' stroke-width='3'/%3E%3Ctext x='40' y='48' font-family='Arial,sans-serif' font-size='28' font-weight='bold' fill='%23f5f0e8' text-anchor='middle'%3EWIP%3C/text%3E%3C/svg%3E`;
+    // Match logo img tags that DON'T already have onerror
+    generated.body_html = generated.body_html.replace(
+      /(<img\s[^>]*?src=["'][^"']*wip-logo[^"']*["'])(?![^>]*onerror)([^>]*>)/gi,
+      `$1 onerror="this.onerror=null;this.src='${logoFallback}';"$2`,
+    );
+
     const id = `wip-weekly-${Date.now()}`;
     const now = new Date().toISOString();
 
