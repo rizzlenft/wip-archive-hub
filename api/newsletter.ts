@@ -563,11 +563,13 @@ CRITICAL DESIGN MANDATE — THINK POSTER, NOT EMAIL:
 - Every issue should feel like a collector's item that people screenshot and share
 
 HEADER — MUST BE EXACTLY THIS (copy-paste these HTML tags verbatim):
-- WIP logo: <img src="${WIP_LOGO_URL}" style="width:80px;height:80px;display:block;margin:0 auto 12px;" alt="WIP" />
+- WIP logo: <img src="${WIP_LOGO_URL}" onerror="this.onerror=null;this.src='${WIP_LOGO_FALLBACK}';" style="width:80px;height:80px;display:block;margin:0 auto 8px;border-radius:16px;border:3px solid ${theme.accent1};" alt="WIP" />
 - Below the logo, centered text: "The WIP Meetup" (32-40px, bold, white with subtle glow)
-- Below that: "Every Thursday · 3 PM ET" (16-18px, muted color)
-- Below that: <a href="https://discord.gg/XHDcUdm3" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:10px 24px;border:2px dashed #999;font-weight:bold;color:${theme.accent2};text-decoration:none;">Join Discord</a>
-- That's it for the header. Clean. No "VOL. 50" or "SESSIONS" — just the meetup name and next event info.
+- Below that: "Every Thursday · 3 PM ET" (14-16px, muted color, margin-bottom:12px)
+- Below that: TWO call-to-action buttons side by side in a flex row (gap:12px, centered):
+  1. <a href="https://thewipmeetup.com" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:10px 24px;border:2px solid ${theme.accent1};font-weight:bold;color:#f5f0e8;text-decoration:none;border-radius:4px;">Visit Website</a>
+  2. <a href="https://discord.gg/XHDcUdm3" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:10px 24px;border:2px dashed #999;font-weight:bold;color:${theme.accent2};text-decoration:none;border-radius:4px;">Join Discord</a>
+- That's it for the header. Clean. No "VOL. 50" or "SESSIONS" — just the meetup name, next event info, and two CTAs.
 
 ⚠️ CRITICAL URL RULES — VIOLATING THESE WILL BREAK THE POSTER:
 - Speaker profile images: Use the EXACT URLs from the [PROFILE IMAGE: ...] tags. Do NOT modify, shorten, or invent avatar URLs.
