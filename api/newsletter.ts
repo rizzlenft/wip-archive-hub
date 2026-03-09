@@ -629,6 +629,8 @@ HTML RULES:
 - All styles INLINE (this will also be used in email)
 - Max-width: 680px, centered
 - Use background gradients on sections for depth
+- TIGHT SPACING: Keep padding between sections to 16-24px max. No huge gaps. The poster should feel dense and packed with energy.
+- MOBILE-FIRST: All content must look great on 320px-wide screens. Use max-width:100% on images, flex-wrap on grids, and avoid fixed pixel widths over 300px. Speaker grid items should stack to full-width on narrow screens (min-width:240px with flex:1 1 100%).
 
 SECTIONS ORDER (this order is mandatory):
 1. **HEADER** — WIP logo + "The WIP Meetup" + "Every Thursday · 3 PM ET" + Discord link. Clean and simple.
