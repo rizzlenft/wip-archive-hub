@@ -14,6 +14,7 @@ import {
   saveNewsletter,
   publishNewsletter,
   fetchNewsletters,
+  deleteNewsletter,
 } from "@/lib/newsletter";
 import { useNewsletterLogoFallback } from "@/hooks/use-newsletter-logo-fallback";
 
