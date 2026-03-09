@@ -1124,7 +1124,8 @@ Community links (style as "entry points" in the ticket section):
         // Keep the real logo URL as src, add onerror fallback
         const hasSrc = /src=["']([^"']*)["']/i.exec(attrs);
         const currentSrc = hasSrc?.[1] || "";
-        const realSrc = currentSrc.startsWith("data:") ? WIP_LOGO_URL : currentSrc || WIP_LOGO_URL;
+        const WIP_GIF = "https://wip-archive-hub.lovable.app/images/wip-logo.gif";
+        const realSrc = currentSrc.startsWith("data:") ? WIP_GIF : (currentSrc.includes("wip-logo") ? WIP_GIF : currentSrc || WIP_GIF);
         const cleanAttrs = attrs
           .replace(/src=["'][^"']*["']/gi, `src="${realSrc}"`)
           .replace(/\s*onerror=["'][^"']*["']/gi, "");
