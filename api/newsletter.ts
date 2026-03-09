@@ -233,6 +233,47 @@ async function fetchSpeakerSocialContent(speaker: Speaker): Promise<SpeakerSocia
   return { bio: "", recentPosts: [], source: "none" };
 }
 
+// ─── YOUTUBE TRANSCRIPT FETCHING ─────────────────────────────────────────────
+
+async function fetchYouTubeTranscript(videoId: string): Promise<string> {
+  try {
+    const captionRes = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept-Language": "en-US,en;q=0.9",
+      },
+      signal: AbortSignal.timeout(10000),
+    });
+    if (!captionRes.ok) return "";
+
+    const html = await captionRes.text();
+    const captionMatch = html.match(/"captionTracks":\[.*?"baseUrl":"(.*?)"/);
+    if (!captionMatch) return "";
+
+    const captionUrl = captionMatch[1].replace(/\\u0026/g, "&");
+    const subRes = await fetch(captionUrl, { signal: AbortSignal.timeout(8000) });
+    if (!subRes.ok) return "";
+
+    const subXml = await subRes.text();
+    const transcript = subXml
+      .replace(/<[^>]+>/g, " ")
+      .replace(/&amp;/g, "&")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&#39;/g, "'")
+      .replace(/&quot;/g, '"')
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 5000); // Limit to avoid token overflow
+
+    console.log(`Fetched YouTube transcript for ${videoId}: ${transcript.length} chars`);
+    return transcript;
+  } catch (err) {
+    console.warn(`Failed to fetch YouTube transcript for ${videoId}:`, err);
+    return "";
+  }
+}
+
 function getRedis() {
   // Support both Vercel KV and direct Upstash env var names
   const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
@@ -513,9 +554,10 @@ async function handleGenerate(req: VercelRequest, res: VercelResponse) {
 
   const normalizedSpeakers = speakers.map(normalizeSpeaker);
 
-  // ── Auto-fetch last week's speakers from the most recent published newsletter ──
+  // ── Auto-fetch last week's speakers & video ID from the most recent published newsletter ──
   let lastWeekSpeakers: Speaker[] = [];
   let lastWeekTitle = "";
+  let lastWeekVideoId = "";
   try {
     const redis = getRedis();
     const index = (await redis.get<string[]>("newsletter:index")) || [];
@@ -526,6 +568,7 @@ async function handleGenerate(req: VercelRequest, res: VercelResponse) {
       if (issue.status === "published" && issue.speakers?.length > 0) {
         lastWeekSpeakers = (issue.speakers as Speaker[]).map(normalizeSpeaker);
         lastWeekTitle = issue.title || "";
+        lastWeekVideoId = issue.youtube_video_id || "";
         break; // most recent published
       }
     }
@@ -533,42 +576,21 @@ async function handleGenerate(req: VercelRequest, res: VercelResponse) {
     console.warn("Failed to fetch previous newsletter speakers:", err);
   }
 
-  // ── Auto-fetch YouTube transcript if available ──────────────────────────
+  // ── Auto-fetch YouTube transcript for current video ──────────────────────
   let autoTranscript = "";
   if (youtube_video_id && !transcript) {
-    try {
-      // Try fetching auto-generated captions via a public proxy
-      const captionRes = await fetch(`https://www.youtube.com/watch?v=${youtube_video_id}`);
-      if (captionRes.ok) {
-        const html = await captionRes.text();
-        // Extract caption track URL from the page
-        const captionMatch = html.match(/"captionTracks":\[.*?"baseUrl":"(.*?)"/);
-        if (captionMatch) {
-          const captionUrl = captionMatch[1].replace(/\\u0026/g, "&");
-          const subRes = await fetch(captionUrl);
-          if (subRes.ok) {
-            const subXml = await subRes.text();
-            // Strip XML tags to get plain text
-            autoTranscript = subXml
-              .replace(/<[^>]+>/g, " ")
-              .replace(/&amp;/g, "&")
-              .replace(/&lt;/g, "<")
-              .replace(/&gt;/g, ">")
-              .replace(/&#39;/g, "'")
-              .replace(/&quot;/g, '"')
-              .replace(/\s+/g, " ")
-              .trim()
-              .slice(0, 4000); // Limit to avoid token overflow
-            console.log(`Auto-fetched transcript: ${autoTranscript.length} chars`);
-          }
-        }
-      }
-    } catch (err) {
-      console.warn("Failed to auto-fetch YouTube transcript:", err);
+    autoTranscript = await fetchYouTubeTranscript(youtube_video_id);
+  }
+  const effectiveTranscript = transcript || autoTranscript;
+
+  // ── Auto-fetch last week's YouTube transcript for recap synopsis ─────────
+  let lastWeekTranscript = "";
+  if (lastWeekVideoId) {
+    lastWeekTranscript = await fetchYouTubeTranscript(lastWeekVideoId);
+    if (lastWeekTranscript) {
+      console.log(`Auto-fetched last week's transcript (${lastWeekVideoId}): ${lastWeekTranscript.length} chars`);
     }
   }
-
-  const effectiveTranscript = transcript || autoTranscript;
 
   let videoContext = "";
   if (youtube_video_id) {
@@ -844,10 +866,20 @@ Output JSON:
   "recap_summary": "2-sentence punchy recap for card preview"
 }`;
 
+  // Build last week's transcript synopsis context
+  const lastWeekRecapTranscript = lastWeekTranscript
+    ? `\n\n**LAST WEEK'S EVENT TRANSCRIPT** (auto-scraped from YouTube captions for video ${lastWeekVideoId}):
+Use this transcript to create a compelling 3-5 sentence synopsis of what happened at last week's event. Extract the most interesting discussion points, surprising moments, and key takeaways. The synopsis should make readers WANT to watch the replay. Include a prominent "▶ Watch the Replay" CTA linking to https://youtube.com/watch?v=${lastWeekVideoId}.
+
+TRANSCRIPT:\n${lastWeekTranscript}`
+    : "";
+
   const lastWeekContext = lastWeekSpeakersWithImages.length > 0
     ? `\n\n**LAST WEEK'S GUESTS (auto-pulled from previous newsletter${lastWeekTitle ? ` — "${lastWeekTitle}"` : ""}):**
 ${lastWeekSpeakerList}
-Feature these guests in the "Last Week's Recap" section with their circular PFPs in a compact horizontal row, names as clickable social links. This is the recap of what happened LAST week — these are NOT this week's headliners.`
+Feature these guests in the "Last Week's Recap" section with their circular PFPs in a compact horizontal row, names as clickable social links. This is the recap of what happened LAST week — these are NOT this week's headliners.${lastWeekRecapTranscript}
+
+IMPORTANT: If a transcript was provided above, write a brief engaging synopsis (3-5 sentences) summarizing the highlights of last week's discussion. This synopsis should appear in the "Last Week's Recap" section above the guest PFPs. Make it punchy and curiosity-inducing so readers click "Watch the Replay". If NO transcript was provided, write a general teaser like "Missed last week? Our guests dropped some incredible insights — catch the replay!"`
     : "";
 
   const userPrompt = `Generate this week's WIP Weekly poster using the "${theme.name}" visual theme.
