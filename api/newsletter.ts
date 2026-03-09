@@ -386,6 +386,26 @@ async function handleGenerate(req: VercelRequest, res: VercelResponse) {
 
   const normalizedSpeakers = speakers.map(normalizeSpeaker);
 
+  // ── Auto-fetch last week's speakers from the most recent published newsletter ──
+  let lastWeekSpeakers: Speaker[] = [];
+  let lastWeekTitle = "";
+  try {
+    const redis = getRedis();
+    const index = (await redis.get<string[]>("newsletter:index")) || [];
+    for (const nid of index) {
+      const raw = await redis.get<string>(`newsletter:${nid}`);
+      if (!raw) continue;
+      const issue = typeof raw === "string" ? JSON.parse(raw) : raw;
+      if (issue.status === "published" && issue.speakers?.length > 0) {
+        lastWeekSpeakers = (issue.speakers as Speaker[]).map(normalizeSpeaker);
+        lastWeekTitle = issue.title || "";
+        break; // most recent published
+      }
+    }
+  } catch (err) {
+    console.warn("Failed to fetch previous newsletter speakers:", err);
+  }
+
   // ── Auto-fetch YouTube transcript if available ──────────────────────────
   let autoTranscript = "";
   if (youtube_video_id && !transcript) {
@@ -454,9 +474,26 @@ YouTube Thumbnail (MUST include as clickable image): https://img.youtube.com/vi/
     .map((s) => {
       const tw = normalizeTwitterHandle(s.twitter);
       const fc = normalizeFarcasterHandle(s.farcaster);
-      return `- ${s.name}${s.profile_image_url ? ` [PROFILE IMAGE: ${s.profile_image_url}]` : ""}${tw ? ` (@${tw} on X/Twitter)` : ""}${fc ? ` (@${fc} on Farcaster)` : ""}${s.topic ? ` — Topic: ${s.topic}` : ""}${s.bio ? ` — Bio: ${s.bio}` : ""}`;
+      return `- ${s.name}${s.profile_image_url ? ` [PROFILE IMAGE: ${s.profile_image_url}]` : ""}${tw ? ` (@${tw} on X/Twitter, link: https://x.com/${tw})` : ""}${fc ? ` (@${fc} on Farcaster, link: https://farcaster.xyz/${fc})` : ""}${s.topic ? ` — Topic: ${s.topic}` : ""}${s.bio ? ` — Bio: ${s.bio}` : ""}`;
     })
     .join("\n");
+
+  // Build last week's speakers context with proxied PFPs
+  const lastWeekSpeakersWithImages = lastWeekSpeakers.map((s) => {
+    if (s.profile_image_url?.startsWith(avatarBase)) return s;
+    if (s.profile_image_url) return { ...s, profile_image_url: `${avatarBase}&url=${encodeURIComponent(s.profile_image_url)}` };
+    if (s.farcaster) return { ...s, profile_image_url: `${avatarBase}&farcaster=${encodeURIComponent(s.farcaster)}` };
+    if (s.twitter) return { ...s, profile_image_url: `${avatarBase}&twitter=${encodeURIComponent(s.twitter)}` };
+    return s;
+  });
+
+  const lastWeekSpeakerList = lastWeekSpeakersWithImages.length > 0
+    ? lastWeekSpeakersWithImages.map((s) => {
+        const tw = normalizeTwitterHandle(s.twitter);
+        const fc = normalizeFarcasterHandle(s.farcaster);
+        return `- ${s.name}${s.profile_image_url ? ` [PROFILE IMAGE: ${s.profile_image_url}]` : ""}${tw ? ` (@${tw}, link: https://x.com/${tw})` : ""}${fc ? ` (@${fc}, link: https://farcaster.xyz/${fc})` : ""}`;
+      }).join("\n")
+    : "(No previous speakers found)";
 
   // Build custom images context
   const customImagesContext =
@@ -604,6 +641,13 @@ SPEAKER PROFILE IMAGES — CRITICAL:
 - Place next to their name AND next to any quotes attributed to them
 - If no profile image URL is provided for a speaker, skip the image — do NOT use a placeholder
 
+SPEAKER SOCIAL LINKS — MUST INCLUDE:
+- For EVERY speaker, render their social media handles as clickable links below their name
+- Twitter/X: render as <a href="https://x.com/HANDLE" target="_blank" style="color:${theme.accent2};text-decoration:none;font-size:13px;">@HANDLE</a> with an "𝕏" or "✕" prefix
+- Farcaster: render as <a href="https://farcaster.xyz/HANDLE" target="_blank" style="color:${theme.accent3};text-decoration:none;font-size:13px;">@HANDLE</a> with a "🟣" prefix
+- Show both if available, separated by a " · " divider
+- These go directly under each speaker's name in their headliner card
+
 ${effectiveTranscript ? `PULL-QUOTES — PLACE THESE RIGHT AFTER THE HEADER, WITH THE SPEAKERS:
 - Extract 2-3 of the most INSIGHTFUL, mind-blowing, or hilarious quotes from the transcript
 - These go at the TOP of the poster, right under the header, paired with the speaker who said them
@@ -633,9 +677,9 @@ HTML RULES:
 - MOBILE-FIRST: All content must look great on 320px-wide screens. Use max-width:100% on images, flex-wrap on grids, and avoid fixed pixel widths over 300px. Speaker grid items should stack to full-width on narrow screens (min-width:240px with flex:1 1 100%).
 
 SECTIONS ORDER (this order is mandatory):
-1. **HEADER** — WIP logo + "The WIP Meetup" + "Every Thursday · 3 PM ET" + Discord link. Clean and simple.
-2. **THIS WEEK'S HEADLINERS + QUOTES** — All speakers rendered in ONE equal-weight grid (2–4 across on desktop, wrap as needed), each with their circular PFP and their best quote. No stacking that implies priority.
-3. **LAST WEEK'S REPLAY** — ${youtube_video_id ? "YouTube thumbnail with tiny '▶ WATCH' badge." : "Brief recap."} Event images appear only as subtle background texture.
+1. **HEADER** — WIP logo + "The WIP Meetup" + "Every Thursday · 3 PM ET" + Website & Discord CTAs.
+2. **THIS WEEK'S HEADLINERS + QUOTES** — All speakers in ONE equal-weight grid with circular PFP, clickable social links, and their best quote.
+3. **LAST WEEK'S RECAP** — ${lastWeekSpeakersWithImages.length > 0 ? `Feature last week's guests with their circular PFPs in a compact row, names as clickable social links, alongside the YouTube replay thumbnail.` : `${youtube_video_id ? "YouTube thumbnail with tiny '▶ WATCH' badge." : "Brief recap."}`}${youtube_video_id ? ` Include YouTube thumbnail with tiny "▶ WATCH" badge.` : ""} Event images appear as atmospheric background texture.
 4. **TICKET STUBS** — Community links as torn concert ticket stubs. No header.
 
 Output JSON:
@@ -647,6 +691,12 @@ Output JSON:
   "recap_summary": "2-sentence punchy recap for card preview"
 }`;
 
+  const lastWeekContext = lastWeekSpeakersWithImages.length > 0
+    ? `\n\n**LAST WEEK'S GUESTS (auto-pulled from previous newsletter${lastWeekTitle ? ` — "${lastWeekTitle}"` : ""}):**
+${lastWeekSpeakerList}
+Feature these guests in the "Last Week's Recap" section with their circular PFPs in a compact horizontal row, names as clickable social links. This is the recap of what happened LAST week — these are NOT this week's headliners.`
+    : "";
+
   const userPrompt = `Generate this week's WIP Weekly poster using the "${theme.name}" visual theme.
 This should look like the illest block party flyer / punk rock show poster anyone has ever seen.
 NOT an email. A POSTER.
@@ -656,6 +706,7 @@ ${speakerList}
 ${videoContext}
 ${transcriptSection}
 ${customImagesContext}
+${lastWeekContext}
 
 Community links (style as "entry points" in the ticket section):
 - Discord: https://discord.gg/XHDcUdm3
