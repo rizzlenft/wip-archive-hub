@@ -353,34 +353,13 @@ const AdminNewsletter = () => {
 
   /**
    * Convert poster-style HTML to Substack-compatible semantic HTML.
-   * Substack strips ALL inline styles, tables, and complex CSS.
-   * It preserves: h1-h3, p, img, a, blockquote, hr, strong, em, ul/li.
-   * 
-   * Strategy: Rather than walking the DOM generically, we extract structured
-   * content blocks and re-emit them as clean Substack-native HTML.
+   * Substack supports: h1-h3, p, img, a, blockquote, hr, strong, em, ul/li.
+   * Everything else gets stripped. We extract structured blocks and re-emit clean HTML.
    */
   const convertToSubstackHtml = (html: string): string => {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, "text/html");
     const out: string[] = [];
-
-    // Collect all images (including background-images) in order
-    const collectImages = (el: Element): string[] => {
-      const imgs: string[] = [];
-      const style = el.getAttribute("style") || "";
-      const bgMatch = style.match(/background-image:\s*url\(['"]?(.*?)['"]?\)/i);
-      if (bgMatch?.[1] && !bgMatch[1].startsWith("data:")) {
-        imgs.push(bgMatch[1]);
-      }
-      if (el.tagName === "IMG") {
-        const src = el.getAttribute("src") || "";
-        if (src && !src.startsWith("data:")) imgs.push(src);
-      }
-      for (const child of Array.from(el.children)) {
-        imgs.push(...collectImages(child));
-      }
-      return imgs;
-    };
 
     // Serialize inline content preserving links, bold, italic
     const serializeInline = (el: Element): string => {
@@ -400,8 +379,6 @@ const AdminNewsletter = () => {
             result += `<em>${serializeInline(child)}</em>`;
           } else if (tag === "br") {
             result += "<br>";
-          } else if (tag === "img") {
-            // skip inline images, we handle them separately
           } else {
             result += serializeInline(child);
           }
@@ -410,8 +387,8 @@ const AdminNewsletter = () => {
       return result;
     };
 
-    // Collect ALL text content blocks in document order
-    const blocks: Array<{ type: "heading" | "text" | "image" | "link" | "hr" | "quote"; content: string; level?: number; href?: string; src?: string; alt?: string }> = [];
+    type Block = { type: "heading" | "text" | "image" | "link" | "hr" | "quote"; content: string; level?: number; href?: string; src?: string; alt?: string };
+    const blocks: Block[] = [];
 
     const extractBlocks = (el: Element) => {
       const tag = el.tagName.toLowerCase();
@@ -424,52 +401,33 @@ const AdminNewsletter = () => {
         blocks.push({ type: "image", content: "", src: bgMatch[1], alt: "Event photo" });
       }
 
-      // IMG elements
       if (tag === "img") {
         const src = el.getAttribute("src") || "";
         const alt = el.getAttribute("alt") || "";
-        const w = parseInt(el.getAttribute("width") || "999");
-        if (src && !src.startsWith("data:") && w > 10) {
-          // Check if parent is a link
+        if (src && !src.startsWith("data:")) {
           const parentA = el.closest("a");
-          const href = parentA?.getAttribute("href") || "";
-          blocks.push({ type: "image", content: "", src, alt, href: href || undefined });
+          blocks.push({ type: "image", content: "", src, alt, href: parentA?.getAttribute("href") || undefined });
         }
         return;
       }
 
-      // Headings
       if (/^h[1-6]$/.test(tag)) {
-        const level = parseInt(tag[1]);
-        blocks.push({ type: "heading", content: serializeInline(el), level });
+        blocks.push({ type: "heading", content: serializeInline(el), level: parseInt(tag[1]) });
         return;
       }
+      if (tag === "hr") { blocks.push({ type: "hr", content: "" }); return; }
+      if (tag === "blockquote") { blocks.push({ type: "quote", content: serializeInline(el) }); return; }
 
-      // HR
-      if (tag === "hr") {
-        blocks.push({ type: "hr", content: "" });
-        return;
-      }
-
-      // Blockquote
-      if (tag === "blockquote") {
-        blocks.push({ type: "quote", content: serializeInline(el) });
-        return;
-      }
-
-      // Tables, divs, sections → recurse into children
-      if (tag === "table" || tag === "tbody" || tag === "thead" || tag === "tr" || tag === "td" || tag === "th" || tag === "div" || tag === "span" || tag === "section" || tag === "center") {
-        // Check if this is a leaf element with text content but no block children
+      // Container elements → check if leaf or recurse
+      if (["table","tbody","thead","tr","td","th","div","span","section","center"].includes(tag)) {
         const hasBlockChildren = Array.from(el.children).some(c =>
           /^(div|table|tr|td|section|h[1-6]|p|blockquote|ul|ol|hr|img|center)$/i.test(c.tagName)
         );
 
         if (!hasBlockChildren && text) {
-          // Determine what kind of block this is based on styling
           const fontSize = parseInt(style.match(/font-size:\s*(\d+)/)?.[1] || "0");
           const isBold = /font-weight:\s*(bold|[7-9]00)/i.test(style);
-          const isUppercase = /text-transform:\s*uppercase/i.test(style) || /letter-spacing:\s*[3-9]px/i.test(style);
-          const isItalic = /font-style:\s*italic/i.test(style);
+          const isUppercase = /text-transform:\s*uppercase/i.test(style);
 
           if (fontSize >= 36 || (fontSize >= 28 && isBold)) {
             blocks.push({ type: "heading", content: serializeInline(el), level: 1 });
@@ -477,34 +435,20 @@ const AdminNewsletter = () => {
             blocks.push({ type: "heading", content: serializeInline(el), level: 2 });
           } else if (isUppercase && text.length < 40) {
             blocks.push({ type: "heading", content: serializeInline(el), level: 3 });
-          } else if (isItalic && text.length > 30) {
-            blocks.push({ type: "quote", content: serializeInline(el) });
           } else if (text.length > 0) {
-            // Check if it's a standalone link
-            const links = el.querySelectorAll("a");
-            if (links.length === 1 && links[0].textContent?.trim() === text) {
-              blocks.push({ type: "link", content: serializeInline(el), href: links[0].getAttribute("href") || "" });
-            } else {
-              blocks.push({ type: "text", content: serializeInline(el) });
-            }
+            blocks.push({ type: "text", content: serializeInline(el) });
           }
           return;
         }
-
-        // Recurse
-        for (const child of Array.from(el.children)) {
-          extractBlocks(child);
-        }
+        for (const child of Array.from(el.children)) extractBlocks(child);
         return;
       }
 
-      // Paragraphs
       if (tag === "p") {
         if (text) blocks.push({ type: "text", content: serializeInline(el) });
         return;
       }
 
-      // Links (block-level)
       if (tag === "a") {
         const href = el.getAttribute("href") || "";
         const innerImg = el.querySelector("img");
@@ -516,24 +460,8 @@ const AdminNewsletter = () => {
         return;
       }
 
-      // Lists
-      if (tag === "ul" || tag === "ol") {
-        let listHtml = `<${tag}>`;
-        for (const li of Array.from(el.children)) {
-          if (li.tagName?.toLowerCase() === "li") {
-            listHtml += `<li>${serializeInline(li)}</li>`;
-          }
-        }
-        listHtml += `</${tag}>`;
-        blocks.push({ type: "text", content: listHtml });
-        return;
-      }
-
-      // Other elements with children → recurse
       if (el.children.length > 0) {
-        for (const child of Array.from(el.children)) {
-          extractBlocks(child);
-        }
+        for (const child of Array.from(el.children)) extractBlocks(child);
       } else if (text) {
         blocks.push({ type: "text", content: serializeInline(el) });
       }
@@ -545,18 +473,18 @@ const AdminNewsletter = () => {
     const seen = new Set<string>();
     for (const block of blocks) {
       const key = `${block.type}:${block.content || block.src || ""}`;
-      // Allow duplicate text/images that are genuinely different content
-      const isDupe = block.type === "hr" ? false : seen.has(key);
-      if (isDupe) continue;
+      if (block.type !== "hr" && seen.has(key)) continue;
       seen.add(key);
 
+      // Skip theme names
+      if (block.type === "heading" && /^(gallery opening|block party|indie concert|cyberpunk rave|zine culture|festival wristband|retro arcade)/i.test(block.content.replace(/<[^>]*>/g, "").trim())) continue;
+
       switch (block.type) {
-        case "heading":
-          // Skip theme names that leak into output
-          if (/^(gallery opening|block party|indie concert|cyberpunk rave|zine culture|festival wristband|retro arcade)/i.test(block.content.replace(/<[^>]*>/g, "").trim())) continue;
+        case "heading": {
           const hTag = `h${Math.min(block.level || 2, 3)}`;
           out.push(`<${hTag}>${block.content}</${hTag}>`);
           break;
+        }
         case "text":
           out.push(`<p>${block.content}</p>`);
           break;
@@ -574,37 +502,83 @@ const AdminNewsletter = () => {
           out.push("<hr>");
           break;
         case "quote":
-          out.push(`<blockquote>${block.content}</blockquote>`);
+          out.push(`<blockquote><p>${block.content}</p></blockquote>`);
           break;
       }
     }
 
-    // Clean up empty paragraphs and consecutive HRs
     return out
       .filter(line => line !== "<p></p>" && line !== "<p> </p>")
       .join("\n")
       .replace(/(<hr>\s*){2,}/g, "<hr>");
   };
 
+  /**
+   * Copy rich text to clipboard using Selection API.
+   * This is the most reliable method for pasting into rich text editors like Substack.
+   * ClipboardItem / text/html blobs are unreliable across editors.
+   */
+  const copyRichTextToClipboard = (html: string): boolean => {
+    const container = document.createElement("div");
+    container.innerHTML = html;
+    // Position offscreen but still rendered (needed for selection)
+    container.style.position = "fixed";
+    container.style.left = "-9999px";
+    container.style.top = "0";
+    container.style.opacity = "0";
+    document.body.appendChild(container);
+
+    const range = document.createRange();
+    range.selectNodeContents(container);
+    const selection = window.getSelection();
+    if (!selection) {
+      document.body.removeChild(container);
+      return false;
+    }
+    selection.removeAllRanges();
+    selection.addRange(range);
+
+    let success = false;
+    try {
+      success = document.execCommand("copy");
+    } catch {
+      success = false;
+    }
+
+    selection.removeAllRanges();
+    document.body.removeChild(container);
+    return success;
+  };
+
   const handleCopyAndOpenSubstack = async () => {
     if (!editableHtml) return;
     try {
       const substackHtml = convertToSubstackHtml(editableHtml);
-      const blob = new Blob([substackHtml], { type: "text/html" });
-      const plainBlob = new Blob([substackHtml], { type: "text/plain" });
-      const item = new ClipboardItem({ "text/html": blob, "text/plain": plainBlob });
-      await navigator.clipboard.write([item]);
-      setFeedback({ type: "success", msg: "📋 Substack-optimized content copied! Paste (Ctrl+V / Cmd+V) into the Substack editor." });
-      window.open("https://thewipmeetup.substack.com/publish/post", "_blank");
-    } catch {
+      
+      // Method 1: Selection API (most reliable for rich text editors)
+      const success = copyRichTextToClipboard(substackHtml);
+      if (success) {
+        setFeedback({ type: "success", msg: "📋 Newsletter copied as rich text! Paste (Ctrl+V / Cmd+V) into Substack." });
+        window.open("https://thewipmeetup.substack.com/publish/post", "_blank");
+        return;
+      }
+
+      // Method 2: ClipboardItem fallback
       try {
-        const substackHtml = convertToSubstackHtml(editableHtml);
-        await navigator.clipboard.writeText(substackHtml);
-        setFeedback({ type: "success", msg: "📋 HTML copied (as text). Paste into Substack's code view (</>)." });
+        const blob = new Blob([substackHtml], { type: "text/html" });
+        const plainBlob = new Blob([substackHtml], { type: "text/plain" });
+        const item = new ClipboardItem({ "text/html": blob, "text/plain": plainBlob });
+        await navigator.clipboard.write([item]);
+        setFeedback({ type: "success", msg: "📋 Newsletter copied! Paste into Substack." });
         window.open("https://thewipmeetup.substack.com/publish/post", "_blank");
       } catch {
-        setFeedback({ type: "error", msg: "Failed to copy to clipboard" });
+        // Method 3: Plain text fallback
+        await navigator.clipboard.writeText(substackHtml);
+        setFeedback({ type: "success", msg: "📋 HTML copied as text. Paste into Substack's code view (</>)." });
+        window.open("https://thewipmeetup.substack.com/publish/post", "_blank");
       }
+    } catch {
+      setFeedback({ type: "error", msg: "Failed to copy to clipboard" });
     }
   };
 
