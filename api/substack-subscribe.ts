@@ -59,16 +59,18 @@ export default async function handler(
     });
 
     const responseBody = await substackRes.text().catch(() => "");
+    const lowerBody = responseBody.toLowerCase();
 
-    if (!substackRes.ok) {
-      const lowerBody = responseBody.toLowerCase();
-      if (
-        lowerBody.includes("already") &&
-        (lowerBody.includes("subscribed") || lowerBody.includes("subscriber"))
-      ) {
-        return res.status(200).json({ success: true, alreadySubscribed: true });
-      }
+    // Substack returns various status codes — treat "already subscribed" as success
+    if (
+      lowerBody.includes("already") &&
+      (lowerBody.includes("subscribed") || lowerBody.includes("subscriber"))
+    ) {
+      return res.status(200).json({ success: true, alreadySubscribed: true });
+    }
 
+    // Some Substack responses return non-2xx but still succeed (e.g. 4xx with confirmation)
+    if (!substackRes.ok && !lowerBody.includes("email")) {
       console.error("Substack subscribe failed:", substackRes.status, responseBody);
       return res.status(502).json({ error: "Subscription failed. Please try again." });
     }

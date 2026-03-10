@@ -9,7 +9,7 @@ import { ArrowLeft, Calendar, User, ExternalLink, Search, Sparkles, Loader2, Che
 import { type NewsletterIssue, fetchNewsletters, fetchNewsletter } from "@/lib/newsletter";
 import { useNewsletterLogoFallback } from "@/hooks/use-newsletter-logo-fallback";
 import wipLogo from "@/assets/wip-logo-static.png";
-import iconSubstack from "@/assets/icon-substack.png";
+
 
 const API_BASE =
   (import.meta.env.VITE_BACKEND_URL as string | undefined) ||
