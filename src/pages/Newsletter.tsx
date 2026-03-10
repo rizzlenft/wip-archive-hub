@@ -25,6 +25,12 @@ function proxyUnavatarHtml(html: string): string {
   );
 }
 
+/** Strip leading cover/thumbnail images from newsletter HTML (e.g. YouTube thumbs from prior week) */
+function stripLeadingCoverImage(html: string): string {
+  // Remove the first <img> if it's a YouTube thumbnail or generic cover at the very top
+  return html.replace(/^\s*(<div[^>]*>\s*)?<img\s[^>]*src=["']https:\/\/img\.youtube\.com\/[^"']*["'][^>]*\/?>(\s*<\/div>)?/i, '$1$2');
+}
+
 const Newsletter = () => {
   const [issues, setIssues] = useState<NewsletterIssue[]>([]);
   const [selected, setSelected] = useState<NewsletterIssue | null>(null);
@@ -136,7 +142,7 @@ const Newsletter = () => {
                 ref={posterRef}
                 className="newsletter-poster-preview rounded-xl overflow-hidden"
                 style={{ background: "#0a0612" }}
-                dangerouslySetInnerHTML={{ __html: proxyUnavatarHtml(selected.body_html) }}
+                dangerouslySetInnerHTML={{ __html: stripLeadingCoverImage(proxyUnavatarHtml(selected.body_html)) }}
               />
 
               <div className="rounded-xl border border-border bg-secondary/30 p-6 text-center space-y-3">

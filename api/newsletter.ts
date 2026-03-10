@@ -1232,9 +1232,7 @@ Community links (style as "entry points" in the ticket section):
       speakers: speakersWithImages,
       recap_summary: generated.recap_summary || "",
       youtube_video_id: youtube_video_id || "",
-      cover_image: youtube_video_id
-        ? `https://img.youtube.com/vi/${youtube_video_id}/maxresdefault.jpg`
-        : "",
+      cover_image: "",
       status: "draft" as const,
       created_at: now,
       week_of: now,
