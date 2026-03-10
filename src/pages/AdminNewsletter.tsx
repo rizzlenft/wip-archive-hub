@@ -730,57 +730,6 @@ const AdminNewsletter = () => {
                 />
               </section>
 
-              {/* Custom Event Images */}
-              <section className="rounded-lg border border-border bg-card p-5 space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <ImagePlus className="w-5 h-5 text-accent" />
-                    <h2 className="text-lg font-semibold">Event Screenshots</h2>
-                  </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setCustomImageUrls((prev) => [...prev, ""])}
-                  >
-                    <Plus className="w-4 h-4" />
-                    Add Image
-                  </Button>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Paste URLs to screenshots from Discord, metaverse events, or social media. These will be woven into the poster as event photography.
-                </p>
-                {customImageUrls.map((url, idx) => (
-                  <div key={idx} className="flex items-center gap-2">
-                    {url && (
-                      <img
-                        src={url}
-                        alt={`Event image ${idx + 1}`}
-                        className="w-12 h-12 rounded border border-border object-cover shrink-0"
-                        onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
-                      />
-                    )}
-                    <Input
-                      placeholder="Paste image URL..."
-                      value={url}
-                      onChange={(e) =>
-                        setCustomImageUrls((prev) =>
-                          prev.map((u, i) => (i === idx ? e.target.value : u))
-                        )
-                      }
-                      className="bg-background flex-1"
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setCustomImageUrls((prev) => prev.filter((_, i) => i !== idx))}
-                    >
-                      <Trash2 className="w-4 h-4 text-destructive" />
-                    </Button>
-                  </div>
-                ))}
-              </section>
 
               {/* Generate */}
               <Button

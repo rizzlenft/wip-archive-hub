@@ -1043,7 +1043,6 @@ NOT an email. A POSTER.
 ${speakerList}
 ${videoContext}
 ${transcriptSection}
-${customImagesContext}
 ${lastWeekContext}
 
 Community links (style as "entry points" in the ticket section):
