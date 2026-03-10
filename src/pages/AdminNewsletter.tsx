@@ -782,14 +782,6 @@ const AdminNewsletter = () => {
                 className="text-2xl font-bold bg-card border-border"
               />
 
-              {/* Cover image */}
-              {draft.cover_image && (
-                <img
-                  src={draft.cover_image}
-                  alt="Newsletter cover"
-                  className="w-full rounded-lg"
-                />
-              )}
 
               {/* Poster Preview */}
               <div className="rounded-xl overflow-hidden" style={{ background: '#0a0612' }}>
