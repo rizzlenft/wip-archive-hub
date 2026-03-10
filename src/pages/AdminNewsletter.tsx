@@ -123,6 +123,7 @@ function normalizeProfileImageUrlFromText(input: string): string | null {
 const ALLOWED_ADMIN_EMAILS = [
   "rizzlenft@gmail.com",
   "dragonatebusiness@gmail.com",
+  "something.rom8@gmail.com",
 ];
 
 const AdminNewsletter = () => {

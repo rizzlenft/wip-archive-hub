@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Copy, Download, CheckCircle2, ExternalLink } from "lucide-react";
+import { Copy, ImageIcon, CheckCircle2, ExternalLink, Loader2 } from "lucide-react";
+import html2canvas from "html2canvas";
 
 interface SubstackExportModalProps {
   open: boolean;
@@ -13,18 +14,12 @@ interface SubstackExportModalProps {
 
 /**
  * Convert newsletter HTML/markdown into clean Substack-compatible markdown.
- *
- * Substack reliably supports:
- *   # ## ### headings, paragraphs, [link](url), ![alt](url), ---, blank lines
- *
- * NOT supported: HTML tags, CSS, tables, inline styles, nested formatting
+ * Ensures ALL URLs are wrapped in [text](url) markdown links — no bare URLs.
  */
 function convertToSubstackMarkdown(rawMarkdown: string, rawHtml: string): string {
-  // Prefer the markdown source; fall back to stripping HTML
   let source = rawMarkdown?.trim() || "";
 
   if (!source && rawHtml) {
-    // Basic HTML→text fallback
     source = rawHtml
       .replace(/<br\s*\/?>/gi, "\n")
       .replace(/<\/p>/gi, "\n\n")
@@ -46,24 +41,63 @@ function convertToSubstackMarkdown(rawMarkdown: string, rawHtml: string): string
 
   if (!source) return "";
 
-  const cleaned = source
-    // Remove any lingering HTML/CSS/script blocks
+  let cleaned = source
     .replace(/```[\s\S]*?```/g, "")
     .replace(/<style[\s\S]*?<\/style>/gi, "")
     .replace(/<script[\s\S]*?<\/script>/gi, "")
     .replace(/<\/?[^>]+>/g, "")
-    // Remove table markup
     .replace(/^\s*\|.*\|\s*$/gm, "")
     .replace(/^\s*[-:]+\s*\|.*$/gm, "")
-    // Remove image placeholders
     .replace(/\[PROFILE IMAGE:[^\]]+\]/gi, "")
     .replace(/\[from X\/Twitter\]\s*/gi, "")
-    // Trim trailing whitespace per line
     .replace(/[ \t]+\n/g, "\n")
     .trim();
 
+  // Convert bare URLs into markdown links (URLs not already inside [...](...))
+  // Match URLs that are NOT preceded by ]( or "( and NOT already inside a markdown link
+  cleaned = cleaned.replace(
+    /(?<!\]\()(?<!\()(https?:\/\/[^\s)\]]+)/g,
+    (match, _url, offset, full) => {
+      // Check if this URL is already part of a markdown link [text](url) or ![alt](url)
+      const before = full.substring(Math.max(0, offset - 2), offset);
+      if (before.endsWith("](") || before.endsWith("!(")) return match;
+      
+      // Check if this URL is the href inside [text](URL) — look backwards for ](
+      const preceding = full.substring(Math.max(0, offset - 200), offset);
+      const lastOpenParen = preceding.lastIndexOf("](");
+      if (lastOpenParen !== -1) {
+        const between = preceding.substring(lastOpenParen + 2);
+        // If there's no closing paren between ]( and this URL, it's inside a link
+        if (!between.includes(")")) return match;
+      }
+
+      // Generate a readable label from the URL
+      try {
+        const u = new URL(match);
+        const host = u.hostname.replace(/^www\./, "");
+        const path = u.pathname.replace(/\/$/, "");
+        
+        if (host === "discord.gg") return `[Join Discord](${match})`;
+        if (host === "x.com" || host === "twitter.com") {
+          const handle = path.split("/").filter(Boolean)[0];
+          return handle ? `[𝕏 @${handle}](${match})` : `[Follow on X](${match})`;
+        }
+        if (host === "warpcast.com") {
+          const handle = path.split("/").filter(Boolean)[0];
+          return handle ? `[🟣 @${handle} on Farcaster](${match})` : `[Farcaster](${match})`;
+        }
+        if (host === "farcaster.xyz") return `[Farcaster Channel](${match})`;
+        if (host === "youtube.com" || host === "youtu.be") return `[YouTube](${match})`;
+        if (host === "thewipmeetup.com") return `[The WIP Meetup](${match})`;
+        return `[${host}${path || ""}](${match})`;
+      } catch {
+        return `[Link](${match})`;
+      }
+    }
+  );
+
   // Ensure images are on their own lines
-  const withImages = cleaned.replace(
+  cleaned = cleaned.replace(
     /([^\n])(!\[[^\]]*\]\([^)]+\))/g,
     "$1\n\n$2"
   ).replace(
@@ -72,7 +106,7 @@ function convertToSubstackMarkdown(rawMarkdown: string, rawHtml: string): string
   );
 
   // Ensure headings have blank lines around them
-  const withHeadings = withImages.replace(
+  cleaned = cleaned.replace(
     /([^\n])\n(#{1,6}\s)/g,
     "$1\n\n$2"
   ).replace(
@@ -81,7 +115,7 @@ function convertToSubstackMarkdown(rawMarkdown: string, rawHtml: string): string
   );
 
   // Ensure --- has blank lines around it
-  const withRules = withHeadings.replace(
+  cleaned = cleaned.replace(
     /([^\n])\n(---)/g,
     "$1\n\n$2"
   ).replace(
@@ -89,23 +123,18 @@ function convertToSubstackMarkdown(rawMarkdown: string, rawHtml: string): string
     "$1\n\n$2"
   );
 
-  // Ensure consecutive links are separated
-  const withLinks = withRules.replace(
-    /(\[[^\]]+\]\([^)]+\))(?:\s+)(?=\[[^\]]+\]\([^)]+\))/g,
-    "$1\n\n"
-  );
-
   // Collapse 3+ newlines to exactly 2
-  const final = withLinks
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
+  cleaned = cleaned.replace(/\n{3,}/g, "\n\n").trim();
 
-  return final;
+  return cleaned;
 }
 
 export function SubstackExportModal({ open, onOpenChange, markdown, html, title }: SubstackExportModalProps) {
   const [copied, setCopied] = useState(false);
+  const [capturingImage, setCapturingImage] = useState(false);
+  const [imageCopied, setImageCopied] = useState(false);
   const exportedMarkdown = convertToSubstackMarkdown(markdown, html);
+  const previewRef = useRef<HTMLDivElement>(null);
 
   const handleCopy = async () => {
     try {
@@ -113,7 +142,6 @@ export function SubstackExportModal({ open, onOpenChange, markdown, html, title 
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
     } catch {
-      // Fallback
       const textarea = document.createElement("textarea");
       textarea.value = exportedMarkdown;
       document.body.appendChild(textarea);
@@ -125,22 +153,58 @@ export function SubstackExportModal({ open, onOpenChange, markdown, html, title 
     }
   };
 
-  const handleDownload = () => {
-    const slug = title
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-|-$/g, "")
-      || "wip-meetup-newsletter";
-    const filename = `${slug}-substack.md`;
-    const blob = new Blob([exportedMarkdown], { type: "text/markdown;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+  const handleCopyImage = async () => {
+    // Find the newsletter poster element on the page behind the modal
+    const posterEl = document.querySelector(".newsletter-poster-preview") as HTMLElement | null;
+    if (!posterEl) {
+      alert("No newsletter content found to capture.");
+      return;
+    }
+
+    setCapturingImage(true);
+    try {
+      const canvas = await html2canvas(posterEl, {
+        backgroundColor: "#0a0612",
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        logging: false,
+      });
+
+      // Try clipboard API first
+      canvas.toBlob(async (blob) => {
+        if (!blob) {
+          setCapturingImage(false);
+          return;
+        }
+
+        try {
+          await navigator.clipboard.write([
+            new ClipboardItem({ "image/png": blob }),
+          ]);
+          setImageCopied(true);
+          setTimeout(() => setImageCopied(false), 2500);
+        } catch {
+          // Fallback: download the image
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "wip-newsletter";
+          a.download = `${slug}.png`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          setImageCopied(true);
+          setTimeout(() => setImageCopied(false), 2500);
+        }
+
+        setCapturingImage(false);
+      }, "image/png");
+    } catch (err) {
+      console.error("Image capture failed:", err);
+      setCapturingImage(false);
+    }
   };
 
   const lineCount = exportedMarkdown.split("\n").length;
@@ -166,7 +230,7 @@ export function SubstackExportModal({ open, onOpenChange, markdown, html, title 
         </div>
 
         {/* Markdown preview */}
-        <div className="flex-1 overflow-auto min-h-0">
+        <div ref={previewRef} className="flex-1 overflow-auto min-h-0">
           <pre className="text-xs font-mono whitespace-pre-wrap bg-card border border-border rounded-lg p-4 max-h-[50vh] overflow-auto text-foreground leading-relaxed">
             {exportedMarkdown || "No content to export."}
           </pre>
@@ -179,12 +243,22 @@ export function SubstackExportModal({ open, onOpenChange, markdown, html, title 
               {copied ? (
                 <><CheckCircle2 className="w-4 h-4" /> Copied!</>
               ) : (
-                <><Copy className="w-4 h-4" /> Copy to Clipboard</>
+                <><Copy className="w-4 h-4" /> Copy Text</>
               )}
             </Button>
-            <Button onClick={handleDownload} variant="outline" size="sm">
-              <Download className="w-4 h-4" />
-              Download .md
+            <Button
+              onClick={handleCopyImage}
+              variant={imageCopied ? "default" : "outline"}
+              size="sm"
+              disabled={capturingImage}
+            >
+              {capturingImage ? (
+                <><Loader2 className="w-4 h-4 animate-spin" /> Capturing…</>
+              ) : imageCopied ? (
+                <><CheckCircle2 className="w-4 h-4" /> Image Copied!</>
+              ) : (
+                <><ImageIcon className="w-4 h-4" /> Copy Image</>
+              )}
             </Button>
           </div>
           <Button
