@@ -295,7 +295,6 @@ const AdminNewsletter = () => {
         speakers: cleanedSpeakers,
         transcript: transcript.trim() || undefined,
         youtube_video_id: youtubeVideoId.trim() || undefined,
-        custom_image_urls: customImageUrls.filter((u) => u.trim()) || undefined,
       });
       setDraft(issue);
       setEditableHtml(issue.body_html);
