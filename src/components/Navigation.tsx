@@ -20,6 +20,7 @@ import iconSubstack from "@/assets/icon-substack.png";
 const navLinks = [
   { name: "About", href: "/#about" },
   { name: "Episodes", href: "/episodes" },
+  { name: "Newsletter", href: "/newsletter" },
   { name: "Merch", href: "/merch" },
 ];
 
