@@ -980,10 +980,10 @@ SPEAKER TOPIC — MUST ALWAYS BE DISPLAYED AS STYLED TEXT:
 ${transcriptQuoteNote}
 CUSTOM EVENT IMAGES — BACKGROUND TEXTURE:
 - These images are from LAST WEEK's event — they capture the community energy
-- Use them as background-image on table cells with background-size:cover; background-position:center;
-- Apply a dark overlay: background:rgba(10,6,18,0.75) to maintain text readability
-- If multiple images provided, use different images for different sections
-- Also include at least ONE image as a standalone <img> element so it appears in Substack too
+- NEVER place a community image directly behind the "LAST WEEK'S RECAP" heading, recap synopsis, replay title overlay, or CTA text
+- If there are 2 or more custom images, Image 2 MUST appear as a standalone <img> at the very bottom of the recap section after all copy
+- If you use any custom image as a background texture, keep it subtle and away from text-heavy areas so readability stays high
+- Include exactly one standalone recap image when custom images are provided
 ${custom_image_urls && custom_image_urls.length > 0 ? custom_image_urls.map((url, i) => `- Image ${i + 1}: ${url}`).join("\n") : "- (No custom images provided this week)"}
 
 LAST WEEK'S RECAP — TRANSCRIPT SYNOPSIS IS MANDATORY:
