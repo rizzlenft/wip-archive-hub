@@ -1014,7 +1014,7 @@ SECTIONS ORDER (mandatory):
 Output JSON:
 {
   "title": "WIP Meetup - ${meetupDateStr}",
-  "subtitle": "one-line FOMO-inducing teaser",
+  "subtitle": "",
   "body_html": "full poster-style HTML with ALL inline styles, NO style block, TABLE-based layout",
   "body_markdown": "Clean Substack-compatible markdown. NO HTML, NO CSS, NO tables. Follow this EXACT template:\n\n# WIP Meetup - DATE\n\nSubtitle text here\n\n---\n\n## 🎤 This Week's Speakers\n\n**Speaker Name**\n\nBio or description text here.\n\n[𝕏 @handle](https://x.com/handle)\n\n[🟣 @handle on Farcaster](https://warpcast.com/handle)\n\nTopic: topic text or [Topic Title](url)\n\n---\n\n(repeat for each speaker with --- between them)\n\n---\n\n## 🔁 Last Week's Recap\n\nSynopsis paragraph here.\n\n![Last Week's Recap Thumbnail](https://img.youtube.com/vi/VIDEOID/maxresdefault.jpg)\n\n[▶ Watch the Replay](https://youtube.com/watch?v=VIDEOID)\n\n---\n\n## 🎟️ Join the Community\n\n[Join Discord](https://discord.gg/XHDcUdm3)\n\n[Follow on 𝕏 / Twitter](https://twitter.com/theWIPmeetup)\n\n[Subscribe on YouTube](https://youtube.com/@thewipmeetup)\n\n[Join Farcaster Channel](https://farcaster.xyz/~/channel/thewipmeetup)\n\n[Explore the Website](https://thewipmeetup.com)\n\nRULES: 1) EVERY URL must be a [text](url) hyperlink — NEVER bare URLs. 2) Blank line between EVERY element. 3) --- between each section AND between each speaker. 4) Speaker topics that are URLs must be hyperlinked: [Topic Name](url). 5) No raw markdown syntax visible — all links must render as clickable text.",
   "recap_summary": "2-sentence punchy recap for card preview"
