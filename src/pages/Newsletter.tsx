@@ -142,7 +142,7 @@ const Newsletter = () => {
                 ref={posterRef}
                 className="newsletter-poster-preview rounded-xl overflow-hidden"
                 style={{ background: "#0a0612" }}
-                dangerouslySetInnerHTML={{ __html: proxyUnavatarHtml(selected.body_html) }}
+                dangerouslySetInnerHTML={{ __html: stripLeadingCoverImage(proxyUnavatarHtml(selected.body_html)) }}
               />
 
               <div className="rounded-xl border border-border bg-secondary/30 p-6 text-center space-y-3">
