@@ -1,19 +1,21 @@
 import { useState, useEffect, useRef } from "react";
+import { motion } from "framer-motion";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Calendar, User, ExternalLink } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { ArrowLeft, Calendar, User, ExternalLink, Search, Mail, Sparkles } from "lucide-react";
 import { type NewsletterIssue, fetchNewsletters, fetchNewsletter } from "@/lib/newsletter";
 import { useNewsletterLogoFallback } from "@/hooks/use-newsletter-logo-fallback";
 import wipLogo from "@/assets/wip-logo-static.png";
+import iconSubstack from "@/assets/icon-substack.png";
 
 const API_BASE =
   (import.meta.env.VITE_BACKEND_URL as string | undefined) ||
   "https://api.thewipmeetup.com";
 
 function proxyUnavatarHtml(html: string): string {
-  // Back-compat for older issues that stored unavatar URLs directly.
   return html.replace(
     /https:\/\/unavatar\.io\/(farcaster|twitter)\/([a-zA-Z0-9_.-]+)/g,
     (_m, service: string, handle: string) => {
@@ -27,6 +29,7 @@ const Newsletter = () => {
   const [issues, setIssues] = useState<NewsletterIssue[]>([]);
   const [selected, setSelected] = useState<NewsletterIssue | null>(null);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
   const posterRef = useRef<HTMLDivElement>(null);
   useNewsletterLogoFallback(posterRef, selected?.body_html || "");
 
@@ -44,6 +47,20 @@ const Newsletter = () => {
     if (full) setSelected(full);
   };
 
+  const filteredIssues = issues.filter((issue) => {
+    if (!searchQuery.trim()) return true;
+    const q = searchQuery.toLowerCase();
+    const dateStr = new Date(issue.published_at || issue.created_at).toLocaleDateString("en-US", {
+      month: "long", day: "numeric", year: "numeric",
+    }).toLowerCase();
+    return (
+      issue.title.toLowerCase().includes(q) ||
+      dateStr.includes(q) ||
+      issue.speakers?.some((s) => s.name.toLowerCase().includes(q)) ||
+      issue.recap_summary?.toLowerCase().includes(q)
+    );
+  });
+
   return (
     <div className="min-h-screen bg-background">
       <SEO
@@ -58,11 +75,7 @@ const Newsletter = () => {
           {/* Reading a single issue */}
           {selected ? (
             <div className="space-y-6">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setSelected(null)}
-              >
+              <Button variant="ghost" size="sm" onClick={() => setSelected(null)}>
                 <ArrowLeft className="w-4 h-4" />
                 All Issues
               </Button>
@@ -76,20 +89,15 @@ const Newsletter = () => {
               )}
 
               <div className="space-y-2">
-                <h1 className="text-3xl font-bold tracking-tight">
-                  {selected.title}
-                </h1>
+                <h1 className="text-3xl font-bold tracking-tight">{selected.title}</h1>
                 {selected.subtitle && (
-                  <p className="text-lg text-muted-foreground">
-                    {selected.subtitle}
-                  </p>
+                  <p className="text-lg text-muted-foreground">{selected.subtitle}</p>
                 )}
                 <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
                   <span className="flex items-center gap-1">
                     <Calendar className="w-4 h-4" />
                     {new Date(selected.published_at || selected.created_at).toLocaleDateString(
-                      "en-US",
-                      { month: "long", day: "numeric", year: "numeric" }
+                      "en-US", { month: "long", day: "numeric", year: "numeric" }
                     )}
                   </span>
                   {selected.speakers?.length > 0 && (
@@ -101,7 +109,6 @@ const Newsletter = () => {
                 </div>
               </div>
 
-              {/* Newsletter poster content */}
               <div
                 ref={posterRef}
                 className="newsletter-poster-preview rounded-xl overflow-hidden"
@@ -109,18 +116,13 @@ const Newsletter = () => {
                 dangerouslySetInnerHTML={{ __html: proxyUnavatarHtml(selected.body_html) }}
               />
 
-              {/* CTA */}
               <div className="rounded-xl border border-border bg-secondary/30 p-6 text-center space-y-3">
                 <img src={wipLogo} alt="WIP" className="w-12 h-12 mx-auto" />
                 <p className="text-sm text-muted-foreground">
                   Don't miss the next meetup — every Thursday at 3 PM ET
                 </p>
                 <Button variant="electric" size="sm" asChild>
-                  <a
-                    href="https://discord.gg/XHDcUdm3"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
+                  <a href="https://discord.gg/XHDcUdm3" target="_blank" rel="noopener noreferrer">
                     Join Discord
                   </a>
                 </Button>
@@ -129,40 +131,103 @@ const Newsletter = () => {
           ) : (
             /* Issue list */
             <div className="space-y-8">
-              <div className="space-y-2">
-                <h1 className="text-3xl font-bold tracking-tight">
-                  WIP Weekly
-                </h1>
-                <p className="text-muted-foreground">
-                  Weekly recaps, speaker spotlights, and community highlights
-                  from The WIP Meetup.
-                </p>
+              {/* Hero / Subscribe CTA */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="relative rounded-2xl border border-primary/20 overflow-hidden"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-accent/5" />
+                <div className="absolute top-4 right-4 w-32 h-32 bg-primary/10 rounded-full blur-3xl" />
+                <div className="relative p-8 sm:p-10 flex flex-col sm:flex-row items-center gap-6">
+                  <div className="flex-1 space-y-3">
+                    <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">
+                      WIP <span className="text-gradient-rainbow">Weekly</span>
+                    </h1>
+                    <p className="text-muted-foreground max-w-lg">
+                      Weekly recaps, speaker spotlights, and community highlights from The WIP Meetup.
+                      Get it delivered to your inbox every week.
+                    </p>
+                    <div className="flex items-center gap-3 pt-2">
+                      <Button variant="electric" size="default" asChild>
+                        <a
+                          href="https://thewipmeetup.substack.com/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <Mail className="w-4 h-4" />
+                          Subscribe on Substack
+                        </a>
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="shrink-0">
+                    <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-card/60 border border-primary/20 flex items-center justify-center shadow-lg shadow-primary/10">
+                      <img src={iconSubstack} alt="Substack" className="w-10 h-10 sm:w-12 sm:h-12 object-contain" />
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Search */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search by date, speaker, or topic…"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 bg-card"
+                />
               </div>
 
               {loading ? (
                 <p className="text-muted-foreground">Loading newsletters…</p>
               ) : issues.length === 0 ? (
-                <div className="rounded-xl border border-border bg-card p-10 text-center space-y-4">
-                  <img src={wipLogo} alt="WIP" className="w-16 h-16 mx-auto opacity-50" />
-                  <h2 className="text-xl font-semibold">Coming Soon</h2>
-                  <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="rounded-2xl border border-border bg-card p-12 text-center space-y-5"
+                >
+                  <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+                    <Sparkles className="w-10 h-10 text-primary" />
+                  </div>
+                  <h2 className="text-2xl font-bold">Coming Soon</h2>
+                  <p className="text-muted-foreground max-w-md mx-auto">
                     The WIP Weekly newsletter is launching soon. Subscribe on{" "}
                     <a
                       href="https://thewipmeetup.substack.com/"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-primary hover:underline"
+                      className="text-primary hover:underline font-medium"
                     >
                       Substack
                     </a>{" "}
-                    to get it in your inbox.
+                    to be the first to receive it in your inbox.
                   </p>
+                  <Button variant="outline" size="sm" asChild>
+                    <a
+                      href="https://thewipmeetup.substack.com/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                      Go to Substack
+                    </a>
+                  </Button>
+                </motion.div>
+              ) : filteredIssues.length === 0 ? (
+                <div className="rounded-xl border border-border bg-card p-8 text-center">
+                  <p className="text-muted-foreground">No issues match your search.</p>
                 </div>
               ) : (
                 <div className="grid gap-4 sm:grid-cols-2">
-                  {issues.map((issue) => (
-                    <button
+                  {filteredIssues.map((issue, idx) => (
+                    <motion.button
                       key={issue.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: idx * 0.05 }}
                       onClick={() => openIssue(issue.id)}
                       className="group rounded-xl border border-border bg-card p-0 overflow-hidden text-left hover:border-primary/40 transition-colors"
                     >
@@ -184,43 +249,18 @@ const Newsletter = () => {
                         )}
                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
                           <Calendar className="w-3 h-3" />
-                          {new Date(
-                            issue.published_at || issue.created_at
-                          ).toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
+                          {new Date(issue.published_at || issue.created_at).toLocaleDateString("en-US", {
+                            month: "short", day: "numeric", year: "numeric",
                           })}
                           {issue.speakers?.length > 0 && (
-                            <span>
-                              • ft. {issue.speakers.map((s) => s.name).join(", ")}
-                            </span>
+                            <span>• ft. {issue.speakers.map((s) => s.name).join(", ")}</span>
                           )}
                         </div>
                       </div>
-                    </button>
+                    </motion.button>
                   ))}
                 </div>
               )}
-
-              {/* Substack CTA */}
-              <div className="rounded-xl border border-border bg-secondary/30 p-6 flex flex-col sm:flex-row items-center gap-4">
-                <div className="flex-1 space-y-1">
-                  <h3 className="font-semibold">Get it in your inbox</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Subscribe on Substack to never miss an issue.
-                  </p>
-                </div>
-                <Button variant="outline" size="sm" asChild>
-                  <a
-                    href="https://thewipmeetup.substack.com/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                    Subscribe
-                  </a>
-                </Button>
-              </div>
             </div>
           )}
         </div>
