@@ -284,8 +284,7 @@ export function SubstackExportModal({ open, onOpenChange, markdown, html, title 
   const previewRef = useRef<HTMLDivElement>(null);
 
   const handleCopy = async () => {
-    // Copy as rich text (HTML) so Substack receives actual clickable links
-    const richHtml = markdownToRichHtml(exportedMarkdown);
+    const richHtml = buildClipboardHtml(html, exportedMarkdown);
     try {
       const htmlBlob = new Blob([richHtml], { type: "text/html" });
       const textBlob = new Blob([exportedMarkdown], { type: "text/plain" });
@@ -298,7 +297,6 @@ export function SubstackExportModal({ open, onOpenChange, markdown, html, title 
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
     } catch {
-      // Fallback: use execCommand with a rich-text contenteditable div
       const div = document.createElement("div");
       div.innerHTML = richHtml;
       div.contentEditable = "true";
