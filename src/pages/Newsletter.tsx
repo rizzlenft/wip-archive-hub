@@ -113,13 +113,6 @@ const Newsletter = () => {
                 All Issues
               </Button>
 
-              {selected.cover_image && (
-                <img
-                  src={selected.cover_image}
-                  alt={selected.title}
-                  className="w-full rounded-xl"
-                />
-              )}
 
               <div className="space-y-2">
                 <h1 className="text-3xl font-bold tracking-tight">{selected.title}</h1>
@@ -277,12 +270,23 @@ const Newsletter = () => {
                       onClick={() => openIssue(issue.id)}
                       className="group rounded-xl border border-border bg-card p-0 overflow-hidden text-left hover:border-primary/40 transition-colors"
                     >
-                      {issue.cover_image && (
-                        <img
-                          src={issue.cover_image}
-                          alt={issue.title}
-                          className="w-full h-40 object-cover group-hover:scale-[1.02] transition-transform"
-                        />
+                      {issue.speakers?.length > 0 && (
+                        <div className="flex items-center gap-3 p-4 pb-0">
+                          {issue.speakers.slice(0, 4).map((speaker) => (
+                            <div key={speaker.name} className="flex flex-col items-center gap-1 min-w-0">
+                              <img
+                                src={
+                                  speaker.profile_image_url ||
+                                  `${API_BASE}/api/newsletter?action=avatar&${speaker.farcaster ? `farcaster=${encodeURIComponent(speaker.farcaster)}` : speaker.twitter ? `twitter=${encodeURIComponent(speaker.twitter)}` : `twitter=${encodeURIComponent(speaker.name)}`}`
+                                }
+                                alt={speaker.name}
+                                className="w-12 h-12 rounded-full object-cover border-2 border-primary/30"
+                                onError={(e) => { (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(speaker.name)}&background=7c3aed&color=fff`; }}
+                              />
+                              <span className="text-[10px] text-muted-foreground truncate max-w-[70px] text-center">{speaker.name}</span>
+                            </div>
+                          ))}
+                        </div>
                       )}
                       <div className="p-4 space-y-2">
                         <h3 className="font-semibold group-hover:text-primary transition-colors">
