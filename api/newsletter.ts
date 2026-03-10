@@ -241,26 +241,23 @@ async function fetchSpeakerSocialContent(speaker: Speaker): Promise<SpeakerSocia
   const fc = normalizeFarcasterHandle(speaker.farcaster);
   const tw = normalizeTwitterHandle(speaker.twitter);
 
-  // Try Farcaster first (more reliable, no auth needed)
-  if (fc) {
-    const fcContent = await fetchFarcasterContent(fc);
-    if (fcContent.recentPosts.length > 0 || fcContent.bio) {
-      // Also try Twitter for additional context
-      if (tw) {
-        const twContent = await fetchTwitterContent(tw);
-        if (twContent.bio && !fcContent.bio) fcContent.bio = twContent.bio;
-        // Merge unique Twitter posts
-        for (const post of twContent.recentPosts) {
-          if (fcContent.recentPosts.length < 8) fcContent.recentPosts.push(`[from X/Twitter] ${post}`);
-        }
-      }
-      return fcContent;
-    }
-  }
+  const [fcContent, twContent] = await Promise.all([
+    fc ? fetchFarcasterContent(fc) : Promise.resolve<SpeakerSocialContent>({ bio: "", recentPosts: [], source: "none" }),
+    tw ? fetchTwitterContent(tw) : Promise.resolve<SpeakerSocialContent>({ bio: "", recentPosts: [], source: "none" }),
+  ]);
 
-  // Fallback to Twitter
-  if (tw) {
-    return await fetchTwitterContent(tw);
+  if (fcContent.source !== "none" || twContent.source !== "none") {
+    const mergedPosts = [...fcContent.recentPosts];
+    for (const post of twContent.recentPosts) {
+      if (mergedPosts.length >= 8) break;
+      if (!mergedPosts.includes(post)) mergedPosts.push(`[from X/Twitter] ${post}`);
+    }
+
+    return {
+      bio: twContent.bio || fcContent.bio || "",
+      recentPosts: mergedPosts,
+      source: twContent.bio ? "twitter" : fcContent.source !== "none" ? "farcaster" : twContent.source,
+    };
   }
 
   return { bio: "", recentPosts: [], source: "none" };
