@@ -934,13 +934,10 @@ ${youtube_video_id ? `LAST WEEK'S EVENT VIDEO — include lower in the poster:
 - Thumbnail: https://img.youtube.com/vi/${youtube_video_id}/maxresdefault.jpg
 - Link: https://youtube.com/watch?v=${youtube_video_id}
 - Make the thumbnail a clickable link to the YouTube video
-- IMPORTANT: OVERLAY THE VIDEO TITLE on top of the thumbnail. Use a table cell with:
-  * background-image: url(https://img.youtube.com/vi/${youtube_video_id}/maxresdefault.jpg); background-size:cover; background-position:center;
-  * height: 360px (or similar)
-  * A nested div with background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 50%, transparent 100%) covering the full cell
-  * The VIDEO TITLE "${lastWeekVideoTitle || "(use the title from the YouTube video)"}" rendered as large bold white text (22-26px, font-weight:900, text-shadow: 0 2px 8px rgba(0,0,0,0.9)) at the bottom of the cell using vertical-align:bottom; padding:20px;
-  * This tells viewers exactly what the video is about and who was on
-- Below the image, add a "▶ Watch the Replay" CTA link` : ""}
+- IMPORTANT: OVERLAY THE VIDEO TITLE on top of the thumbnail.
+- Keep the title overlay inside a dark bottom gradient so it remains readable.
+- Do NOT place any community background image behind the replay title, recap heading, synopsis, or CTA text.
+- Below the replay area, add a separate "▶ Watch the Replay" CTA link` : ""}
 
 ⚠️ CRITICAL — SPEAKER BIOS (NOT QUOTES):
 - Do NOT use quotes or social media posts for speakers. Instead, display their BIO as a short description/tagline on their card.
