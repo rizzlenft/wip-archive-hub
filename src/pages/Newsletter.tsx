@@ -1,11 +1,11 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, type FormEvent } from "react";
 import { motion } from "framer-motion";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Calendar, User, ExternalLink, Search, Mail, Sparkles } from "lucide-react";
+import { ArrowLeft, Calendar, User, ExternalLink, Search, Mail, Sparkles, Loader2, CheckCircle2 } from "lucide-react";
 import { type NewsletterIssue, fetchNewsletters, fetchNewsletter } from "@/lib/newsletter";
 import { useNewsletterLogoFallback } from "@/hooks/use-newsletter-logo-fallback";
 import wipLogo from "@/assets/wip-logo-static.png";
