@@ -123,7 +123,6 @@ const Newsletter = () => {
 
               <div className="space-y-2">
                 <h1 className="text-3xl font-bold tracking-tight">{selected.title}</h1>
-                )}
                 <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
                   <span className="flex items-center gap-1">
                     <Calendar className="w-4 h-4" />
