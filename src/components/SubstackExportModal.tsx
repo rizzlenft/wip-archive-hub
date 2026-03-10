@@ -158,7 +158,6 @@ function markdownToRichHtml(md: string): string {
       const trimmed = block.trim();
       if (!trimmed) return "";
 
-      // Headings
       const headingMatch = trimmed.match(/^(#{1,6})\s+(.*)/);
       if (headingMatch) {
         const level = headingMatch[1].length;
@@ -166,16 +165,13 @@ function markdownToRichHtml(md: string): string {
         return `<h${level}>${text}</h${level}>`;
       }
 
-      // Horizontal rule
       if (/^---+$/.test(trimmed)) return "<hr />";
 
-      // Image on its own line
       const imgMatch = trimmed.match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
       if (imgMatch) {
         return `<img src="${imgMatch[2]}" alt="${imgMatch[1]}" style="max-width:100%;" />`;
       }
 
-      // Paragraph (may contain multiple lines)
       const lines = trimmed.split("\n").map((l) => inlineMarkdownToHtml(l)).join("<br />");
       return `<p>${lines}</p>`;
     })
@@ -186,13 +182,99 @@ function markdownToRichHtml(md: string): string {
 /** Convert inline markdown (bold, links, images) to HTML */
 function inlineMarkdownToHtml(text: string): string {
   return text
-    // Images inline
     .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" style="max-width:100%;" />')
-    // Links
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
-    // Bold
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
     .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
 }
+
+function textToLinkedFragment(doc: Document, text: string): DocumentFragment {
+  const fragment = doc.createDocumentFragment();
+  const linkRegex = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)|(https?:\/\/[^\s<]+)/g;
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = linkRegex.exec(text)) !== null) {
+    const [fullMatch, markdownLabel, markdownHref, bareUrl] = match;
+    const start = match.index;
+
+    if (start > lastIndex) {
+      fragment.appendChild(doc.createTextNode(text.slice(lastIndex, start)));
+    }
+
+    const href = markdownHref || bareUrl;
+    const label = markdownLabel || bareUrl;
+
+    if (href) {
+      const anchor = doc.createElement("a");
+      anchor.href = href;
+      anchor.textContent = label;
+      anchor.setAttribute("target", "_blank");
+      anchor.setAttribute("rel", "noopener noreferrer");
+      fragment.appendChild(anchor);
+    } else {
+      fragment.appendChild(doc.createTextNode(fullMatch));
+    }
+
+    lastIndex = start + fullMatch.length;
+  }
+
+  if (lastIndex < text.length) {
+    fragment.appendChild(doc.createTextNode(text.slice(lastIndex)));
+  }
+
+  return fragment;
+}
+
+function buildClipboardHtml(rawHtml: string, fallbackMarkdown: string): string {
+  if (!rawHtml?.trim()) return markdownToRichHtml(fallbackMarkdown);
+
+  try {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(`<div data-substack-root="true">${rawHtml}</div>`, "text/html");
+    const root = doc.querySelector('[data-substack-root="true"]');
+    if (!root) return markdownToRichHtml(fallbackMarkdown);
+
+    root.querySelectorAll("script, style").forEach((node) => node.remove());
+
+    const walker = doc.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    const textNodes: Text[] = [];
+    let currentNode = walker.nextNode();
+
+    while (currentNode) {
+      const textNode = currentNode as Text;
+      const parentTag = textNode.parentElement?.tagName;
+      if (
+        textNode.textContent?.trim() &&
+        parentTag !== "A" &&
+        /(\[[^\]]+\]\(https?:\/\/[^\s)]+\)|https?:\/\/[^\s<]+)/.test(textNode.textContent)
+      ) {
+        textNodes.push(textNode);
+      }
+      currentNode = walker.nextNode();
+    }
+
+    for (const textNode of textNodes) {
+      const content = textNode.textContent || "";
+      const linked = textToLinkedFragment(doc, content);
+      textNode.parentNode?.replaceChild(linked, textNode);
+    }
+
+    root.querySelectorAll("a").forEach((anchor) => {
+      const href = anchor.getAttribute("href");
+      if (!href) return;
+      anchor.setAttribute("target", "_blank");
+      anchor.setAttribute("rel", "noopener noreferrer");
+      if (!anchor.textContent?.trim()) {
+        anchor.textContent = href;
+      }
+    });
+
+    return root.innerHTML || markdownToRichHtml(fallbackMarkdown);
+  } catch {
+    return markdownToRichHtml(fallbackMarkdown);
+  }
+}
+
 
 export function SubstackExportModal({ open, onOpenChange, markdown, html, title }: SubstackExportModalProps) {
   const [copied, setCopied] = useState(false);
