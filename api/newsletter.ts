@@ -768,12 +768,11 @@ YouTube Thumbnail (MUST include as clickable image): https://img.youtube.com/vi/
       }).join("\n")
     : "(No previous speakers found)";
 
-  // Build custom images context
   const customImagesContext =
     custom_image_urls && custom_image_urls.length > 0
       ? `\n\nCUSTOM EVENT IMAGES FROM LAST WEEK (these are community photos from LAST WEEK's event — NOT this week's speakers):
 ${custom_image_urls.map((url, i) => `- Image ${i + 1}: ${url}`).join("\n")}
-Use these as atmospheric background layers (opacity ~0.20-0.30, slight blur, behind content). They should be VISIBLE and add energy. Do NOT feature them as big foreground photos and do NOT associate them with a specific speaker.`
+Use these subtly and only where readability is preserved. If there are 2 or more images, Image 2 MUST be used as the standalone image at the VERY BOTTOM of the recap section after all text and CTAs — never behind a heading, synopsis, or body text.`
       : "";
 
   const transcriptSection = effectiveTranscript
