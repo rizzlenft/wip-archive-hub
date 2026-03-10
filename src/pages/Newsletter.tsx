@@ -113,13 +113,6 @@ const Newsletter = () => {
                 All Issues
               </Button>
 
-              {selected.cover_image && (
-                <img
-                  src={selected.cover_image}
-                  alt={selected.title}
-                  className="w-full rounded-xl"
-                />
-              )}
 
               <div className="space-y-2">
                 <h1 className="text-3xl font-bold tracking-tight">{selected.title}</h1>
