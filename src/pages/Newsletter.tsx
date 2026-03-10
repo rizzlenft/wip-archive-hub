@@ -5,11 +5,11 @@ import { Footer } from "@/components/Footer";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Calendar, User, ExternalLink, Search, Mail, Sparkles, Loader2, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Calendar, User, ExternalLink, Search, Sparkles, Loader2, CheckCircle2 } from "lucide-react";
 import { type NewsletterIssue, fetchNewsletters, fetchNewsletter } from "@/lib/newsletter";
 import { useNewsletterLogoFallback } from "@/hooks/use-newsletter-logo-fallback";
 import wipLogo from "@/assets/wip-logo-static.png";
-import iconSubstack from "@/assets/icon-substack.png";
+
 
 const API_BASE =
   (import.meta.env.VITE_BACKEND_URL as string | undefined) ||
@@ -171,42 +171,40 @@ const Newsletter = () => {
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-accent/5" />
                 <div className="absolute top-4 right-4 w-32 h-32 bg-primary/10 rounded-full blur-3xl" />
                 <div className="relative p-8 sm:p-10 flex flex-col sm:flex-row items-center gap-6">
-                  <div className="flex-1 space-y-3">
+                  <div className="flex-1 space-y-4">
                     <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">
                       WIP <span className="text-gradient-rainbow">Weekly</span>
                     </h1>
-                    <p className="text-muted-foreground max-w-lg">
+                    <p className="text-muted-foreground max-w-xl text-base">
                       Weekly recaps, speaker spotlights, and community highlights from The WIP Meetup.
                       Get it delivered to your inbox every week.
                     </p>
                     {subStatus === "success" ? (
-                      <div className="flex items-center gap-2 text-sm text-accent font-medium pt-1">
+                      <div className="flex items-center gap-2 text-sm text-accent font-medium pt-2">
                         <CheckCircle2 className="w-4 h-4" />
                         {subMsg}
                       </div>
                     ) : (
-                      <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-2 pt-2 w-full max-w-md">
+                      <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-3 pt-3 w-full max-w-lg">
                         <Input
                           type="email"
                           placeholder="Enter your email"
                           value={subEmail}
                           onChange={(e) => { setSubEmail(e.target.value); setSubStatus("idle"); }}
-                          className="bg-card/60 border-primary/20 flex-1 min-w-0"
+                          className="bg-card/60 border-primary/20 flex-1 min-w-0 h-12"
                           required
                           disabled={subStatus === "loading"}
                         />
                         <Button
                           type="submit"
                           variant="electric"
-                          size="default"
+                          size="lg"
                           disabled={subStatus === "loading"}
                           className="shrink-0"
                         >
                           {subStatus === "loading" ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : (
-                            <Mail className="w-4 h-4" />
-                          )}
+                          ) : null}
                           Subscribe
                         </Button>
                       </form>
@@ -214,11 +212,6 @@ const Newsletter = () => {
                     {subStatus === "error" && (
                       <p className="text-xs text-destructive pt-1">{subMsg}</p>
                     )}
-                  </div>
-                  <div className="shrink-0">
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-card/60 border border-primary/20 flex items-center justify-center shadow-lg shadow-primary/10">
-                      <img src={iconSubstack} alt="Substack" className="w-10 h-10 sm:w-12 sm:h-12 object-contain" />
-                    </div>
                   </div>
                 </div>
               </motion.div>
