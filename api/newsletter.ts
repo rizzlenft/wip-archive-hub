@@ -768,12 +768,7 @@ YouTube Thumbnail (MUST include as clickable image): https://img.youtube.com/vi/
       }).join("\n")
     : "(No previous speakers found)";
 
-  const customImagesContext =
-    custom_image_urls && custom_image_urls.length > 0
-      ? `\n\nCUSTOM EVENT IMAGES FROM LAST WEEK (these are community photos from LAST WEEK's event — NOT this week's speakers):
-${custom_image_urls.map((url, i) => `- Image ${i + 1}: ${url}`).join("\n")}
-Use these subtly and only where readability is preserved. If there are 2 or more images, Image 2 MUST be used as the standalone image at the VERY BOTTOM of the recap section after all text and CTAs — never behind a heading, synopsis, or body text.`
-      : "";
+  const customImagesContext = "";
 
   const transcriptSection = effectiveTranscript
     ? `\n\nHere is a transcript/notes from last week's event. THIS IS CRITICAL — you MUST extract the 2-3 most INSIGHTFUL, thought-provoking, or exciting quotes. Look for:
