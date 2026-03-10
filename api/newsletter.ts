@@ -946,17 +946,19 @@ ${youtube_video_id ? `LAST WEEK'S EVENT VIDEO — include lower in the poster:
 - NEVER fabricate, invent, or paraphrase content for speakers.
 
 SPEAKER CARDS — CRITICAL LAYOUT (SIDE-BY-SIDE, EQUAL WEIGHT):
-- ALL speakers MUST appear SIDE BY SIDE in a SINGLE TABLE ROW — never stacked vertically.
-- Use a <table width="100%"><tr> with one <td> per speaker, each with equal width:
-  - 1 speaker: one <td width="100%" style="max-width:400px;margin:0 auto">
-  - 2 speakers: two <td width="50%"> cells
-  - 3 speakers: three <td width="33%"> cells
-  - 4 speakers: four <td width="25%"> cells
-- Each <td> gets: padding:20px, vertical-align:top, background with subtle gradient
+⚠️ THIS IS THE MOST IMPORTANT LAYOUT RULE — ALL SPEAKERS MUST BE SIDE BY SIDE, NEVER STACKED VERTICALLY.
+- Use EXACTLY this HTML structure for the "THIS WEEK" speakers section:
+  <table width="100%" cellpadding="0" cellspacing="0"><tr>
+    <td width="XX%" valign="top" style="padding:12px;">...speaker card...</td>
+    <td width="XX%" valign="top" style="padding:12px;">...speaker card...</td>
+  </tr></table>
+- Width per cell: 1 speaker=100%, 2 speakers=50%, 3 speakers=33%, 4 speakers=25%
+- Each <td> contains: circular PFP image, speaker name (36-48px, font-weight:900), social links, topic, and bio
 - Each card gets: thick accent border, box-shadow glow, inner gradient highlight
 - Speaker name at 36-48px with text-shadow glow
 - Speaker bio as styled italic description below their name
 - NO speaker should appear more prominent than another — equal sizing, equal styling
+- NEVER use separate tables or divs that would cause speakers to stack on top of each other
 
 SPEAKER PROFILE IMAGES — CRITICAL:
 - Each speaker with a [PROFILE IMAGE: url] tag MUST have their photo rendered as an <img> tag
