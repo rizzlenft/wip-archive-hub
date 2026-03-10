@@ -622,11 +622,10 @@ async function handleGenerate(req: VercelRequest, res: VercelResponse) {
     });
   }
 
-  const { speakers, transcript, youtube_video_id, custom_image_urls } = req.body as {
+  const { speakers, transcript, youtube_video_id } = req.body as {
     speakers?: Speaker[];
     transcript?: string;
     youtube_video_id?: string;
-    custom_image_urls?: string[];
   };
 
   if (!speakers || speakers.length === 0) {
