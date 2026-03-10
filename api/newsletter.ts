@@ -936,8 +936,8 @@ ${youtube_video_id ? `LAST WEEK'S EVENT VIDEO — include lower in the poster:
 - Make the thumbnail a clickable link to the YouTube video
 - IMPORTANT: OVERLAY THE VIDEO TITLE on top of the thumbnail.
 - Keep the title overlay inside a dark bottom gradient so it remains readable.
-- Do NOT place any community background image behind the replay title, recap heading, synopsis, or CTA text.
-- Below the replay area, add a separate "▶ Watch the Replay" CTA link` : ""}
+- CRITICAL LAYOUT: The recap heading, synopsis text, and all body copy MUST be on a SOLID DARK BACKGROUND (#0a0612 or similar). Do NOT place any background image behind readable text. Background/community images should appear as standalone <img> elements AFTER the text, NOT as CSS background-image behind text.
+- Below the replay area, add a "▶ Watch the Replay" CTA link styled as a BLACK button: <a href="https://youtube.com/watch?v=${youtube_video_id}" target="_blank" style="display:inline-block;padding:14px 32px;background:#000000;color:#f5f0e8;font-weight:bold;font-size:18px;text-decoration:none;border-radius:6px;border:2px solid #333;">▶ Watch the Replay</a>` : ""}
 
 ⚠️ CRITICAL — SPEAKER BIOS (NOT QUOTES):
 - Do NOT use quotes or social media posts for speakers. Instead, display their BIO as a short description/tagline on their card.
