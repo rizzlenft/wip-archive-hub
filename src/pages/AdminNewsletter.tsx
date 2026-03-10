@@ -149,6 +149,7 @@ const AdminNewsletter = () => {
 
   const [pastIssues, setPastIssues] = useState<NewsletterIssue[]>([]);
   const [view, setView] = useState<"compose" | "preview" | "history">("compose");
+  const [substackExportOpen, setSubstackExportOpen] = useState(false);
 
   // Track PFP load status per speaker: "loading" | "resolved" | "failed"
   const [pfpStatus, setPfpStatus] = useState<Record<number, { status: "loading" | "resolved" | "failed"; source?: string; triedFallback?: boolean; resolvedUrl?: string }>>({});
