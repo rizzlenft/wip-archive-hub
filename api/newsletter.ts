@@ -975,13 +975,7 @@ SPEAKER TOPIC — MUST ALWAYS BE DISPLAYED AS STYLED TEXT:
 - Show topic below social links, ALWAYS with the same visual format regardless of whether it's a URL or text
 
 ${transcriptQuoteNote}
-CUSTOM EVENT IMAGES — STANDALONE IMAGES ONLY (NO BACKGROUNDS):
-- These images are from LAST WEEK's event — they capture the community energy
-- CRITICAL: Do NOT use these as CSS background-image behind ANY text. ALL text must be on solid dark backgrounds for readability.
-- Display custom images as standalone <img> elements with rounded corners and borders, placed AFTER all recap text content
-- If there are 2 or more custom images, Image 2 MUST appear as a standalone <img> at the very bottom of the recap section after all copy
-- Include exactly one standalone recap image when custom images are provided
-${custom_image_urls && custom_image_urls.length > 0 ? custom_image_urls.map((url, i) => `- Image ${i + 1}: ${url}`).join("\n") : "- (No custom images provided this week)"}
+DO NOT include any custom background images or banner images behind text. ALL text must be on solid dark backgrounds (#0a0612) for readability. No standalone event images are needed.
 
 LAST WEEK'S RECAP — TRANSCRIPT SYNOPSIS IS MANDATORY:
 - If a transcript is provided below, you MUST write a compelling 3-5 sentence synopsis summarizing what happened
