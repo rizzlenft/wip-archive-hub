@@ -353,63 +353,6 @@ const AdminNewsletter = () => {
     }
   };
 
-  /**
-   * Normalize newsletter markdown so Substack receives only clean markdown blocks.
-   * We intentionally copy plain text markdown instead of HTML/rich text.
-   */
-  const normalizeMarkdownForSubstack = (raw: string): string => {
-    if (!raw.trim()) return "";
-
-    const cleaned = raw
-      .replace(/\r\n/g, "\n")
-      .replace(/```[\s\S]*?```/g, "")
-      .replace(/<style[\s\S]*?<\/style>/gi, "")
-      .replace(/<script[\s\S]*?<\/script>/gi, "")
-      .replace(/<\/?[^>]+>/g, "")
-      .replace(/^\s*\|.*\|\s*$/gm, "")
-      .replace(/^\s*[-:]+\s*\|.*$/gm, "")
-      .replace(/\[PROFILE IMAGE:[^\]]+\]/gi, "")
-      .replace(/\[from X\/Twitter\]\s*/gi, "")
-      .replace(/[ \t]+\n/g, "\n")
-      .trim();
-
-    const blocks = cleaned
-      .replace(/(!\[[^\]]*\]\([^\)]+\))/g, "\n$1\n")
-      .replace(/(^|\n)(#{1,6}\s[^\n]+)/g, "\n$2\n")
-      .replace(/(^|\n)(---)(?=\n|$)/g, "\n$2\n")
-      .replace(/(\[[^\]]+\]\([^\)]+\))(?:\s+)(?=\[[^\]]+\]\([^\)]+\))/g, "$1\n\n")
-      .replace(/\n{3,}/g, "\n\n")
-      .split(/\n{2,}/)
-      .map((block) => block.trim())
-      .filter(Boolean)
-      .map((block) => {
-        if (
-          /^#{1,6}\s/.test(block) ||
-          /^!\[[^\]]*\]\([^\)]+\)$/.test(block) ||
-          /^\[[^\]]+\]\([^\)]+\)$/.test(block) ||
-          /^---$/.test(block)
-        ) {
-          return block;
-        }
-
-        return block.replace(/\n+/g, " ").replace(/\s{2,}/g, " ").trim();
-      });
-
-    return blocks.join("\n\n");
-  };
-
-  const handleCopyAndOpenSubstack = async () => {
-    const substackMarkdown = normalizeMarkdownForSubstack(editableMarkdown || editableHtml);
-    if (!substackMarkdown) return;
-
-    try {
-      await navigator.clipboard.writeText(substackMarkdown);
-      setFeedback({ type: "success", msg: "📋 Copied clean markdown for Substack." });
-      window.open("https://thewipmeetup.substack.com/publish/post", "_blank");
-    } catch {
-      setFeedback({ type: "error", msg: "Failed to copy to clipboard" });
-    }
-  };
 
   // ── Auth gate ──────────────────────────────────────────────────────────────
   if (authLoading) {
