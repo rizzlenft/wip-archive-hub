@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  Sparkles, Plus, Trash2, Send, Eye, Save, Loader2, ArrowLeft, Youtube, ImagePlus, User, CheckCircle2, XCircle, AlertCircle, Clock, FileText,
+  Sparkles, Plus, Trash2, Send, Eye, Save, Loader2, ArrowLeft, Youtube, User, CheckCircle2, XCircle, AlertCircle, Clock, FileText,
 } from "lucide-react";
 import { SubstackExportModal } from "@/components/SubstackExportModal";
 import { useAuth } from "@/auth/AuthContext";
