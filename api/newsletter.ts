@@ -997,6 +997,8 @@ LAST WEEK'S RECAP — TRANSCRIPT SYNOPSIS IS MANDATORY:
 LAYOUT RULES:
 - Use TABLE-BASED layout throughout (for email compatibility)
 - ALL community links should be styled as individual TICKET STUBS with thick dashed borders and box-shadow
+- Render EXACTLY five ticket stubs, each with visible label text: "Join Discord", "Follow on X/Twitter", "Subscribe on YouTube", "Join Farcaster Channel", and "Explore the Website"
+- Never output empty, blank, or unlabeled ticket stubs
 - Max-width: 680px, centered with margin:0 auto
 - TIGHT SPACING: Keep padding between sections to 16-24px max
 - MOBILE-FRIENDLY: Images use max-width:100%, tables use width:100%
@@ -1004,7 +1006,7 @@ LAYOUT RULES:
 SECTIONS ORDER (mandatory):
 1. **HEADER** — WIP logo + "The WIP Meetup" (huge, glowing text-shadow) + "Every Thursday · 3 PM ET" + Website & Discord CTAs.
 2. **THIS WEEK'S HEADLINERS** — All speakers in ONE equal-weight TABLE row with glowing-border cells, circular PFP, CLICKABLE social links (Twitter in blue #1DA1F2, Farcaster in purple #8B5CF6), topic (ALWAYS with "Topic:" prefix, linked if URL), and their bio as a styled description.
-3. **LAST WEEK'S RECAP** — ${lastWeekSpeakersWithImages.length > 0 ? "Feature last week's guests with their circular PFPs, names as clickable social links, alongside the YouTube replay and a transcript-based synopsis." : "YouTube replay or brief recap."} Use custom event images as visible background-image on this section. MUST include a transcript synopsis if transcript data is available.
+3. **LAST WEEK'S RECAP** — ${lastWeekSpeakersWithImages.length > 0 ? "Feature last week's guests with their circular PFPs, names as clickable social links, alongside the YouTube replay and a transcript-based synopsis." : "YouTube replay or brief recap."} Use custom event images only where readability is preserved, with Image 2 at the bottom if available. MUST include a transcript synopsis if transcript data is available.
 4. **TICKET STUBS** — Community links as ticket stubs with thick dashed borders and box-shadow. No header.
 
 Output JSON:
@@ -1012,7 +1014,7 @@ Output JSON:
   "title": "WIP Meetup - ${meetupDateStr}",
   "subtitle": "one-line FOMO-inducing teaser",
   "body_html": "full poster-style HTML with ALL inline styles, NO style block, TABLE-based layout",
-  "body_markdown": "clean readable Markdown version — use proper markdown syntax: # headings, ![alt](src) for images, [text](url) for links, **bold**, *italic*. Do NOT echo the raw prompt format (no [PROFILE IMAGE: ...], no (@handle on X/Twitter, link: ...), no BIO: quotes). Write natural prose with proper markdown links.",
+  "body_markdown": "Output only clean markdown compatible with Substack's editor. Do NOT output HTML, CSS, tables, or layout code. Use only headings (#, ##), paragraph text, links [text](url), images ![alt](url), and horizontal rules ---. Each image must be on its own line. Convert buttons into simple links. Separate every block with a blank line. Never compress multiple links or sections into one paragraph.",
   "recap_summary": "2-sentence punchy recap for card preview"
 }
 IMPORTANT: The title MUST be exactly "WIP Meetup - ${meetupDateStr}" — do not change the format.
