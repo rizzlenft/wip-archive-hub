@@ -134,7 +134,7 @@ const AdminNewsletter = () => {
   ]);
   const [transcript, setTranscript] = useState("");
   const [youtubeVideoId, setYoutubeVideoId] = useState("");
-  const [customImageUrls, setCustomImageUrls] = useState<string[]>([]);
+  
   const [autoFetchingVideo, setAutoFetchingVideo] = useState(false);
   
 
