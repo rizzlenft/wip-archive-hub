@@ -936,8 +936,8 @@ ${youtube_video_id ? `LAST WEEK'S EVENT VIDEO — include lower in the poster:
 - Make the thumbnail a clickable link to the YouTube video
 - IMPORTANT: OVERLAY THE VIDEO TITLE on top of the thumbnail.
 - Keep the title overlay inside a dark bottom gradient so it remains readable.
-- Do NOT place any community background image behind the replay title, recap heading, synopsis, or CTA text.
-- Below the replay area, add a separate "▶ Watch the Replay" CTA link` : ""}
+- CRITICAL LAYOUT: The recap heading, synopsis text, and all body copy MUST be on a SOLID DARK BACKGROUND (#0a0612 or similar). Do NOT place any background image behind readable text. Background/community images should appear as standalone <img> elements AFTER the text, NOT as CSS background-image behind text.
+- Below the replay area, add a "▶ Watch the Replay" CTA link styled as a BLACK button: <a href="https://youtube.com/watch?v=${youtube_video_id}" target="_blank" style="display:inline-block;padding:14px 32px;background:#000000;color:#f5f0e8;font-weight:bold;font-size:18px;text-decoration:none;border-radius:6px;border:2px solid #333;">▶ Watch the Replay</a>` : ""}
 
 ⚠️ CRITICAL — SPEAKER BIOS (NOT QUOTES):
 - Do NOT use quotes or social media posts for speakers. Instead, display their BIO as a short description/tagline on their card.
@@ -980,11 +980,11 @@ SPEAKER TOPIC — MUST ALWAYS BE DISPLAYED AS STYLED TEXT:
 - Show topic below social links, ALWAYS with the same visual format regardless of whether it's a URL or text
 
 ${transcriptQuoteNote}
-CUSTOM EVENT IMAGES — BACKGROUND TEXTURE:
+CUSTOM EVENT IMAGES — STANDALONE IMAGES ONLY (NO BACKGROUNDS):
 - These images are from LAST WEEK's event — they capture the community energy
-- NEVER place a community image directly behind the "LAST WEEK'S RECAP" heading, recap synopsis, replay title overlay, or CTA text
+- CRITICAL: Do NOT use these as CSS background-image behind ANY text. ALL text must be on solid dark backgrounds for readability.
+- Display custom images as standalone <img> elements with rounded corners and borders, placed AFTER all recap text content
 - If there are 2 or more custom images, Image 2 MUST appear as a standalone <img> at the very bottom of the recap section after all copy
-- If you use any custom image as a background texture, keep it subtle and away from text-heavy areas so readability stays high
 - Include exactly one standalone recap image when custom images are provided
 ${custom_image_urls && custom_image_urls.length > 0 ? custom_image_urls.map((url, i) => `- Image ${i + 1}: ${url}`).join("\n") : "- (No custom images provided this week)"}
 
@@ -1016,7 +1016,7 @@ Output JSON:
   "title": "WIP Meetup - ${meetupDateStr}",
   "subtitle": "one-line FOMO-inducing teaser",
   "body_html": "full poster-style HTML with ALL inline styles, NO style block, TABLE-based layout",
-  "body_markdown": "Clean markdown for Substack. NO HTML/CSS/tables. Use only: # headings, ## subheadings, paragraphs, [text](url) links, ![alt](url) images (each on own line), and --- rules. Structure: 1) # Title, 2) ## This Week's Speakers with each speaker's name, bio, social links as separate paragraphs, 3) --- separator, 4) ## Last Week's Recap with synopsis paragraph, replay link, 5) --- separator, 6) ## Join the Community with each platform link on its own line. Separate every block with a blank line. Never compress multiple items into one paragraph.",
+  "body_markdown": "Clean markdown for Substack — NO HTML, NO CSS, NO tables. Use ONLY: # headings, ## subheadings, **bold**, *italic*, [text](url) links, ![alt](url) images (each on own line), --- horizontal rules, and blank lines between every block. STRUCTURE: 1) # Title 2) ## This Week's Speakers — for EACH speaker use this exact format on separate lines: **Speaker Name** (newline) Bio text here (newline) [𝕏 @handle](https://x.com/handle) (newline) [🟣 @handle on Farcaster](https://warpcast.com/handle) (newline) Topic: topic text or [Topic Link](url) (newline) blank line before next speaker 3) --- 4) ## Last Week's Recap — synopsis paragraph, then [▶ Watch the Replay](youtube-url) on its own line 5) --- 6) ## Join the Community — EACH link on its OWN line with a blank line between: [Join Discord](https://discord.gg/XHDcUdm3) (blank line) [Follow on X/Twitter](https://twitter.com/theWIPmeetup) (blank line) [Subscribe on YouTube](https://youtube.com/@thewipmeetup) (blank line) [Join Farcaster Channel](https://farcaster.xyz/~/channel/thewipmeetup) (blank line) [Explore the Website](https://thewipmeetup.com). CRITICAL: Every link MUST be a proper markdown link [text](url) — never bare URLs. Every item must be separated by a blank line.",
   "recap_summary": "2-sentence punchy recap for card preview"
 }
 IMPORTANT: The title MUST be exactly "WIP Meetup - ${meetupDateStr}" — do not change the format.
