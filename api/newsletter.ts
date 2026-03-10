@@ -157,50 +157,83 @@ async function fetchFarcasterContent(handle: string): Promise<SpeakerSocialConte
 
 async function fetchTwitterContent(handle: string): Promise<SpeakerSocialContent> {
   const result: SpeakerSocialContent = { bio: "", recentPosts: [], source: "twitter" };
+
+  const decodeEntities = (value: string) => value
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&#39;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&#x([0-9a-f]+);/gi, (_, hex) => String.fromCharCode(parseInt(hex, 16)))
+    .replace(/&#(\d+);/g, (_, num) => String.fromCharCode(parseInt(num, 10)));
+
+  const cleanBio = (value: string) => decodeEntities(value)
+    .replace(/\s+/g, " ")
+    .replace(new RegExp(`^.*?@${handle}\\s+on\\s+X:?\\s*`, "i"), "")
+    .replace(/^The latest posts from .*? on X\.?\s*/i, "")
+    .replace(/^Watch more from .*? on X\.?\s*/i, "")
+    .replace(/^.*? on X:?\s*/i, "")
+    .trim();
+
   try {
-    // Try fetching bio from Nitter or similar public endpoint
-    // Since Twitter API requires auth, we'll try to get basic profile info
-    // via a lightweight approach
-    const profileRes = await fetch(
+    const endpoints = [
+      `https://x.com/${encodeURIComponent(handle)}`,
+      `https://twitter.com/${encodeURIComponent(handle)}`,
       `https://syndication.twitter.com/srv/timeline-profile/screen-name/${encodeURIComponent(handle)}`,
-      { headers: { Accept: "text/html", "User-Agent": "wip-newsletter" } },
-    );
-    if (profileRes.ok) {
+    ];
+
+    for (const endpoint of endpoints) {
+      const profileRes = await fetch(endpoint, {
+        headers: {
+          Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+          "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+        },
+        redirect: "follow",
+      });
+
+      if (!profileRes.ok) continue;
       const html = await profileRes.text();
-      // Extract bio from meta description or profile data
-      const bioMatch = html.match(/<meta\s+name=["']description["']\s+content=["'](.*?)["']/i);
-      if (bioMatch) {
-        result.bio = bioMatch[1]
-          .replace(/&amp;/g, "&")
-          .replace(/&lt;/g, "<")
-          .replace(/&gt;/g, ">")
-          .replace(/&#39;/g, "'")
-          .replace(/&quot;/g, '"')
-          .trim();
+
+      const bioCandidates = [
+        html.match(/<meta\s+name=["']description["']\s+content=["'](.*?)["']/i)?.[1],
+        html.match(/<meta\s+property=["']og:description["']\s+content=["'](.*?)["']/i)?.[1],
+        html.match(/"description"\s*:\s*"(.*?)"/i)?.[1],
+        html.match(/"bio"\s*:\s*"(.*?)"/i)?.[1],
+        html.match(/"profile_bio"\s*:\s*\{\s*"text"\s*:\s*"(.*?)"/i)?.[1],
+      ].filter(Boolean) as string[];
+
+      for (const candidate of bioCandidates) {
+        const cleanedBio = cleanBio(candidate);
+        if (cleanedBio && cleanedBio.length > 8) {
+          result.bio = cleanedBio;
+          break;
+        }
       }
-      // Try to extract recent tweets from the syndication response
+
       const tweetMatches = html.match(/data-tweet-id[\s\S]*?<p[^>]*>([\s\S]*?)<\/p>/gi);
       if (tweetMatches) {
-        for (const m of tweetMatches) {
-          const textMatch = m.match(/<p[^>]*>([\s\S]*?)<\/p>/i);
-          if (textMatch) {
-            const text = textMatch[1]
-              .replace(/<[^>]+>/g, "")
-              .replace(/&amp;/g, "&")
-              .replace(/&#39;/g, "'")
-              .replace(/&quot;/g, '"')
-              .trim();
-            if (text.length >= 20) {
-              result.recentPosts.push(text.slice(0, 280));
-              if (result.recentPosts.length >= 5) break;
-            }
+        for (const match of tweetMatches) {
+          const textMatch = match.match(/<p[^>]*>([\s\S]*?)<\/p>/i);
+          if (!textMatch) continue;
+
+          const text = decodeEntities(textMatch[1])
+            .replace(/<[^>]+>/g, "")
+            .replace(/\s+/g, " ")
+            .trim();
+
+          if (text.length >= 20) {
+            result.recentPosts.push(text.slice(0, 280));
+            if (result.recentPosts.length >= 5) break;
           }
         }
       }
+
+      if (result.bio || result.recentPosts.length > 0) break;
     }
   } catch (err) {
     console.warn(`Failed to fetch Twitter content for @${handle}:`, err);
   }
+
   return result;
 }
 
