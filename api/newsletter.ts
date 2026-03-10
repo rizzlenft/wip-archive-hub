@@ -929,7 +929,15 @@ ${youtube_video_id ? `LAST WEEK'S EVENT VIDEO — include lower in the poster:
 - Thumbnail: https://img.youtube.com/vi/${youtube_video_id}/maxresdefault.jpg
 - Link: https://youtube.com/watch?v=${youtube_video_id}
 - Make the thumbnail a clickable link to the YouTube video
-- IMPORTANT: OVERLAY THE VIDEO TITLE on top of the thumbnail.
+- IMPORTANT: OVERLAY THE VIDEO TITLE on top of the thumbnail using a positioned div with dark gradient background.
+  ${lastWeekVideoTitle ? `The video title is: "${lastWeekVideoTitle}"` : "Fetch and display the video title from the thumbnail."}
+  Use this EXACT HTML pattern for the thumbnail with title overlay:
+  <a href="https://youtube.com/watch?v=${youtube_video_id}" target="_blank" style="display:block;position:relative;text-decoration:none;">
+    <img src="https://img.youtube.com/vi/${youtube_video_id}/maxresdefault.jpg" width="100%" style="display:block;border-radius:8px;" alt="Last week's replay" />
+    <div style="position:absolute;bottom:0;left:0;right:0;padding:16px 12px 12px;background:linear-gradient(transparent, rgba(0,0,0,0.85));border-radius:0 0 8px 8px;">
+      <span style="color:#f5f0e8;font-size:14px;font-weight:bold;text-shadow:0 1px 3px rgba(0,0,0,0.8);">${lastWeekVideoTitle || "The WIP Meetup"}</span>
+    </div>
+  </a>
 - Keep the title overlay inside a dark bottom gradient so it remains readable.
 - CRITICAL LAYOUT: The recap heading, synopsis text, and all body copy MUST be on a SOLID DARK BACKGROUND (#0a0612 or similar). Do NOT place any background image behind readable text. Background/community images should appear as standalone <img> elements AFTER the text, NOT as CSS background-image behind text.
 - Below the replay area, add a "▶ Watch the Replay" CTA link styled as a BLACK button: <a href="https://youtube.com/watch?v=${youtube_video_id}" target="_blank" style="display:inline-block;padding:14px 32px;background:#000000;color:#f5f0e8;font-weight:bold;font-size:18px;text-decoration:none;border-radius:6px;border:2px solid #333;">▶ Watch the Replay</a>` : ""}
