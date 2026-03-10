@@ -271,9 +271,9 @@ const Newsletter = () => {
                       className="group rounded-xl border border-border bg-card p-0 overflow-hidden text-left hover:border-primary/40 transition-colors"
                     >
                       {issue.speakers?.length > 0 && (
-                        <div className="flex items-center gap-3 p-4 pb-0">
+                        <div className="flex items-center gap-2 px-3 pt-3">
                           {issue.speakers.slice(0, 4).map((speaker) => (
-                            <div key={speaker.name} className="flex flex-col items-center gap-1 min-w-0">
+                            <div key={speaker.name} className="flex flex-col items-center gap-0.5 min-w-0">
                               <img
                                 src={
                                   speaker.profile_image_url ||
