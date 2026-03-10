@@ -182,18 +182,41 @@ const Newsletter = () => {
                       Weekly recaps, speaker spotlights, and community highlights from The WIP Meetup.
                       Get it delivered to your inbox every week.
                     </p>
-                    <div className="flex items-center gap-3 pt-2">
-                      <Button variant="electric" size="default" asChild>
-                        <a
-                          href="https://thewipmeetup.substack.com/"
-                          target="_blank"
-                          rel="noopener noreferrer"
+                    {subStatus === "success" ? (
+                      <div className="flex items-center gap-2 text-sm text-accent font-medium pt-1">
+                        <CheckCircle2 className="w-4 h-4" />
+                        {subMsg}
+                      </div>
+                    ) : (
+                      <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-2 pt-2 w-full max-w-md">
+                        <Input
+                          type="email"
+                          placeholder="Enter your email"
+                          value={subEmail}
+                          onChange={(e) => { setSubEmail(e.target.value); setSubStatus("idle"); }}
+                          className="bg-card/60 border-primary/20 flex-1 min-w-0"
+                          required
+                          disabled={subStatus === "loading"}
+                        />
+                        <Button
+                          type="submit"
+                          variant="electric"
+                          size="default"
+                          disabled={subStatus === "loading"}
+                          className="shrink-0"
                         >
-                          <Mail className="w-4 h-4" />
-                          Subscribe on Substack
-                        </a>
-                      </Button>
-                    </div>
+                          {subStatus === "loading" ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Mail className="w-4 h-4" />
+                          )}
+                          Subscribe
+                        </Button>
+                      </form>
+                    )}
+                    {subStatus === "error" && (
+                      <p className="text-xs text-destructive pt-1">{subMsg}</p>
+                    )}
                   </div>
                   <div className="shrink-0">
                     <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-card/60 border border-primary/20 flex items-center justify-center shadow-lg shadow-primary/10">
