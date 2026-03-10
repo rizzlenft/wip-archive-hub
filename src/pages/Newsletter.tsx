@@ -50,6 +50,36 @@ const Newsletter = () => {
     if (full) setSelected(full);
   };
 
+  const handleSubscribe = async (e: FormEvent) => {
+    e.preventDefault();
+    const email = subEmail.trim();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setSubStatus("error");
+      setSubMsg("Please enter a valid email address.");
+      return;
+    }
+    setSubStatus("loading");
+    try {
+      const apiRes = await fetch(`${API_BASE}/api/substack-subscribe`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await apiRes.json().catch(() => ({}));
+      if (!apiRes.ok) {
+        setSubStatus("error");
+        setSubMsg((data as { error?: string }).error || "Something went wrong.");
+        return;
+      }
+      setSubStatus("success");
+      setSubMsg((data as { alreadySubscribed?: boolean }).alreadySubscribed ? "You're already subscribed! 🎉" : "You're subscribed! Check your inbox. 🎉");
+      setSubEmail("");
+    } catch {
+      setSubStatus("error");
+      setSubMsg("Network error — please try again.");
+    }
+  };
+
   const filteredIssues = issues.filter((issue) => {
     if (!searchQuery.trim()) return true;
     const q = searchQuery.toLowerCase();
