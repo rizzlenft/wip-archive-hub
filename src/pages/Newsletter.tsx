@@ -280,7 +280,7 @@ const Newsletter = () => {
                                   `${API_BASE}/api/newsletter?action=avatar&${speaker.farcaster ? `farcaster=${encodeURIComponent(speaker.farcaster)}` : speaker.twitter ? `twitter=${encodeURIComponent(speaker.twitter)}` : `twitter=${encodeURIComponent(speaker.name)}`}`
                                 }
                                 alt={speaker.name}
-                                className="w-9 h-9 rounded-full object-cover border border-primary/30"
+                                className="w-9 h-9 rounded-full object-cover border border-primary/30 transition-all duration-200 group-hover:scale-110 hover:!scale-125 hover:border-primary hover:shadow-[0_0_12px_hsl(var(--primary)/0.4)]"
                                 onError={(e) => { (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(speaker.name)}&background=7c3aed&color=fff&size=36`; }}
                               />
                               <span className="text-[10px] text-muted-foreground truncate max-w-[60px]">{speaker.name}</span>
