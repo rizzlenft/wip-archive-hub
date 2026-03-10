@@ -147,6 +147,53 @@ function convertToSubstackMarkdown(rawMarkdown: string, rawHtml: string): string
   return cleaned;
 }
 
+/**
+ * Convert clean markdown into simple HTML so that pasting into Substack
+ * preserves clickable hyperlinks, headings, images, and paragraph breaks.
+ */
+function markdownToRichHtml(md: string): string {
+  return md
+    .split("\n\n")
+    .map((block) => {
+      const trimmed = block.trim();
+      if (!trimmed) return "";
+
+      // Headings
+      const headingMatch = trimmed.match(/^(#{1,6})\s+(.*)/);
+      if (headingMatch) {
+        const level = headingMatch[1].length;
+        const text = inlineMarkdownToHtml(headingMatch[2]);
+        return `<h${level}>${text}</h${level}>`;
+      }
+
+      // Horizontal rule
+      if (/^---+$/.test(trimmed)) return "<hr />";
+
+      // Image on its own line
+      const imgMatch = trimmed.match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
+      if (imgMatch) {
+        return `<img src="${imgMatch[2]}" alt="${imgMatch[1]}" style="max-width:100%;" />`;
+      }
+
+      // Paragraph (may contain multiple lines)
+      const lines = trimmed.split("\n").map((l) => inlineMarkdownToHtml(l)).join("<br />");
+      return `<p>${lines}</p>`;
+    })
+    .filter(Boolean)
+    .join("\n");
+}
+
+/** Convert inline markdown (bold, links, images) to HTML */
+function inlineMarkdownToHtml(text: string): string {
+  return text
+    // Images inline
+    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" style="max-width:100%;" />')
+    // Links
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
+    // Bold
+    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+}
+
 export function SubstackExportModal({ open, onOpenChange, markdown, html, title }: SubstackExportModalProps) {
   const [copied, setCopied] = useState(false);
   const [capturingImage, setCapturingImage] = useState(false);
@@ -155,17 +202,34 @@ export function SubstackExportModal({ open, onOpenChange, markdown, html, title 
   const previewRef = useRef<HTMLDivElement>(null);
 
   const handleCopy = async () => {
+    // Copy as rich text (HTML) so Substack receives actual clickable links
+    const richHtml = markdownToRichHtml(exportedMarkdown);
     try {
-      await navigator.clipboard.writeText(exportedMarkdown);
+      const htmlBlob = new Blob([richHtml], { type: "text/html" });
+      const textBlob = new Blob([exportedMarkdown], { type: "text/plain" });
+      await navigator.clipboard.write([
+        new ClipboardItem({
+          "text/html": htmlBlob,
+          "text/plain": textBlob,
+        }),
+      ]);
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
     } catch {
-      const textarea = document.createElement("textarea");
-      textarea.value = exportedMarkdown;
-      document.body.appendChild(textarea);
-      textarea.select();
+      // Fallback: use execCommand with a rich-text contenteditable div
+      const div = document.createElement("div");
+      div.innerHTML = richHtml;
+      div.contentEditable = "true";
+      div.style.position = "fixed";
+      div.style.left = "-9999px";
+      document.body.appendChild(div);
+      const range = document.createRange();
+      range.selectNodeContents(div);
+      const sel = window.getSelection();
+      sel?.removeAllRanges();
+      sel?.addRange(range);
       document.execCommand("copy");
-      document.body.removeChild(textarea);
+      document.body.removeChild(div);
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
     }
