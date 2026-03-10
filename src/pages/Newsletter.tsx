@@ -30,6 +30,9 @@ const Newsletter = () => {
   const [selected, setSelected] = useState<NewsletterIssue | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [subEmail, setSubEmail] = useState("");
+  const [subStatus, setSubStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [subMsg, setSubMsg] = useState("");
   const posterRef = useRef<HTMLDivElement>(null);
   useNewsletterLogoFallback(posterRef, selected?.body_html || "");
 
