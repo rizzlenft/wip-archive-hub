@@ -949,12 +949,19 @@ const AdminNewsletter = () => {
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={handleCopyAndOpenSubstack}
+                  onClick={() => setSubstackExportOpen(true)}
                   className="border-accent/50 text-accent hover:bg-accent/10"
                 >
-                  <Mail className="w-4 h-4" />
-                  Copy &amp; Open Substack
+                  <FileText className="w-4 h-4" />
+                  Export to Substack
                 </Button>
+                <SubstackExportModal
+                  open={substackExportOpen}
+                  onOpenChange={setSubstackExportOpen}
+                  markdown={editableMarkdown}
+                  html={editableHtml}
+                  title={editableTitle}
+                />
               </div>
             </div>
           )}
