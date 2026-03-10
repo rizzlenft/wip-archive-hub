@@ -15,6 +15,7 @@ interface SubstackExportModalProps {
 /**
  * Convert newsletter HTML/markdown into clean Substack-compatible markdown.
  * Ensures ALL URLs are wrapped in [text](url) markdown links — no bare URLs.
+ * Deduplicates repeated link/ticket-stub sections.
  */
 function convertToSubstackMarkdown(rawMarkdown: string, rawHtml: string): string {
   let source = rawMarkdown?.trim() || "";
@@ -54,24 +55,19 @@ function convertToSubstackMarkdown(rawMarkdown: string, rawHtml: string): string
     .trim();
 
   // Convert bare URLs into markdown links (URLs not already inside [...](...))
-  // Match URLs that are NOT preceded by ]( or "( and NOT already inside a markdown link
   cleaned = cleaned.replace(
     /(?<!\]\()(?<!\()(https?:\/\/[^\s)\]]+)/g,
     (match, _url, offset, full) => {
-      // Check if this URL is already part of a markdown link [text](url) or ![alt](url)
       const before = full.substring(Math.max(0, offset - 2), offset);
       if (before.endsWith("](") || before.endsWith("!(")) return match;
       
-      // Check if this URL is the href inside [text](URL) — look backwards for ](
       const preceding = full.substring(Math.max(0, offset - 200), offset);
       const lastOpenParen = preceding.lastIndexOf("](");
       if (lastOpenParen !== -1) {
         const between = preceding.substring(lastOpenParen + 2);
-        // If there's no closing paren between ]( and this URL, it's inside a link
         if (!between.includes(")")) return match;
       }
 
-      // Generate a readable label from the URL
       try {
         const u = new URL(match);
         const host = u.hostname.replace(/^www\./, "");
@@ -123,6 +119,28 @@ function convertToSubstackMarkdown(rawMarkdown: string, rawHtml: string): string
     "$1\n\n$2"
   );
 
+  // ── DEDUPLICATE repeated link blocks (double tabs fix) ──
+  // Detect and remove duplicate community link sections
+  const linkPatterns = [
+    /\[Join Discord\]\([^)]+\)/g,
+    /\[Follow on (?:𝕏|X)\s*(?:\/\s*Twitter)?\]\([^)]+\)/g,
+    /\[Subscribe on YouTube\]\([^)]+\)/g,
+    /\[(?:Join )?Farcaster(?: Channel)?\]\([^)]+\)/g,
+    /\[(?:Explore (?:the )?)?(?:The WIP Meetup|Website)\]\([^)]+\)/g,
+  ];
+  
+  for (const pattern of linkPatterns) {
+    const matches = cleaned.match(pattern);
+    if (matches && matches.length > 1) {
+      // Keep only the first occurrence of each duplicate link
+      let seen = false;
+      cleaned = cleaned.replace(pattern, (m) => {
+        if (!seen) { seen = true; return m; }
+        return "";
+      });
+    }
+  }
+
   // Collapse 3+ newlines to exactly 2
   cleaned = cleaned.replace(/\n{3,}/g, "\n\n").trim();
 
@@ -154,7 +172,6 @@ export function SubstackExportModal({ open, onOpenChange, markdown, html, title 
   };
 
   const handleCopyImage = async () => {
-    // Find the newsletter poster element on the page behind the modal
     const posterEl = document.querySelector(".newsletter-poster-preview") as HTMLElement | null;
     if (!posterEl) {
       alert("No newsletter content found to capture.");
@@ -163,15 +180,71 @@ export function SubstackExportModal({ open, onOpenChange, markdown, html, title 
 
     setCapturingImage(true);
     try {
-      const canvas = await html2canvas(posterEl, {
+      // Clone the poster element so we can modify it without affecting the page
+      const clone = posterEl.cloneNode(true) as HTMLElement;
+      clone.style.position = "absolute";
+      clone.style.left = "-9999px";
+      clone.style.top = "0";
+      clone.style.width = posterEl.offsetWidth + "px";
+      // Remove any max-height / overflow constraints that could crop
+      clone.style.maxHeight = "none";
+      clone.style.overflow = "visible";
+      clone.style.height = "auto";
+      document.body.appendChild(clone);
+
+      // Swap all GIF logos to static PNG in the clone
+      const logoImgs = clone.querySelectorAll<HTMLImageElement>("img");
+      const loadPromises: Promise<void>[] = [];
+
+      logoImgs.forEach((img) => {
+        const src = img.getAttribute("src") || "";
+        if (/wip-logo\.gif/i.test(src) || (/wip-logo/i.test(src) && src.endsWith(".gif"))) {
+          // Replace GIF with static PNG
+          img.src = "/images/wip-logo-static.png";
+          // Remove onerror handler that might interfere
+          img.removeAttribute("onerror");
+          // Wait for the static image to load
+          loadPromises.push(
+            new Promise<void>((resolve) => {
+              if (img.complete && img.naturalWidth > 0) {
+                resolve();
+              } else {
+                img.onload = () => resolve();
+                img.onerror = () => {
+                  // Use the SVG fallback if static PNG also fails
+                  img.src = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' rx='16' fill='%230a0612'/%3E%3Crect x='2' y='2' width='76' height='76' rx='14' fill='none' stroke='%23e84393' stroke-width='3'/%3E%3Ctext x='40' y='48' font-family='Arial,sans-serif' font-size='28' font-weight='bold' fill='%23f5f0e8' text-anchor='middle'%3EWIP%3C/text%3E%3C/svg%3E`;
+                  resolve();
+                };
+              }
+            })
+          );
+        }
+      });
+
+      // Wait for all replacement images to load
+      if (loadPromises.length > 0) {
+        await Promise.all(loadPromises);
+        // Small extra delay for rendering
+        await new Promise((r) => setTimeout(r, 200));
+      }
+
+      const canvas = await html2canvas(clone, {
         backgroundColor: "#0a0612",
         scale: 2,
         useCORS: true,
         allowTaint: true,
         logging: false,
+        // Capture the full scrollable height
+        height: clone.scrollHeight,
+        windowHeight: clone.scrollHeight,
+        width: clone.offsetWidth,
+        windowWidth: clone.offsetWidth,
       });
 
-      // Try clipboard API first
+      // Clean up clone
+      document.body.removeChild(clone);
+
+      // Convert to blob and copy/download
       canvas.toBlob(async (blob) => {
         if (!blob) {
           setCapturingImage(false);
