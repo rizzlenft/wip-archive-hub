@@ -768,12 +768,7 @@ YouTube Thumbnail (MUST include as clickable image): https://img.youtube.com/vi/
       }).join("\n")
     : "(No previous speakers found)";
 
-  const customImagesContext =
-    custom_image_urls && custom_image_urls.length > 0
-      ? `\n\nCUSTOM EVENT IMAGES FROM LAST WEEK (these are community photos from LAST WEEK's event — NOT this week's speakers):
-${custom_image_urls.map((url, i) => `- Image ${i + 1}: ${url}`).join("\n")}
-Use these subtly and only where readability is preserved. If there are 2 or more images, Image 2 MUST be used as the standalone image at the VERY BOTTOM of the recap section after all text and CTAs — never behind a heading, synopsis, or body text.`
-      : "";
+  const customImagesContext = "";
 
   const transcriptSection = effectiveTranscript
     ? `\n\nHere is a transcript/notes from last week's event. THIS IS CRITICAL — you MUST extract the 2-3 most INSIGHTFUL, thought-provoking, or exciting quotes. Look for:
@@ -980,13 +975,7 @@ SPEAKER TOPIC — MUST ALWAYS BE DISPLAYED AS STYLED TEXT:
 - Show topic below social links, ALWAYS with the same visual format regardless of whether it's a URL or text
 
 ${transcriptQuoteNote}
-CUSTOM EVENT IMAGES — STANDALONE IMAGES ONLY (NO BACKGROUNDS):
-- These images are from LAST WEEK's event — they capture the community energy
-- CRITICAL: Do NOT use these as CSS background-image behind ANY text. ALL text must be on solid dark backgrounds for readability.
-- Display custom images as standalone <img> elements with rounded corners and borders, placed AFTER all recap text content
-- If there are 2 or more custom images, Image 2 MUST appear as a standalone <img> at the very bottom of the recap section after all copy
-- Include exactly one standalone recap image when custom images are provided
-${custom_image_urls && custom_image_urls.length > 0 ? custom_image_urls.map((url, i) => `- Image ${i + 1}: ${url}`).join("\n") : "- (No custom images provided this week)"}
+DO NOT include any custom background images or banner images behind text. ALL text must be on solid dark backgrounds (#0a0612) for readability. No standalone event images are needed.
 
 LAST WEEK'S RECAP — TRANSCRIPT SYNOPSIS IS MANDATORY:
 - If a transcript is provided below, you MUST write a compelling 3-5 sentence synopsis summarizing what happened
@@ -1014,7 +1003,7 @@ SECTIONS ORDER (mandatory):
 Output JSON:
 {
   "title": "WIP Meetup - ${meetupDateStr}",
-  "subtitle": "one-line FOMO-inducing teaser",
+  "subtitle": "",
   "body_html": "full poster-style HTML with ALL inline styles, NO style block, TABLE-based layout",
   "body_markdown": "Clean Substack-compatible markdown. NO HTML, NO CSS, NO tables. Follow this EXACT template:\n\n# WIP Meetup - DATE\n\nSubtitle text here\n\n---\n\n## 🎤 This Week's Speakers\n\n**Speaker Name**\n\nBio or description text here.\n\n[𝕏 @handle](https://x.com/handle)\n\n[🟣 @handle on Farcaster](https://warpcast.com/handle)\n\nTopic: topic text or [Topic Title](url)\n\n---\n\n(repeat for each speaker with --- between them)\n\n---\n\n## 🔁 Last Week's Recap\n\nSynopsis paragraph here.\n\n![Last Week's Recap Thumbnail](https://img.youtube.com/vi/VIDEOID/maxresdefault.jpg)\n\n[▶ Watch the Replay](https://youtube.com/watch?v=VIDEOID)\n\n---\n\n## 🎟️ Join the Community\n\n[Join Discord](https://discord.gg/XHDcUdm3)\n\n[Follow on 𝕏 / Twitter](https://twitter.com/theWIPmeetup)\n\n[Subscribe on YouTube](https://youtube.com/@thewipmeetup)\n\n[Join Farcaster Channel](https://farcaster.xyz/~/channel/thewipmeetup)\n\n[Explore the Website](https://thewipmeetup.com)\n\nRULES: 1) EVERY URL must be a [text](url) hyperlink — NEVER bare URLs. 2) Blank line between EVERY element. 3) --- between each section AND between each speaker. 4) Speaker topics that are URLs must be hyperlinked: [Topic Name](url). 5) No raw markdown syntax visible — all links must render as clickable text.",
   "recap_summary": "2-sentence punchy recap for card preview"
