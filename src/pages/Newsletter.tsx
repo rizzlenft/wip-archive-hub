@@ -280,15 +280,15 @@ const Newsletter = () => {
                                   `${API_BASE}/api/newsletter?action=avatar&${speaker.farcaster ? `farcaster=${encodeURIComponent(speaker.farcaster)}` : speaker.twitter ? `twitter=${encodeURIComponent(speaker.twitter)}` : `twitter=${encodeURIComponent(speaker.name)}`}`
                                 }
                                 alt={speaker.name}
-                                className="w-12 h-12 rounded-full object-cover border-2 border-primary/30"
-                                onError={(e) => { (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(speaker.name)}&background=7c3aed&color=fff`; }}
+                                className="w-9 h-9 rounded-full object-cover border border-primary/30"
+                                onError={(e) => { (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(speaker.name)}&background=7c3aed&color=fff&size=36`; }}
                               />
-                              <span className="text-[10px] text-muted-foreground truncate max-w-[70px] text-center">{speaker.name}</span>
+                              <span className="text-[10px] text-muted-foreground truncate max-w-[60px]">{speaker.name}</span>
                             </div>
                           ))}
                         </div>
                       )}
-                      <div className="p-4 space-y-2">
+                      <div className="p-3 pt-2 space-y-1">
                         <h3 className="font-semibold group-hover:text-primary transition-colors">
                           {issue.title}
                         </h3>
