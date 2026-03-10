@@ -1,11 +1,11 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, type FormEvent } from "react";
 import { motion } from "framer-motion";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Calendar, User, ExternalLink, Search, Mail, Sparkles } from "lucide-react";
+import { ArrowLeft, Calendar, User, ExternalLink, Search, Mail, Sparkles, Loader2, CheckCircle2 } from "lucide-react";
 import { type NewsletterIssue, fetchNewsletters, fetchNewsletter } from "@/lib/newsletter";
 import { useNewsletterLogoFallback } from "@/hooks/use-newsletter-logo-fallback";
 import wipLogo from "@/assets/wip-logo-static.png";
@@ -30,6 +30,9 @@ const Newsletter = () => {
   const [selected, setSelected] = useState<NewsletterIssue | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [subEmail, setSubEmail] = useState("");
+  const [subStatus, setSubStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [subMsg, setSubMsg] = useState("");
   const posterRef = useRef<HTMLDivElement>(null);
   useNewsletterLogoFallback(posterRef, selected?.body_html || "");
 
@@ -45,6 +48,36 @@ const Newsletter = () => {
   const openIssue = async (id: string) => {
     const full = await fetchNewsletter(id);
     if (full) setSelected(full);
+  };
+
+  const handleSubscribe = async (e: FormEvent) => {
+    e.preventDefault();
+    const email = subEmail.trim();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setSubStatus("error");
+      setSubMsg("Please enter a valid email address.");
+      return;
+    }
+    setSubStatus("loading");
+    try {
+      const apiRes = await fetch(`${API_BASE}/api/substack-subscribe`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await apiRes.json().catch(() => ({}));
+      if (!apiRes.ok) {
+        setSubStatus("error");
+        setSubMsg((data as { error?: string }).error || "Something went wrong.");
+        return;
+      }
+      setSubStatus("success");
+      setSubMsg((data as { alreadySubscribed?: boolean }).alreadySubscribed ? "You're already subscribed! 🎉" : "You're subscribed! Check your inbox. 🎉");
+      setSubEmail("");
+    } catch {
+      setSubStatus("error");
+      setSubMsg("Network error — please try again.");
+    }
   };
 
   const filteredIssues = issues.filter((issue) => {
@@ -149,18 +182,41 @@ const Newsletter = () => {
                       Weekly recaps, speaker spotlights, and community highlights from The WIP Meetup.
                       Get it delivered to your inbox every week.
                     </p>
-                    <div className="flex items-center gap-3 pt-2">
-                      <Button variant="electric" size="default" asChild>
-                        <a
-                          href="https://thewipmeetup.substack.com/"
-                          target="_blank"
-                          rel="noopener noreferrer"
+                    {subStatus === "success" ? (
+                      <div className="flex items-center gap-2 text-sm text-accent font-medium pt-1">
+                        <CheckCircle2 className="w-4 h-4" />
+                        {subMsg}
+                      </div>
+                    ) : (
+                      <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-2 pt-2 w-full max-w-md">
+                        <Input
+                          type="email"
+                          placeholder="Enter your email"
+                          value={subEmail}
+                          onChange={(e) => { setSubEmail(e.target.value); setSubStatus("idle"); }}
+                          className="bg-card/60 border-primary/20 flex-1 min-w-0"
+                          required
+                          disabled={subStatus === "loading"}
+                        />
+                        <Button
+                          type="submit"
+                          variant="electric"
+                          size="default"
+                          disabled={subStatus === "loading"}
+                          className="shrink-0"
                         >
-                          <Mail className="w-4 h-4" />
-                          Subscribe on Substack
-                        </a>
-                      </Button>
-                    </div>
+                          {subStatus === "loading" ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Mail className="w-4 h-4" />
+                          )}
+                          Subscribe
+                        </Button>
+                      </form>
+                    )}
+                    {subStatus === "error" && (
+                      <p className="text-xs text-destructive pt-1">{subMsg}</p>
+                    )}
                   </div>
                   <div className="shrink-0">
                     <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-card/60 border border-primary/20 flex items-center justify-center shadow-lg shadow-primary/10">
