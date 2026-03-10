@@ -25,6 +25,12 @@ function proxyUnavatarHtml(html: string): string {
   );
 }
 
+/** Strip leading cover/thumbnail images from newsletter HTML (e.g. YouTube thumbs from prior week) */
+function stripLeadingCoverImage(html: string): string {
+  // Remove the first <img> if it's a YouTube thumbnail or generic cover at the very top
+  return html.replace(/^\s*(<div[^>]*>\s*)?<img\s[^>]*src=["']https:\/\/img\.youtube\.com\/[^"']*["'][^>]*\/?>(\s*<\/div>)?/i, '$1$2');
+}
+
 const Newsletter = () => {
   const [issues, setIssues] = useState<NewsletterIssue[]>([]);
   const [selected, setSelected] = useState<NewsletterIssue | null>(null);
