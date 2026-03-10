@@ -157,50 +157,83 @@ async function fetchFarcasterContent(handle: string): Promise<SpeakerSocialConte
 
 async function fetchTwitterContent(handle: string): Promise<SpeakerSocialContent> {
   const result: SpeakerSocialContent = { bio: "", recentPosts: [], source: "twitter" };
+
+  const decodeEntities = (value: string) => value
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&#39;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&#x([0-9a-f]+);/gi, (_, hex) => String.fromCharCode(parseInt(hex, 16)))
+    .replace(/&#(\d+);/g, (_, num) => String.fromCharCode(parseInt(num, 10)));
+
+  const cleanBio = (value: string) => decodeEntities(value)
+    .replace(/\s+/g, " ")
+    .replace(new RegExp(`^.*?@${handle}\\s+on\\s+X:?\\s*`, "i"), "")
+    .replace(/^The latest posts from .*? on X\.?\s*/i, "")
+    .replace(/^Watch more from .*? on X\.?\s*/i, "")
+    .replace(/^.*? on X:?\s*/i, "")
+    .trim();
+
   try {
-    // Try fetching bio from Nitter or similar public endpoint
-    // Since Twitter API requires auth, we'll try to get basic profile info
-    // via a lightweight approach
-    const profileRes = await fetch(
+    const endpoints = [
+      `https://x.com/${encodeURIComponent(handle)}`,
+      `https://twitter.com/${encodeURIComponent(handle)}`,
       `https://syndication.twitter.com/srv/timeline-profile/screen-name/${encodeURIComponent(handle)}`,
-      { headers: { Accept: "text/html", "User-Agent": "wip-newsletter" } },
-    );
-    if (profileRes.ok) {
+    ];
+
+    for (const endpoint of endpoints) {
+      const profileRes = await fetch(endpoint, {
+        headers: {
+          Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+          "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+        },
+        redirect: "follow",
+      });
+
+      if (!profileRes.ok) continue;
       const html = await profileRes.text();
-      // Extract bio from meta description or profile data
-      const bioMatch = html.match(/<meta\s+name=["']description["']\s+content=["'](.*?)["']/i);
-      if (bioMatch) {
-        result.bio = bioMatch[1]
-          .replace(/&amp;/g, "&")
-          .replace(/&lt;/g, "<")
-          .replace(/&gt;/g, ">")
-          .replace(/&#39;/g, "'")
-          .replace(/&quot;/g, '"')
-          .trim();
+
+      const bioCandidates = [
+        html.match(/<meta\s+name=["']description["']\s+content=["'](.*?)["']/i)?.[1],
+        html.match(/<meta\s+property=["']og:description["']\s+content=["'](.*?)["']/i)?.[1],
+        html.match(/"description"\s*:\s*"(.*?)"/i)?.[1],
+        html.match(/"bio"\s*:\s*"(.*?)"/i)?.[1],
+        html.match(/"profile_bio"\s*:\s*\{\s*"text"\s*:\s*"(.*?)"/i)?.[1],
+      ].filter(Boolean) as string[];
+
+      for (const candidate of bioCandidates) {
+        const cleanedBio = cleanBio(candidate);
+        if (cleanedBio && cleanedBio.length > 8) {
+          result.bio = cleanedBio;
+          break;
+        }
       }
-      // Try to extract recent tweets from the syndication response
+
       const tweetMatches = html.match(/data-tweet-id[\s\S]*?<p[^>]*>([\s\S]*?)<\/p>/gi);
       if (tweetMatches) {
-        for (const m of tweetMatches) {
-          const textMatch = m.match(/<p[^>]*>([\s\S]*?)<\/p>/i);
-          if (textMatch) {
-            const text = textMatch[1]
-              .replace(/<[^>]+>/g, "")
-              .replace(/&amp;/g, "&")
-              .replace(/&#39;/g, "'")
-              .replace(/&quot;/g, '"')
-              .trim();
-            if (text.length >= 20) {
-              result.recentPosts.push(text.slice(0, 280));
-              if (result.recentPosts.length >= 5) break;
-            }
+        for (const match of tweetMatches) {
+          const textMatch = match.match(/<p[^>]*>([\s\S]*?)<\/p>/i);
+          if (!textMatch) continue;
+
+          const text = decodeEntities(textMatch[1])
+            .replace(/<[^>]+>/g, "")
+            .replace(/\s+/g, " ")
+            .trim();
+
+          if (text.length >= 20) {
+            result.recentPosts.push(text.slice(0, 280));
+            if (result.recentPosts.length >= 5) break;
           }
         }
       }
+
+      if (result.bio || result.recentPosts.length > 0) break;
     }
   } catch (err) {
     console.warn(`Failed to fetch Twitter content for @${handle}:`, err);
   }
+
   return result;
 }
 
@@ -208,26 +241,23 @@ async function fetchSpeakerSocialContent(speaker: Speaker): Promise<SpeakerSocia
   const fc = normalizeFarcasterHandle(speaker.farcaster);
   const tw = normalizeTwitterHandle(speaker.twitter);
 
-  // Try Farcaster first (more reliable, no auth needed)
-  if (fc) {
-    const fcContent = await fetchFarcasterContent(fc);
-    if (fcContent.recentPosts.length > 0 || fcContent.bio) {
-      // Also try Twitter for additional context
-      if (tw) {
-        const twContent = await fetchTwitterContent(tw);
-        if (twContent.bio && !fcContent.bio) fcContent.bio = twContent.bio;
-        // Merge unique Twitter posts
-        for (const post of twContent.recentPosts) {
-          if (fcContent.recentPosts.length < 8) fcContent.recentPosts.push(`[from X/Twitter] ${post}`);
-        }
-      }
-      return fcContent;
-    }
-  }
+  const [fcContent, twContent] = await Promise.all([
+    fc ? fetchFarcasterContent(fc) : Promise.resolve<SpeakerSocialContent>({ bio: "", recentPosts: [], source: "none" }),
+    tw ? fetchTwitterContent(tw) : Promise.resolve<SpeakerSocialContent>({ bio: "", recentPosts: [], source: "none" }),
+  ]);
 
-  // Fallback to Twitter
-  if (tw) {
-    return await fetchTwitterContent(tw);
+  if (fcContent.source !== "none" || twContent.source !== "none") {
+    const mergedPosts = [...fcContent.recentPosts];
+    for (const post of twContent.recentPosts) {
+      if (mergedPosts.length >= 8) break;
+      if (!mergedPosts.includes(post)) mergedPosts.push(`[from X/Twitter] ${post}`);
+    }
+
+    return {
+      bio: twContent.bio || fcContent.bio || "",
+      recentPosts: mergedPosts,
+      source: twContent.bio ? "twitter" : fcContent.source !== "none" ? "farcaster" : twContent.source,
+    };
   }
 
   return { bio: "", recentPosts: [], source: "none" };
@@ -738,12 +768,11 @@ YouTube Thumbnail (MUST include as clickable image): https://img.youtube.com/vi/
       }).join("\n")
     : "(No previous speakers found)";
 
-  // Build custom images context
   const customImagesContext =
     custom_image_urls && custom_image_urls.length > 0
       ? `\n\nCUSTOM EVENT IMAGES FROM LAST WEEK (these are community photos from LAST WEEK's event — NOT this week's speakers):
 ${custom_image_urls.map((url, i) => `- Image ${i + 1}: ${url}`).join("\n")}
-Use these as atmospheric background layers (opacity ~0.20-0.30, slight blur, behind content). They should be VISIBLE and add energy. Do NOT feature them as big foreground photos and do NOT associate them with a specific speaker.`
+Use these subtly and only where readability is preserved. If there are 2 or more images, Image 2 MUST be used as the standalone image at the VERY BOTTOM of the recap section after all text and CTAs — never behind a heading, synopsis, or body text.`
       : "";
 
   const transcriptSection = effectiveTranscript
@@ -905,13 +934,10 @@ ${youtube_video_id ? `LAST WEEK'S EVENT VIDEO — include lower in the poster:
 - Thumbnail: https://img.youtube.com/vi/${youtube_video_id}/maxresdefault.jpg
 - Link: https://youtube.com/watch?v=${youtube_video_id}
 - Make the thumbnail a clickable link to the YouTube video
-- IMPORTANT: OVERLAY THE VIDEO TITLE on top of the thumbnail. Use a table cell with:
-  * background-image: url(https://img.youtube.com/vi/${youtube_video_id}/maxresdefault.jpg); background-size:cover; background-position:center;
-  * height: 360px (or similar)
-  * A nested div with background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 50%, transparent 100%) covering the full cell
-  * The VIDEO TITLE "${lastWeekVideoTitle || "(use the title from the YouTube video)"}" rendered as large bold white text (22-26px, font-weight:900, text-shadow: 0 2px 8px rgba(0,0,0,0.9)) at the bottom of the cell using vertical-align:bottom; padding:20px;
-  * This tells viewers exactly what the video is about and who was on
-- Below the image, add a "▶ Watch the Replay" CTA link` : ""}
+- IMPORTANT: OVERLAY THE VIDEO TITLE on top of the thumbnail.
+- Keep the title overlay inside a dark bottom gradient so it remains readable.
+- Do NOT place any community background image behind the replay title, recap heading, synopsis, or CTA text.
+- Below the replay area, add a separate "▶ Watch the Replay" CTA link` : ""}
 
 ⚠️ CRITICAL — SPEAKER BIOS (NOT QUOTES):
 - Do NOT use quotes or social media posts for speakers. Instead, display their BIO as a short description/tagline on their card.
@@ -954,10 +980,10 @@ SPEAKER TOPIC — MUST ALWAYS BE DISPLAYED AS STYLED TEXT:
 ${transcriptQuoteNote}
 CUSTOM EVENT IMAGES — BACKGROUND TEXTURE:
 - These images are from LAST WEEK's event — they capture the community energy
-- Use them as background-image on table cells with background-size:cover; background-position:center;
-- Apply a dark overlay: background:rgba(10,6,18,0.75) to maintain text readability
-- If multiple images provided, use different images for different sections
-- Also include at least ONE image as a standalone <img> element so it appears in Substack too
+- NEVER place a community image directly behind the "LAST WEEK'S RECAP" heading, recap synopsis, replay title overlay, or CTA text
+- If there are 2 or more custom images, Image 2 MUST appear as a standalone <img> at the very bottom of the recap section after all copy
+- If you use any custom image as a background texture, keep it subtle and away from text-heavy areas so readability stays high
+- Include exactly one standalone recap image when custom images are provided
 ${custom_image_urls && custom_image_urls.length > 0 ? custom_image_urls.map((url, i) => `- Image ${i + 1}: ${url}`).join("\n") : "- (No custom images provided this week)"}
 
 LAST WEEK'S RECAP — TRANSCRIPT SYNOPSIS IS MANDATORY:
@@ -971,6 +997,8 @@ LAST WEEK'S RECAP — TRANSCRIPT SYNOPSIS IS MANDATORY:
 LAYOUT RULES:
 - Use TABLE-BASED layout throughout (for email compatibility)
 - ALL community links should be styled as individual TICKET STUBS with thick dashed borders and box-shadow
+- Render EXACTLY five ticket stubs, each with visible label text: "Join Discord", "Follow on X/Twitter", "Subscribe on YouTube", "Join Farcaster Channel", and "Explore the Website"
+- Never output empty, blank, or unlabeled ticket stubs
 - Max-width: 680px, centered with margin:0 auto
 - TIGHT SPACING: Keep padding between sections to 16-24px max
 - MOBILE-FRIENDLY: Images use max-width:100%, tables use width:100%
@@ -978,7 +1006,7 @@ LAYOUT RULES:
 SECTIONS ORDER (mandatory):
 1. **HEADER** — WIP logo + "The WIP Meetup" (huge, glowing text-shadow) + "Every Thursday · 3 PM ET" + Website & Discord CTAs.
 2. **THIS WEEK'S HEADLINERS** — All speakers in ONE equal-weight TABLE row with glowing-border cells, circular PFP, CLICKABLE social links (Twitter in blue #1DA1F2, Farcaster in purple #8B5CF6), topic (ALWAYS with "Topic:" prefix, linked if URL), and their bio as a styled description.
-3. **LAST WEEK'S RECAP** — ${lastWeekSpeakersWithImages.length > 0 ? "Feature last week's guests with their circular PFPs, names as clickable social links, alongside the YouTube replay and a transcript-based synopsis." : "YouTube replay or brief recap."} Use custom event images as visible background-image on this section. MUST include a transcript synopsis if transcript data is available.
+3. **LAST WEEK'S RECAP** — ${lastWeekSpeakersWithImages.length > 0 ? "Feature last week's guests with their circular PFPs, names as clickable social links, alongside the YouTube replay and a transcript-based synopsis." : "YouTube replay or brief recap."} Use custom event images only where readability is preserved, with Image 2 at the bottom if available. MUST include a transcript synopsis if transcript data is available.
 4. **TICKET STUBS** — Community links as ticket stubs with thick dashed borders and box-shadow. No header.
 
 Output JSON:
@@ -986,7 +1014,7 @@ Output JSON:
   "title": "WIP Meetup - ${meetupDateStr}",
   "subtitle": "one-line FOMO-inducing teaser",
   "body_html": "full poster-style HTML with ALL inline styles, NO style block, TABLE-based layout",
-  "body_markdown": "clean readable Markdown version — use proper markdown syntax: # headings, ![alt](src) for images, [text](url) for links, **bold**, *italic*. Do NOT echo the raw prompt format (no [PROFILE IMAGE: ...], no (@handle on X/Twitter, link: ...), no BIO: quotes). Write natural prose with proper markdown links.",
+  "body_markdown": "Output only clean markdown compatible with Substack's editor. Do NOT output HTML, CSS, tables, or layout code. Use only headings (#, ##), paragraph text, links [text](url), images ![alt](url), and horizontal rules ---. Each image must be on its own line. Convert buttons into simple links. Separate every block with a blank line. Never compress multiple links or sections into one paragraph.",
   "recap_summary": "2-sentence punchy recap for card preview"
 }
 IMPORTANT: The title MUST be exactly "WIP Meetup - ${meetupDateStr}" — do not change the format.
