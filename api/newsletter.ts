@@ -1016,7 +1016,7 @@ Output JSON:
   "title": "WIP Meetup - ${meetupDateStr}",
   "subtitle": "one-line FOMO-inducing teaser",
   "body_html": "full poster-style HTML with ALL inline styles, NO style block, TABLE-based layout",
-  "body_markdown": "Output only clean markdown compatible with Substack's editor. Do NOT output HTML, CSS, tables, or layout code. Use only headings (#, ##), paragraph text, links [text](url), images ![alt](url), and horizontal rules ---. Each image must be on its own line. Convert buttons into simple links. Separate every block with a blank line. Never compress multiple links or sections into one paragraph.",
+  "body_markdown": "Clean markdown for Substack. NO HTML/CSS/tables. Use only: # headings, ## subheadings, paragraphs, [text](url) links, ![alt](url) images (each on own line), and --- rules. Structure: 1) # Title, 2) ## This Week's Speakers with each speaker's name, bio, social links as separate paragraphs, 3) --- separator, 4) ## Last Week's Recap with synopsis paragraph, replay link, 5) --- separator, 6) ## Join the Community with each platform link on its own line. Separate every block with a blank line. Never compress multiple items into one paragraph.",
   "recap_summary": "2-sentence punchy recap for card preview"
 }
 IMPORTANT: The title MUST be exactly "WIP Meetup - ${meetupDateStr}" — do not change the format.
