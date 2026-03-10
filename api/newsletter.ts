@@ -767,7 +767,7 @@ YouTube Thumbnail (MUST include as clickable image): https://img.youtube.com/vi/
       }).join("\n")
     : "(No previous speakers found)";
 
-  const customImagesContext = "";
+  
 
   const transcriptSection = effectiveTranscript
     ? `\n\nHere is a transcript/notes from last week's event. THIS IS CRITICAL — you MUST extract the 2-3 most INSIGHTFUL, thought-provoking, or exciting quotes. Look for:
