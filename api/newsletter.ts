@@ -622,11 +622,10 @@ async function handleGenerate(req: VercelRequest, res: VercelResponse) {
     });
   }
 
-  const { speakers, transcript, youtube_video_id, custom_image_urls } = req.body as {
+  const { speakers, transcript, youtube_video_id } = req.body as {
     speakers?: Speaker[];
     transcript?: string;
     youtube_video_id?: string;
-    custom_image_urls?: string[];
   };
 
   if (!speakers || speakers.length === 0) {
@@ -768,7 +767,7 @@ YouTube Thumbnail (MUST include as clickable image): https://img.youtube.com/vi/
       }).join("\n")
     : "(No previous speakers found)";
 
-  const customImagesContext = "";
+  
 
   const transcriptSection = effectiveTranscript
     ? `\n\nHere is a transcript/notes from last week's event. THIS IS CRITICAL — you MUST extract the 2-3 most INSIGHTFUL, thought-provoking, or exciting quotes. Look for:
@@ -1044,7 +1043,6 @@ NOT an email. A POSTER.
 ${speakerList}
 ${videoContext}
 ${transcriptSection}
-${customImagesContext}
 ${lastWeekContext}
 
 Community links (style as "entry points" in the ticket section):
