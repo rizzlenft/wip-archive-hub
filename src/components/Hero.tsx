@@ -109,8 +109,10 @@ export const Hero = () => {
             transition={{ delay: 0.7 }}
           >
             <LiveStatusBanner />
-            <CountdownTimer />
-            <ThisWeekCard />
+            <div className="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-10">
+              <CountdownTimer />
+              <ThisWeekCard />
+            </div>
           </motion.div>
 
           {/* CTA Buttons */}
