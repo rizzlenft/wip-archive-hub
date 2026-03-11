@@ -4,6 +4,7 @@ import { Radio, Zap, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getMeetupStatus, type MeetupStatus } from "@/lib/meetupSchedule";
 
+const TWITCH_URL = "https://www.twitch.tv/wipmeetup";
 const HYPERFY_URL = "https://hyperfy.io/wip";
 
 export const LiveStatusBanner = () => {
