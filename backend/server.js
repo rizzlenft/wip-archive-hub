@@ -106,7 +106,36 @@ app.get("/api/auth-me", async (req, res) => {
   if (!user) {
     return res.status(401).json({ authenticated: false });
   }
-  return res.json({ authenticated: true, user });
+
+  let ethAddress;
+  const token = req.cookies.jwt;
+  if (token) {
+    try {
+      const profileRes = await fetch(`${TOKENSMART_URL}/api/connect/userinfo`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (profileRes.ok) {
+        const profile = await profileRes.json();
+        if (typeof profile.wallet === "string") {
+          ethAddress = profile.wallet;
+        } else if (
+          Array.isArray(profile.wallets) &&
+          typeof profile.wallets[0] === "string"
+        ) {
+          ethAddress = profile.wallets[0];
+        }
+      }
+    } catch (err) {
+      console.error("auth-me userinfo error:", err);
+    }
+  }
+
+  return res.json({
+    authenticated: true,
+    user: ethAddress ? { ...user, ethAddress } : user,
+  });
 });
 
 // Logout (clear cookie)
@@ -280,11 +309,18 @@ app.post("/api/events-checkin", requireAuth, async (req, res) => {
 
   try {
     const payload = {};
+    const bodyToSend = { event_id: eventId };
+
     if (ethAddress && typeof ethAddress === "string" && ethAddress.trim()) {
-      payload.eth_address = ethAddress.trim();
+      const wallet = ethAddress.trim();
+      payload.wallet_address = wallet;
+      bodyToSend.wallet_address = wallet;
     }
     if (handle && typeof handle === "string" && handle.trim()) {
       payload.handle = handle.trim();
+    }
+    if (Object.keys(payload).length > 0) {
+      bodyToSend.payload = payload;
     }
 
     const tsRes = await fetch(`${TOKENSMART_URL}/api/connect/check-in`, {
@@ -294,11 +330,7 @@ app.post("/api/events-checkin", requireAuth, async (req, res) => {
         "X-API-Key": API_KEY,
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(
-        Object.keys(payload).length > 0
-          ? { event_id: eventId, payload }
-          : { event_id: eventId },
-      ),
+      body: JSON.stringify(bodyToSend),
     });
 
     const data = await tsRes.json().catch(() => ({}));

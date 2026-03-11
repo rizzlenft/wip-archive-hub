@@ -5,6 +5,7 @@ type User = {
   email?: string;
   client_id?: string;
   scope?: string;
+  ethAddress?: string;
 };
 
 type AuthContextValue = {

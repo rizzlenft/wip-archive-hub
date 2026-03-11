@@ -20,7 +20,52 @@ export default async function handler(
     if (!user) {
       return res.status(401).json({ authenticated: false });
     }
-    return res.status(200).json({ authenticated: true, user });
+
+    // Optionally enrich with wallets from TokenSmart userinfo
+    const cookieHeader = req.headers.cookie ?? "";
+    const cookies: Record<string, string> = {};
+    cookieHeader.split(";").forEach((part) => {
+      const [name, ...rest] = part.split("=");
+      if (!name || !rest.length) return;
+      cookies[name.trim()] = decodeURIComponent(rest.join("="));
+    });
+    const token = cookies.jwt;
+
+    let ethAddress: string | undefined;
+    if (token) {
+      const base =
+        process.env.TOKENSMART_URL ||
+        process.env.NEXT_PUBLIC_TOKENSMART_URL ||
+        "https://www.tokensmart.co";
+      try {
+        const profileRes = await fetch(`${base}/api/connect/userinfo`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (profileRes.ok) {
+          const profile = (await profileRes.json()) as {
+            wallet?: string;
+            wallets?: string[];
+          };
+          if (typeof profile.wallet === "string") {
+            ethAddress = profile.wallet;
+          } else if (
+            Array.isArray(profile.wallets) &&
+            typeof profile.wallets[0] === "string"
+          ) {
+            ethAddress = profile.wallets[0];
+          }
+        }
+      } catch {
+        // ignore profile failures; auth still works
+      }
+    }
+
+    return res.status(200).json({
+      authenticated: true,
+      user: ethAddress ? { ...user, ethAddress } : user,
+    });
   } catch (err) {
     const message = err instanceof Error ? err.message : "";
     if (

@@ -61,11 +61,18 @@ export default async function handler(
 
   try {
     const payload: Record<string, unknown> = {};
+    const bodyToSend: Record<string, unknown> = { event_id: eventId };
+
     if (ethAddress?.trim()) {
-      payload.eth_address = ethAddress.trim();
+      const wallet = ethAddress.trim();
+      payload.wallet_address = wallet;
+      bodyToSend.wallet_address = wallet;
     }
     if (handle?.trim()) {
       payload.handle = handle.trim();
+    }
+    if (Object.keys(payload).length > 0) {
+      bodyToSend.payload = payload;
     }
 
     const tsRes = await fetch(`${base}/api/connect/check-in`, {
@@ -75,11 +82,7 @@ export default async function handler(
         "X-API-Key": apiKey,
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(
-        Object.keys(payload).length > 0
-          ? { event_id: eventId, payload }
-          : { event_id: eventId },
-      ),
+      body: JSON.stringify(bodyToSend),
     });
 
     const data = (await tsRes.json().catch(() => ({}))) as {

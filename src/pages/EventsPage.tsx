@@ -107,7 +107,7 @@ const EventsPage = () => {
     success: boolean;
     message: string;
   } | null>(null);
-  const [ethAddress, setEthAddress] = useState("");
+  const [ethAddress, setEthAddress] = useState(user?.ethAddress ?? "");
   const [handle, setHandle] = useState("");
   const [substackEmail, setSubstackEmail] = useState("");
   const [substackStatus, setSubstackStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
@@ -129,6 +129,13 @@ const EventsPage = () => {
 
   const sourceEvents = partnerEvents.length > 0 ? partnerEvents : upcomingEvents;
   const upcomingDisplayEvents = sourceEvents.filter(isUpcomingOrLiveEvent);
+
+  useEffect(() => {
+    // Pre-fill ETH address from user profile when available
+    if (user?.ethAddress && !ethAddress) {
+      setEthAddress(user.ethAddress);
+    }
+  }, [user, ethAddress]);
 
   useEffect(() => {
     async function load() {
