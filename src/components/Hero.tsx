@@ -3,7 +3,7 @@ import { Calendar, Users, Sparkles, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CountdownTimer } from "@/components/CountdownTimer";
 import { LiveStatusBanner } from "@/components/LiveStatusBanner";
-import { ThisWeekCard } from "@/components/ThisWeekCard";
+
 import heroBg from "@/assets/hero-bg.jpg";
 import wipLogo from "@/assets/wip-logo.gif";
 
@@ -109,10 +109,7 @@ export const Hero = () => {
             transition={{ delay: 0.7 }}
           >
             <LiveStatusBanner />
-            <div className="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-10">
-              <CountdownTimer />
-              <ThisWeekCard />
-            </div>
+            <CountdownTimer />
           </motion.div>
 
           {/* CTA Buttons */}
