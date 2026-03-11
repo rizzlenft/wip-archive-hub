@@ -4,7 +4,7 @@ const PACIFIC_TIMEZONE = "America/Los_Angeles";
 const THURSDAY_INDEX = 4; // Sunday=0
 const STARTING_SOON_MINUTES = 11 * 60;
 const LIVE_START_MINUTES = 12 * 60;
-const LIVE_END_MINUTES = 14 * 60;
+const LIVE_END_MINUTES = 15 * 60;
 
 const WEEKDAY_INDEX: Record<string, number> = {
   Sun: 0,
