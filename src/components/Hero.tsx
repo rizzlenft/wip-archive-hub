@@ -3,6 +3,7 @@ import { Calendar, Users, Sparkles, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CountdownTimer } from "@/components/CountdownTimer";
 import { LiveStatusBanner } from "@/components/LiveStatusBanner";
+import { ThisWeekCard } from "@/components/ThisWeekCard";
 import heroBg from "@/assets/hero-bg.jpg";
 import wipLogo from "@/assets/wip-logo.gif";
 
