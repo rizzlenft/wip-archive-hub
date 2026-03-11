@@ -7,8 +7,46 @@ const API_BASE =
   (import.meta.env.VITE_BACKEND_URL as string | undefined) ||
   "https://api.thewipmeetup.com";
 
+/**
+ * Returns true if we're past the event window for the newsletter's week.
+ * Event ends ~6 PM ET (3 PM PT) on Thursday — we check if "now" is after
+ * the Thursday 6 PM ET of the issue's week.
+ */
+function isAfterEventWindow(issue: NewsletterIssue): boolean {
+  const weekOf = new Date(issue.week_of || issue.published_at || issue.created_at);
+
+  // Find the Thursday of that week
+  const day = weekOf.getUTCDay();
+  const daysToThursday = (4 - day + 7) % 7;
+  const thursday = new Date(weekOf);
+  thursday.setUTCDate(thursday.getUTCDate() + daysToThursday);
+
+  // 6 PM ET = 23:00 UTC (EST) or 22:00 UTC (EDT)
+  // Use Intl to get current ET offset
+  const now = new Date();
+  const etParts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York",
+    timeZoneName: "shortOffset",
+  }).formatToParts(now);
+  const tzPart = etParts.find((p) => p.type === "timeZoneName")?.value || "GMT-5";
+  const match = tzPart.match(/GMT([+-])(\d+)/);
+  const etOffsetHours = match ? (match[1] === "-" ? -1 : 1) * parseInt(match[2]) : -5;
+
+  // 6 PM ET in UTC
+  const cutoffUTC = new Date(Date.UTC(
+    thursday.getUTCFullYear(),
+    thursday.getUTCMonth(),
+    thursday.getUTCDate(),
+    18 - etOffsetHours, // 18 ET → UTC
+    0, 0
+  ));
+
+  return now > cutoffUTC;
+}
+
 export const ThisWeekCard = () => {
   const [issue, setIssue] = useState<NewsletterIssue | null>(null);
+  const [expired, setExpired] = useState(false);
 
   useEffect(() => {
     fetchNewsletters()
@@ -20,14 +58,27 @@ export const ThisWeekCard = () => {
               new Date(b.published_at || b.created_at).getTime() -
               new Date(a.published_at || a.created_at).getTime()
           );
-        if (published.length > 0) setIssue(published[0]);
+        if (published.length > 0) {
+          const latest = published[0];
+          setIssue(latest);
+          setExpired(isAfterEventWindow(latest));
+        }
       })
       .catch(() => {});
   }, []);
 
-  if (!issue || !issue.speakers?.length) return null;
+  // Re-check expiry every minute
+  useEffect(() => {
+    if (!issue) return;
+    const timer = setInterval(() => {
+      setExpired(isAfterEventWindow(issue));
+    }, 60_000);
+    return () => clearInterval(timer);
+  }, [issue]);
 
-  const speakers = issue.speakers;
+  if (!issue) return null;
+
+  const speakers = issue.speakers || [];
 
   return (
     <section className="py-16 px-4">
@@ -46,56 +97,58 @@ export const ThisWeekCard = () => {
             </h2>
           </div>
           <p className="text-muted-foreground text-sm">
-            Joining this week's meetup
+            {expired ? "Come back soon to find out!" : "Joining this week's meetup"}
           </p>
         </motion.div>
 
-        <div className="grid gap-3 sm:grid-cols-2 max-w-xl mx-auto">
-          {speakers.slice(0, 4).map((speaker, idx) => (
-            <motion.div
-              key={speaker.name}
-              initial={{ opacity: 0, y: 15 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: idx * 0.1, duration: 0.4 }}
-              className="flex items-center gap-3 rounded-xl border border-border bg-card/60 backdrop-blur-sm px-4 py-3"
-            >
-              <img
-                src={
-                  speaker.profile_image_url ||
-                  `${API_BASE}/api/newsletter?action=avatar&${speaker.farcaster ? `farcaster=${encodeURIComponent(speaker.farcaster)}` : speaker.twitter ? `twitter=${encodeURIComponent(speaker.twitter)}` : `twitter=${encodeURIComponent(speaker.name)}`}`
-                }
-                alt={speaker.name}
-                className="w-10 h-10 rounded-full object-cover border border-primary/30 shrink-0"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(speaker.name)}&background=7c3aed&color=fff&size=40`;
-                }}
-              />
-              <div className="min-w-0">
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="text-sm font-semibold text-foreground">
-                    {speaker.name}
-                  </span>
-                  {speaker.twitter && (
-                    <a
-                      href={`https://x.com/${speaker.twitter}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs text-primary hover:underline"
-                    >
-                      @{speaker.twitter}
-                    </a>
+        {!expired && speakers.length > 0 && (
+          <div className="grid gap-3 sm:grid-cols-2 max-w-xl mx-auto">
+            {speakers.slice(0, 4).map((speaker, idx) => (
+              <motion.div
+                key={speaker.name}
+                initial={{ opacity: 0, y: 15 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.1, duration: 0.4 }}
+                className="flex items-center gap-3 rounded-xl border border-border bg-card/60 backdrop-blur-sm px-4 py-3"
+              >
+                <img
+                  src={
+                    speaker.profile_image_url ||
+                    `${API_BASE}/api/newsletter?action=avatar&${speaker.farcaster ? `farcaster=${encodeURIComponent(speaker.farcaster)}` : speaker.twitter ? `twitter=${encodeURIComponent(speaker.twitter)}` : `twitter=${encodeURIComponent(speaker.name)}`}`
+                  }
+                  alt={speaker.name}
+                  className="w-10 h-10 rounded-full object-cover border border-primary/30 shrink-0"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(speaker.name)}&background=7c3aed&color=fff&size=40`;
+                  }}
+                />
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="text-sm font-semibold text-foreground">
+                      {speaker.name}
+                    </span>
+                    {speaker.twitter && (
+                      <a
+                        href={`https://x.com/${speaker.twitter}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-primary hover:underline"
+                      >
+                        @{speaker.twitter}
+                      </a>
+                    )}
+                  </div>
+                  {speaker.topic && (
+                    <p className="text-xs text-muted-foreground truncate">
+                      {speaker.topic}
+                    </p>
                   )}
                 </div>
-                {speaker.topic && (
-                  <p className="text-xs text-muted-foreground truncate">
-                    {speaker.topic}
-                  </p>
-                )}
-              </div>
-            </motion.div>
-          ))}
-        </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );
