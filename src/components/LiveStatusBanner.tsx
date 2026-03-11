@@ -60,12 +60,20 @@ export const LiveStatusBanner = () => {
               Today's meetup kicks off at 12 PM PT — get ready!
             </p>
 
-            <Button variant="outline" size="lg" asChild>
-              <a href={HYPERFY_URL} target="_blank" rel="noopener noreferrer">
-                <Sparkles className="w-4 h-4" />
-                Open Hyperfy
-              </a>
-            </Button>
+            <div className="flex flex-wrap justify-center gap-3">
+              <Button variant="outline" size="lg" asChild>
+                <a href={HYPERFY_URL} target="_blank" rel="noopener noreferrer">
+                  <Sparkles className="w-4 h-4" />
+                  Open Hyperfy
+                </a>
+              </Button>
+              <Button variant="outline" size="lg" asChild>
+                <a href={TWITCH_URL} target="_blank" rel="noopener noreferrer">
+                  <Radio className="w-4 h-4" />
+                  Watch on Twitch
+                </a>
+              </Button>
+            </div>
           </div>
         )}
       </motion.div>
