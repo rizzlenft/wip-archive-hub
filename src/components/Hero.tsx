@@ -110,6 +110,7 @@ export const Hero = () => {
           >
             <LiveStatusBanner />
             <CountdownTimer />
+            <ThisWeekCard />
           </motion.div>
 
           {/* CTA Buttons */}
