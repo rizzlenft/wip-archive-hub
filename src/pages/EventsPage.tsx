@@ -422,7 +422,7 @@ const EventsPage = () => {
                     </div>
                     <div className="flex flex-col items-start gap-2 sm:items-end">
                       <Button
-                        size="xs"
+                        size="sm"
                         variant="outline"
                         disabled={!canCheckIn || !ethAddress.trim()}
                         onClick={() => void handleCheckin(event.id)}
