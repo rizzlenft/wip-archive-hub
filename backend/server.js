@@ -260,7 +260,7 @@ app.get("/api/events-upcoming", requireAuth, async (req, res) => {
 
 // Check in to a live event (TokenSmart partner API)
 app.post("/api/events-checkin", requireAuth, async (req, res) => {
-  const { eventId } = req.body || {};
+  const { eventId, ethAddress, handle } = req.body || {};
   if (!eventId) {
     return res.status(400).json({ error: "eventId is required" });
   }
@@ -279,6 +279,14 @@ app.post("/api/events-checkin", requireAuth, async (req, res) => {
   }
 
   try {
+    const payload = {};
+    if (ethAddress && typeof ethAddress === "string" && ethAddress.trim()) {
+      payload.eth_address = ethAddress.trim();
+    }
+    if (handle && typeof handle === "string" && handle.trim()) {
+      payload.handle = handle.trim();
+    }
+
     const tsRes = await fetch(`${TOKENSMART_URL}/api/connect/check-in`, {
       method: "POST",
       headers: {
@@ -286,7 +294,11 @@ app.post("/api/events-checkin", requireAuth, async (req, res) => {
         "X-API-Key": API_KEY,
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ event_id: eventId }),
+      body: JSON.stringify(
+        Object.keys(payload).length > 0
+          ? { event_id: eventId, payload }
+          : { event_id: eventId },
+      ),
     });
 
     const data = await tsRes.json().catch(() => ({}));

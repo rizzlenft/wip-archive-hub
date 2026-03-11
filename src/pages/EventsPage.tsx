@@ -107,6 +107,8 @@ const EventsPage = () => {
     success: boolean;
     message: string;
   } | null>(null);
+  const [ethAddress, setEthAddress] = useState("");
+  const [handle, setHandle] = useState("");
   const [substackEmail, setSubstackEmail] = useState("");
   const [substackStatus, setSubstackStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
 
@@ -186,7 +188,11 @@ const EventsPage = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ eventId }),
+        body: JSON.stringify({
+          eventId,
+          ethAddress: ethAddress.trim() || undefined,
+          handle: handle.trim() || undefined,
+        }),
       });
       const data = (await res.json().catch(() => ({}))) as {
         success?: boolean;
@@ -317,7 +323,7 @@ const EventsPage = () => {
         </section>
 
         {/* Next WIP Meetup — auto-computed */}
-        <section className="rounded-lg border border-border bg-card p-6">
+        <section className="rounded-lg border border-border bg-card p-6 space-y-3">
           <div className="mb-2 flex items-center gap-2">
             <Calendar className="h-5 w-5 text-primary" />
             <h2 className="text-xl font-semibold">Next WIP Meetup</h2>
@@ -337,6 +343,107 @@ const EventsPage = () => {
             >
               View on Discord
             </a>
+          )}
+
+          {/* Identity used when checking in */}
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-muted-foreground">
+                Ethereum address for check-in
+              </label>
+              <Input
+                value={ethAddress}
+                onChange={(e) => setEthAddress(e.target.value)}
+                placeholder="0x..."
+                className="h-8 text-xs"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-muted-foreground">
+                X or Farcaster handle (optional)
+              </label>
+              <Input
+                value={handle}
+                onChange={(e) => setHandle(e.target.value)}
+                placeholder="@handle or farcaster"
+                className="h-8 text-xs"
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* Upcoming WIP events list */}
+        <section className="space-y-3">
+          <h2 className="text-xl font-semibold">Upcoming WIP events</h2>
+          {upcomingDisplayEvents.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              No upcoming events found.
+            </p>
+          ) : (
+            <ul className="space-y-3">
+              {upcomingDisplayEvents.map((event) => {
+                const avail = checkInAvailability[event.id];
+                const canCheckIn =
+                  avail?.check_in_available === true || isEventLiveNow(event);
+                const feedback =
+                  checkinFeedback?.eventId === event.id
+                    ? checkinFeedback
+                    : null;
+                return (
+                  <li
+                    key={event.id}
+                    className="flex flex-col gap-2 rounded-lg border border-border bg-card p-4 text-sm sm:flex-row sm:items-center sm:justify-between"
+                  >
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">{event.name}</span>
+                        {canCheckIn && (
+                          <span className="rounded bg-red-600 px-1.5 py-0.5 text-xs font-medium text-white">
+                            LIVE
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {event.scheduled_date
+                          ? new Date(event.scheduled_date).toLocaleString()
+                          : "Time TBD"}
+                      </div>
+                      {feedback && (
+                        <p
+                          className={
+                            feedback.success
+                              ? "text-green-600 text-xs"
+                              : "text-destructive text-xs"
+                          }
+                        >
+                          {feedback.message}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex flex-col items-start gap-2 sm:items-end">
+                      <Button
+                        size="xs"
+                        variant="outline"
+                        disabled={!canCheckIn || !ethAddress.trim()}
+                        onClick={() => void handleCheckin(event.id)}
+                      >
+                        {canCheckIn ? "Check in" : "Not live"}
+                      </Button>
+                      {event.discord_link && (
+                        <a
+                          href={event.discord_link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs font-medium text-primary hover:underline"
+                        >
+                          View on Discord
+                        </a>
+                      )}
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
           )}
         </section>
 

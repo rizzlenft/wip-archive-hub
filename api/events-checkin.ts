@@ -32,8 +32,12 @@ export default async function handler(
     return res.status(401).json({ error: "Not authenticated" });
   }
 
-  const body = (req.body || {}) as { eventId?: string };
-  const eventId = body.eventId;
+  const body = (req.body || {}) as {
+    eventId?: string;
+    ethAddress?: string;
+    handle?: string;
+  };
+  const { eventId, ethAddress, handle } = body;
 
   if (!eventId) {
     return res.status(400).json({ error: "eventId is required" });
@@ -56,6 +60,14 @@ export default async function handler(
   }
 
   try {
+    const payload: Record<string, unknown> = {};
+    if (ethAddress?.trim()) {
+      payload.eth_address = ethAddress.trim();
+    }
+    if (handle?.trim()) {
+      payload.handle = handle.trim();
+    }
+
     const tsRes = await fetch(`${base}/api/connect/check-in`, {
       method: "POST",
       headers: {
@@ -63,7 +75,11 @@ export default async function handler(
         "X-API-Key": apiKey,
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ event_id: eventId }),
+      body: JSON.stringify(
+        Object.keys(payload).length > 0
+          ? { event_id: eventId, payload }
+          : { event_id: eventId },
+      ),
     });
 
     const data = (await tsRes.json().catch(() => ({}))) as {
