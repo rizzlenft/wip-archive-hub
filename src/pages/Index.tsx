@@ -1,5 +1,6 @@
 import { Navigation } from "@/components/Navigation";
 import { Hero } from "@/components/Hero";
+import { ThisWeekCard } from "@/components/ThisWeekCard";
 import { LatestEvent } from "@/components/LatestEvent";
 import { MetaverseExperience } from "@/components/MetaverseExperience";
 import { CommunityPerks } from "@/components/CommunityPerks";
@@ -14,6 +15,9 @@ const Index = () => {
       <SEO canonical="/" />
       <Navigation />
       <Hero />
+      <section className="relative z-10 -mt-8 mb-12">
+        <ThisWeekCard />
+      </section>
       <LatestEvent />
       <MetaverseExperience />
       <ContactRizzle />
