@@ -190,11 +190,23 @@ const EventsPage = () => {
     void load();
   }, []);
 
-  async function handleCheckin(
-    eventId: string,
-    requireEth?: boolean,
-  ) {
+  async function handleCheckin(eventId: string, requireEth?: boolean) {
     setCheckinFeedback(null);
+
+    // If we already have a recorded check-in for this event in TokenSmart,
+    // don't call the check-in endpoint again; just keep showing success.
+    const alreadyCheckedIn = checkins.some(
+      (c) => c.event?.id === eventId,
+    );
+    if (alreadyCheckedIn) {
+      setCheckinFeedback({
+        eventId,
+        success: true,
+        message: "You're checked in!",
+      });
+      return;
+    }
+
     const ethFromInput = ethInputRef.current?.value?.trim();
     const eth = (ethAddress.trim() || ethFromInput) ?? "";
     if (requireEth && !eth) {
