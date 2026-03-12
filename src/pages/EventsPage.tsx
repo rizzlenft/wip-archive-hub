@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode, type FormEvent } from "react";
+import { useEffect, useRef, useState, type ReactNode, type FormEvent } from "react";
 import { useAuth } from "@/auth/AuthContext";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
@@ -49,6 +49,7 @@ type PartnerEvent = {
   scheduled_end_date?: string;
   description?: string;
   discord_link?: string;
+  require_ethereum_address?: boolean;
 };
 
 type CheckInAvailability = {
@@ -108,6 +109,7 @@ const EventsPage = () => {
     message: string;
   } | null>(null);
   const [ethAddress, setEthAddress] = useState(user?.ethAddress ?? "");
+  const ethInputRef = useRef<HTMLInputElement>(null);
   const [handle, setHandle] = useState("");
   const [substackEmail, setSubstackEmail] = useState("");
   const [substackStatus, setSubstackStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
@@ -188,8 +190,22 @@ const EventsPage = () => {
     void load();
   }, []);
 
-  async function handleCheckin(eventId: string) {
+  async function handleCheckin(
+    eventId: string,
+    requireEth?: boolean,
+  ) {
     setCheckinFeedback(null);
+    const ethFromInput = ethInputRef.current?.value?.trim();
+    const eth = (ethAddress.trim() || ethFromInput) ?? "";
+    if (requireEth && !eth) {
+      setCheckinFeedback({
+        eventId,
+        success: false,
+        message: "Please enter your Ethereum address above.",
+      });
+      return;
+    }
+    if (ethFromInput && eth !== ethAddress) setEthAddress(eth);
     try {
       const res = await fetch(`${API_BASE}/api/events-checkin`, {
         method: "POST",
@@ -197,7 +213,7 @@ const EventsPage = () => {
         credentials: "include",
         body: JSON.stringify({
           eventId,
-          ethAddress: ethAddress.trim() || undefined,
+          ethAddress: eth || undefined,
           handle: handle.trim() || undefined,
         }),
       });
@@ -359,10 +375,16 @@ const EventsPage = () => {
                 Ethereum address for check-in
               </label>
               <Input
+                ref={ethInputRef}
                 value={ethAddress}
                 onChange={(e) => setEthAddress(e.target.value)}
+                onBlur={(e) => {
+                  const v = (e.target as HTMLInputElement).value?.trim();
+                  if (v) setEthAddress(v);
+                }}
                 placeholder="0x..."
                 className="h-8 text-xs"
+                autoComplete="off"
               />
             </div>
             <div className="space-y-1">
@@ -392,6 +414,7 @@ const EventsPage = () => {
                 const avail = checkInAvailability[event.id];
                 const canCheckIn =
                   avail?.check_in_available === true || isEventLiveNow(event);
+                const requiresEth = event.require_ethereum_address === true;
                 const feedback =
                   checkinFeedback?.eventId === event.id
                     ? checkinFeedback
@@ -415,6 +438,11 @@ const EventsPage = () => {
                           ? new Date(event.scheduled_date).toLocaleString()
                           : "Time TBD"}
                       </div>
+                      {requiresEth && canCheckIn && (
+                        <p className="text-xs text-muted-foreground">
+                          This event requires an Ethereum address for check-in.
+                        </p>
+                      )}
                       {feedback && (
                         <p
                           className={
@@ -431,8 +459,10 @@ const EventsPage = () => {
                       <Button
                         size="sm"
                         variant="outline"
-                        disabled={!canCheckIn || !ethAddress.trim()}
-                        onClick={() => void handleCheckin(event.id)}
+                        disabled={!canCheckIn}
+                        onClick={() =>
+                          void handleCheckin(event.id, requiresEth)
+                        }
                       >
                         {canCheckIn ? "Check in" : "Not live"}
                       </Button>
