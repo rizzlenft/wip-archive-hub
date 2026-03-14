@@ -58,8 +58,7 @@ const platforms = [
     name: "$WIP Token",
     description: "Get rewarded",
     url: "https://app.uniswap.org/explore/tokens/base/0xe21ec3068a538a064ff0bdd69db0204306fc00a0",
-    icon: "⚡",
-    isEmoji: true,
+    icon: wipLogoStatic,
     color: "from-yellow-400 to-orange-500",
   },
 ];
