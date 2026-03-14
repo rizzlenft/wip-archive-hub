@@ -39,6 +39,7 @@ type UpcomingEvent = {
   description?: string;
   discord_link?: string;
   check_in_prompt?: string;
+  require_ethereum_address?: boolean;
 };
 
 type PartnerEvent = {
