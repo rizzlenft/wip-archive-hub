@@ -60,7 +60,7 @@ export const MetaverseExperience = () => {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-xl text-muted-foreground mb-12 leading-relaxed max-w-2xl mx-auto"
           >
-            Every Thursday, we transform our Hyperfy space into a completely custom experience 
+            Every Thursday, we transform our metaverse space into a completely custom experience 
             tailored for each guest. From the architecture to the atmosphere—no two meetups 
             are ever the same. Step into a world built just for that moment.
           </motion.p>
