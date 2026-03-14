@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { ExternalLink } from "lucide-react";
 import wipCv from "@/assets/wip-cv.gif";
+import wipLogoStatic from "@/assets/wip-logo-static.png";
 
 const platforms = [
   {
