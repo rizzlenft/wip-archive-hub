@@ -119,7 +119,7 @@ export const CommunityPerks = () => {
                 ) : perk.isToken ? (
                   <div className="mb-6 flex justify-center">
                     <img 
-                      src={wipLogo} 
+                      src={wipLogoStatic} 
                       alt="WIP Token" 
                       className="w-16 h-16 rounded-2xl group-hover:scale-110 transition-transform"
                       loading="lazy"
