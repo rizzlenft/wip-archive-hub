@@ -42,7 +42,7 @@ const platforms = [
   {
     name: "Hyperfy",
     description: "Metaverse HQ",
-    url: "https://hyperfy.io/wipmeetup",
+    url: "https://thewipmeetup.hyperworld.host/",
     icon: "https://hyperfy.io/favicon.ico",
     color: "from-cyan-400 to-blue-500",
   },
