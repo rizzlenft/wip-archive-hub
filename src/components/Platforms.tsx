@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { ExternalLink } from "lucide-react";
 import wipCv from "@/assets/wip-cv.gif";
+import wipLogoStatic from "@/assets/wip-logo-static.png";
 
 const platforms = [
   {
@@ -57,8 +58,7 @@ const platforms = [
     name: "$WIP Token",
     description: "Get rewarded",
     url: "https://app.uniswap.org/explore/tokens/base/0xe21ec3068a538a064ff0bdd69db0204306fc00a0",
-    icon: "⚡",
-    isEmoji: true,
+    icon: wipLogoStatic,
     color: "from-yellow-400 to-orange-500",
   },
 ];
@@ -159,15 +159,11 @@ export const Platforms = () => {
                 
                 <div className="relative bg-card/60 backdrop-blur-sm rounded-2xl px-5 py-4 border border-muted/50 group-hover:border-primary/40 transition-all duration-300 flex items-center gap-4">
                   <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${platform.color} flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow`}>
-                    {platform.isEmoji ? (
-                      <span className="text-xl">{platform.icon}</span>
-                    ) : (
-                      <img 
-                        src={platform.icon} 
-                        alt={platform.name}
-                        className="w-5 h-5 object-contain"
-                      />
-                    )}
+                    <img 
+                      src={platform.icon} 
+                      alt={platform.name}
+                      className="w-5 h-5 object-contain"
+                    />
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
