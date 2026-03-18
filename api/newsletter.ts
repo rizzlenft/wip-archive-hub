@@ -699,16 +699,17 @@ async function handleGenerate(req: VercelRequest, res: VercelResponse) {
   }
 
   // Fetch the YouTube video title for overlay on the thumbnail
+  // IMPORTANT: fetch title for youtube_video_id (used in the replay section), not lastWeekVideoId
   let lastWeekVideoTitle = "";
-  if (lastWeekVideoId) {
+  if (youtube_video_id) {
     try {
-      const ytRes = await fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${lastWeekVideoId}`, {
+      const ytRes = await fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${youtube_video_id}`, {
         signal: AbortSignal.timeout(5000),
       });
       if (ytRes.ok) {
         const ytData = await ytRes.json() as { title?: string };
         lastWeekVideoTitle = ytData.title || "";
-        console.log(`Fetched video title: "${lastWeekVideoTitle}"`);
+        console.log(`Fetched video title for ${youtube_video_id}: "${lastWeekVideoTitle}"`);
       }
     } catch {
       console.log("Could not fetch video title for overlay");
