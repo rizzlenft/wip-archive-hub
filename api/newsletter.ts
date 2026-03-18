@@ -622,7 +622,7 @@ async function handleGenerate(req: VercelRequest, res: VercelResponse) {
     });
   }
 
-  const { speakers, transcript, youtube_video_id } = req.body as {
+  const { speakers, transcript, youtube_video_id: providedVideoId } = req.body as {
     speakers?: Speaker[];
     transcript?: string;
     youtube_video_id?: string;
@@ -633,6 +633,27 @@ async function handleGenerate(req: VercelRequest, res: VercelResponse) {
   }
 
   const normalizedSpeakers = speakers.map(normalizeSpeaker);
+
+  // ── Auto-fetch latest YouTube video if none provided ────────────────────
+  let youtube_video_id = providedVideoId;
+  if (!youtube_video_id) {
+    try {
+      const origin = getRequestOrigin(req);
+      const ytRes = await fetch(`${origin}/api/youtube-latest?count=1`, {
+        signal: AbortSignal.timeout(10000),
+      });
+      if (ytRes.ok) {
+        const ytData = await ytRes.json();
+        const vid = ytData.videoId || ytData.videos?.[0]?.videoId;
+        if (vid) {
+          youtube_video_id = vid;
+          console.log(`Auto-fetched latest YouTube video: ${vid}`);
+        }
+      }
+    } catch (err) {
+      console.warn("Failed to auto-fetch latest YouTube video:", err);
+    }
+  }
 
   // ── Auto-fetch last week's speakers & video ID from the most recent published newsletter ──
   let lastWeekSpeakers: Speaker[] = [];
