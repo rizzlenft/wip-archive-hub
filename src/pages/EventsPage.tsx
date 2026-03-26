@@ -108,6 +108,7 @@ const EventsPage = () => {
     success: boolean;
     message: string;
   } | null>(null);
+  const checkedInThisSession = useRef<Set<string>>(new Set());
   const [ethAddress, setEthAddress] = useState(user?.ethAddress ?? "");
   const ethInputRef = useRef<HTMLInputElement>(null);
   const [handle, setHandle] = useState("");
@@ -193,20 +194,6 @@ const EventsPage = () => {
   async function handleCheckin(eventId: string, requireEth?: boolean) {
     setCheckinFeedback(null);
 
-    // If we already have a recorded check-in for this event in TokenSmart,
-    // don't call the check-in endpoint again; just keep showing success.
-    const alreadyCheckedIn = checkins.some(
-      (c) => c.event?.id === eventId,
-    );
-    if (alreadyCheckedIn) {
-      setCheckinFeedback({
-        eventId,
-        success: true,
-        message: "You're checked in!",
-      });
-      return;
-    }
-
     const ethFromInput = ethInputRef.current?.value?.trim();
     const eth = (ethAddress.trim() || ethFromInput) ?? "";
     if (requireEth && !eth) {
@@ -234,6 +221,15 @@ const EventsPage = () => {
         error?: string;
       };
       if (!res.ok || !data.success) {
+        // TokenSmart can return 403 after a successful check-in if called again.
+        if (res.status === 403 && checkedInThisSession.current.has(eventId)) {
+          setCheckinFeedback({
+            eventId,
+            success: true,
+            message: "You're already checked in!",
+          });
+          return;
+        }
         setCheckinFeedback({
           eventId,
           success: false,
@@ -241,6 +237,7 @@ const EventsPage = () => {
         });
         return;
       }
+      checkedInThisSession.current.add(eventId);
       setCheckinFeedback({
         eventId,
         success: true,
