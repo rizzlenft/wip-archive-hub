@@ -128,7 +128,7 @@ const Merch = () => {
               Drop us a message on Discord and let us know what WIP merch you'd love to see next!
             </p>
             <Button variant="hero" size="lg" asChild>
-              <a href="https://discord.gg/XHDcUdm3" target="_blank" rel="noopener noreferrer">
+              <a href="https://discord.gg/bTjc6k5uss" target="_blank" rel="noopener noreferrer">
                 Join Discord
               </a>
             </Button>

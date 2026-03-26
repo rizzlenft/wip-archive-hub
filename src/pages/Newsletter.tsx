@@ -151,7 +151,7 @@ const Newsletter = () => {
                   Don't miss the next meetup — every Thursday at 3 PM ET
                 </p>
                 <Button variant="electric" size="sm" asChild>
-                  <a href="https://discord.gg/XHDcUdm3" target="_blank" rel="noopener noreferrer">
+                  <a href="https://discord.gg/bTjc6k5uss" target="_blank" rel="noopener noreferrer">
                     Join Discord
                   </a>
                 </Button>
