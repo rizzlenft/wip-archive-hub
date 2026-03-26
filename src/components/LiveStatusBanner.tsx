@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { getMeetupStatus, type MeetupStatus } from "@/lib/meetupSchedule";
 
 const TWITCH_URL = "https://www.twitch.tv/wipmeetup";
-const HYPERFY_URL = "https://hyperfy.io/wip";
+const HYPERFY_URL = "https://thewipmeetup.hyperworld.host/";
 
 export const LiveStatusBanner = () => {
   const [status, setStatus] = useState<MeetupStatus>(getMeetupStatus);

@@ -622,7 +622,7 @@ async function handleGenerate(req: VercelRequest, res: VercelResponse) {
     });
   }
 
-  const { speakers, transcript, youtube_video_id } = req.body as {
+  const { speakers, transcript, youtube_video_id: providedVideoId } = req.body as {
     speakers?: Speaker[];
     transcript?: string;
     youtube_video_id?: string;
@@ -633,6 +633,27 @@ async function handleGenerate(req: VercelRequest, res: VercelResponse) {
   }
 
   const normalizedSpeakers = speakers.map(normalizeSpeaker);
+
+  // ── Auto-fetch latest YouTube video if none provided ────────────────────
+  let youtube_video_id = providedVideoId;
+  if (!youtube_video_id) {
+    try {
+      const origin = getRequestOrigin(req);
+      const ytRes = await fetch(`${origin}/api/youtube-latest?count=1`, {
+        signal: AbortSignal.timeout(10000),
+      });
+      if (ytRes.ok) {
+        const ytData = await ytRes.json();
+        const vid = ytData.videoId || ytData.videos?.[0]?.videoId;
+        if (vid) {
+          youtube_video_id = vid;
+          console.log(`Auto-fetched latest YouTube video: ${vid}`);
+        }
+      }
+    } catch (err) {
+      console.warn("Failed to auto-fetch latest YouTube video:", err);
+    }
+  }
 
   // ── Auto-fetch last week's speakers & video ID from the most recent published newsletter ──
   let lastWeekSpeakers: Speaker[] = [];
@@ -678,16 +699,17 @@ async function handleGenerate(req: VercelRequest, res: VercelResponse) {
   }
 
   // Fetch the YouTube video title for overlay on the thumbnail
+  // IMPORTANT: fetch title for youtube_video_id (used in the replay section), not lastWeekVideoId
   let lastWeekVideoTitle = "";
-  if (lastWeekVideoId) {
+  if (youtube_video_id) {
     try {
-      const ytRes = await fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${lastWeekVideoId}`, {
+      const ytRes = await fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${youtube_video_id}`, {
         signal: AbortSignal.timeout(5000),
       });
       if (ytRes.ok) {
         const ytData = await ytRes.json() as { title?: string };
         lastWeekVideoTitle = ytData.title || "";
-        console.log(`Fetched video title: "${lastWeekVideoTitle}"`);
+        console.log(`Fetched video title for ${youtube_video_id}: "${lastWeekVideoTitle}"`);
       }
     } catch {
       console.log("Could not fetch video title for overlay");
@@ -916,11 +938,11 @@ HEADER — MUST BE EXACTLY THIS (copy-paste these HTML tags verbatim):
 - Below that: "Every Thursday · 3 PM ET" (14-16px, muted color, margin-bottom:12px)
 - Below that: TWO call-to-action buttons side by side:
   1. <a href="https://thewipmeetup.com" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:12px 28px;border:2px solid ${theme.accent1};font-weight:bold;color:#f5f0e8;text-decoration:none;border-radius:4px;box-shadow:0 0 15px ${theme.accent1}40;">Visit Website</a>
-  2. <a href="https://discord.gg/XHDcUdm3" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:12px 28px;border:2px dashed #999;font-weight:bold;color:${theme.accent2};text-decoration:none;border-radius:4px;">Join Discord</a>
+  2. <a href="https://discord.gg/bTjc6k5uss" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:12px 28px;border:2px dashed #999;font-weight:bold;color:${theme.accent2};text-decoration:none;border-radius:4px;">Join Discord</a>
 
 CRITICAL URL RULES:
 - Speaker profile images: Use the EXACT URLs from the [PROFILE IMAGE: ...] tags. Do NOT modify, shorten, or invent avatar URLs.
-- Discord: ALWAYS use <a href="https://discord.gg/XHDcUdm3">Join Discord</a>
+- Discord: ALWAYS use <a href="https://discord.gg/bTjc6k5uss">Join Discord</a>
 - YouTube thumbnails: Use https://img.youtube.com/vi/VIDEO_ID/maxresdefault.jpg
 - Community links: ALL must be clickable <a> tags with proper href attributes.
 
@@ -1012,7 +1034,7 @@ Output JSON:
   "title": "WIP Meetup - ${meetupDateStr}",
   "subtitle": "",
   "body_html": "full poster-style HTML with ALL inline styles, NO style block, TABLE-based layout",
-  "body_markdown": "Clean Substack-compatible markdown. NO HTML, NO CSS, NO tables. Follow this EXACT template:\n\n# WIP Meetup - DATE\n\nSubtitle text here\n\n---\n\n## 🎤 This Week's Speakers\n\n**Speaker Name**\n\nBio or description text here.\n\n[𝕏 @handle](https://x.com/handle)\n\n[🟣 @handle on Farcaster](https://warpcast.com/handle)\n\nTopic: topic text or [Topic Title](url)\n\n---\n\n(repeat for each speaker with --- between them)\n\n---\n\n## 🔁 Last Week's Recap\n\nSynopsis paragraph here.\n\n![Last Week's Recap Thumbnail](https://img.youtube.com/vi/VIDEOID/maxresdefault.jpg)\n\n[▶ Watch the Replay](https://youtube.com/watch?v=VIDEOID)\n\n---\n\n## 🎟️ Join the Community\n\n[Join Discord](https://discord.gg/XHDcUdm3)\n\n[Follow on 𝕏 / Twitter](https://twitter.com/theWIPmeetup)\n\n[Subscribe on YouTube](https://youtube.com/@thewipmeetup)\n\n[Join Farcaster Channel](https://farcaster.xyz/~/channel/thewipmeetup)\n\n[Explore the Website](https://thewipmeetup.com)\n\nRULES: 1) EVERY URL must be a [text](url) hyperlink — NEVER bare URLs. 2) Blank line between EVERY element. 3) --- between each section AND between each speaker. 4) Speaker topics that are URLs must be hyperlinked: [Topic Name](url). 5) No raw markdown syntax visible — all links must render as clickable text.",
+  "body_markdown": "Clean Substack-compatible markdown. NO HTML, NO CSS, NO tables. Follow this EXACT template:\n\n# WIP Meetup - DATE\n\nSubtitle text here\n\n---\n\n## 🎤 This Week's Speakers\n\n**Speaker Name**\n\nBio or description text here.\n\n[𝕏 @handle](https://x.com/handle)\n\n[🟣 @handle on Farcaster](https://warpcast.com/handle)\n\nTopic: topic text or [Topic Title](url)\n\n---\n\n(repeat for each speaker with --- between them)\n\n---\n\n## 🔁 Last Week's Recap\n\nSynopsis paragraph here.\n\n![Last Week's Recap Thumbnail](https://img.youtube.com/vi/VIDEOID/maxresdefault.jpg)\n\n[▶ Watch the Replay](https://youtube.com/watch?v=VIDEOID)\n\n---\n\n## 🎟️ Join the Community\n\n[Join Discord](https://discord.gg/bTjc6k5uss)\n\n[Follow on 𝕏 / Twitter](https://twitter.com/theWIPmeetup)\n\n[Subscribe on YouTube](https://youtube.com/@thewipmeetup)\n\n[Join Farcaster Channel](https://farcaster.xyz/~/channel/thewipmeetup)\n\n[Explore the Website](https://thewipmeetup.com)\n\nRULES: 1) EVERY URL must be a [text](url) hyperlink — NEVER bare URLs. 2) Blank line between EVERY element. 3) --- between each section AND between each speaker. 4) Speaker topics that are URLs must be hyperlinked: [Topic Name](url). 5) No raw markdown syntax visible — all links must render as clickable text.",
   "recap_summary": "2-sentence punchy recap for card preview"
 }
 IMPORTANT: The title MUST be exactly "WIP Meetup - ${meetupDateStr}" — do not change the format.
@@ -1046,7 +1068,7 @@ ${transcriptSection}
 ${lastWeekContext}
 
 Community links (style as "entry points" in the ticket section):
-- Discord: https://discord.gg/XHDcUdm3
+- Discord: https://discord.gg/bTjc6k5uss
 - Twitter/X: https://twitter.com/theWIPmeetup
 - YouTube: https://youtube.com/@thewipmeetup
 - Farcaster: https://farcaster.xyz/~/channel/thewipmeetup
@@ -1194,10 +1216,10 @@ Community links (style as "entry points" in the ticket section):
     );
 
     // 4) Ensure Discord links are proper <a> tags, not raw text
-    //    Replace bare "discord.gg/XHDcUdm3" text that isn't already inside an href
+    //    Replace bare "discord.gg/bTjc6k5uss" text that isn't already inside an href
     generated.body_html = generated.body_html.replace(
       /(?<!href=["'](?:https?:\/\/)?)(?<!<a[^>]*>)(?:https?:\/\/)?discord\.gg\/XHDcUdm3(?![^<]*<\/a>)/gi,
-      `<a href="https://discord.gg/XHDcUdm3" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:underline;">discord.gg/XHDcUdm3</a>`,
+      `<a href="https://discord.gg/bTjc6k5uss" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:underline;">discord.gg/bTjc6k5uss</a>`,
     );
 
     // 5) Ensure all speaker PFP img tags use our proxy URLs (AI sometimes strips proxy or invents URLs)

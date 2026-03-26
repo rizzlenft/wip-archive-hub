@@ -12,7 +12,7 @@ import merchHoodieRainbow from "@/assets/merch-hoodie-rainbow.jpg";
 const products = [
   {
     name: "WIP Rainbow Snapback",
-    price: "$33.15",
+    price: "$34.99",
     image: merchHatRainbow,
     description: "Classic black snapback with embroidered WIP logo. One size fits all.",
     buyUrl: "https://the-wip-meetup.printify.me/product/26761482/retro-wip-embroidered-trucker-cap",
@@ -20,25 +20,25 @@ const products = [
   },
   {
     name: "WIP Classic Tee",
-    price: "$25.99",
+    price: "$28.99",
     image: merchTshirtRainbow,
     description: "Premium cotton tee with the iconic WIP print. Unisex fit.",
-    buyUrl: "https://the-wip-meetup.printify.me/product/26761219/wip-retro-rainbow-tee-psychedelic-work-in-progress-graphic-t-shirt",
+    buyUrl: "https://the-wip-meetup.printify.me/product/27539327/wip-retro-rainbow-tee-psychedelic-work-in-progress-graphic-t-shirt",
   },
   {
     name: "WIP Hoodie",
     price: "$67.82",
     image: merchHoodieRainbow,
     description: "Cozy heavyweight hoodie with kangaroo pocket and WIP logo.",
-    buyUrl: "https://the-wip-meetup.printify.me/product/26761314/psychedelic-rainbow-wip-logo-organic-pullover-hoodie",
+    buyUrl: "https://the-wip-meetup.printify.me/product/27539320/psychedelic-rainbow-wip-logo-organic-pullover-hoodie",
     badge: "New",
   },
   {
     name: "WIP Coffee Mug",
-    price: "$14.33",
+    price: "$14.99",
     image: merchMugRainbow,
-    description: "Start your mornings right with the WIP mug. 11oz ceramic.",
-    buyUrl: "https://the-wip-meetup.printify.me/product/26761570/15oz-black-mug-rainbow-retro-wip-logo-coffee-cup",
+    description: "Start your mornings right with the WIP mug. 15oz ceramic.",
+    buyUrl: "https://the-wip-meetup.printify.me/product/26761570/15oz-black-wip-mug-rainbow-retro-wip-logo-coffee-cup",
   },
 ];
 
@@ -128,7 +128,7 @@ const Merch = () => {
               Drop us a message on Discord and let us know what WIP merch you'd love to see next!
             </p>
             <Button variant="hero" size="lg" asChild>
-              <a href="https://discord.gg/XHDcUdm3" target="_blank" rel="noopener noreferrer">
+              <a href="https://discord.gg/bTjc6k5uss" target="_blank" rel="noopener noreferrer">
                 Join Discord
               </a>
             </Button>

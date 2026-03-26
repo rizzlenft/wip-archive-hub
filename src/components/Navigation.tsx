@@ -24,12 +24,12 @@ const navLinks = [
 ];
 
 const socialLinks = [
-  { name: "Discord", url: "https://discord.gg/XHDcUdm3", icon: "https://cdn.prod.website-files.com/6257adef93867e50d84d30e2/636e0a6ca814282eca7172c6_icon_clyde_white_RGB.svg" },
+  { name: "Discord", url: "https://discord.gg/bTjc6k5uss", icon: "https://cdn.prod.website-files.com/6257adef93867e50d84d30e2/636e0a6ca814282eca7172c6_icon_clyde_white_RGB.svg" },
   { name: "Twitter", url: "https://twitter.com/theWIPmeetup", icon: "https://abs.twimg.com/responsive-web/client-web/icon-ios.77d25eba.png" },
   { name: "YouTube", url: "https://www.youtube.com/@thewipmeetup", icon: "https://www.youtube.com/s/desktop/c01ea7e3/img/favicon_144x144.png" },
   { name: "Farcaster", url: "https://farcaster.xyz/~/channel/thewipmeetup", icon: iconFarcaster },
   { name: "Twitch", url: "https://www.twitch.tv/wipmeetup", icon: "https://static.twitchcdn.net/assets/favicon-32-e29e246c157142c94346.png" },
-  { name: "Hyperfy", url: "https://hyperfy.io/wip", icon: iconHyperfy },
+  { name: "Hyperfy", url: "https://thewipmeetup.hyperworld.host/", icon: iconHyperfy },
   { name: "Substack", url: "https://thewipmeetup.substack.com/", icon: iconSubstack },
 ];
 
@@ -92,7 +92,7 @@ export const Navigation = () => {
             {/* CTA + Auth */}
             <div className="flex items-center gap-3">
               <Button variant="electric" size="sm" className="hidden sm:flex" asChild>
-                <a href="https://discord.gg/XHDcUdm3" target="_blank" rel="noopener noreferrer">
+                <a href="https://discord.gg/bTjc6k5uss" target="_blank" rel="noopener noreferrer">
                   <Sparkles className="w-4 h-4" />
                   Join Us
                 </a>
@@ -196,7 +196,7 @@ export const Navigation = () => {
                   </>
                 )}
                 <Button variant="electric" size="lg" className="mt-4" asChild>
-                  <a href="https://discord.gg/XHDcUdm3" target="_blank" rel="noopener noreferrer">
+                  <a href="https://discord.gg/bTjc6k5uss" target="_blank" rel="noopener noreferrer">
                     <Sparkles className="w-5 h-5" />
                     Join the Community
                   </a>

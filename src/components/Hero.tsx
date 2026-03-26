@@ -120,7 +120,7 @@ export const Hero = () => {
             className="flex flex-wrap justify-center gap-4 pt-2"
           >
             <Button variant="hero" size="xl" asChild>
-              <a href="https://discord.gg/XHDcUdm3" target="_blank" rel="noopener noreferrer">
+              <a href="https://discord.gg/bTjc6k5uss" target="_blank" rel="noopener noreferrer">
                 <Sparkles className="w-5 h-5" />
                 Join the Community
               </a>
