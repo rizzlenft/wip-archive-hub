@@ -7,7 +7,7 @@ const platforms = [
   {
     name: "Discord",
     description: "Live events & community",
-    url: "https://discord.gg/XHDcUdm3",
+    url: "https://discord.gg/bTjc6k5uss",
     icon: "https://cdn.prod.website-files.com/6257adef93867e50d84d30e2/636e0a6ca814282eca7172c6_icon_clyde_white_RGB.svg",
     color: "from-indigo-500 to-purple-600",
     featured: true,

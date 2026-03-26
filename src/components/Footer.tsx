@@ -2,7 +2,7 @@ import wipLogo from "@/assets/wip-logo-static.png";
 import rizzlePfp from "@/assets/rizzle-pfp.jpeg";
 
 const socialLinks = [
-  { name: "Discord", url: "https://discord.gg/XHDcUdm3" },
+  { name: "Discord", url: "https://discord.gg/bTjc6k5uss" },
   { name: "Twitter", url: "https://twitter.com/theWIPmeetup" },
   { name: "YouTube", url: "https://www.youtube.com/@thewipmeetup" },
   { name: "Substack", url: "https://thewipmeetup.substack.com/" },
