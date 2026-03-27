@@ -230,7 +230,8 @@
 /* Newsletter poster preview — let the generated HTML breathe */
 .newsletter-poster-preview {
   width: 100%;
-  overflow: hidden;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 .newsletter-poster-preview img {
   max-width: 100%;
@@ -242,4 +243,20 @@
 }
 .newsletter-poster-preview a:hover {
   opacity: 0.85;
+}
+/* Force newsletter tables to be responsive on mobile */
+@media (max-width: 680px) {
+  .newsletter-poster-preview table {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  .newsletter-poster-preview td {
+    display: block !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .newsletter-poster-preview td img {
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
 }
