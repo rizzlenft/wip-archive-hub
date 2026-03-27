@@ -80,7 +80,7 @@ function convertToSubstackMarkdown(rawMarkdown: string, rawHtml: string): string
         }
         if (host === "warpcast.com") {
           const handle = path.split("/").filter(Boolean)[0];
-          return handle ? `[🟣 @${handle} on Farcaster](${match})` : `[Farcaster](${match})`;
+          return handle ? `[🟣 @${handle}](${match})` : `[Farcaster](${match})`;
         }
         if (host === "farcaster.xyz") return `[Farcaster Channel](${match})`;
         if (host === "youtube.com" || host === "youtu.be") return `[YouTube](${match})`;
