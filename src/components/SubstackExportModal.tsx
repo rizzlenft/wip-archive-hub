@@ -83,6 +83,7 @@ function convertToSubstackMarkdown(rawMarkdown: string, rawHtml: string): string
           return handle ? `[🟣 @${handle}](${match})` : `[Farcaster](${match})`;
         }
         if (host === "farcaster.xyz") return `[Farcaster Channel](${match})`;
+        if ((host === "youtube.com" || host === "youtu.be") && (path.startsWith("/watch") || host === "youtu.be")) return match; // bare URL → Substack auto-embeds
         if (host === "youtube.com" || host === "youtu.be") return `[YouTube](${match})`;
         if (host === "thewipmeetup.com") return `[The WIP Meetup](${match})`;
         return `[${host}${path || ""}](${match})`;
