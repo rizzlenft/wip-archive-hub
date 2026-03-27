@@ -1028,6 +1028,19 @@ SECTIONS ORDER (mandatory):
 2. **THIS WEEK'S HEADLINERS** — All speakers in ONE equal-weight TABLE row with glowing-border cells, circular PFP, CLICKABLE social links (Twitter in blue #1DA1F2, Farcaster in purple #8B5CF6), topic (ALWAYS with "Topic:" prefix, linked if URL), and their bio as a styled description.
 3. **LAST WEEK'S RECAP** — ${lastWeekSpeakersWithImages.length > 0 ? "Feature last week's guests with their circular PFPs, names as clickable social links, alongside the YouTube replay and a transcript-based synopsis." : "YouTube replay or brief recap."} Use custom event images only where readability is preserved, with Image 2 at the bottom if available. MUST include a transcript synopsis if transcript data is available.
 4. **TICKET STUBS** — Community links as ticket stubs with thick dashed borders and box-shadow. No header.
+5. **ATTENDEE REWARDS** — Two reward highlights side by side (use a 2-column table):
+   Left column: "$WIP Token Rewards" — Brief text: "Attend our weekly meetups and receive $WIP tokens as a thank you for being part of our community. Every attendee gets rewarded!" Add links to trade/view:
+   <a href="https://app.uniswap.org/explore/tokens/base/0xef1e0e9c4c7e41f0ba4c03e18e802e797bb81b6f" target="_blank" style="color:${theme.accent1};text-decoration:underline;font-weight:bold;">Trade on Uniswap</a> ·
+   <a href="https://www.geckoterminal.com/base/pools/0x32dd94d272e5b4ef47e8694100b7c3eb7de3d09d" target="_blank" style="color:${theme.accent2};text-decoration:underline;font-weight:bold;">View Chart</a>
+   Right column: "Free NFT Gifts" — Brief text: "Each week, our amazing artists Fabiano & Patrizia create unique voxel art NFTs gifted to attendees—beautiful collectibles just for showing up!" Add links:
+   <a href="https://x.com/fabianospeziari" target="_blank" style="color:#1DA1F2;text-decoration:none;font-weight:bold;">𝕏 @Fabiano</a> ·
+   <a href="https://x.com/patriziabarnato" target="_blank" style="color:#1DA1F2;text-decoration:none;font-weight:bold;">𝕏 @Patrizia</a> ·
+   <a href="https://opensea.io/collection/random-3d-things" target="_blank" style="color:${theme.accent1};text-decoration:underline;font-weight:bold;">View Collection</a>
+   Style both columns with accent-border cards matching the theme, icon/emoji headers ("🪙" for tokens, "🎁" for NFTs).
+6. **WANT TO BE ON THE WIP?** — A CTA section encouraging listeners to become guests or sponsors. Brief text: "Whether you want to make a guest appearance, showcase your project, or sponsor an upcoming event—reach out to Rizzle to get the conversation started."
+   Add two CTA buttons:
+   <a href="https://x.com/NFTland" target="_blank" style="display:inline-block;padding:14px 28px;background:linear-gradient(135deg,#a29bfe,#e84393);color:#f5f0e8;font-weight:bold;font-size:16px;text-decoration:none;border-radius:6px;">🎙 Be a Guest</a>
+   <a href="https://x.com/NFTland" target="_blank" style="display:inline-block;padding:14px 28px;border:2px solid #e84393;color:#e84393;font-weight:bold;font-size:16px;text-decoration:none;border-radius:6px;">📡 Sponsor an Event</a>
 
 Output JSON:
 {
