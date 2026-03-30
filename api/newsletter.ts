@@ -1037,7 +1037,10 @@ SECTIONS ORDER (mandatory):
    <a href="https://x.com/patriziabarnato" target="_blank" style="color:#1DA1F2;text-decoration:none;font-weight:bold;">𝕏 @Patrizia</a> ·
    <a href="https://opensea.io/collection/random-3d-things" target="_blank" style="color:${theme.accent1};text-decoration:underline;font-weight:bold;">View Collection</a>
    Style both columns with accent-border cards matching the theme, icon/emoji headers ("🪙" for tokens, "🎁" for NFTs).
-6. **WANT TO BE ON THE WIP?** — A CTA section encouraging listeners to become guests or sponsors. Brief text: "Whether you want to make a guest appearance, showcase your project, or sponsor an upcoming event—reach out to Rizzle to get the conversation started."
+6. **SUPPORT THE WIP** — A donation CTA section. Brief text: "Love what we're building? Every donation—big or small—helps keep the meetups running, artists creating, and community growing." Add a prominent CTA button:
+   <a href="https://thewipmeetup.com/donate" target="_blank" style="display:inline-block;padding:14px 28px;background:linear-gradient(135deg,#a29bfe,#e84393);color:#f5f0e8;font-weight:bold;font-size:16px;text-decoration:none;border-radius:6px;">💜 Donate Now</a>
+   Style with accent-border card matching the theme.
+7. **WANT TO BE ON THE WIP?** — A CTA section encouraging listeners to become guests or sponsors. Brief text: "Whether you want to make a guest appearance, showcase your project, or sponsor an upcoming event—reach out to Rizzle to get the conversation started."
    Add two CTA buttons:
    <a href="https://x.com/NFTland" target="_blank" style="display:inline-block;padding:14px 28px;background:linear-gradient(135deg,#a29bfe,#e84393);color:#f5f0e8;font-weight:bold;font-size:16px;text-decoration:none;border-radius:6px;">🎙 Be a Guest</a>
    <a href="https://x.com/NFTland" target="_blank" style="display:inline-block;padding:14px 28px;border:2px solid #e84393;color:#e84393;font-weight:bold;font-size:16px;text-decoration:none;border-radius:6px;">📡 Sponsor an Event</a>

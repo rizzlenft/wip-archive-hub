@@ -4,6 +4,7 @@ import { Gift, Coins, Heart, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import wipLogo from "@/assets/wip-logo.gif";
 import wipLogoStatic from "@/assets/wip-logo-static.png";
+import donateQr from "@/assets/donate-qr.png";
 import metaverseBg2 from "@/assets/metaverse-bg-2.gif";
 import nftGift1 from "@/assets/nft-gift-1.jpeg";
 import nftGift2 from "@/assets/nft-gift-2.avif";
