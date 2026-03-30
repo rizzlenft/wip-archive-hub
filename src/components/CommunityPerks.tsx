@@ -275,7 +275,7 @@ export const CommunityPerks = () => {
                 Scan the QR code or tap below to make a quick donation. Every contribution—big or small—keeps the meetups running. 💜
               </p>
               <Button variant="outline" size="default" className="w-full border-primary/30 hover:bg-primary/10" asChild>
-                <a href="https://thewipmeetup.com/donate" target="_blank" rel="noopener noreferrer">
+                <a href="https://piri-pay.vercel.app/tip/qY3jM8YzHk" target="_blank" rel="noopener noreferrer">
                   <Heart className="w-4 h-4 text-primary" />
                   Donate Now
                 </a>
