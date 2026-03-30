@@ -209,25 +209,53 @@ export const CommunityPerks = () => {
           transition={{ duration: 0.6, delay: 0.3 }}
           className="max-w-4xl mx-auto"
         >
-          <div className="flex flex-col sm:flex-row items-center gap-6 rounded-2xl border border-primary/20 bg-gradient-to-r from-primary/5 via-card/80 to-accent/5 backdrop-blur-sm p-6 md:p-8">
-            <div className="shrink-0">
-              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                <Heart className="w-7 h-7 text-white" />
+          <div className="rounded-2xl border border-primary/20 bg-gradient-to-r from-primary/5 via-card/80 to-accent/5 backdrop-blur-sm p-6 md:p-8">
+            <div className="flex flex-col sm:flex-row items-center gap-6 mb-8">
+              <div className="shrink-0">
+                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+                  <Heart className="w-7 h-7 text-white" />
+                </div>
               </div>
+              <div className="flex-1 text-center sm:text-left">
+                <h3 className="text-xl font-bold mb-1">Support Our Community</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  When you purchase $WIP, you're directly supporting the builders, creators, and artists 
+                  who make this community thrive since 2019.
+                </p>
+              </div>
+              <Button variant="hero" size="lg" className="shrink-0" asChild>
+                <a href="https://app.uniswap.org/explore/tokens/base/0xe21ec3068a538a064ff0bdd69db0204306fc00a0" target="_blank" rel="noopener noreferrer">
+                  <Coins className="w-5 h-5" />
+                  Get $WIP
+                </a>
+              </Button>
             </div>
-            <div className="flex-1 text-center sm:text-left">
-              <h3 className="text-xl font-bold mb-1">Support Our Community</h3>
-              <p className="text-muted-foreground text-sm leading-relaxed">
-                When you purchase $WIP, you're directly supporting the builders, creators, and artists 
-                who make this community thrive since 2019.
-              </p>
+
+            {/* Donate QR section */}
+            <div className="flex flex-col sm:flex-row items-center gap-6 pt-6 border-t border-primary/10">
+              <div className="shrink-0">
+                <img
+                  src={donateQr}
+                  alt="Scan to donate to The WIP"
+                  className="w-32 h-32 rounded-xl border border-border"
+                  width={128}
+                  height={128}
+                />
+              </div>
+              <div className="flex-1 text-center sm:text-left">
+                <h4 className="text-lg font-semibold mb-1">Donate in Seconds</h4>
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  Scan the QR code or tap the button to make a quick donation. Every contribution—big or small—helps 
+                  keep the meetups running, artists creating, and community growing. 💜
+                </p>
+              </div>
+              <Button variant="outline" size="lg" className="shrink-0 border-primary/30 hover:bg-primary/10" asChild>
+                <a href="https://thewipmeetup.com/donate" target="_blank" rel="noopener noreferrer">
+                  <Heart className="w-5 h-5 text-primary" />
+                  Donate Now
+                </a>
+              </Button>
             </div>
-            <Button variant="hero" size="lg" className="shrink-0" asChild>
-              <a href="https://app.uniswap.org/explore/tokens/base/0xe21ec3068a538a064ff0bdd69db0204306fc00a0" target="_blank" rel="noopener noreferrer">
-                <Coins className="w-5 h-5" />
-                Get $WIP
-              </a>
-            </Button>
           </div>
         </motion.div>
       </div>
