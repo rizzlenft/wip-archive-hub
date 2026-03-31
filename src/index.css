@@ -253,18 +253,36 @@
   word-break: break-word !important;
   overflow-wrap: break-word !important;
 }
-/* Prevent word-breaking inside button-style links */
+/* Prevent word-breaking inside button-style links and their parent cells */
 .newsletter-poster-preview a[style*="inline-block"] {
-  word-break: keep-all !important;
+  word-break: normal !important;
   overflow-wrap: normal !important;
   white-space: nowrap !important;
 }
+.newsletter-poster-preview td:has(> a[style*="inline-block"]) {
+  word-break: normal !important;
+  overflow-wrap: normal !important;
+}
 @media (max-width: 480px) {
+  .newsletter-poster-preview td,
+  .newsletter-poster-preview a,
+  .newsletter-poster-preview a[style*="inline-block"] {
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+    white-space: normal !important;
+  }
   .newsletter-poster-preview a[style*="inline-block"] {
     display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
     text-align: center !important;
-    margin: 4px auto !important;
-    width: auto !important;
+    white-space: nowrap !important;
+  }
+  .newsletter-poster-preview td a {
+    display: inline-block !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
   }
 }
 /* Preserve positioned overlays on all screens */
