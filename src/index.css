@@ -259,6 +259,14 @@
   overflow-wrap: normal !important;
   white-space: nowrap !important;
 }
+@media (max-width: 480px) {
+  .newsletter-poster-preview a[style*="inline-block"] {
+    display: block !important;
+    text-align: center !important;
+    margin: 4px auto !important;
+    width: auto !important;
+  }
+}
 /* Preserve positioned overlays on all screens */
 .newsletter-poster-preview a[style*="position:relative"],
 .newsletter-poster-preview a[style*="position: relative"] {
