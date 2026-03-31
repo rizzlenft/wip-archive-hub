@@ -167,11 +167,7 @@ const Newsletter = () => {
               <div
                 ref={posterRef}
                 className="newsletter-poster-preview rounded-xl overflow-hidden w-full max-w-full"
-                style={{
-                  background: "#0a0612",
-                  overflowX: "auto",
-                  WebkitOverflowScrolling: "touch",
-                }}
+                style={{ background: "#0a0612" }}
                 dangerouslySetInnerHTML={{ __html: stripLeadingCoverImage(proxyUnavatarHtml(selected.body_html)) }}
               />
 
