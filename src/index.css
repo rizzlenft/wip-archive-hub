@@ -249,18 +249,13 @@
   max-width: 100% !important;
   height: auto !important;
 }
-/* On mobile, force the email content to render at its native desktop width, then scale to fit */
+/* On mobile, render at native email width and scale down to fit */
 @media (max-width: 680px) {
   .newsletter-poster-preview {
     overflow-x: hidden;
   }
   .newsletter-poster-preview > * {
     min-width: 600px !important;
-    transform-origin: top left;
-    transform: scale(calc(100cqw / 600));
-  }
-  .newsletter-poster-preview {
-    container-type: inline-size;
   }
 }
 /* Preserve positioned overlays on all screens */
