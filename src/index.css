@@ -243,7 +243,7 @@
 .newsletter-poster-preview img {
   display: block;
   max-width: 100% !important;
-  width: auto !important;
+  width: 100% !important;
   height: auto !important;
 }
 .newsletter-poster-preview td,
@@ -252,6 +252,24 @@
   max-width: 100% !important;
   word-break: break-word !important;
   overflow-wrap: break-word !important;
+}
+/* Preserve positioned overlays (e.g. video title on replay thumbnail) */
+.newsletter-poster-preview a[style*="position:relative"],
+.newsletter-poster-preview a[style*="position: relative"] {
+  display: block;
+  position: relative !important;
+  overflow: hidden;
+}
+.newsletter-poster-preview a[style*="position:relative"] > div[style*="position:absolute"],
+.newsletter-poster-preview a[style*="position: relative"] > div[style*="position:absolute"],
+.newsletter-poster-preview a[style*="position:relative"] > div[style*="position: absolute"],
+.newsletter-poster-preview a[style*="position: relative"] > div[style*="position: absolute"] {
+  position: absolute !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  max-width: 100% !important;
+  box-sizing: border-box;
 }
 .newsletter-poster-preview a {
   color: inherit;
