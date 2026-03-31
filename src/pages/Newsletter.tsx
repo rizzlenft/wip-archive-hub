@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, type FormEvent } from "react";
+import { useState, useEffect, useRef, useCallback, type FormEvent } from "react";
 import { motion } from "framer-motion";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
@@ -41,6 +41,32 @@ const Newsletter = () => {
   const [subMsg, setSubMsg] = useState("");
   const posterRef = useRef<HTMLDivElement>(null);
   useNewsletterLogoFallback(posterRef, selected?.body_html || "");
+
+  // Scale the newsletter poster on mobile so it renders at native 600px width
+  const scalePoster = useCallback(() => {
+    const el = posterRef.current;
+    if (!el) return;
+    const child = el.firstElementChild as HTMLElement | null;
+    if (!child) return;
+    const containerWidth = el.clientWidth;
+    if (containerWidth < 600) {
+      const scale = containerWidth / 600;
+      child.style.transformOrigin = "top left";
+      child.style.transform = `scale(${scale})`;
+      child.style.width = "600px";
+      el.style.height = `${child.scrollHeight * scale}px`;
+    } else {
+      child.style.transform = "";
+      child.style.width = "";
+      el.style.height = "";
+    }
+  }, []);
+
+  useEffect(() => {
+    scalePoster();
+    window.addEventListener("resize", scalePoster);
+    return () => window.removeEventListener("resize", scalePoster);
+  }, [selected, scalePoster]);
 
   useEffect(() => {
     fetchNewsletters()
@@ -141,11 +167,7 @@ const Newsletter = () => {
               <div
                 ref={posterRef}
                 className="newsletter-poster-preview rounded-xl overflow-hidden w-full max-w-full"
-                style={{
-                  background: "#0a0612",
-                  overflowX: "auto",
-                  WebkitOverflowScrolling: "touch",
-                }}
+                style={{ background: "#0a0612" }}
                 dangerouslySetInnerHTML={{ __html: stripLeadingCoverImage(proxyUnavatarHtml(selected.body_html)) }}
               />
 

@@ -227,62 +227,35 @@
   background: hsl(330, 85%, 65%, 0.5);
 }
 
-/* Newsletter poster preview — fluid responsive layout */
+/* Newsletter poster preview — preserve original email layout exactly */
 .newsletter-poster-preview {
   width: 100%;
-  overflow-x: hidden;
+  overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
-.newsletter-poster-preview > *,
-.newsletter-poster-preview table {
-  width: 100% !important;
-  max-width: 100% !important;
-  min-width: 0 !important;
-  table-layout: fixed !important;
-}
-.newsletter-poster-preview img {
-  display: block;
-  max-width: 100% !important;
-  width: 100% !important;
-  height: auto !important;
-}
+/* Reset any word-breaking so the email renders exactly as on desktop */
+.newsletter-poster-preview table,
+.newsletter-poster-preview tbody,
+.newsletter-poster-preview tr,
 .newsletter-poster-preview td,
 .newsletter-poster-preview div,
-.newsletter-poster-preview p {
+.newsletter-poster-preview p,
+.newsletter-poster-preview a {
+  word-break: normal !important;
+  overflow-wrap: normal !important;
+  white-space: inherit !important;
+}
+.newsletter-poster-preview img {
   max-width: 100% !important;
-  word-break: break-word !important;
-  overflow-wrap: break-word !important;
+  height: auto !important;
 }
-/* Prevent word-breaking inside button-style links and their parent cells */
-.newsletter-poster-preview a[style*="inline-block"] {
-  word-break: normal !important;
-  overflow-wrap: normal !important;
-  white-space: nowrap !important;
-}
-.newsletter-poster-preview td:has(> a[style*="inline-block"]) {
-  word-break: normal !important;
-  overflow-wrap: normal !important;
-}
-@media (max-width: 480px) {
-  .newsletter-poster-preview td,
-  .newsletter-poster-preview a,
-  .newsletter-poster-preview a[style*="inline-block"] {
-    word-break: normal !important;
-    overflow-wrap: normal !important;
-    white-space: normal !important;
+/* On mobile, render at native email width and scale down to fit */
+@media (max-width: 680px) {
+  .newsletter-poster-preview {
+    overflow-x: hidden;
   }
-  .newsletter-poster-preview a[style*="inline-block"] {
-    display: block !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    box-sizing: border-box !important;
-    text-align: center !important;
-    white-space: nowrap !important;
-  }
-  .newsletter-poster-preview td a {
-    display: inline-block !important;
-    max-width: 100% !important;
-    box-sizing: border-box !important;
+  .newsletter-poster-preview > * {
+    min-width: 600px !important;
   }
 }
 /* Preserve positioned overlays on all screens */
@@ -290,26 +263,6 @@
 .newsletter-poster-preview a[style*="position: relative"] {
   display: block;
   position: relative !important;
-}
-/* Mobile-only: scale down the video title overlay */
-@media (max-width: 680px) {
-  .newsletter-poster-preview a[style*="position:relative"] > div[style*="position:absolute"],
-  .newsletter-poster-preview a[style*="position: relative"] > div[style*="position:absolute"],
-  .newsletter-poster-preview a[style*="position:relative"] > div[style*="position: absolute"],
-  .newsletter-poster-preview a[style*="position: relative"] > div[style*="position: absolute"] {
-    padding: 6px 8px 5px !important;
-  }
-  .newsletter-poster-preview a[style*="position:relative"] > div[style*="position:absolute"] span,
-  .newsletter-poster-preview a[style*="position: relative"] > div[style*="position:absolute"] span,
-  .newsletter-poster-preview a[style*="position:relative"] > div[style*="position: absolute"] span,
-  .newsletter-poster-preview a[style*="position: relative"] > div[style*="position: absolute"] span {
-    font-size: 10px !important;
-    line-height: 1.3 !important;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
 }
 .newsletter-poster-preview a {
   color: inherit;
