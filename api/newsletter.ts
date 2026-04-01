@@ -1090,14 +1090,21 @@ Feature these guests in the "Last Week's Recap" section with their circular PFPs
 IMPORTANT: If a transcript was provided above, write a brief engaging synopsis (3-5 sentences) summarizing the highlights of last week's discussion. This synopsis should appear in the "Last Week's Recap" section above the guest PFPs. Make it punchy and curiosity-inducing so readers click "Watch the Replay". If NO transcript was provided, write a general teaser like "Missed last week? Our guests dropped some incredible insights — catch the replay!"`
     : "";
 
+  const thisWeekNames = speakersWithImages.map(s => s.name).join(", ");
   const userPrompt = `Generate this week's WIP Weekly poster using the "${theme.name}" visual theme.
 This should look like the illest block party flyer / punk rock show poster anyone has ever seen.
 NOT an email. A POSTER.
 
-**THIS THURSDAY'S HEADLINERS:**
+⚠️ CRITICAL: THIS WEEK HAS EXACTLY ${speakersWithImages.length} SPEAKER(S): ${thisWeekNames}.
+The "THIS WEEK'S HEADLINERS" section MUST contain ONLY these ${speakersWithImages.length} speaker(s) and NO ONE ELSE.
+Do NOT pull any names from "Last Week's Recap" into the "This Week" section. They are completely separate sections.
+
+**THIS THURSDAY'S HEADLINERS (ONLY THESE ${speakersWithImages.length} SPEAKER(S)):**
 ${speakerList}
 ${videoContext}
 ${transcriptSection}
+
+--- SEPARATE SECTION: LAST WEEK (NOT THIS WEEK) ---
 ${lastWeekContext}
 
 Community links (style as "entry points" in the ticket section):
