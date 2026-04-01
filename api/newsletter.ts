@@ -1005,12 +1005,14 @@ SPEAKER PROFILE IMAGES — CRITICAL:
 - Show as circular images (90-110px) with a 3px border in accent color and box-shadow glow
 - If no profile image URL is provided for a speaker, skip the image
 
-SPEAKER SOCIAL LINKS — MUST BE CLICKABLE WITH SPECIFIC COLORS:
+SPEAKER SOCIAL LINKS — MANDATORY, MUST BE CLICKABLE WITH SPECIFIC COLORS:
+⚠️ THIS IS NON-NEGOTIABLE — Every speaker MUST have their social links rendered. NEVER omit them.
 - For EVERY speaker, render their social media handles as CLICKABLE <a> links below their name
 - Twitter/X links MUST be BLUE: <a href="https://x.com/HANDLE" target="_blank" style="color:#1DA1F2;text-decoration:none;font-weight:bold;">𝕏 @HANDLE</a>
 - Farcaster links MUST be PURPLE: <a href="https://warpcast.com/HANDLE" target="_blank" style="color:#8B5CF6;text-decoration:none;font-weight:bold;">🟣 @HANDLE</a> (do NOT add "on Farcaster" text — just the emoji and handle)
 - Show both if available, each on its own line
 - These go directly under each speaker's name in their headliner card
+- If a speaker has NO social links at all, skip links but this should be rare — check the speaker data carefully
 
 SPEAKER TOPIC — MUST ALWAYS BE DISPLAYED AS STYLED TEXT:
 - ALWAYS show the topic with the label prefix "Topic: " in a consistent styled format
