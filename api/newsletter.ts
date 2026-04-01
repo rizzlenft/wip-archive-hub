@@ -1309,6 +1309,7 @@ Community links (style as "entry points" in the ticket section):
       }
     }
     const now = new Date().toISOString();
+    const id = `wip-weekly-${Date.now()}`;
 
     const issue = {
       id,
