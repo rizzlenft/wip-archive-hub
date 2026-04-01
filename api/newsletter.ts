@@ -1275,7 +1275,39 @@ Community links (style as "entry points" in the ticket section):
       )
     }
 
-    const id = `wip-weekly-${Date.now()}`;
+    // 6) Post-process: inject missing social links for speakers
+    for (const s of speakersWithImages) {
+      if (!s.name) continue;
+      const nameEscaped = s.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const tw = normalizeTwitterHandle(s.twitter);
+      const fc = normalizeFarcasterHandle(s.farcaster);
+      
+      // Check if the speaker's social links are already present
+      const hasTwitterLink = tw && new RegExp(`x\\.com/${tw}`, "i").test(generated.body_html);
+      const hasFarcasterLink = fc && new RegExp(`warpcast\\.com/${fc}`, "i").test(generated.body_html);
+      
+      if ((!hasTwitterLink && tw) || (!hasFarcasterLink && fc)) {
+        // Find where the speaker name appears and inject links after it
+        const namePattern = new RegExp(
+          `(>[^<]*${nameEscaped}[^<]*<\\/[^>]+>)`,
+          "i"
+        );
+        const match = generated.body_html.match(namePattern);
+        if (match) {
+          let linksHtml = "";
+          if (!hasTwitterLink && tw) {
+            linksHtml += `<div style="text-align:center;margin-top:4px;"><a href="https://x.com/${tw}" target="_blank" style="color:#1DA1F2;text-decoration:none;font-weight:bold;font-size:14px;">𝕏 @${tw}</a></div>`;
+          }
+          if (!hasFarcasterLink && fc) {
+            linksHtml += `<div style="text-align:center;margin-top:4px;"><a href="https://warpcast.com/${fc}" target="_blank" style="color:#8B5CF6;text-decoration:none;font-weight:bold;font-size:14px;">🟣 @${fc}</a></div>`;
+          }
+          generated.body_html = generated.body_html.replace(
+            namePattern,
+            `$1${linksHtml}`
+          );
+        }
+      }
+    }
     const now = new Date().toISOString();
 
     const issue = {
