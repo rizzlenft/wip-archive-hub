@@ -976,7 +976,7 @@ SPEAKER CARDS — CRITICAL LAYOUT (SIDE-BY-SIDE, EQUAL WEIGHT):
     <td width="XX%" valign="top" style="padding:12px;">...speaker card...</td>
     <td width="XX%" valign="top" style="padding:12px;">...speaker card...</td>
   </tr></table>
-- Width per cell: 1 speaker=100%, 2 speakers=50%, 3 speakers=33%, 4 speakers=25%
+- Width per cell: 2 speakers=50%, 3 speakers=33%, 4 speakers=25%
 - Each <td> contains: circular PFP image, speaker name (36-48px, font-weight:900), social links, topic, and bio
 - Each card gets: thick accent border, box-shadow glow, inner gradient highlight
 - Speaker name at 36-48px with text-shadow glow
@@ -984,18 +984,35 @@ SPEAKER CARDS — CRITICAL LAYOUT (SIDE-BY-SIDE, EQUAL WEIGHT):
 - NO speaker should appear more prominent than another — equal sizing, equal styling
 - NEVER use separate tables or divs that would cause speakers to stack on top of each other
 
+⚠️ SINGLE SPEAKER SPECIAL LAYOUT:
+- When there is ONLY ONE speaker, use a CENTERED layout with the PFP image CENTERED above the name:
+  <table width="100%" cellpadding="0" cellspacing="0"><tr>
+    <td align="center" style="padding:24px;border:3px solid ACCENT;border-radius:12px;box-shadow:0 0 20px ACCENT40;">
+      <img src="PFP_URL" width="120" height="120" style="display:block;margin:0 auto 16px;border-radius:50%;border:3px solid ACCENT;" alt="Name" />
+      <div style="font-size:48px;font-weight:900;color:#f5f0e8;text-align:center;">NAME</div>
+      <div style="text-align:center;margin-top:8px;">SOCIAL LINKS</div>
+      <div style="text-align:center;margin-top:8px;">TOPIC</div>
+      <div style="text-align:center;margin-top:8px;font-style:italic;color:#b0a8c0;">BIO</div>
+    </td>
+  </tr></table>
+- The PFP must be display:block with margin:0 auto so it is horizontally centered
+- Everything inside the cell must use text-align:center
+- Do NOT place the PFP to the left — it must be centered above the name
+
 SPEAKER PROFILE IMAGES — CRITICAL:
 - Each speaker with a [PROFILE IMAGE: url] tag MUST have their photo rendered as an <img> tag
 - Use the EXACT URL provided — do NOT modify or omit it
 - Show as circular images (90-110px) with a 3px border in accent color and box-shadow glow
 - If no profile image URL is provided for a speaker, skip the image
 
-SPEAKER SOCIAL LINKS — MUST BE CLICKABLE WITH SPECIFIC COLORS:
+SPEAKER SOCIAL LINKS — MANDATORY, MUST BE CLICKABLE WITH SPECIFIC COLORS:
+⚠️ THIS IS NON-NEGOTIABLE — Every speaker MUST have their social links rendered. NEVER omit them.
 - For EVERY speaker, render their social media handles as CLICKABLE <a> links below their name
 - Twitter/X links MUST be BLUE: <a href="https://x.com/HANDLE" target="_blank" style="color:#1DA1F2;text-decoration:none;font-weight:bold;">𝕏 @HANDLE</a>
 - Farcaster links MUST be PURPLE: <a href="https://warpcast.com/HANDLE" target="_blank" style="color:#8B5CF6;text-decoration:none;font-weight:bold;">🟣 @HANDLE</a> (do NOT add "on Farcaster" text — just the emoji and handle)
 - Show both if available, each on its own line
 - These go directly under each speaker's name in their headliner card
+- If a speaker has NO social links at all, skip links but this should be rare — check the speaker data carefully
 
 SPEAKER TOPIC — MUST ALWAYS BE DISPLAYED AS STYLED TEXT:
 - ALWAYS show the topic with the label prefix "Topic: " in a consistent styled format
@@ -1258,7 +1275,39 @@ Community links (style as "entry points" in the ticket section):
       )
     }
 
-    const id = `wip-weekly-${Date.now()}`;
+    // 6) Post-process: inject missing social links for speakers
+    for (const s of speakersWithImages) {
+      if (!s.name) continue;
+      const nameEscaped = s.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const tw = normalizeTwitterHandle(s.twitter);
+      const fc = normalizeFarcasterHandle(s.farcaster);
+      
+      // Check if the speaker's social links are already present
+      const hasTwitterLink = tw && new RegExp(`x\\.com/${tw}`, "i").test(generated.body_html);
+      const hasFarcasterLink = fc && new RegExp(`warpcast\\.com/${fc}`, "i").test(generated.body_html);
+      
+      if ((!hasTwitterLink && tw) || (!hasFarcasterLink && fc)) {
+        // Find where the speaker name appears and inject links after it
+        const namePattern = new RegExp(
+          `(>[^<]*${nameEscaped}[^<]*<\\/[^>]+>)`,
+          "i"
+        );
+        const match = generated.body_html.match(namePattern);
+        if (match) {
+          let linksHtml = "";
+          if (!hasTwitterLink && tw) {
+            linksHtml += `<div style="text-align:center;margin-top:4px;"><a href="https://x.com/${tw}" target="_blank" style="color:#1DA1F2;text-decoration:none;font-weight:bold;font-size:14px;">𝕏 @${tw}</a></div>`;
+          }
+          if (!hasFarcasterLink && fc) {
+            linksHtml += `<div style="text-align:center;margin-top:4px;"><a href="https://warpcast.com/${fc}" target="_blank" style="color:#8B5CF6;text-decoration:none;font-weight:bold;font-size:14px;">🟣 @${fc}</a></div>`;
+          }
+          generated.body_html = generated.body_html.replace(
+            namePattern,
+            `$1${linksHtml}`
+          );
+        }
+      }
+    }
     const now = new Date().toISOString();
 
     const issue = {
