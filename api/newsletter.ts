@@ -976,13 +976,28 @@ SPEAKER CARDS — CRITICAL LAYOUT (SIDE-BY-SIDE, EQUAL WEIGHT):
     <td width="XX%" valign="top" style="padding:12px;">...speaker card...</td>
     <td width="XX%" valign="top" style="padding:12px;">...speaker card...</td>
   </tr></table>
-- Width per cell: 1 speaker=100%, 2 speakers=50%, 3 speakers=33%, 4 speakers=25%
+- Width per cell: 2 speakers=50%, 3 speakers=33%, 4 speakers=25%
 - Each <td> contains: circular PFP image, speaker name (36-48px, font-weight:900), social links, topic, and bio
 - Each card gets: thick accent border, box-shadow glow, inner gradient highlight
 - Speaker name at 36-48px with text-shadow glow
 - Speaker bio as styled italic description below their name
 - NO speaker should appear more prominent than another — equal sizing, equal styling
 - NEVER use separate tables or divs that would cause speakers to stack on top of each other
+
+⚠️ SINGLE SPEAKER SPECIAL LAYOUT:
+- When there is ONLY ONE speaker, use a CENTERED layout with the PFP image CENTERED above the name:
+  <table width="100%" cellpadding="0" cellspacing="0"><tr>
+    <td align="center" style="padding:24px;border:3px solid ACCENT;border-radius:12px;box-shadow:0 0 20px ACCENT40;">
+      <img src="PFP_URL" width="120" height="120" style="display:block;margin:0 auto 16px;border-radius:50%;border:3px solid ACCENT;" alt="Name" />
+      <div style="font-size:48px;font-weight:900;color:#f5f0e8;text-align:center;">NAME</div>
+      <div style="text-align:center;margin-top:8px;">SOCIAL LINKS</div>
+      <div style="text-align:center;margin-top:8px;">TOPIC</div>
+      <div style="text-align:center;margin-top:8px;font-style:italic;color:#b0a8c0;">BIO</div>
+    </td>
+  </tr></table>
+- The PFP must be display:block with margin:0 auto so it is horizontally centered
+- Everything inside the cell must use text-align:center
+- Do NOT place the PFP to the left — it must be centered above the name
 
 SPEAKER PROFILE IMAGES — CRITICAL:
 - Each speaker with a [PROFILE IMAGE: url] tag MUST have their photo rendered as an <img> tag
