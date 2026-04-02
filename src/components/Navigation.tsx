@@ -105,7 +105,7 @@ export const Navigation = () => {
                   className="hidden sm:inline-flex"
                   onClick={() => login("/events")}
                 >
-                  Sign in
+                  Guest Book
                 </Button>
               ) : (
                 <DropdownMenu>
@@ -176,7 +176,7 @@ export const Navigation = () => {
                     className="mt-2"
                     onClick={() => { closeMobile(); login("/events"); }}
                   >
-                    Sign in
+                    Guest Book
                   </Button>
                 ) : (
                   <>
