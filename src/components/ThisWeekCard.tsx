@@ -102,7 +102,7 @@ export const ThisWeekCard = () => {
         </motion.div>
 
         {!expired && speakers.length > 0 && (
-          <div className="grid gap-3 sm:grid-cols-2 max-w-xl mx-auto">
+          <div className={`grid gap-3 mx-auto ${speakers.length === 1 ? 'max-w-xs' : 'sm:grid-cols-2 max-w-xl'}`}>
             {speakers.slice(0, 4).map((speaker, idx) => (
               <motion.div
                 key={speaker.name}
@@ -110,7 +110,7 @@ export const ThisWeekCard = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: idx * 0.1, duration: 0.4 }}
-                className="flex items-center gap-3 rounded-xl border border-border bg-card/60 backdrop-blur-sm px-4 py-3"
+                className={`flex items-center rounded-xl border border-border bg-card/60 backdrop-blur-sm ${speakers.length === 1 ? 'flex-col text-center gap-4 px-6 py-5' : 'gap-3 px-4 py-3'}`}
               >
                 <img
                   src={
@@ -118,14 +118,14 @@ export const ThisWeekCard = () => {
                     `${API_BASE}/api/newsletter?action=avatar&${speaker.farcaster ? `farcaster=${encodeURIComponent(speaker.farcaster)}` : speaker.twitter ? `twitter=${encodeURIComponent(speaker.twitter)}` : `twitter=${encodeURIComponent(speaker.name)}`}`
                   }
                   alt={speaker.name}
-                  className="w-10 h-10 rounded-full object-cover border border-primary/30 shrink-0"
+                  className={`rounded-full object-cover border border-primary/30 shrink-0 ${speakers.length === 1 ? 'w-16 h-16' : 'w-10 h-10'}`}
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(speaker.name)}&background=7c3aed&color=fff&size=40`;
                   }}
                 />
                 <div className="min-w-0">
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="text-sm font-semibold text-foreground">
+                  <div className={`flex items-center gap-1.5 flex-wrap ${speakers.length === 1 ? 'justify-center' : ''}`}>
+                    <span className={`font-semibold text-foreground ${speakers.length === 1 ? 'text-base' : 'text-sm'}`}>
                       {speaker.name}
                     </span>
                     {speaker.twitter && (
@@ -140,7 +140,7 @@ export const ThisWeekCard = () => {
                     )}
                   </div>
                   {speaker.topic && (
-                    <p className="text-xs text-muted-foreground truncate">
+                    <p className={`text-muted-foreground truncate ${speakers.length === 1 ? 'text-sm' : 'text-xs'}`}>
                       {speaker.topic}
                     </p>
                   )}
