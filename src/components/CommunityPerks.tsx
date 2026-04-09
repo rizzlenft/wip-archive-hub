@@ -140,37 +140,20 @@ export const CommunityPerks = () => {
                   {perk.description}
                 </p>
                 
-                {perk.links && (
-                  <div className="space-y-4 mb-6">
-                    <div className="flex flex-wrap justify-center gap-4">
-                      {perk.links.filter(l => !l.text.toLowerCase().includes('stake')).map((link) => (
-                        <a
-                          key={link.text}
-                          href={link.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors font-medium"
-                        >
-                          {link.text}
-                          <ExternalLink className="w-4 h-4" />
-                        </a>
-                      ))}
-                    </div>
-                    {perk.links.filter(l => l.text.toLowerCase().includes('stake')).map((link) => (
-                      <a
-                        key={link.text}
-                        href={link.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl bg-primary/10 border border-primary/30 text-primary hover:bg-primary/20 hover:border-primary/50 transition-all font-semibold text-sm"
-                      >
-                        <Coins className="w-4 h-4" />
-                        {link.text}
-                        <ExternalLink className="w-3.5 h-3.5" />
-                      </a>
-                    ))}
+                {perk.links && perk.links.filter(l => l.text.toLowerCase().includes('stake')).map((link) => (
+                  <div key={link.text} className="mb-6">
+                    <a
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl bg-primary/10 border border-primary/30 text-primary hover:bg-primary/20 hover:border-primary/50 transition-all font-semibold text-sm"
+                    >
+                      <Coins className="w-4 h-4" />
+                      {link.text}
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
                   </div>
-                )}
+                ))}
 
                 {/* Live price chart for token — lazy loaded */}
                 {perk.isToken && (
@@ -184,6 +167,23 @@ export const CommunityPerks = () => {
                       title="$WIP Price Chart"
                       loading="lazy"
                     />
+                  </div>
+                )}
+                
+                {perk.links && (
+                  <div className="flex flex-wrap justify-center gap-4">
+                    {perk.links.filter(l => !l.text.toLowerCase().includes('stake')).map((link) => (
+                      <a
+                        key={link.text}
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors font-medium"
+                      >
+                        {link.text}
+                        <ExternalLink className="w-4 h-4" />
+                      </a>
+                    ))}
                   </div>
                 )}
                 {perk.artists && (
