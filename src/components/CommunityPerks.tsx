@@ -34,7 +34,7 @@ const perks = [
     hasGallery: true,
     artists: [
       { name: "Fabiano", url: "https://x.com/fabianospeziari" },
-      { name: "Patrizia", url: "https://x.com/patriziabarnatox" },
+      { name: "Patrizia", url: "https://x.com/patriziabarnato" },
     ],
     collectionUrl: "https://opensea.io/collection/random-3d-things",
   },
@@ -198,7 +198,7 @@ export const CommunityPerks = () => {
                           className="flex flex-col items-center gap-2 rounded-xl border border-border bg-card/60 backdrop-blur-sm px-4 py-3 hover:border-primary/30 transition-all"
                         >
                           <img
-                            src={`https://unavatar.io/twitter/${artist.name === 'Fabiano' ? 'fabianospeziari' : 'patriziabarnatox'}`}
+                            src={`https://unavatar.io/twitter/${artist.name === 'Fabiano' ? 'fabianospeziari' : 'patriziabarnato'}`}
                             alt={artist.name}
                             className="w-12 h-12 rounded-full object-cover border border-primary/30"
                             onError={(e) => {
