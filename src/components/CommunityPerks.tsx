@@ -140,23 +140,8 @@ export const CommunityPerks = () => {
                   {perk.description}
                 </p>
                 
-                {/* Live price chart for token — lazy loaded */}
-                {perk.isToken && (
-                  <div className="mb-6 rounded-xl overflow-hidden border border-border">
-                    <iframe
-                      src="https://www.geckoterminal.com/base/pools/0xfa9d608b5a13a78bd403e61e2459660efa7566348357ef7ccb010522af3660f0?embed=1&info=0&swaps=0"
-                      width="100%"
-                      height="300"
-                      frameBorder="0"
-                      className="bg-background"
-                      title="$WIP Price Chart"
-                      loading="lazy"
-                    />
-                  </div>
-                )}
-                
                 {perk.links && (
-                  <div className="space-y-4">
+                  <div className="space-y-4 mb-6">
                     <div className="flex flex-wrap justify-center gap-4">
                       {perk.links.filter(l => !l.text.toLowerCase().includes('stake')).map((link) => (
                         <a
@@ -184,6 +169,21 @@ export const CommunityPerks = () => {
                         <ExternalLink className="w-3.5 h-3.5" />
                       </a>
                     ))}
+                  </div>
+                )}
+
+                {/* Live price chart for token — lazy loaded */}
+                {perk.isToken && (
+                  <div className="mb-6 rounded-xl overflow-hidden border border-border">
+                    <iframe
+                      src="https://www.geckoterminal.com/base/pools/0xfa9d608b5a13a78bd403e61e2459660efa7566348357ef7ccb010522af3660f0?embed=1&info=0&swaps=0"
+                      width="100%"
+                      height="300"
+                      frameBorder="0"
+                      className="bg-background"
+                      title="$WIP Price Chart"
+                      loading="lazy"
+                    />
                   </div>
                 )}
                 {perk.artists && (
