@@ -156,35 +156,59 @@ export const CommunityPerks = () => {
                 )}
                 
                 {perk.links && (
-                  <div className="flex flex-wrap justify-center gap-4">
-                    {perk.links.map((link) => (
+                  <div className="space-y-4">
+                    <div className="flex flex-wrap justify-center gap-4">
+                      {perk.links.filter(l => !l.text.toLowerCase().includes('stake')).map((link) => (
+                        <a
+                          key={link.text}
+                          href={link.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors font-medium"
+                        >
+                          {link.text}
+                          <ExternalLink className="w-4 h-4" />
+                        </a>
+                      ))}
+                    </div>
+                    {perk.links.filter(l => l.text.toLowerCase().includes('stake')).map((link) => (
                       <a
                         key={link.text}
                         href={link.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors font-medium"
+                        className="inline-flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl bg-primary/10 border border-primary/30 text-primary hover:bg-primary/20 hover:border-primary/50 transition-all font-semibold text-sm"
                       >
+                        <Coins className="w-4 h-4" />
                         {link.text}
-                        <ExternalLink className="w-4 h-4" />
+                        <ExternalLink className="w-3.5 h-3.5" />
                       </a>
                     ))}
                   </div>
                 )}
                 {perk.artists && (
-                  <div className="flex flex-wrap justify-center gap-4">
-                    {perk.artists.map((artist) => (
-                      <a
-                        key={artist.name}
-                        href={artist.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors font-medium"
-                      >
-                        @{artist.name}
-                        <ExternalLink className="w-4 h-4" />
-                      </a>
-                    ))}
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-3 max-w-xs mx-auto">
+                      {perk.artists.map((artist) => (
+                        <a
+                          key={artist.name}
+                          href={artist.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex flex-col items-center gap-2 rounded-xl border border-border bg-card/60 backdrop-blur-sm px-4 py-3 hover:border-primary/30 transition-all"
+                        >
+                          <img
+                            src={`https://unavatar.io/twitter/${artist.name === 'Fabiano' ? 'fabianospeziari' : 'patriziabarnatox'}`}
+                            alt={artist.name}
+                            className="w-12 h-12 rounded-full object-cover border border-primary/30"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(artist.name)}&background=7c3aed&color=fff&size=48`;
+                            }}
+                          />
+                          <span className="font-semibold text-sm text-foreground">@{artist.name}</span>
+                        </a>
+                      ))}
+                    </div>
                     {perk.collectionUrl && (
                       <a
                         href={perk.collectionUrl}
