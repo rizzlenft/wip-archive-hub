@@ -34,7 +34,7 @@ const perks = [
     hasGallery: true,
     artists: [
       { name: "Fabiano", url: "https://x.com/fabianospeziari" },
-      { name: "Patrizia", url: "https://x.com/patriziabarnatox" },
+      { name: "Patrizia", url: "https://x.com/patriziabarnato" },
     ],
     collectionUrl: "https://opensea.io/collection/random-3d-things",
   },
