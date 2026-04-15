@@ -785,7 +785,7 @@ YouTube Thumbnail (MUST include as clickable image): https://img.youtube.com/vi/
     ? lastWeekSpeakersWithImages.map((s) => {
         const tw = normalizeTwitterHandle(s.twitter);
         const fc = normalizeFarcasterHandle(s.farcaster);
-        return `- ${s.name}${s.profile_image_url ? ` [PROFILE IMAGE: ${s.profile_image_url}]` : ""}${tw ? ` (@${tw}, link: https://x.com/${tw})` : ""}${fc ? ` (@${fc}, link: https://farcaster.xyz/${fc})` : ""}`;
+        return `- ${s.name}${s.profile_image_url ? ` [PROFILE IMAGE: ${s.profile_image_url}]` : ""}${tw ? ` [X/Twitter handle: ${tw}, link: https://x.com/${tw}]` : ""}${fc ? ` [Farcaster handle: ${fc}, link: https://warpcast.com/${fc}]` : ""}`;
       }).join("\n")
     : "(No previous speakers found)";
 
