@@ -1063,7 +1063,7 @@ SECTIONS ORDER (mandatory):
 7. **WANT TO BE ON THE WIP?** — A CTA section encouraging listeners to become guests or sponsors. Brief text: "Whether you want to make a guest appearance, showcase your project, or sponsor an upcoming event—reach out to Rizzle to get the conversation started."
    Add two CTA buttons:
    <a href="https://x.com/NFTland" target="_blank" style="display:inline-block;padding:14px 28px;background:linear-gradient(135deg,#a29bfe,#e84393);color:#f5f0e8;font-weight:bold;font-size:16px;text-decoration:none;border-radius:6px;">🎙 Be a Guest</a>
-   <a href="https://x.com/NFTland" target="_blank" style="display:inline-block;padding:14px 28px;border:2px solid #e84393;color:#e84393;font-weight:bold;font-size:16px;text-decoration:none;border-radius:6px;">📡 Sponsor an Event</a>
+   <a href="https://x.com/NFTland" target="_blank" style="display:inline-block;padding:14px 28px;background:#0a0612;border:2px solid #e84393;color:#f5f0e8;font-weight:bold;font-size:16px;text-decoration:none;border-radius:6px;">📡 Sponsor an Event</a>
 8. **WIP CREW SHOUTOUTS** (LAST SECTION — must be at the very bottom): "🎁 Free NFT Gifts" — Brief text: "Each week, our amazing artists Fabiano & Patrizia create unique voxel art NFTs gifted to attendees—beautiful collectibles just for showing up!" Add links:
    <a href="https://x.com/fabianospeziari" target="_blank" style="color:#1DA1F2;text-decoration:none;font-weight:bold;">𝕏 @Fabiano</a> ·
    <a href="https://x.com/patriziabarnato" target="_blank" style="color:#1DA1F2;text-decoration:none;font-weight:bold;">𝕏 @Patrizia</a> ·
