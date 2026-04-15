@@ -1041,6 +1041,13 @@ LAYOUT RULES:
 - TIGHT SPACING: Keep padding between sections to 16-24px max
 - MOBILE-FRIENDLY: Images use max-width:100%, tables use width:100%
 
+⚠️ BUTTON & CTA ALIGNMENT — CRITICAL FOR SUBSTACK:
+- ALL buttons and CTA links MUST be wrapped in a <table> with align="center" and the <td> must have style="text-align:center;"
+- Use this exact pattern for every button: <table align="center" cellpadding="0" cellspacing="0"><tr><td align="center" style="text-align:center;"><a href="..." style="display:inline-block;...">Button Text</a></td></tr></table>
+- When placing TWO buttons side by side, use a single centered table with two <td> cells: <table align="center" cellpadding="0" cellspacing="0"><tr><td style="padding:0 8px;text-align:center;">BUTTON1</td><td style="padding:0 8px;text-align:center;">BUTTON2</td></tr></table>
+- NEVER use float, position:absolute, or margin:auto alone for centering — only table align="center"
+- This ensures buttons render centered in both the preview AND Substack
+
 SECTIONS ORDER (mandatory):
 1. **HEADER** — WIP logo + "The WIP Meetup" (huge, glowing text-shadow) + "Every Thursday · 3 PM ET" + Website & Discord CTAs.
 2. **THIS WEEK'S HEADLINERS** — All speakers in ONE equal-weight TABLE row with glowing-border cells, circular PFP, CLICKABLE social links (Twitter in blue #1DA1F2, Farcaster in purple #8B5CF6), topic (ALWAYS with "Topic:" prefix, linked if URL), and their bio as a styled description.
