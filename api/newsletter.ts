@@ -768,7 +768,7 @@ YouTube Thumbnail (MUST include as clickable image): https://img.youtube.com/vi/
       } else {
         bioSection = `\n    (No bio available — show only their name, PFP, social links, and topic)`;
       }
-      return `- ${s.name}${s.profile_image_url ? ` [PROFILE IMAGE: ${s.profile_image_url}]` : ""}${tw ? ` (@${tw} on X/Twitter, link: https://x.com/${tw})` : ""}${fc ? ` (@${fc} on Farcaster, link: https://farcaster.xyz/${fc})` : ""}${s.topic ? ` — Topic: ${s.topic}` : ""}${bioSection}`;
+      return `- ${s.name}${s.profile_image_url ? ` [PROFILE IMAGE: ${s.profile_image_url}]` : ""}${tw ? ` [X/Twitter handle: ${tw}, link: https://x.com/${tw}]` : ""}${fc ? ` [Farcaster handle: ${fc}, link: https://warpcast.com/${fc}]` : ""}${s.topic ? ` — Topic: ${s.topic}` : ""}${bioSection}`;
     })
     .join("\n");
 
@@ -1007,10 +1007,11 @@ SPEAKER PROFILE IMAGES — CRITICAL:
 
 SPEAKER SOCIAL LINKS — MANDATORY, MUST BE CLICKABLE WITH SPECIFIC COLORS:
 ⚠️ THIS IS NON-NEGOTIABLE — Every speaker MUST have their social links rendered. NEVER omit them.
+⚠️ EACH HANDLE MUST APPEAR EXACTLY ONCE — Do NOT render the same handle twice (e.g. do NOT show both "🟣 @handle" AND "@handle on Farcaster"). Pick ONE format per platform.
 - For EVERY speaker, render their social media handles as CLICKABLE <a> links below their name
-- Twitter/X links MUST be BLUE: <a href="https://x.com/HANDLE" target="_blank" style="color:#1DA1F2;text-decoration:none;font-weight:bold;">𝕏 @HANDLE</a>
-- Farcaster links MUST be PURPLE: <a href="https://warpcast.com/HANDLE" target="_blank" style="color:#8B5CF6;text-decoration:none;font-weight:bold;">🟣 @HANDLE</a> (do NOT add "on Farcaster" text — just the emoji and handle)
-- Show both if available, each on its own line
+- Twitter/X: render ONCE as: <a href="https://x.com/HANDLE" target="_blank" style="color:#1DA1F2;text-decoration:none;font-weight:bold;">𝕏 @HANDLE</a>
+- Farcaster: render ONCE as: <a href="https://warpcast.com/HANDLE" target="_blank" style="color:#8B5CF6;text-decoration:none;font-weight:bold;">🟣 @HANDLE</a>
+- Show both platforms if available, each on its own line, but NEVER duplicate the same platform
 - These go directly under each speaker's name in their headliner card
 - If a speaker has NO social links at all, skip links but this should be rare — check the speaker data carefully
 
