@@ -21,9 +21,8 @@ const perks = [
     color: "from-yellow-400 to-orange-500",
     isToken: true,
     links: [
-      { url: "https://app.uniswap.org/explore/tokens/base/0xe21ec3068a538a064ff0bdd69db0204306fc00a0", text: "Uniswap" },
       { url: "https://www.geckoterminal.com/base/pools/0xfa9d608b5a13a78bd403e61e2459660efa7566348357ef7ccb010522af3660f0", text: "GeckoTerminal" },
-      { url: "https://wip-staking.pages.dev/", text: "Stake your $WIP (beta)" },
+      { url: "https://wip-staking.pages.dev/trade", text: "Buy and Stake $WIP" },
     ],
   },
   {
@@ -268,9 +267,9 @@ export const CommunityPerks = () => {
                 When you purchase $WIP, you're directly supporting the builders, creators, and artists who make this community thrive since 2019.
               </p>
               <Button variant="hero" size="default" className="w-full" asChild>
-                <a href="https://app.uniswap.org/explore/tokens/base/0xe21ec3068a538a064ff0bdd69db0204306fc00a0" target="_blank" rel="noopener noreferrer">
+                <a href="https://wip-staking.pages.dev/trade" target="_blank" rel="noopener noreferrer">
                   <Coins className="w-4 h-4" />
-                  Get $WIP on Uniswap
+                  Buy $WIP
                 </a>
               </Button>
             </div>
