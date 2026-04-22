@@ -1328,23 +1328,25 @@ Community links (style as "entry points" in the ticket section):
     );
 
     // 5) Ensure all speaker PFP img tags use our proxy URLs (AI sometimes strips proxy or invents URLs)
+    //    Strategy: for each speaker, find img tags whose alt text matches the speaker name and fix the src
     for (const s of speakersWithImages) {
       if (!s.profile_image_url || !s.name) continue;
-      // Find img tags near the speaker name that have a non-proxy src
       const nameEscaped = s.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-      // This ensures any avatar img within 500 chars of the speaker name uses the correct proxy URL
       generated.body_html = generated.body_html.replace(
-        new RegExp(`(<img\\s[^>]*?src=["'])([^"']*?)(?=["'][^>]*?(?:${nameEscaped}|alt=["'][^"']*${nameEscaped}))`, "gi"),
-        (_full: string, prefix: string, src: string) => {
-          // If already proxied, keep it
-          if (src.includes("/api/newsletter?action=avatar")) return prefix + src;
-          // If it's a known avatar URL, proxy it
-          if (/unavatar|warpcast|pbs\.twimg|imagedelivery/i.test(src)) {
-            return prefix + `${avatarBase}&url=${encodeURIComponent(src)}`;
-          }
-          return prefix + src;
+        new RegExp(`(<img\\s[^>]*?alt=["'][^"']*${nameEscaped}[^"']*["'][^>]*?src=["'])([^"']*?)(["'])`, "gi"),
+        (_full: string, prefix: string, src: string, quote: string) => {
+          if (src.includes("/api/newsletter?action=avatar")) return prefix + src + quote;
+          return prefix + s.profile_image_url + quote;
         },
-      )
+      );
+      // Also handle src before alt order
+      generated.body_html = generated.body_html.replace(
+        new RegExp(`(<img\\s[^>]*?src=["'])([^"']*?)(["'][^>]*?alt=["'][^"']*${nameEscaped}[^"']*["'])`, "gi"),
+        (_full: string, prefix: string, src: string, suffix: string) => {
+          if (src.includes("/api/newsletter?action=avatar")) return prefix + src + suffix;
+          return prefix + s.profile_image_url! + suffix;
+        },
+      );
     }
 
     // 6) Post-process: inject missing social links for speakers
