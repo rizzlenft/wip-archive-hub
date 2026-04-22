@@ -861,6 +861,40 @@ TRANSCRIPT:\n${effectiveTranscript}`
   const WIP_LOGO_URL = "https://thewipmeetup.com/images/wip-logo-static.png";
   const WIP_LOGO_GIF_URL = "https://wip-archive-hub.lovable.app/images/wip-logo.gif";
 
+  // WIP Crew members with X handles — used in the final shoutout section
+  const WIP_CREW = [
+    { name: "Matt", url: "https://x.com/niftytime" },
+    { name: "Rizzle", url: "https://x.com/NFTland" },
+    { name: "Paradoxx", url: "https://x.com/Paradoxx_Arts" },
+    { name: "Sho", url: "https://x.com/itsreallysho" },
+    { name: "Sandymeows", url: "https://x.com/sandyme0ws" },
+    { name: "Itscarolinahduh", url: "https://x.com/itscarolinaduh_" },
+    { name: "Kanwulf", url: "https://x.com/lordkanwulf" },
+    { name: "Fabiano", url: "https://x.com/fabianospeziari" },
+    { name: "Patrizia", url: "https://x.com/patriziabarnato" },
+    { name: "EZinCrypto", url: "https://x.com/ez_cbd" },
+    { name: "Foxyoga", url: "https://x.com/foxyoga_om" },
+    { name: "Fractilians", url: "https://x.com/Fractilians7" },
+    { name: "Tati", url: "https://x.com/adigitaltati" },
+    { name: "Juxton", url: "https://x.com/juxton" },
+    { name: "Metageist", url: "https://x.com/MetageistVR" },
+    { name: "Trippyogi", url: "https://x.com/trippyogi" },
+    { name: "Ray Buckton", url: "https://x.com/RayBuckton" },
+    { name: "Hidden Forces", url: "https://x.com/ForcesHidden" },
+    { name: "Valiant", url: "https://x.com/V_A_L_I_A_N_T" },
+    { name: "Stina Jones", url: "https://x.com/stina_jones" },
+    { name: "DragoNate", url: "https://x.com/DragoNateYT" },
+    { name: "Johan", url: "https://x.com/supahmarbler" },
+  ];
+
+  const wipCrewHtmlLinks = WIP_CREW.map(
+    (m) => `<a href="${m.url}" target="_blank" style="color:#e84393;text-decoration:none;font-weight:bold;">${m.name}</a>`
+  ).join(" | ");
+
+  const wipCrewMarkdownLinks = WIP_CREW.map(
+    (m) => `[${m.name}](${m.url})`
+  ).join(" | ");
+
   // Compute next Thursday date for the title
   const now = new Date();
   const dayOfWeek = now.getUTCDay(); // 0=Sun
