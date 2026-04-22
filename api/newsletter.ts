@@ -1367,11 +1367,23 @@ Community links (style as "entry points" in the ticket section):
     //    This is deterministic — we append it ourselves so the AI can't omit or garble it.
     const wipCrewSectionHtml = `<table width="100%" cellpadding="0" cellspacing="0" style="margin-top:24px;border-top:1px solid #333;padding-top:20px;"><tr><td align="center" style="text-align:center;padding:16px 12px;"><div style="font-size:14px;color:#f5f0e8;margin-bottom:8px;font-weight:bold;">HUGE shoutout to the WIP Crew, past and present:</div><div style="font-size:13px;line-height:2;">${wipCrewHtmlLinks}</div></td></tr></table>`;
     
-    // Remove any AI-generated WIP Crew section to avoid duplicates
-    generated.body_html = generated.body_html.replace(
-      /<table[^>]*>[\s\S]*?HUGE shoutout to the WIP Crew[\s\S]*?<\/table>/gi,
-      ""
-    );
+    // Remove any AI-generated WIP Crew section to avoid duplicates.
+    // Use a targeted approach: find the text and remove only the nearest enclosing table.
+    const crewTextIdx = generated.body_html.indexOf("HUGE shoutout to the WIP Crew");
+    if (crewTextIdx !== -1) {
+      // Walk backward to find the nearest <table that starts this section
+      const before = generated.body_html.slice(0, crewTextIdx);
+      const tableStartIdx = before.lastIndexOf("<table");
+      // Walk forward to find the closing </table> after the crew text
+      const after = generated.body_html.slice(crewTextIdx);
+      const tableEndMatch = after.indexOf("</table>");
+      if (tableStartIdx !== -1 && tableEndMatch !== -1) {
+        const tableEndIdx = crewTextIdx + tableEndMatch + "</table>".length;
+        generated.body_html =
+          generated.body_html.slice(0, tableStartIdx) +
+          generated.body_html.slice(tableEndIdx);
+      }
+    }
     
     // Find the closing </table> of the outermost wrapper and insert before it,
     // or just append before the final closing tags
