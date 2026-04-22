@@ -1426,6 +1426,12 @@ Community links (style as "entry points" in the ticket section):
     );
     generated.body_markdown = generated.body_markdown.trimEnd() + wipCrewMarkdown;
 
+    // 9) Enforce consistent title format
+    const expectedTitle = `WIP Meetup - ${meetupDateStr}`;
+    if (generated.title !== expectedTitle) {
+      generated.title = expectedTitle;
+    }
+
     const now = new Date().toISOString();
     const id = `wip-weekly-${Date.now()}`;
 
