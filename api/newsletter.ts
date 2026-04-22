@@ -1138,20 +1138,26 @@ IMPORTANT: If a transcript was provided above, write a brief engaging synopsis (
     : "";
 
   const thisWeekNames = speakersWithImages.map(s => s.name).join(", ");
+  const lastWeekNames = lastWeekSpeakersWithImages.map(s => s.name).join(", ");
   const userPrompt = `Generate this week's WIP Weekly poster using the "${theme.name}" visual theme.
 This should look like the illest block party flyer / punk rock show poster anyone has ever seen.
 NOT an email. A POSTER.
 
-⚠️ CRITICAL: THIS WEEK HAS EXACTLY ${speakersWithImages.length} SPEAKER(S): ${thisWeekNames}.
-The "THIS WEEK'S HEADLINERS" section MUST contain ONLY these ${speakersWithImages.length} speaker(s) and NO ONE ELSE.
-Do NOT pull any names from "Last Week's Recap" into the "This Week" section. They are completely separate sections.
+⚠️ CRITICAL SPEAKER SEPARATION — READ CAREFULLY:
+- THIS WEEK has EXACTLY ${speakersWithImages.length} speaker(s): ${thisWeekNames}.
+- LAST WEEK had different speakers: ${lastWeekNames || "none"}.
+- These are COMPLETELY DIFFERENT PEOPLE from DIFFERENT WEEKS.
+- The "THIS WEEK'S HEADLINERS" section MUST contain ONLY: ${thisWeekNames}. NO ONE ELSE.
+- The "LAST WEEK'S RECAP" section MUST contain ONLY: ${lastWeekNames || "no speakers"}. NO ONE ELSE.
+- Do NOT mix topics between weeks. Each speaker's topic belongs ONLY to that speaker.
+- Do NOT put last week's speakers in this week's section or vice versa.
 
-**THIS THURSDAY'S HEADLINERS (ONLY THESE ${speakersWithImages.length} SPEAKER(S)):**
+**THIS THURSDAY'S HEADLINERS (ONLY THESE ${speakersWithImages.length} SPEAKER(S) — ${thisWeekNames}):**
 ${speakerList}
 ${videoContext}
 ${transcriptSection}
 
---- SEPARATE SECTION: LAST WEEK (NOT THIS WEEK) ---
+--- COMPLETELY SEPARATE SECTION: LAST WEEK (DIFFERENT PEOPLE, DIFFERENT TOPICS) ---
 ${lastWeekContext}
 
 Community links (style as "entry points" in the ticket section):
