@@ -1362,6 +1362,38 @@ Community links (style as "entry points" in the ticket section):
         }
       }
     }
+
+    // 7) Ensure WIP Crew shoutout section is always at the bottom of the HTML
+    //    This is deterministic — we append it ourselves so the AI can't omit or garble it.
+    const wipCrewSectionHtml = `<table width="100%" cellpadding="0" cellspacing="0" style="margin-top:24px;border-top:1px solid #333;padding-top:20px;"><tr><td align="center" style="text-align:center;padding:16px 12px;"><div style="font-size:14px;color:#f5f0e8;margin-bottom:8px;font-weight:bold;">HUGE shoutout to the WIP Crew, past and present:</div><div style="font-size:13px;line-height:2;">${wipCrewHtmlLinks}</div></td></tr></table>`;
+    
+    // Remove any AI-generated WIP Crew section to avoid duplicates
+    generated.body_html = generated.body_html.replace(
+      /<table[^>]*>[\s\S]*?HUGE shoutout to the WIP Crew[\s\S]*?<\/table>/gi,
+      ""
+    );
+    
+    // Find the closing </table> of the outermost wrapper and insert before it,
+    // or just append before the final closing tags
+    const lastTableClose = generated.body_html.lastIndexOf("</table>");
+    if (lastTableClose !== -1) {
+      generated.body_html =
+        generated.body_html.slice(0, lastTableClose) +
+        wipCrewSectionHtml +
+        generated.body_html.slice(lastTableClose);
+    } else {
+      generated.body_html += wipCrewSectionHtml;
+    }
+
+    // 8) Ensure WIP Crew shoutout is in the markdown too
+    const wipCrewMarkdown = `\n\n---\n\nHUGE shoutout to the WIP Crew, past and present:\n\n${wipCrewMarkdownLinks}`;
+    // Remove any AI-generated version first
+    generated.body_markdown = generated.body_markdown.replace(
+      /\n*-{3,}\n*\n*HUGE shoutout to the WIP Crew[\s\S]*/i,
+      ""
+    );
+    generated.body_markdown = generated.body_markdown.trimEnd() + wipCrewMarkdown;
+
     const now = new Date().toISOString();
     const id = `wip-weekly-${Date.now()}`;
 
