@@ -1267,6 +1267,19 @@ Community links (style as "entry points" in the ticket section):
 
     // ── POST-PROCESSING: make generated HTML bulletproof ──────────────────
 
+    // 0) Strip any <style> blocks the AI may have included (Substack strips them)
+    generated.body_html = generated.body_html.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "");
+
+    // 0b) Ensure any old Uniswap links are replaced with the staking page
+    generated.body_html = generated.body_html.replace(
+      /https?:\/\/app\.uniswap\.org[^\s"'<>]*/gi,
+      "https://wip-staking.pages.dev/trade",
+    );
+    generated.body_markdown = generated.body_markdown.replace(
+      /https?:\/\/app\.uniswap\.org[^\s)"]*/gi,
+      "https://wip-staking.pages.dev/trade",
+    );
+
     // 1) Rewrite any direct unavatar.io URLs → our avatar proxy
     generated.body_html = generated.body_html.replace(
       /https:\/\/unavatar\.io\/(farcaster|twitter)\/([a-zA-Z0-9_.%-]+)/g,
@@ -1308,31 +1321,32 @@ Community links (style as "entry points" in the ticket section):
       },
     );
 
-    // 4) Ensure Discord links are proper <a> tags, not raw text
-    //    Replace bare "discord.gg/bTjc6k5uss" text that isn't already inside an href
+    // 4) Ensure all Discord invite links use the correct code
     generated.body_html = generated.body_html.replace(
-      /(?<!href=["'](?:https?:\/\/)?)(?<!<a[^>]*>)(?:https?:\/\/)?discord\.gg\/XHDcUdm3(?![^<]*<\/a>)/gi,
-      `<a href="https://discord.gg/bTjc6k5uss" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:underline;">discord.gg/bTjc6k5uss</a>`,
+      /https?:\/\/discord\.gg\/[A-Za-z0-9]+/gi,
+      "https://discord.gg/bTjc6k5uss",
     );
 
     // 5) Ensure all speaker PFP img tags use our proxy URLs (AI sometimes strips proxy or invents URLs)
+    //    Strategy: for each speaker, find img tags whose alt text matches the speaker name and fix the src
     for (const s of speakersWithImages) {
       if (!s.profile_image_url || !s.name) continue;
-      // Find img tags near the speaker name that have a non-proxy src
       const nameEscaped = s.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-      // This ensures any avatar img within 500 chars of the speaker name uses the correct proxy URL
       generated.body_html = generated.body_html.replace(
-        new RegExp(`(<img\\s[^>]*?src=["'])([^"']*?)(?=["'][^>]*?(?:${nameEscaped}|alt=["'][^"']*${nameEscaped}))`, "gi"),
-        (_full: string, prefix: string, src: string) => {
-          // If already proxied, keep it
-          if (src.includes("/api/newsletter?action=avatar")) return prefix + src;
-          // If it's a known avatar URL, proxy it
-          if (/unavatar|warpcast|pbs\.twimg|imagedelivery/i.test(src)) {
-            return prefix + `${avatarBase}&url=${encodeURIComponent(src)}`;
-          }
-          return prefix + src;
+        new RegExp(`(<img\\s[^>]*?alt=["'][^"']*${nameEscaped}[^"']*["'][^>]*?src=["'])([^"']*?)(["'])`, "gi"),
+        (_full: string, prefix: string, src: string, quote: string) => {
+          if (src.includes("/api/newsletter?action=avatar")) return prefix + src + quote;
+          return prefix + s.profile_image_url + quote;
         },
-      )
+      );
+      // Also handle src before alt order
+      generated.body_html = generated.body_html.replace(
+        new RegExp(`(<img\\s[^>]*?src=["'])([^"']*?)(["'][^>]*?alt=["'][^"']*${nameEscaped}[^"']*["'])`, "gi"),
+        (_full: string, prefix: string, src: string, suffix: string) => {
+          if (src.includes("/api/newsletter?action=avatar")) return prefix + src + suffix;
+          return prefix + s.profile_image_url! + suffix;
+        },
+      );
     }
 
     // 6) Post-process: inject missing social links for speakers
@@ -1411,6 +1425,12 @@ Community links (style as "entry points" in the ticket section):
       ""
     );
     generated.body_markdown = generated.body_markdown.trimEnd() + wipCrewMarkdown;
+
+    // 9) Enforce consistent title format
+    const expectedTitle = `WIP Meetup - ${meetupDateStr}`;
+    if (generated.title !== expectedTitle) {
+      generated.title = expectedTitle;
+    }
 
     const now = new Date().toISOString();
     const id = `wip-weekly-${Date.now()}`;
