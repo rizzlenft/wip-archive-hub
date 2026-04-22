@@ -1308,11 +1308,10 @@ Community links (style as "entry points" in the ticket section):
       },
     );
 
-    // 4) Ensure Discord links are proper <a> tags, not raw text
-    //    Replace bare "discord.gg/bTjc6k5uss" text that isn't already inside an href
+    // 4) Ensure all Discord invite links use the correct code
     generated.body_html = generated.body_html.replace(
-      /(?<!href=["'](?:https?:\/\/)?)(?<!<a[^>]*>)(?:https?:\/\/)?discord\.gg\/XHDcUdm3(?![^<]*<\/a>)/gi,
-      `<a href="https://discord.gg/bTjc6k5uss" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:underline;">discord.gg/bTjc6k5uss</a>`,
+      /https?:\/\/discord\.gg\/[A-Za-z0-9]+/gi,
+      "https://discord.gg/bTjc6k5uss",
     );
 
     // 5) Ensure all speaker PFP img tags use our proxy URLs (AI sometimes strips proxy or invents URLs)
