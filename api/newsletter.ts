@@ -1267,6 +1267,19 @@ Community links (style as "entry points" in the ticket section):
 
     // ── POST-PROCESSING: make generated HTML bulletproof ──────────────────
 
+    // 0) Strip any <style> blocks the AI may have included (Substack strips them)
+    generated.body_html = generated.body_html.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "");
+
+    // 0b) Ensure any old Uniswap links are replaced with the staking page
+    generated.body_html = generated.body_html.replace(
+      /https?:\/\/app\.uniswap\.org[^\s"'<>]*/gi,
+      "https://wip-staking.pages.dev/trade",
+    );
+    generated.body_markdown = generated.body_markdown.replace(
+      /https?:\/\/app\.uniswap\.org[^\s)"]*/gi,
+      "https://wip-staking.pages.dev/trade",
+    );
+
     // 1) Rewrite any direct unavatar.io URLs → our avatar proxy
     generated.body_html = generated.body_html.replace(
       /https:\/\/unavatar\.io\/(farcaster|twitter)\/([a-zA-Z0-9_.%-]+)/g,
