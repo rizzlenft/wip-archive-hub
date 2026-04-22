@@ -861,6 +861,40 @@ TRANSCRIPT:\n${effectiveTranscript}`
   const WIP_LOGO_URL = "https://thewipmeetup.com/images/wip-logo-static.png";
   const WIP_LOGO_GIF_URL = "https://wip-archive-hub.lovable.app/images/wip-logo.gif";
 
+  // WIP Crew members with X handles — used in the final shoutout section
+  const WIP_CREW = [
+    { name: "Matt", url: "https://x.com/niftytime" },
+    { name: "Rizzle", url: "https://x.com/NFTland" },
+    { name: "Paradoxx", url: "https://x.com/Paradoxx_Arts" },
+    { name: "Sho", url: "https://x.com/itsreallysho" },
+    { name: "Sandymeows", url: "https://x.com/sandyme0ws" },
+    { name: "Itscarolinahduh", url: "https://x.com/itscarolinaduh_" },
+    { name: "Kanwulf", url: "https://x.com/lordkanwulf" },
+    { name: "Fabiano", url: "https://x.com/fabianospeziari" },
+    { name: "Patrizia", url: "https://x.com/patriziabarnato" },
+    { name: "EZinCrypto", url: "https://x.com/ez_cbd" },
+    { name: "Foxyoga", url: "https://x.com/foxyoga_om" },
+    { name: "Fractilians", url: "https://x.com/Fractilians7" },
+    { name: "Tati", url: "https://x.com/adigitaltati" },
+    { name: "Juxton", url: "https://x.com/juxton" },
+    { name: "Metageist", url: "https://x.com/MetageistVR" },
+    { name: "Trippyogi", url: "https://x.com/trippyogi" },
+    { name: "Ray Buckton", url: "https://x.com/RayBuckton" },
+    { name: "Hidden Forces", url: "https://x.com/ForcesHidden" },
+    { name: "Valiant", url: "https://x.com/V_A_L_I_A_N_T" },
+    { name: "Stina Jones", url: "https://x.com/stina_jones" },
+    { name: "DragoNate", url: "https://x.com/DragoNateYT" },
+    { name: "Johan", url: "https://x.com/supahmarbler" },
+  ];
+
+  const wipCrewHtmlLinks = WIP_CREW.map(
+    (m) => `<a href="${m.url}" target="_blank" style="color:#e84393;text-decoration:none;font-weight:bold;">${m.name}</a>`
+  ).join(" | ");
+
+  const wipCrewMarkdownLinks = WIP_CREW.map(
+    (m) => `[${m.name}](${m.url})`
+  ).join(" | ");
+
   // Compute next Thursday date for the title
   const now = new Date();
   const dayOfWeek = now.getUTCDay(); // 0=Sun
@@ -1064,18 +1098,23 @@ SECTIONS ORDER (mandatory):
    Add two CTA buttons:
    <a href="https://x.com/NFTland" target="_blank" style="display:inline-block;padding:14px 28px;background:linear-gradient(135deg,#a29bfe,#e84393);color:#f5f0e8;font-weight:bold;font-size:16px;text-decoration:none;border-radius:6px;">🎙 Be a Guest</a>
    <a href="https://x.com/NFTland" target="_blank" style="display:inline-block;padding:14px 28px;background:#0a0612;border:2px solid #e84393;color:#f5f0e8;font-weight:bold;font-size:16px;text-decoration:none;border-radius:6px;">📡 Sponsor an Event</a>
-8. **WIP CREW SHOUTOUTS** (LAST SECTION — must be at the very bottom): "🎁 Free NFT Gifts" — Brief text: "Each week, our amazing artists Fabiano & Patrizia create unique voxel art NFTs gifted to attendees—beautiful collectibles just for showing up!" Add links:
+8. **FREE NFT GIFTS** — Brief text: "Each week, our amazing artists Fabiano & Patrizia create unique voxel art NFTs gifted to attendees—beautiful collectibles just for showing up!" Add links:
    <a href="https://x.com/fabianospeziari" target="_blank" style="color:#1DA1F2;text-decoration:none;font-weight:bold;">𝕏 @Fabiano</a> ·
    <a href="https://x.com/patriziabarnato" target="_blank" style="color:#1DA1F2;text-decoration:none;font-weight:bold;">𝕏 @Patrizia</a> ·
    <a href="https://opensea.io/collection/random-3d-things" target="_blank" style="color:${theme.accent1};text-decoration:underline;font-weight:bold;">View Collection</a>
    Style with accent-border card matching the theme.
+9. **WIP CREW** (ABSOLUTE LAST SECTION — must be at the very bottom of the entire newsletter):
+   Display this EXACT text: "HUGE shoutout to the WIP Crew, past and present:"
+   Then on the next line, render ALL of these names as clickable links separated by " | ":
+   ${wipCrewHtmlLinks}
+   Style: centered text, 14px font, names in #e84393 (pink), no underline, bold. Wrap in a simple centered table cell with subtle top border.
 
 Output JSON:
 {
   "title": "WIP Meetup - ${meetupDateStr}",
   "subtitle": "",
   "body_html": "full poster-style HTML with ALL inline styles, NO style block, TABLE-based layout",
-  "body_markdown": "Clean Substack-compatible markdown. NO HTML, NO CSS, NO tables. Follow this EXACT template:\n\n# WIP Meetup - DATE\n\nSubtitle text here\n\n---\n\n## 🎤 This Week's Speakers\n\n**Speaker Name**\n\nBio or description text here.\n\n[𝕏 @handle](https://x.com/handle)\n\n[🟣 @handle](https://warpcast.com/handle)\n\nTopic: topic text or [Topic Title](url)\n\n---\n\n(repeat for each speaker with --- between them)\n\n---\n\n## 🔁 Last Week's Recap\n\nSynopsis paragraph here.\n\nhttps://www.youtube.com/watch?v=VIDEOID\n\n---\n\n## 🎟️ Join the Community\n\n[Join Discord](https://discord.gg/bTjc6k5uss)\n\n[Follow on 𝕏 / Twitter](https://twitter.com/theWIPmeetup)\n\n[Subscribe on YouTube](https://youtube.com/@thewipmeetup)\n\n[Join Farcaster Channel](https://farcaster.xyz/~/channel/thewipmeetup)\n\n[Explore the Website](https://thewipmeetup.com)\n\n---\n\n## 🪙 Attendee Rewards\n\n**$WIP Token Rewards**\n\nAttend our weekly meetups and receive $WIP tokens as a thank you for being part of our community. Every attendee gets rewarded!\n\n[Buy and Stake $WIP](https://wip-staking.pages.dev/trade) · [View Chart](https://www.geckoterminal.com/base/pools/0x32dd94d272e5b4ef47e8694100b7c3eb7de3d09d)\n\n---\n\n## 💜 Support the WIP\n\nLove what we're building? Every donation—big or small—helps keep the meetups running, artists creating, and community growing.\n\n[💜 Donate Now](https://piri-pay.vercel.app/tip/qY3jM8YzHk)\n\n---\n\n## 🎙️ Want to be on the WIP?\n\nWhether you want to make a guest appearance, showcase your project, or sponsor an upcoming event—reach out to **Rizzle** to get the conversation started.\n\n[🎙 Be a Guest](https://x.com/NFTland) · [📡 Sponsor an Event](https://x.com/NFTland)\n\n---\n\n## 🎁 WIP Crew Shoutouts\n\nEach week, our amazing artists Fabiano & Patrizia create unique voxel art NFTs gifted to attendees—beautiful collectibles just for showing up!\n\n[𝕏 @Fabiano](https://x.com/fabianospeziari) · [𝕏 @Patrizia](https://x.com/patriziabarnato) · [View Collection](https://opensea.io/collection/random-3d-things)\n\nRULES: 1) EVERY URL must be a [text](url) hyperlink — NEVER bare URLs — EXCEPT for YouTube video URLs in the recap section which MUST be bare URLs on their own line (Substack auto-embeds them). 2) Blank line between EVERY element. 3) --- between each section AND between each speaker. 4) Speaker topics that are URLs must be hyperlinked: [Topic Name](url). 5) No raw markdown syntax visible — all links must render as clickable text.",
+  "body_markdown": "Clean Substack-compatible markdown. NO HTML, NO CSS, NO tables. Follow this EXACT template:\n\n# WIP Meetup - DATE\n\nSubtitle text here\n\n---\n\n## 🎤 This Week's Speakers\n\n**Speaker Name**\n\nBio or description text here.\n\n[𝕏 @handle](https://x.com/handle)\n\n[🟣 @handle](https://warpcast.com/handle)\n\nTopic: topic text or [Topic Title](url)\n\n---\n\n(repeat for each speaker with --- between them)\n\n---\n\n## 🔁 Last Week's Recap\n\nSynopsis paragraph here.\n\nhttps://www.youtube.com/watch?v=VIDEOID\n\n---\n\n## 🎟️ Join the Community\n\n[Join Discord](https://discord.gg/bTjc6k5uss)\n\n[Follow on 𝕏 / Twitter](https://twitter.com/theWIPmeetup)\n\n[Subscribe on YouTube](https://youtube.com/@thewipmeetup)\n\n[Join Farcaster Channel](https://farcaster.xyz/~/channel/thewipmeetup)\n\n[Explore the Website](https://thewipmeetup.com)\n\n---\n\n## 🪙 Attendee Rewards\n\n**$WIP Token Rewards**\n\nAttend our weekly meetups and receive $WIP tokens as a thank you for being part of our community. Every attendee gets rewarded!\n\n[Buy and Stake $WIP](https://wip-staking.pages.dev/trade) · [View Chart](https://www.geckoterminal.com/base/pools/0x32dd94d272e5b4ef47e8694100b7c3eb7de3d09d)\n\n---\n\n## 💜 Support the WIP\n\nLove what we're building? Every donation—big or small—helps keep the meetups running, artists creating, and community growing.\n\n[💜 Donate Now](https://piri-pay.vercel.app/tip/qY3jM8YzHk)\n\n---\n\n## 🎙️ Want to be on the WIP?\n\nWhether you want to make a guest appearance, showcase your project, or sponsor an upcoming event—reach out to **Rizzle** to get the conversation started.\n\n[🎙 Be a Guest](https://x.com/NFTland) · [📡 Sponsor an Event](https://x.com/NFTland)\n\n---\n\n## 🎁 Free NFT Gifts\n\nEach week, our amazing artists Fabiano & Patrizia create unique voxel art NFTs gifted to attendees—beautiful collectibles just for showing up!\n\n[𝕏 @Fabiano](https://x.com/fabianospeziari) · [𝕏 @Patrizia](https://x.com/patriziabarnato) · [View Collection](https://opensea.io/collection/random-3d-things)\n\n---\n\nHUGE shoutout to the WIP Crew, past and present:\n\n${wipCrewMarkdownLinks}\n\nRULES: 1) EVERY URL must be a [text](url) hyperlink — NEVER bare URLs — EXCEPT for YouTube video URLs in the recap section which MUST be bare URLs on their own line (Substack auto-embeds them). 2) Blank line between EVERY element. 3) --- between each section AND between each speaker. 4) Speaker topics that are URLs must be hyperlinked: [Topic Name](url). 5) No raw markdown syntax visible — all links must render as clickable text.",
   "recap_summary": "2-sentence punchy recap for card preview"
 }
 IMPORTANT: The title MUST be exactly "WIP Meetup - ${meetupDateStr}" — do not change the format.
@@ -1323,6 +1362,38 @@ Community links (style as "entry points" in the ticket section):
         }
       }
     }
+
+    // 7) Ensure WIP Crew shoutout section is always at the bottom of the HTML
+    //    This is deterministic — we append it ourselves so the AI can't omit or garble it.
+    const wipCrewSectionHtml = `<table width="100%" cellpadding="0" cellspacing="0" style="margin-top:24px;border-top:1px solid #333;padding-top:20px;"><tr><td align="center" style="text-align:center;padding:16px 12px;"><div style="font-size:14px;color:#f5f0e8;margin-bottom:8px;font-weight:bold;">HUGE shoutout to the WIP Crew, past and present:</div><div style="font-size:13px;line-height:2;">${wipCrewHtmlLinks}</div></td></tr></table>`;
+    
+    // Remove any AI-generated WIP Crew section to avoid duplicates
+    generated.body_html = generated.body_html.replace(
+      /<table[^>]*>[\s\S]*?HUGE shoutout to the WIP Crew[\s\S]*?<\/table>/gi,
+      ""
+    );
+    
+    // Find the closing </table> of the outermost wrapper and insert before it,
+    // or just append before the final closing tags
+    const lastTableClose = generated.body_html.lastIndexOf("</table>");
+    if (lastTableClose !== -1) {
+      generated.body_html =
+        generated.body_html.slice(0, lastTableClose) +
+        wipCrewSectionHtml +
+        generated.body_html.slice(lastTableClose);
+    } else {
+      generated.body_html += wipCrewSectionHtml;
+    }
+
+    // 8) Ensure WIP Crew shoutout is in the markdown too
+    const wipCrewMarkdown = `\n\n---\n\nHUGE shoutout to the WIP Crew, past and present:\n\n${wipCrewMarkdownLinks}`;
+    // Remove any AI-generated version first
+    generated.body_markdown = generated.body_markdown.replace(
+      /\n*-{3,}\n*\n*HUGE shoutout to the WIP Crew[\s\S]*/i,
+      ""
+    );
+    generated.body_markdown = generated.body_markdown.trimEnd() + wipCrewMarkdown;
+
     const now = new Date().toISOString();
     const id = `wip-weekly-${Date.now()}`;
 
