@@ -154,7 +154,7 @@ const Newsletter = () => {
           {/* Reading a single issue */}
           {selected ? (
             <div className="space-y-6">
-              <Button variant="ghost" size="sm" onClick={() => setSelected(null)}>
+              <Button variant="ghost" size="sm" onClick={() => { setSelected(null); setSearchParams({}, { replace: true }); }}>
                 <ArrowLeft className="w-4 h-4" />
                 All Issues
               </Button>
