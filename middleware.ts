@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
-
 /**
  * Vercel Edge Middleware — detects social media crawlers requesting
  * /newsletter?issue=ID and rewrites them to /api/og-newsletter so they
  * receive proper OG meta tags. Regular users get the normal SPA.
+ *
+ * Uses standard Web API (no Next.js dependency).
  */
 
 const BOT_PATTERNS = [
@@ -35,18 +35,20 @@ export const config = {
   matcher: "/newsletter",
 };
 
-export default function middleware(req: NextRequest) {
-  const url = req.nextUrl;
+export default function middleware(request: Request) {
+  const url = new URL(request.url);
   const issueId = url.searchParams.get("issue");
 
   // Only intercept if there's an issue param and the UA is a known crawler
-  if (!issueId) return NextResponse.next();
+  if (!issueId) return;
 
-  const ua = req.headers.get("user-agent") || "";
-  if (!BOT_REGEX.test(ua)) return NextResponse.next();
+  const ua = request.headers.get("user-agent") || "";
+  if (!BOT_REGEX.test(ua)) return;
 
-  // Rewrite to the OG meta endpoint (invisible to the client)
-  const ogUrl = new URL(`/api/og-newsletter`, req.url);
+  // Rewrite to the OG meta endpoint (same origin, invisible to client)
+  const ogUrl = new URL(`/api/og-newsletter`, request.url);
   ogUrl.searchParams.set("id", issueId);
-  return NextResponse.rewrite(ogUrl);
+  return fetch(ogUrl.toString(), {
+    headers: request.headers,
+  });
 }
