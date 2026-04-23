@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback, type FormEvent } from "react";
+import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
@@ -32,6 +33,7 @@ function stripLeadingCoverImage(html: string): string {
 }
 
 const Newsletter = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [issues, setIssues] = useState<NewsletterIssue[]>([]);
   const [selected, setSelected] = useState<NewsletterIssue | null>(null);
   const [loading, setLoading] = useState(true);
@@ -71,15 +73,27 @@ const Newsletter = () => {
   useEffect(() => {
     fetchNewsletters()
       .then((all) => {
-        setIssues(all.filter((i) => i.status === "published"));
+        const published = all.filter((i) => i.status === "published");
+        setIssues(published);
+
+        // If ?issue=ID is in the URL, auto-open that issue
+        const issueId = searchParams.get("issue");
+        if (issueId) {
+          fetchNewsletter(issueId).then((full) => {
+            if (full) setSelected(full);
+          });
+        }
       })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const openIssue = async (id: string) => {
     const full = await fetchNewsletter(id);
-    if (full) setSelected(full);
+    if (full) {
+      setSelected(full);
+      setSearchParams({ issue: id }, { replace: true });
+    }
   };
 
   const handleSubscribe = async (e: FormEvent) => {
@@ -140,7 +154,7 @@ const Newsletter = () => {
           {/* Reading a single issue */}
           {selected ? (
             <div className="space-y-6">
-              <Button variant="ghost" size="sm" onClick={() => setSelected(null)}>
+              <Button variant="ghost" size="sm" onClick={() => { setSelected(null); setSearchParams({}, { replace: true }); }}>
                 <ArrowLeft className="w-4 h-4" />
                 All Issues
               </Button>
