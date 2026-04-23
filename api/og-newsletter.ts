@@ -22,7 +22,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   let title = "WIP Weekly Newsletter";
   let description = "Weekly recaps, speaker spotlights, and community highlights from The WIP Meetup.";
-  let ogImage = DEFAULT_OG_IMAGE;
+  // Dynamic OG image: renders speaker info per newsletter
+  let ogImage = `${SITE_URL}/api/og-image?id=${encodeURIComponent(id)}`;
   let speakers = "";
 
   try {
@@ -36,7 +37,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const issue = typeof raw === "string" ? JSON.parse(raw) : raw;
       if (issue.title) title = issue.title;
       if (issue.recap_summary) description = issue.recap_summary;
-      if (issue.cover_image) ogImage = issue.cover_image;
       if (issue.speakers?.length) {
         speakers = issue.speakers.map((s: { name: string }) => s.name).join(", ");
         description = `ft. ${speakers}. ${description}`;
