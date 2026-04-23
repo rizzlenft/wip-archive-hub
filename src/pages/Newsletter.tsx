@@ -143,9 +143,14 @@ const Newsletter = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEO
-        title="WIP Weekly Newsletter"
-        description="Catch up on the latest from The WIP Meetup — weekly recaps, speaker spotlights, and community highlights."
-        canonical="/newsletter"
+        title={selected ? selected.title : "WIP Weekly Newsletter"}
+        description={
+          selected
+            ? selected.recap_summary || `ft. ${selected.speakers?.map(s => s.name).join(", ") || "the WIP community"}`
+            : "Catch up on the latest from The WIP Meetup — weekly recaps, speaker spotlights, and community highlights."
+        }
+        canonical={selected ? `/newsletter?issue=${selected.id}` : "/newsletter"}
+        ogImage={selected?.cover_image || undefined}
       />
       <Navigation />
 
