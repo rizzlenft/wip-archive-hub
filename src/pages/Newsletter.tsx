@@ -150,7 +150,7 @@ const Newsletter = () => {
             : "Catch up on the latest from The WIP Meetup — weekly recaps, speaker spotlights, and community highlights."
         }
         canonical={selected ? `/newsletter?issue=${selected.id}` : "/newsletter"}
-        ogImage={selected?.cover_image || undefined}
+        ogImage={selected ? `${API_BASE}/api/og-image?id=${encodeURIComponent(selected.id)}` : undefined}
       />
       <Navigation />
 
