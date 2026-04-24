@@ -1,4 +1,3 @@
-import React from "react";
 import { ImageResponse } from "@vercel/og";
 import { Redis } from "@upstash/redis";
 
@@ -15,7 +14,23 @@ interface Speaker {
   profile_image_url?: string;
 }
 
-const h = React.createElement;
+// Lightweight element factory compatible with @vercel/og (Satori).
+// Avoids importing React so Vercel won't try to JSX-transform this file.
+type El = {
+  type: string;
+  props: { style?: Record<string, unknown>; children?: unknown; [k: string]: unknown };
+};
+function el(
+  type: string,
+  props: Record<string, unknown> | null,
+  ...children: unknown[]
+): El {
+  const flat = children.flat().filter((c) => c !== null && c !== undefined && c !== false);
+  return {
+    type,
+    props: { ...(props || {}), children: flat.length === 1 ? flat[0] : flat },
+  };
+}
 
 export default async function handler(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -52,11 +67,12 @@ export default async function handler(req: Request) {
     // Fall through with defaults
   }
 
+  const displaySpeakers = speakers.slice(0, 4);
+
   const speakerAvatars: (string | null)[] = await Promise.all(
-    speakers.slice(0, 4).map(async (s) => {
+    displaySpeakers.map(async (s) => {
       const url =
-        s.profile_image_url ||
-        `https://unavatar.io/twitter/${s.twitter || s.name}`;
+        s.profile_image_url || `https://unavatar.io/twitter/${s.twitter || s.name}`;
       try {
         const res = await fetch(url);
         if (!res.ok) return null;
@@ -69,13 +85,10 @@ export default async function handler(req: Request) {
     })
   );
 
-  const displaySpeakers = speakers.slice(0, 4);
-
   const speakerCards = displaySpeakers.map((speaker, i) =>
-    h(
+    el(
       "div",
       {
-        key: speaker.name,
         style: {
           display: "flex",
           flexDirection: "column",
@@ -90,23 +103,23 @@ export default async function handler(req: Request) {
         },
       },
       speakerAvatars[i]
-        ? h("img", {
+        ? el("img", {
             src: speakerAvatars[i]!,
             width: 64,
             height: 64,
             style: {
-              borderRadius: "50%",
+              borderRadius: 32,
               border: "2px solid rgba(236,72,153,0.5)",
               objectFit: "cover",
             },
           })
-        : h(
+        : el(
             "div",
             {
               style: {
                 width: 64,
                 height: 64,
-                borderRadius: "50%",
+                borderRadius: 32,
                 background: "linear-gradient(135deg, #7c3aed, #ec4899)",
                 display: "flex",
                 alignItems: "center",
@@ -118,7 +131,7 @@ export default async function handler(req: Request) {
             },
             speaker.name.charAt(0).toUpperCase()
           ),
-      h(
+      el(
         "div",
         {
           style: {
@@ -132,14 +145,14 @@ export default async function handler(req: Request) {
         speaker.name
       ),
       speaker.twitter
-        ? h(
+        ? el(
             "div",
             { style: { fontSize: 14, color: "#60a5fa", display: "flex" } },
-            `@${speaker.twitter}`
+            "@" + speaker.twitter
           )
         : null,
       speaker.topic
-        ? h(
+        ? el(
             "div",
             {
               style: {
@@ -156,7 +169,7 @@ export default async function handler(req: Request) {
     )
   );
 
-  const tree = h(
+  const tree = el(
     "div",
     {
       style: {
@@ -172,31 +185,7 @@ export default async function handler(req: Request) {
         overflow: "hidden",
       },
     },
-    h("div", {
-      style: {
-        position: "absolute",
-        top: -100,
-        left: 200,
-        width: 400,
-        height: 400,
-        borderRadius: "50%",
-        background: "radial-gradient(circle, rgba(168,85,247,0.15) 0%, transparent 70%)",
-        display: "flex",
-      },
-    }),
-    h("div", {
-      style: {
-        position: "absolute",
-        bottom: -100,
-        right: 200,
-        width: 400,
-        height: 400,
-        borderRadius: "50%",
-        background: "radial-gradient(circle, rgba(236,72,153,0.12) 0%, transparent 70%)",
-        display: "flex",
-      },
-    }),
-    h("img", {
+    el("img", {
       src: WIP_LOGO_URL,
       width: 80,
       height: 80,
@@ -206,7 +195,7 @@ export default async function handler(req: Request) {
         marginBottom: 16,
       },
     }),
-    h(
+    el(
       "div",
       {
         style: {
@@ -220,7 +209,7 @@ export default async function handler(req: Request) {
       },
       "The WIP Meetup"
     ),
-    h(
+    el(
       "div",
       {
         style: {
@@ -230,10 +219,10 @@ export default async function handler(req: Request) {
           display: "flex",
         },
       },
-      "Every Thursday · 3 PM ET"
+      "Every Thursday \u00B7 3 PM ET"
     ),
     displaySpeakers.length > 0
-      ? h(
+      ? el(
           "div",
           {
             style: {
@@ -247,7 +236,7 @@ export default async function handler(req: Request) {
           ...speakerCards
         )
       : null,
-    h(
+    el(
       "div",
       {
         style: {
@@ -260,7 +249,7 @@ export default async function handler(req: Request) {
       title
     ),
     weekDate
-      ? h(
+      ? el(
           "div",
           {
             style: {
@@ -275,8 +264,11 @@ export default async function handler(req: Request) {
       : null
   );
 
-  return new ImageResponse(tree, { width: 1200, height: 630 });
+  return new ImageResponse(tree as unknown as ReactElement, { width: 1200, height: 630 });
 }
+
+// Minimal type alias so we don't need to import React
+type ReactElement = { type: string; props: Record<string, unknown> };
 
 function arrayBufferToBase64(buffer: ArrayBuffer): string {
   const bytes = new Uint8Array(buffer);
