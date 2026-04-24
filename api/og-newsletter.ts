@@ -22,8 +22,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   let title = "WIP Weekly Newsletter";
   let description = "Weekly recaps, speaker spotlights, and community highlights from The WIP Meetup.";
-  // Dynamic OG image: renders speaker info per newsletter
-  let ogImage = `${SITE_URL}/api/og-image?id=${encodeURIComponent(id)}`;
+  // Static newsletter share template (used for all issues)
+  const ogImage = `${SITE_URL}/newsletter-share.jpg`;
   let speakers = "";
 
   try {
