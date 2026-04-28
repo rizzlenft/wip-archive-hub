@@ -22,6 +22,7 @@ const GUEST_OVERRIDES: Record<string, string[]> = {
   "6o15XnMVTe4": [],
   "8bAjqzMzzF8": ["Argent", "CodeTrip", "Stellacat"],
   HFhqKFfejcs: ["Metageist"],
+  iyBmasDMUMA: ["FlyFrogs", "Spherical Art"],
   RV2mGGeeRW0: [],
   n74Nu9HIjHE: ["Jin aka DankVR", "Openvoxels"],
   odVsoispuwg: ["Roustan"],
