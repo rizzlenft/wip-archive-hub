@@ -13,17 +13,17 @@ const socialLinks = [
 
 export const Footer = () => {
   return (
-    <footer className="py-12 border-t border-border/50" role="contentinfo">
+    <footer className="border-t border-border/50 py-10" role="contentinfo">
       <div className="container mx-auto px-4">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
           {/* Logo */}
-          <div className="flex items-center gap-3">
-            <img src={wipLogo} alt="The WIP" className="w-8 h-8" />
+          <div className="flex items-center gap-3 text-center md:text-left">
+            <img src={wipLogo} alt="The WIP" className="h-8 w-8 shrink-0" />
             <span className="font-bold text-xl">The WIP Meetup</span>
           </div>
 
           {/* Links */}
-          <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 sm:gap-x-6">
+          <div className="flex max-w-2xl flex-wrap justify-center gap-x-4 gap-y-2 sm:gap-x-6">
             {socialLinks.map((link) => (
               <a
                 key={link.name}
@@ -38,7 +38,7 @@ export const Footer = () => {
           </div>
 
           {/* Copyright & Credit */}
-          <div className="text-sm text-muted-foreground text-center md:text-right">
+          <div className="text-center text-sm text-muted-foreground md:text-right">
             <p>© {new Date().getFullYear()} The WIP Meetup</p>
             <a 
               href="https://rizzle.io" 
