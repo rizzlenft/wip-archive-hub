@@ -15,33 +15,81 @@ export interface Episode {
 
 export type Event = Episode;
 
+const GUEST_OVERRIDES: Record<string, string[]> = {
+  "0X1SxcbuG40": ["Pierce_NFT"],
+  "-fQWgh5TVLk": ["Ol1y Art", "Fabiano"],
+  "3Kv4JyLdQwU": ["Reneil"],
+  "6o15XnMVTe4": [],
+  "8bAjqzMzzF8": ["Argent", "CodeTrip", "Stellacat"],
+  HFhqKFfejcs: ["Metageist"],
+  iyBmasDMUMA: ["FlyFrogs", "Spherical Art"],
+  RV2mGGeeRW0: [],
+  n74Nu9HIjHE: ["Jin aka DankVR", "Openvoxels"],
+  odVsoispuwg: ["Roustan"],
+  oXFJjo4POuE: ["Benjy Bitpixi", "CVminigames"],
+  quZrDqvycdI: [],
+  "rQvZoZJ-viw": ["AnonSnail"],
+  saiyAAhaI6I: ["EpicDylan", "TRINI protocol", "Lapin Mignon"],
+  tpzk6lcpBj8: ["AL Crego", "0xSnail"],
+  uDBrYHUgTKk: ["TheBeatMiner"],
+  "vr5v5-49vGk": ["Fractilians"],
+  xK98kbyKdm0: ["Matt"],
+  zJAaWoVUVCc: ["Coldie"],
+};
+
+const TOPIC_BEFORE_WITH_PATTERN = /\b(blockchain radio|decentraland|dcl|dclgx|field trip|tour|hunt|party|event|festival|gallery|race|racing|build|takeover|deep dive|alpha|launch|drop|giveaway|adventure|wipmas|hyperfy|metaverse|cryptovoxels|voxels|parcel|wellness|music|meme nfa|wipson|babacci|tipn|museum|radio|grand opening)\b/i;
+const TOPIC_SUFFIX_PATTERN = /\s+\b(tour|deep dive|field trip|alpha|event|panel|takeover|birthday party|body part|forest of|marblecards|spatial art|voxel tour|voxels tour|art exhibit|reading|drag racing|vrm drop|music drop|charity drive|peek|surprise unveiling|talking|tribute|plane crash|game building|racing|build|launch|server kickoff|rebuild|animal spawn|bedtime stories|hiddenforces|upgrades|competition|gaming|with the|pirate adventure)\b.*$/i;
+
+function cleanGuestName(name: string): string | null {
+  const cleaned = name
+    .replace(/^@/, "")
+    .replace(/\s*@([\w.-]+)/g, " $1")
+    .replace(/\s*\d+\/\d+\/?$/, "")
+    .replace(/\s*Mash(up)?$/i, "")
+    .replace(/\s*by\s+Paradoxx$/i, "")
+    .replace(TOPIC_SUFFIX_PATTERN, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+
+  if (!cleaned || cleaned.length <= 1 || cleaned.length >= 50) return null;
+  if (/^(raw footage|field trip|tour|deep dive|panel|event|birthday cake party|the wip crew)$/i.test(cleaned)) return null;
+  return cleaned;
+}
+
+function expandGuestChunk(chunk: string): string[] {
+  const normalized = chunk.trim();
+  if (!normalized) return [];
+
+  const withMatch = normalized.match(/(.+?)\s+w\/\s+(.+)/i);
+  const candidates = withMatch
+    ? TOPIC_BEFORE_WITH_PATTERN.test(withMatch[1])
+      ? [withMatch[2]]
+      : TOPIC_BEFORE_WITH_PATTERN.test(withMatch[2])
+        ? [withMatch[1]]
+        : [withMatch[1], withMatch[2]]
+    : [normalized];
+
+  return candidates
+    .flatMap((candidate) => candidate.split(/\s*(?:&|,|\+|\band\b)\s*/))
+    .map(cleanGuestName)
+    .filter((guest): guest is string => Boolean(guest));
+}
+
 // Parse guests from video title
 // Common formats: "ft. Guest1 & Guest2", "ft Guest1, Guest2", "featuring Guest"
 export function parseGuestsFromTitle(title: string): string[] {
-  const guests: string[] = [];
-  
-  // Match patterns like "ft. Name & Name", "ft Name, Name", "featuring Name", "w/ Name"
-  const ftMatch = title.match(/(?:ft\.?|featuring|w\/)\s+([^|]+?)(?:\s*[|\-–—]|$|\s+Mashup|\s+Raw\s+Footage)/i);
-  if (ftMatch) {
-    const guestString = ftMatch[1].trim();
-    // Split by common separators: &, and, ,, +
-    const guestNames = guestString.split(/\s*(?:&|,|\+|\band\b)\s*/);
-    guestNames.forEach(name => {
-      // Clean up the name - remove common suffixes
-      let cleaned = name.trim()
-        .replace(/\s*@\w+/g, '') // Remove @handles
-        .replace(/\s*\d+\/\d+\/?$/, '') // Remove trailing dates like 1/2
-        .replace(/\s*Mash(up)?$/i, '') // Remove "Mash" or "Mashup"
-        .replace(/\s*by\s+Paradoxx$/i, '') // Remove "by Paradoxx"
-        .trim();
-      
-      if (cleaned && cleaned.length > 1 && cleaned.length < 50) {
-        guests.push(cleaned);
-      }
-    });
-  }
-  
-  return guests;
+  const ftMatch = title.match(/(?:ft\.?|featuring)\s+([^|]+?)(?:\s*[|\-–—]|$|\s+Mashup|\s+Mash\s+by|\s+Raw\s+Footage)/i);
+  if (!ftMatch) return [];
+
+  const guests = ftMatch[1]
+    .split(/\s*(?:&|,|\+|\band\b)\s*/)
+    .flatMap(expandGuestChunk);
+
+  return Array.from(new Set(guests));
+}
+
+export function getGuestsForEpisode(videoId: string, title: string): string[] {
+  return GUEST_OVERRIDES[videoId] || parseGuestsFromTitle(title);
 }
 
 // Extract episode number from title
@@ -128,7 +176,7 @@ function getNewestStoredEpisode(): Episode | null {
       thumbnail: `https://img.youtube.com/vi/${data.videoId}/mqdefault.jpg`,
       publishedAt,
       url: `https://www.youtube.com/watch?v=${data.videoId}`,
-      guests: parseGuestsFromTitle(data.title),
+      guests: getGuestsForEpisode(data.videoId, data.title),
       episodeNumber: parseEpisodeNumber(data.title),
     };
 
@@ -167,7 +215,7 @@ async function fetchLiveVideos(cursor: Episode | null): Promise<Episode[]> {
         thumbnail: v.thumbnail || `https://img.youtube.com/vi/${v.videoId}/mqdefault.jpg`,
         publishedAt,
         url: `https://www.youtube.com/watch?v=${v.videoId}`,
-        guests: parseGuestsFromTitle(v.title),
+        guests: getGuestsForEpisode(v.videoId, v.title),
         episodeNumber: parseEpisodeNumber(v.title),
       };
     }).filter((episode: Episode) => isNewerThanStoredCursor(episode, cursor));
@@ -212,7 +260,7 @@ async function fetchNewsletterReplayVideos(cursor: Episode | null): Promise<Epis
           thumbnail: `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`,
           publishedAt,
           url: `https://www.youtube.com/watch?v=${videoId}`,
-          guests: parseGuestsFromTitle(title),
+          guests: getGuestsForEpisode(videoId, title),
           episodeNumber: parseEpisodeNumber(title),
         } satisfies Episode;
       })
@@ -233,7 +281,7 @@ export async function fetchAllEpisodes(): Promise<Episode[]> {
       thumbnail: `https://img.youtube.com/vi/${data.videoId}/mqdefault.jpg`,
       publishedAt: parsePublishDate(data.publishDate),
       url: `https://www.youtube.com/watch?v=${data.videoId}`,
-      guests: parseGuestsFromTitle(data.title),
+      guests: getGuestsForEpisode(data.videoId, data.title),
       episodeNumber: parseEpisodeNumber(data.title),
     });
   });
