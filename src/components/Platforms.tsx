@@ -32,6 +32,16 @@ const platforms = [
     url: "https://farcaster.xyz/~/channel/thewipmeetup",
     icon: "https://warpcast.com/favicon.ico",
     color: "from-purple-500 to-violet-600",
+    miniapps: [
+      {
+        name: "Meetup Miniapp",
+        url: "https://farcaster.xyz/miniapps/yDcoJ9X6iJ2G/the-wip-meetup-miniapp",
+      },
+      {
+        name: "WIPCoin Portal",
+        url: "https://farcaster.xyz/miniapps/eOxi0VR7PqQk/wipcoin-portal",
+      },
+    ],
   },
   {
     name: "Twitch",
