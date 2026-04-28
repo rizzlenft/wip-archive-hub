@@ -1,6 +1,4 @@
 import { motion } from "framer-motion";
-import { Sparkles } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { LiveStatusBanner } from "@/components/LiveStatusBanner";
 
 import heroBg from "@/assets/hero-bg.jpg";
@@ -88,21 +86,6 @@ export const Hero = () => {
             className="pt-2"
           >
             <LiveStatusBanner />
-          </motion.div>
-
-          {/* Primary CTA */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7 }}
-            className="flex justify-center pt-2"
-          >
-            <Button variant="hero" size="xl" asChild>
-              <a href="https://discord.gg/bTjc6k5uss" target="_blank" rel="noopener noreferrer">
-                <Sparkles className="w-5 h-5" />
-                Join Discord
-              </a>
-            </Button>
           </motion.div>
         </motion.div>
       </div>
