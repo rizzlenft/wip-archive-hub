@@ -131,62 +131,37 @@ export const Platforms = () => {
           </p>
         </motion.div>
 
-        {/* Organic scattered layout */}
-        <div className="max-w-6xl mx-auto">
-          {/* Featured Discord - larger and centered */}
-          <motion.a
-            href={platforms[0].url}
-            target="_blank"
-            rel="noopener noreferrer"
-            initial={{ opacity: 0, scale: 0.8 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            whileHover={{ scale: 1.02, rotate: -1 }}
-            transition={{ type: "spring", stiffness: 300 }}
-            className="group relative block max-w-md mx-auto mb-8"
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl blur-xl opacity-40 group-hover:opacity-60 transition-opacity" />
-            <div className="relative bg-card/80 backdrop-blur-sm rounded-3xl p-8 border border-primary/30 overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/20 to-transparent rounded-full blur-2xl" />
-              <div className="flex items-center gap-5">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg">
-                  <img 
-                    src={platforms[0].icon} 
-                    alt="Discord"
-                    className="w-8 h-8 object-contain"
-                  />
-                </div>
-                <div className="flex-grow">
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-bold text-2xl">{platforms[0].name}</h3>
-                    <ExternalLink className="w-5 h-5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </div>
-                  <p className="text-muted-foreground">{platforms[0].description}</p>
-                </div>
-              </div>
-            </div>
-          </motion.a>
-
-          {/* Flowing grid for other platforms */}
-          <div className="flex flex-wrap justify-center gap-4 md:gap-6">
-            {platforms.slice(1).map((platform, index) => (
+        <div className="max-w-6xl mx-auto grid gap-5 md:grid-cols-2">
+          {platformGroups.map((group, groupIndex) => (
+            <motion.div
+              key={group.title}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: groupIndex * 0.08 }}
+              className="rounded-2xl border border-border/60 bg-card/40 backdrop-blur-sm p-4 md:p-5"
+            >
+              <h3 className="mb-4 text-xs font-bold uppercase tracking-widest text-primary">
+                {group.title}
+              </h3>
+              <div className="grid gap-3">
+                {group.platforms.map((platform, index) => (
               <motion.div
                 key={platform.name}
-                initial={{ opacity: 0, y: 30, rotate: (index % 2 === 0 ? -2 : 2) }}
-                whileInView={{ opacity: 1, y: 0, rotate: 0 }}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 whileHover={{ 
-                  scale: 1.08, 
-                  rotate: index % 2 === 0 ? 2 : -2,
-                  y: -5 
+                  scale: 1.02,
+                  y: -2 
                 }}
                 transition={{ 
                   duration: 0.4, 
-                  delay: index * 0.08,
+                  delay: index * 0.04,
                   type: "spring",
                   stiffness: 400
                 }}
-                className="group relative"
+                className="group relative min-w-0"
               >
                 {/* Glow effect */}
                 <div className={`absolute inset-0 bg-gradient-to-br ${platform.color} rounded-2xl blur-lg opacity-0 group-hover:opacity-40 transition-opacity duration-300`} />
@@ -196,7 +171,7 @@ export const Platforms = () => {
                     href={platform.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-4 px-5 py-4"
+                    className="flex items-center gap-4 px-4 py-4"
                   >
                     <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${platform.color} flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow shrink-0`}>
                       <img 
@@ -205,9 +180,9 @@ export const Platforms = () => {
                         className="w-5 h-5 object-contain"
                       />
                     </div>
-                    <div>
+                    <div className="min-w-0">
                       <div className="flex items-center gap-2">
-                        <h3 className="font-semibold text-base">{platform.name}</h3>
+                        <h4 className="font-semibold text-base truncate">{platform.name}</h4>
                         <ExternalLink className="w-3.5 h-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                       </div>
                       <p className="text-xs text-muted-foreground">{platform.description}</p>
@@ -231,10 +206,12 @@ export const Platforms = () => {
                   )}
                 </div>
               </motion.div>
-            ))}
+                ))}
+              </div>
+            </motion.div>
+          ))}
           </div>
         </div>
-      </div>
     </section>
   );
 };
