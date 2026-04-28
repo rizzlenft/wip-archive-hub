@@ -13,11 +13,11 @@ import wipLogo from "@/assets/wip-logo.gif";
 interface GuestWithCount {
   name: string;
   count: number;
-  episodes: Episode[];
+  events: Episode[];
 }
 
 const Guests = () => {
-  const [episodes, setEpisodes] = useState<Episode[]>([]);
+  const [events, setEvents] = useState<Episode[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedGuest, setSelectedGuest] = useState<GuestWithCount | null>(null);
@@ -27,31 +27,31 @@ const Guests = () => {
     const loadEpisodes = async () => {
       setLoading(true);
       const data = await fetchAllEpisodes();
-      setEpisodes(data);
+      setEvents(data);
       setLoading(false);
     };
     loadEpisodes();
   }, []);
 
-  // Build guest data with episode counts
+  // Build guest data with event counts
   const guestsWithCounts = useMemo(() => {
     const guestMap = new Map<string, GuestWithCount>();
     
-    episodes.forEach(ep => {
+    events.forEach(ep => {
       ep.guests.forEach(guest => {
         if (!guestMap.has(guest)) {
-          guestMap.set(guest, { name: guest, count: 0, episodes: [] });
+          guestMap.set(guest, { name: guest, count: 0, events: [] });
         }
         const guestData = guestMap.get(guest)!;
         guestData.count++;
-        guestData.episodes.push(ep);
+        guestData.events.push(ep);
       });
     });
     
     return Array.from(guestMap.values()).sort((a, b) => 
       a.name.localeCompare(b.name)
     );
-  }, [episodes]);
+  }, [events]);
 
   // Group guests by first letter
   const groupedGuests = useMemo(() => {
@@ -88,8 +88,8 @@ const Guests = () => {
     }
   };
 
-  const handlePlayEpisode = (episode: Episode) => {
-    window.open(`https://www.youtube.com/watch?v=${episode.videoId}`, '_blank');
+  const handlePlayEvent = (event: Episode) => {
+    window.open(`https://www.youtube.com/watch?v=${event.videoId}`, '_blank');
   };
 
   return (
@@ -246,7 +246,7 @@ const Guests = () => {
                   <div>
                     <h2 className="text-2xl font-bold">{selectedGuest.name}</h2>
                     <p className="text-muted-foreground text-sm">
-                      {selectedGuest.count} episode{selectedGuest.count > 1 ? 's' : ''}
+                      {selectedGuest.count} event{selectedGuest.count > 1 ? 's' : ''}
                     </p>
                   </div>
                   <button
@@ -258,21 +258,21 @@ const Guests = () => {
                 </div>
               </div>
               
-              {/* Episodes List */}
+              {/* Events List */}
               <div className="p-4 overflow-y-auto max-h-[60vh]">
                 <div className="space-y-2">
-                  {selectedGuest.episodes
+                  {selectedGuest.events
                     .sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime())
-                    .map((episode) => (
+                    .map((event) => (
                       <button
-                        key={episode.videoId}
-                        onClick={() => handlePlayEpisode(episode)}
+                        key={event.videoId}
+                        onClick={() => handlePlayEvent(event)}
                         className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors text-left group"
                       >
                         <div className="relative w-24 h-14 rounded overflow-hidden flex-shrink-0">
                           <img 
-                            src={episode.thumbnail} 
-                            alt={episode.title}
+                            src={event.thumbnail} 
+                            alt={event.title}
                             className="w-full h-full object-cover"
                           />
                           <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -281,10 +281,10 @@ const Guests = () => {
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium line-clamp-2 group-hover:text-primary transition-colors">
-                            {episode.title}
+                            {event.title}
                           </p>
                           <p className="text-xs text-muted-foreground mt-1">
-                            {episode.publishedAt.toLocaleDateString('en-US', {
+                            {event.publishedAt.toLocaleDateString('en-US', {
                               month: 'short',
                               day: 'numeric',
                               year: 'numeric'

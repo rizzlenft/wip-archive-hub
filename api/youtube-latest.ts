@@ -115,16 +115,17 @@ async function scrapeChannelVideos(count: number): Promise<VideoResult[]> {
 
     const html = await response.text();
 
-    // Extract ytInitialData JSON from the page
-    const dataMatch = html.match(/var\s+ytInitialData\s*=\s*({.+?});\s*<\/script>/s);
-    if (!dataMatch) {
+    // Extract ytInitialData JSON from the page. YouTube may emit either
+    // `var ytInitialData = ...` or `ytInitialData = ...`, so use balanced braces.
+    const initialDataJson = extractYtInitialDataJson(html);
+    if (!initialDataJson) {
       console.log("Could not find ytInitialData in YouTube page");
       // Fallback: try regex to find video IDs and titles directly
       return extractVideosFromHTML(html, count);
     }
 
     try {
-      const data = JSON.parse(dataMatch[1]);
+      const data = JSON.parse(initialDataJson);
       return extractVideosFromInitialData(data, count);
     } catch (parseErr) {
       console.log("Failed to parse ytInitialData:", parseErr);
@@ -134,6 +135,35 @@ async function scrapeChannelVideos(count: number): Promise<VideoResult[]> {
     console.log("YouTube scrape error:", err);
     return [];
   }
+}
+
+function extractYtInitialDataJson(html: string): string | null {
+  const marker = "ytInitialData";
+  const markerIndex = html.indexOf(marker);
+  if (markerIndex === -1) return null;
+  const start = html.indexOf("{", markerIndex);
+  if (start === -1) return null;
+
+  let depth = 0;
+  let inString = false;
+  let escaped = false;
+  for (let i = start; i < html.length; i += 1) {
+    const char = html[i];
+    if (inString) {
+      if (escaped) escaped = false;
+      else if (char === "\\") escaped = true;
+      else if (char === '"') inString = false;
+      continue;
+    }
+    if (char === '"') inString = true;
+    else if (char === "{") depth += 1;
+    else if (char === "}") {
+      depth -= 1;
+      if (depth === 0) return html.slice(start, i + 1);
+    }
+  }
+
+  return null;
 }
 
 /**

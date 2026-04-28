@@ -57,7 +57,7 @@ export const EpisodeRow = ({ year, episodes, onGuestClick }: EpisodeRowProps) =>
         </h2>
         <div className="h-px flex-1 bg-gradient-to-r from-primary/50 to-transparent" />
         <span className="text-sm text-muted-foreground">
-          {episodes.length} episodes
+          {episodes.length} events
         </span>
       </div>
 
@@ -89,7 +89,7 @@ export const EpisodeRow = ({ year, episodes, onGuestClick }: EpisodeRowProps) =>
           </div>
         </motion.button>
 
-        {/* Episodes Scroll Container */}
+        {/* Events Scroll Container */}
         <div
           ref={scrollRef}
           className="flex gap-4 overflow-x-auto scrollbar-hide px-4 md:px-8 pb-20"

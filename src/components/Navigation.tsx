@@ -18,7 +18,7 @@ import iconHyperfy from "@/assets/icon-hyperfy.png";
 import iconSubstack from "@/assets/icon-substack.png";
 
 const navLinks = [
-  { name: "Episodes", href: "/episodes" },
+  { name: "Events", href: "/episodes" },
   { name: "Newsletter", href: "/newsletter" },
   { name: "Merch", href: "/merch" },
 ];

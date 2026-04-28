@@ -1,6 +1,7 @@
 // YouTube utilities for The WIP Meetup channel
 
 import { EPISODES_DATA } from "./episodesData";
+import { fetchNewsletters, type NewsletterIssue } from "./newsletter";
 
 export interface Episode {
   videoId: string;
@@ -11,6 +12,8 @@ export interface Episode {
   guests: string[];
   episodeNumber: number | null;
 }
+
+export type Event = Episode;
 
 // Parse guests from video title
 // Common formats: "ft. Guest1 & Guest2", "ft Guest1, Guest2", "featuring Guest"
@@ -101,6 +104,21 @@ function parseRelativeDate(text: string): Date | null {
   return new Date(now.getTime() - amount * (ms[unit] || 0));
 }
 
+function getYouTubeIdFromIssue(issue: NewsletterIssue): string | undefined {
+  if (issue.youtube_video_id) return issue.youtube_video_id;
+  const body = `${issue.body_html || ""} ${issue.body_markdown || ""}`;
+  return body.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/)?.[1];
+}
+
+function getTitleFromIssue(issue: NewsletterIssue): string {
+  const body = issue.body_html || issue.body_markdown || "";
+  return body.match(/<span[^>]*>(The WIP Meetup[^<]+)<\/span>/i)?.[1]
+    ?.replace(/&#39;/g, "'")
+    ?.replace(/&amp;/g, "&")
+    || issue.title
+    || "The WIP Meetup replay";
+}
+
 // Fetch live recent videos from the API
 async function fetchLiveVideos(): Promise<Episode[]> {
   const API_BASE =
@@ -134,7 +152,33 @@ async function fetchLiveVideos(): Promise<Episode[]> {
   }
 }
 
-// Fetch all episodes, merging live data with static archive
+async function fetchNewsletterReplayVideos(): Promise<Episode[]> {
+  try {
+    const newsletters = await fetchNewsletters();
+    return newsletters
+      .map((issue) => {
+        const videoId = getYouTubeIdFromIssue(issue);
+        if (!videoId) return null;
+        const title = getTitleFromIssue(issue);
+        const publishedAt = parseDateFromTitle(title)
+          || parsePublishDate(issue.published_at || issue.week_of || issue.created_at);
+        return {
+          videoId,
+          title,
+          thumbnail: `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`,
+          publishedAt,
+          url: `https://www.youtube.com/watch?v=${videoId}`,
+          guests: parseGuestsFromTitle(title),
+          episodeNumber: parseEpisodeNumber(title),
+        } satisfies Episode;
+      })
+      .filter((episode): episode is Episode => Boolean(episode));
+  } catch {
+    return [];
+  }
+}
+
+// Fetch all events, merging live data with static archive
 export async function fetchAllEpisodes(): Promise<Episode[]> {
   // Build archive map
   const archiveMap = new Map<string, Episode>();
@@ -150,18 +194,23 @@ export async function fetchAllEpisodes(): Promise<Episode[]> {
     });
   });
 
-  // Fetch live videos and merge (live overrides archive for same videoId, adds new ones)
-  const liveVideos = await fetchLiveVideos();
-  liveVideos.forEach(ep => {
+  // Fetch live videos and newsletter replay fallbacks, then merge with the static archive.
+  const [liveVideos, newsletterVideos] = await Promise.all([
+    fetchLiveVideos(),
+    fetchNewsletterReplayVideos(),
+  ]);
+  [...newsletterVideos, ...liveVideos].forEach(ep => {
     archiveMap.set(ep.videoId, ep);
   });
 
   const episodes = Array.from(archiveMap.values());
   episodes.sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime());
   
-  console.log(`✅ Loaded ${episodes.length} episodes (${liveVideos.length} live, ${EPISODES_DATA.length} archived)`);
+  console.log(`✅ Loaded ${episodes.length} events (${liveVideos.length} live, ${newsletterVideos.length} newsletter, ${EPISODES_DATA.length} archived)`);
   return episodes;
 }
+
+export const fetchAllEvents = fetchAllEpisodes;
 
 // Get unique guests from all episodes
 export function extractUniqueGuests(episodes: Episode[]): string[] {
@@ -172,7 +221,7 @@ export function extractUniqueGuests(episodes: Episode[]): string[] {
   return Array.from(guestSet).sort();
 }
 
-// Group episodes by year
+// Group events by year
 export function groupEpisodesByYear(episodes: Episode[]): Map<number, Episode[]> {
   const grouped = new Map<number, Episode[]>();
   
@@ -193,6 +242,8 @@ export function groupEpisodesByYear(episodes: Episode[]): Map<number, Episode[]>
   
   return grouped;
 }
+
+export const groupEventsByYear = groupEpisodesByYear;
 
 // Get a random episode for the "Random Episode" feature
 export function getRandomEpisode(episodes: Episode[]): Episode | null {

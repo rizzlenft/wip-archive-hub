@@ -16,7 +16,7 @@ import {
 } from "@/lib/youtube";
 
 const Episodes = () => {
-  const [episodes, setEpisodes] = useState<Episode[]>([]);
+  const [events, setEpisodes] = useState<Episode[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedGuest, setSelectedGuest] = useState<string | null>(null);
@@ -54,15 +54,15 @@ const Episodes = () => {
   }, []);
 
   // Extract all unique guests and years
-  const allGuests = useMemo(() => extractUniqueGuests(episodes), [episodes]);
+  const allGuests = useMemo(() => extractUniqueGuests(events), [events]);
   const allYears = useMemo(() => {
-    const years = new Set(episodes.map(ep => ep.publishedAt.getFullYear()));
+    const years = new Set(events.map(ep => ep.publishedAt.getFullYear()));
     return Array.from(years).sort((a, b) => b - a);
-  }, [episodes]);
+  }, [events]);
 
-  // Filter episodes
-  const filteredEpisodes = useMemo(() => {
-    let result = [...episodes];
+  // Filter events
+  const filteredEvents = useMemo(() => {
+    let result = [...events];
     
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
@@ -83,10 +83,10 @@ const Episodes = () => {
     }
     
     return result;
-  }, [episodes, searchQuery, selectedGuest, selectedYear]);
+  }, [events, searchQuery, selectedGuest, selectedYear]);
 
-  // Group filtered episodes by year
-  const groupedByYear = useMemo(() => groupEpisodesByYear(filteredEpisodes), [filteredEpisodes]);
+  // Group filtered events by year
+  const groupedByYear = useMemo(() => groupEpisodesByYear(filteredEvents), [filteredEvents]);
   const sortedYears = useMemo(() => 
     Array.from(groupedByYear.keys()).sort((a, b) => b - a), 
     [groupedByYear]
@@ -99,9 +99,9 @@ const Episodes = () => {
   };
 
   const handleRandomEpisode = () => {
-    const randomEp = episodes[Math.floor(Math.random() * episodes.length)];
-    if (randomEp) {
-      window.open(`https://www.youtube.com/watch?v=${randomEp.videoId}`, '_blank');
+    const randomEvent = events[Math.floor(Math.random() * events.length)];
+    if (randomEvent) {
+      window.open(`https://www.youtube.com/watch?v=${randomEvent.videoId}`, '_blank');
     }
   };
 
@@ -110,8 +110,8 @@ const Episodes = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEO
-        title="Episodes"
-        description="Browse 250+ episodes from The WIP Meetup — the longest-running web3 metaverse meetup. Search by guest, year, or topic."
+        title="Events"
+        description="Browse 250+ events from The WIP Meetup — the longest-running web3 metaverse meetup. Search by guest, year, or topic."
         canonical="/episodes"
       />
       <Navigation />
@@ -130,10 +130,10 @@ const Episodes = () => {
             className="text-center max-w-3xl mx-auto"
           >
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              Episode <span className="text-gradient-rainbow">Archive</span>
+              Event <span className="text-gradient-rainbow">Archive</span>
             </h1>
             <p className="text-muted-foreground mb-6">
-              {episodes.length}+ episodes from the longest-running web3 metaverse meetup
+              {events.length}+ events from the longest-running web3 metaverse meetup
             </p>
             
             {/* Action Buttons */}
@@ -144,7 +144,7 @@ const Episodes = () => {
                 className="bg-gradient-to-r from-primary to-accent hover:opacity-90 text-primary-foreground shadow-lg"
               >
                 <Shuffle className="w-5 h-5 mr-2" />
-                Random Episode
+                Random Event
               </Button>
               <Link to="/guests">
                 <Button
@@ -166,7 +166,7 @@ const Episodes = () => {
               </div>
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Play className="w-4 h-4 text-primary" />
-                <span className="text-sm">{episodes.length} Episodes</span>
+                <span className="text-sm">{events.length} Events</span>
               </div>
             </div>
           </motion.div>
@@ -182,7 +182,7 @@ const Episodes = () => {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 type="text"
-                placeholder="Search episodes or guests..."
+                placeholder="Search events or guests..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10 h-9"
@@ -294,7 +294,7 @@ const Episodes = () => {
               </AnimatePresence>
             </div>
 
-            {/* Random Episode Button */}
+            {/* Random Event Button */}
             <Button
               variant="outline"
               size="sm"
@@ -317,7 +317,7 @@ const Episodes = () => {
           {/* Results count */}
           {hasActiveFilters && (
             <p className="text-xs text-muted-foreground mt-2">
-              Showing {filteredEpisodes.length} of {episodes.length} episodes
+              Showing {filteredEvents.length} of {events.length} events
             </p>
           )}
         </div>
@@ -329,9 +329,9 @@ const Episodes = () => {
           <div className="flex items-center justify-center py-20">
             <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
           </div>
-        ) : filteredEpisodes.length === 0 ? (
+        ) : filteredEvents.length === 0 ? (
           <div className="text-center py-20">
-            <p className="text-muted-foreground text-lg">No episodes found matching your criteria.</p>
+            <p className="text-muted-foreground text-lg">No events found matching your criteria.</p>
             <Button variant="outline" className="mt-4" onClick={clearFilters}>
               Clear Filters
             </Button>
