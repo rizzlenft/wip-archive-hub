@@ -84,8 +84,8 @@ const getPlatform = (name: string) => platforms.find((platform) => platform.name
 const platformGroups = [
   {
     title: "Join Live",
-    description: "Discord, Hyperworld, and stream links for Thursdays at 12 PM PT.",
-    platforms: [getPlatform("Discord"), getPlatform("Hyperworld"), getPlatform("Twitch")],
+    description: "Discord, Hyperworld, stream backup, and Farcaster miniapps for Thursdays at 12 PM PT.",
+    platforms: [getPlatform("Discord"), getPlatform("Hyperworld"), getPlatform("Twitch"), getPlatform("Farcaster")],
   },
   {
     title: "Watch",
@@ -95,7 +95,7 @@ const platformGroups = [
   {
     title: "Follow",
     description: "Stay connected across social channels.",
-    platforms: [getPlatform("Twitter/X"), getPlatform("Farcaster")],
+    platforms: [getPlatform("Twitter/X")],
   },
   {
     title: "$WIP",
