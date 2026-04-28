@@ -137,9 +137,12 @@ export const Platforms = () => {
               transition={{ duration: 0.4, delay: groupIndex * 0.08 }}
               className="rounded-2xl border border-border/60 bg-card/40 p-4 backdrop-blur-sm md:p-5"
             >
-              <h3 className="mb-4 text-xs font-bold uppercase tracking-widest text-primary">
-                {group.title}
-              </h3>
+              <div className="mb-4">
+                <h3 className="text-xs font-bold uppercase tracking-widest text-primary">
+                  {group.title}
+                </h3>
+                <p className="mt-1 text-sm text-muted-foreground">{group.description}</p>
+              </div>
               <div className="grid gap-3">
                 {group.platforms.map((platform, index) => (
               <motion.div
@@ -160,7 +163,7 @@ export const Platforms = () => {
                 className="group relative min-w-0"
               >
                 {/* Glow effect */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${platform.color} rounded-2xl blur-lg opacity-0 group-hover:opacity-40 transition-opacity duration-300`} />
+                <div className="absolute inset-0 rounded-2xl bg-gradient-rainbow opacity-0 blur-lg transition-opacity duration-300 group-hover:opacity-25" />
                 
                 <div className="relative bg-card/60 backdrop-blur-sm rounded-2xl border border-muted/50 group-hover:border-primary/40 transition-all duration-300 overflow-hidden">
                   <a
@@ -169,7 +172,7 @@ export const Platforms = () => {
                     rel="noopener noreferrer"
                     className="flex items-center gap-3 px-3 py-4 sm:gap-4 sm:px-4"
                   >
-                    <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${platform.color} shadow-md transition-shadow group-hover:shadow-lg`}>
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-muted/50 shadow-md transition-shadow group-hover:shadow-lg">
                       <img 
                         src={platform.icon} 
                         alt={platform.name}
