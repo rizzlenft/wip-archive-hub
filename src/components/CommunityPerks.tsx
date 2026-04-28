@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Gift, Coins, Heart, ExternalLink } from "lucide-react";
+import { Coins, Heart, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import wipLogoStatic from "@/assets/wip-logo-static.png";
 import metaverseBg2 from "@/assets/metaverse-bg-2.gif";
@@ -12,26 +12,13 @@ import nftGift5 from "@/assets/nft-gift-5.avif";
 import nftGift6 from "@/assets/nft-gift-6.avif";
 
 const nftGallery = [nftGift1, nftGift2, nftGift3, nftGift4, nftGift5, nftGift6];
-const perks = [
-  {
-    title: "$WIP Token Rewards",
-    description: "Attend the weekly meetup and receive $WIP as a thank you for being part of the community.",
-    color: "from-yellow-400 to-orange-500",
-    isToken: true,
-  },
-  {
-    icon: Gift,
-    title: "Free NFT Gifts",
-    description: "Fabiano & Patrizia create voxel art NFTs for attendees—unique collectibles from each meetup.",
-    color: "from-pink-400 to-purple-500",
-    hasGallery: true,
-    artists: [
-      { name: "Fabiano", url: "https://x.com/fabianospeziari" },
-      { name: "Patrizia", url: "https://x.com/patriziabarnato" },
-    ],
-    collectionUrl: "https://opensea.io/collection/random-3d-things",
-  },
+
+const artists = [
+  { name: "Fabiano", handle: "fabianospeziari", url: "https://x.com/fabianospeziari" },
+  { name: "Patrizia", handle: "patriziabarnato", url: "https://x.com/patriziabarnato" },
 ];
+
+const collectionUrl = "https://opensea.io/collection/random-3d-things";
 
 export const CommunityPerks = () => {
   const [currentNft, setCurrentNft] = useState(0);
@@ -75,101 +62,115 @@ export const CommunityPerks = () => {
           </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto mb-16">
-          {perks.map((perk, index) => (
-            <motion.div
-              key={perk.title}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.15 }}
-              className="group"
-            >
-              <div className="h-full p-8 rounded-2xl bg-card border-glow hover:scale-105 transition-all duration-300 text-center">
-                {'hasGallery' in perk && perk.hasGallery ? (
-                  <div className="mb-6 rounded-xl overflow-hidden bg-muted/20 relative h-56">
-                    <motion.img
-                      key={currentNft}
-                      src={nftGallery[currentNft]}
-                      alt={`NFT Gift #${currentNft + 1}`}
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 0.5 }}
-                      className="w-full h-full object-contain"
-                      loading="lazy"
-                    />
-                    <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
-                      {nftGallery.map((_, i) => (
-                        <button
-                          key={i}
-                          onClick={() => setCurrentNft(i)}
-                          aria-label={`View NFT ${i + 1}`}
-                          className={`w-2 h-2 rounded-full transition-all ${i === currentNft ? 'bg-primary w-4' : 'bg-muted-foreground/40'}`}
-                        />
-                      ))}
-                    </div>
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="mx-auto mb-16 max-w-5xl overflow-hidden rounded-2xl border-glow bg-card/80 backdrop-blur-sm"
+        >
+          <div className="grid gap-0 lg:grid-cols-[0.85fr_1.15fr]">
+            <div className="flex min-h-[360px] flex-col justify-between border-b border-border/80 p-6 sm:p-8 lg:border-b-0 lg:border-r">
+              <div className="space-y-5">
+                <div className="flex items-center gap-4">
+                  <img
+                    src={wipLogoStatic}
+                    alt="WIP Token"
+                    className="h-16 w-16 shrink-0 rounded-2xl shadow-rainbow"
+                    loading="lazy"
+                    width={64}
+                    height={64}
+                  />
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">Weekly Rewards</p>
+                    <h3 className="text-2xl font-bold sm:text-3xl">$WIP for showing up</h3>
                   </div>
-                ) : perk.isToken ? (
-                  <div className="mb-6 flex justify-center">
-                    <img 
-                      src={wipLogoStatic} 
-                      alt="WIP Token" 
-                      className="w-16 h-16 rounded-2xl group-hover:scale-110 transition-transform"
-                      loading="lazy"
-                      width={64}
-                      height={64}
-                    />
-                  </div>
-                ) : perk.icon ? (
-                  <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${perk.color} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
-                    <perk.icon className="w-8 h-8 text-white" />
-                  </div>
-                ) : null}
-                <h3 className="text-2xl font-bold mb-4">{perk.title}</h3>
-                <p className="text-muted-foreground mb-6 leading-relaxed">
-                  {perk.description}
+                </div>
+                <p className="text-base leading-relaxed text-muted-foreground sm:text-lg">
+                  Attend the meetup and receive $WIP as a thank you for contributing to the community.
                 </p>
-                
-                {perk.artists && (
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-3 max-w-xs mx-auto">
-                      {perk.artists.map((artist) => (
-                        <a
-                          key={artist.name}
-                          href={artist.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex flex-col items-center gap-2 rounded-xl border border-border bg-card/60 backdrop-blur-sm px-4 py-3 hover:border-primary/30 transition-all"
-                        >
-                          <img
-                            src={`https://unavatar.io/twitter/${artist.name === 'Fabiano' ? 'fabianospeziari' : 'patriziabarnato'}`}
-                            alt={artist.name}
-                            className="w-12 h-12 rounded-full object-cover border border-primary/30"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(artist.name)}&background=7c3aed&color=fff&size=48`;
-                            }}
-                          />
-                          <span className="font-semibold text-sm text-foreground">@{artist.name}</span>
-                        </a>
-                      ))}
-                    </div>
-                    {perk.collectionUrl && (
+              </div>
+
+              <div className="mt-8 grid grid-cols-2 gap-3 text-sm">
+                <div className="rounded-xl border border-border bg-muted/30 p-4">
+                  <p className="font-bold text-foreground">Thursdays</p>
+                  <p className="text-muted-foreground">12–3 PM PT</p>
+                </div>
+                <div className="rounded-xl border border-border bg-muted/30 p-4">
+                  <p className="font-bold text-foreground">Community</p>
+                  <p className="text-muted-foreground">Rewarded live</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-6 sm:p-8">
+              <div className="grid items-center gap-8 md:grid-cols-[0.95fr_1.05fr]">
+                <div className="relative mx-auto aspect-square w-full max-w-[320px] overflow-hidden rounded-xl bg-muted/20">
+                  <motion.img
+                    key={currentNft}
+                    src={nftGallery[currentNft]}
+                    alt={`NFT Gift #${currentNft + 1}`}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.5 }}
+                    className="h-full w-full object-contain"
+                    loading="lazy"
+                  />
+                  <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1.5">
+                    {nftGallery.map((_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setCurrentNft(i)}
+                        aria-label={`View NFT ${i + 1}`}
+                        className={`h-2 rounded-full transition-all ${i === currentNft ? "w-5 bg-primary" : "w-2 bg-muted-foreground/40"}`}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <div className="text-center md:text-left">
+                  <p className="mb-3 text-sm font-semibold uppercase tracking-[0.18em] text-accent">Free NFT Gifts</p>
+                  <h3 className="mb-4 text-2xl font-bold sm:text-3xl">Voxel art from every meetup</h3>
+                  <p className="mb-6 text-base leading-relaxed text-muted-foreground sm:text-lg">
+                    Fabiano & Patrizia create unique collectibles for attendees, turning each week into a keepsake.
+                  </p>
+
+                  <div className="mb-6 grid grid-cols-2 gap-3">
+                    {artists.map((artist) => (
                       <a
-                        href={perk.collectionUrl}
+                        key={artist.name}
+                        href={artist.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors font-medium"
+                        className="flex min-w-0 items-center gap-3 rounded-xl border border-border bg-muted/30 px-3 py-3 transition-all hover:border-primary/40 hover:bg-muted/50"
                       >
-                        View Collection
-                        <ExternalLink className="w-4 h-4" />
+                        <img
+                          src={`https://unavatar.io/twitter/${artist.handle}`}
+                          alt={artist.name}
+                          className="h-10 w-10 shrink-0 rounded-full border border-primary/30 object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(artist.name)}&background=7c3aed&color=fff&size=48`;
+                          }}
+                        />
+                        <span className="truncate text-sm font-semibold text-foreground">@{artist.name}</span>
                       </a>
-                    )}
+                    ))}
                   </div>
-                )}
+
+                  <a
+                    href={collectionUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 font-medium text-primary transition-colors hover:text-primary/80"
+                  >
+                    View Collection
+                    <ExternalLink className="h-4 w-4" />
+                  </a>
+                </div>
               </div>
-            </motion.div>
-          ))}
-        </div>
+            </div>
+          </div>
+        </motion.div>
 
         <motion.div
           initial={{ opacity: 0, y: 30 }}
