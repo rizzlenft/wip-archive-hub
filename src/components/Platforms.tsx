@@ -16,7 +16,7 @@ const platforms = [
   },
   {
     name: "YouTube",
-    description: "Episodes, replays, and highlights",
+    description: "Events, replays, and highlights",
     url: "https://www.youtube.com/@thewipmeetup",
     icon: "https://www.youtube.com/s/desktop/c01ea7e3/img/favicon_144x144.png",
   },
@@ -113,7 +113,7 @@ const platformGroups = [
   },
   {
     title: "Watch",
-    description: "Replay episodes and live streams.",
+    description: "Replay events and live streams.",
     platforms: [getPlatform("YouTube"), getPlatform("Twitch")],
   },
   {

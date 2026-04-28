@@ -3,7 +3,7 @@ import { Play, ExternalLink, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { fetchNewsletters, type NewsletterIssue } from "@/lib/newsletter";
-import { EPISODES_DATA } from "@/lib/episodesData";
+import { EPISODES_DATA } from "@/lib/eventsData";
 
 interface VideoData {
   title: string;
