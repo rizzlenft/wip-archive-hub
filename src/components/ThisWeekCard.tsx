@@ -1,11 +1,18 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Sparkles } from "lucide-react";
+import { ExternalLink, Radio, Sparkles } from "lucide-react";
 import { fetchNewsletters, type NewsletterIssue } from "@/lib/newsletter";
 
 const API_BASE =
   (import.meta.env.VITE_BACKEND_URL as string | undefined) ||
   "https://api.thewipmeetup.com";
+
+const liveLinks = [
+  { name: "Discord", description: "Main event room", url: "https://discord.gg/bTjc6k5uss" },
+  { name: "Hyperworld", description: "Metaverse space", url: "https://thewipmeetup.hyperworld.host/" },
+  { name: "Twitch", description: "Stream backup", url: "https://www.twitch.tv/wipmeetup" },
+  { name: "Farcaster", description: "Channel + miniapps", url: "https://farcaster.xyz/~/channel/thewipmeetup" },
+];
 
 /**
  * Returns true if we're past the event window for the newsletter's week.
@@ -81,28 +88,36 @@ export const ThisWeekCard = () => {
   const speakers = issue.speakers || [];
 
   return (
-    <section className="px-4 py-8 md:py-10">
-      <div className="container mx-auto max-w-3xl">
+    <section id="join-live" className="px-4 py-10 md:py-14">
+      <div className="container mx-auto max-w-6xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="mb-5 text-center"
+          className="mb-6 text-center"
         >
           <div className="flex items-center justify-center gap-2 mb-2">
-            <Sparkles className="w-5 h-5 text-primary" />
-              <h2 className="text-sm font-bold uppercase tracking-widest text-primary">
-              Featured Guests
+            <Radio className="w-5 h-5 text-primary" />
+            <h2 className="text-sm font-bold uppercase tracking-widest text-primary">
+              This Week / Join Live
             </h2>
           </div>
           <p className="text-muted-foreground text-sm">
-            {expired ? "Come back soon to find out!" : "Joining this week's meetup"}
+            Thursdays at 12 PM PT — jump into the live meetup or see who is joining this week.
           </p>
         </motion.div>
 
-        {!expired && speakers.length > 0 && (
-          <div className={`mx-auto grid gap-3 ${speakers.length === 1 ? 'max-w-xs' : 'max-w-xl sm:grid-cols-2'}`}>
+        <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+          <div className="rounded-2xl border border-border bg-card/45 p-4 backdrop-blur-sm md:p-5">
+            <div className="mb-4 flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-primary" />
+              <h3 className="font-semibold">Featured Guests</h3>
+            </div>
+            {expired || speakers.length === 0 ? (
+              <p className="text-sm text-muted-foreground">Come back soon to find out!</p>
+            ) : (
+              <div className={`grid gap-3 ${speakers.length === 1 ? 'max-w-xs' : 'sm:grid-cols-2'}`}>
             {speakers.slice(0, 4).map((speaker, idx) => (
               <motion.div
                 key={speaker.name}
@@ -147,8 +162,31 @@ export const ThisWeekCard = () => {
                 </div>
               </motion.div>
             ))}
+              </div>
+            )}
           </div>
-        )}
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+            {liveLinks.map((link, idx) => (
+              <motion.a
+                key={link.name}
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                initial={{ opacity: 0, y: 15 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.05, duration: 0.35 }}
+                className="group flex items-center justify-between rounded-2xl border border-border bg-card/45 px-4 py-3 backdrop-blur-sm transition-colors hover:border-primary/40 hover:bg-card/70"
+              >
+                <span>
+                  <span className="block font-semibold">{link.name}</span>
+                  <span className="block text-xs text-muted-foreground">{link.description}</span>
+                </span>
+                <ExternalLink className="h-4 w-4 text-muted-foreground transition-colors group-hover:text-primary" />
+              </motion.a>
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   );
