@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Calendar, Play, User, X } from "lucide-react";
 import type { Episode } from "@/lib/youtube";
 
@@ -141,12 +141,10 @@ export const EpisodeCard = ({ episode, onGuestClick }: EpisodeCardProps) => {
       </motion.div>
 
       {/* Video Modal */}
-      <AnimatePresence>
-        {isPlaying && (
+      {isPlaying && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/90 backdrop-blur-md"
             onClick={handleClose}
           >
@@ -175,7 +173,6 @@ export const EpisodeCard = ({ episode, onGuestClick }: EpisodeCardProps) => {
             </motion.div>
           </motion.div>
         )}
-      </AnimatePresence>
     </>
   );
 };
