@@ -211,87 +211,41 @@ export const CommunityPerks = () => {
           ))}
         </div>
 
-        {/* Support Our Community — centered header matching "Join & Get Rewarded" */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-12"
+          transition={{ duration: 0.5 }}
+          className="max-w-4xl mx-auto rounded-2xl border border-primary/20 bg-card/60 backdrop-blur-sm p-5 md:p-6"
         >
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">
-            Support <span className="text-gradient-rainbow">Our Community</span>
-          </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Every contribution helps keep the meetups running, artists creating, and community growing.
-          </p>
-        </motion.div>
-
-        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          {/* Buy $WIP card */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="group"
-          >
-            <div className="h-full p-8 rounded-2xl bg-card border-glow hover:scale-105 transition-all duration-300 text-center">
-              <div className="mb-6 flex justify-center">
-                <img
-                  src={wipLogoStatic}
-                  alt="WIP Token"
-                  className="w-16 h-16 rounded-2xl group-hover:scale-110 transition-transform"
-                  width={64}
-                  height={64}
-                  loading="lazy"
-                />
+          <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+            <div className="flex items-center gap-4 text-left">
+              <div className="hidden sm:flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10">
+                <Heart className="h-5 w-5 text-primary" />
               </div>
-              <h3 className="text-2xl font-bold mb-4">Support with $WIP</h3>
-              <p className="text-muted-foreground mb-6 leading-relaxed">
-                Buy or stake $WIP to support the builders, creators, and artists who keep the community moving.
-              </p>
-              <Button variant="hero" size="default" className="w-full" asChild>
+              <div>
+                <h3 className="text-xl font-bold">Support The WIP</h3>
+                <p className="text-sm text-muted-foreground">
+                  Help keep the meetups running, artists creating, and community growing.
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-col gap-3 sm:flex-row md:shrink-0">
+              <Button variant="hero" size="default" asChild>
                 <a href="https://wip-staking.pages.dev/trade" target="_blank" rel="noopener noreferrer">
                   <Coins className="w-4 h-4" />
                   Buy $WIP
                 </a>
               </Button>
-            </div>
-          </motion.div>
-
-          {/* Donate card */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.15 }}
-            className="group"
-          >
-            <div className="h-full p-8 rounded-2xl bg-card border-glow hover:scale-105 transition-all duration-300 text-center">
-              <div className="mb-6 flex justify-center">
-                <img
-                  src={donateQr}
-                  alt="Scan to donate to The WIP"
-                  className="w-16 h-16 rounded-xl group-hover:scale-110 transition-transform"
-                  width={64}
-                  height={64}
-                  loading="lazy"
-                />
-              </div>
-              <h3 className="text-2xl font-bold mb-4">Donate</h3>
-              <p className="text-muted-foreground mb-6 leading-relaxed">
-                Scan the QR code or tap below to make a quick donation. Every contribution—big or small—keeps the meetups running. 💜
-              </p>
-              <Button variant="outline" size="default" className="w-full border-primary/30 hover:bg-primary/10" asChild>
+              <Button variant="outline" size="default" className="border-primary/30 hover:bg-primary/10" asChild>
                 <a href="https://piri-pay.vercel.app/tip/qY3jM8YzHk" target="_blank" rel="noopener noreferrer">
                   <Heart className="w-4 h-4 text-primary" />
-                  Donate Now
+                  Donate
                 </a>
               </Button>
             </div>
-          </motion.div>
-        </div>
+          </div>
+        </motion.div>
       </div>
     </section>
   );
