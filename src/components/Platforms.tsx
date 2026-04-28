@@ -143,11 +143,8 @@ export const Platforms = () => {
           {/* Flowing grid for other platforms */}
           <div className="flex flex-wrap justify-center gap-4 md:gap-6">
             {platforms.slice(1).map((platform, index) => (
-              <motion.a
+              <motion.div
                 key={platform.name}
-                href={platform.url}
-                target="_blank"
-                rel="noopener noreferrer"
                 initial={{ opacity: 0, y: 30, rotate: (index % 2 === 0 ? -2 : 2) }}
                 whileInView={{ opacity: 1, y: 0, rotate: 0 }}
                 viewport={{ once: true }}
@@ -167,23 +164,46 @@ export const Platforms = () => {
                 {/* Glow effect */}
                 <div className={`absolute inset-0 bg-gradient-to-br ${platform.color} rounded-2xl blur-lg opacity-0 group-hover:opacity-40 transition-opacity duration-300`} />
                 
-                <div className="relative bg-card/60 backdrop-blur-sm rounded-2xl px-5 py-4 border border-muted/50 group-hover:border-primary/40 transition-all duration-300 flex items-center gap-4">
-                  <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${platform.color} flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow`}>
-                    <img 
-                      src={platform.icon} 
-                      alt={platform.name}
-                      className="w-5 h-5 object-contain"
-                    />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-semibold text-base">{platform.name}</h3>
-                      <ExternalLink className="w-3.5 h-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="relative bg-card/60 backdrop-blur-sm rounded-2xl border border-muted/50 group-hover:border-primary/40 transition-all duration-300 overflow-hidden">
+                  <a
+                    href={platform.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-4 px-5 py-4"
+                  >
+                    <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${platform.color} flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow shrink-0`}>
+                      <img 
+                        src={platform.icon} 
+                        alt={platform.name}
+                        className="w-5 h-5 object-contain"
+                      />
                     </div>
-                    <p className="text-xs text-muted-foreground">{platform.description}</p>
-                  </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-semibold text-base">{platform.name}</h3>
+                        <ExternalLink className="w-3.5 h-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </div>
+                      <p className="text-xs text-muted-foreground">{platform.description}</p>
+                    </div>
+                  </a>
+
+                  {platform.miniapps && (
+                    <div className="flex flex-wrap gap-2 px-4 pb-4 -mt-1">
+                      {platform.miniapps.map((miniapp) => (
+                        <a
+                          key={miniapp.name}
+                          href={miniapp.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-medium text-primary hover:bg-primary/20 transition-colors"
+                        >
+                          {miniapp.name}
+                        </a>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              </motion.a>
+              </motion.div>
             ))}
           </div>
         </div>
