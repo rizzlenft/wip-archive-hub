@@ -37,10 +37,6 @@ const platforms = [
         name: "Meetup Miniapp",
         url: "https://farcaster.xyz/miniapps/yDcoJ9X6iJ2G/the-wip-meetup-miniapp",
       },
-      {
-        name: "WIPCoin Portal",
-        url: "https://farcaster.xyz/miniapps/eOxi0VR7PqQk/wipcoin-portal",
-      },
     ],
   },
   {
@@ -51,7 +47,7 @@ const platforms = [
     color: "from-purple-600 to-indigo-700",
   },
   {
-    name: "Hyperfy",
+    name: "Hyperworld",
     description: "Metaverse HQ",
     url: "https://thewipmeetup.hyperworld.host/",
     icon: "https://hyperfy.io/favicon.ico",
@@ -80,6 +76,27 @@ const platforms = [
         url: "https://www.geckoterminal.com/base/pools/0xfa9d608b5a13a78bd403e61e2459660efa7566348357ef7ccb010522af3660f0",
       },
     ],
+  },
+];
+
+const getPlatform = (name: string) => platforms.find((platform) => platform.name === name)!;
+
+const platformGroups = [
+  {
+    title: "Join Live",
+    platforms: [getPlatform("Discord"), getPlatform("Hyperworld"), getPlatform("Twitch")],
+  },
+  {
+    title: "Watch & Read",
+    platforms: [getPlatform("YouTube"), getPlatform("Substack")],
+  },
+  {
+    title: "Social",
+    platforms: [getPlatform("Twitter/X"), getPlatform("Farcaster")],
+  },
+  {
+    title: "$WIP",
+    platforms: [getPlatform("$WIP Token")],
   },
 ];
 
