@@ -47,8 +47,15 @@ const Merch = () => {
     <div className="min-h-screen bg-background">
       <SEO
         title="Merch"
-        description="Rep The WIP Meetup with official merch — snapbacks, tees, hoodies, and mugs. Every purchase supports the web3 community."
+        description="Shop official The WIP Meetup merch including rainbow logo hats, tees, hoodies, and mugs that support the web3 metaverse community."
         canonical="/merch"
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          name: "The WIP Meetup Merch",
+          description: "Official merchandise for The WIP Meetup community.",
+          url: "https://thewipmeetup.com/merch",
+        }}
       />
       <Navigation />
 
