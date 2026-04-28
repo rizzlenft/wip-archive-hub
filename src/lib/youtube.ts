@@ -268,15 +268,11 @@ async function fetchNewsletterReplayVideos(cursor: Episode | null): Promise<Epis
         const title = getTitleFromIssue(issue);
         const publishedAt = parseDateFromTitle(title)
           || parsePublishDate(issue.published_at || issue.week_of || issue.created_at);
-        return {
+        return createEpisode({
           videoId,
           title,
-          thumbnail: `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`,
           publishedAt,
-          url: `https://www.youtube.com/watch?v=${videoId}`,
-          guests: getGuestsForEpisode(videoId, title),
-          episodeNumber: parseEpisodeNumber(title),
-        } satisfies Episode;
+        });
       })
       .filter((episode): episode is Episode => Boolean(episode) && isNewerThanStoredCursor(episode, cursor));
   } catch {
@@ -289,15 +285,11 @@ export async function fetchAllEpisodes(): Promise<Episode[]> {
   // Build archive map
   const archiveMap = new Map<string, Episode>();
   EPISODES_DATA.forEach(data => {
-    archiveMap.set(data.videoId, {
+    archiveMap.set(data.videoId, createEpisode({
       videoId: data.videoId,
       title: data.title,
-      thumbnail: `https://img.youtube.com/vi/${data.videoId}/mqdefault.jpg`,
       publishedAt: parsePublishDate(data.publishDate),
-      url: `https://www.youtube.com/watch?v=${data.videoId}`,
-      guests: getGuestsForEpisode(data.videoId, data.title),
-      episodeNumber: parseEpisodeNumber(data.title),
-    });
+    }));
   });
 
   // Fetch only live/newsletter videos newer than the latest stored archive cursor.
