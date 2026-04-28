@@ -22,7 +22,7 @@ const perks = [
     isToken: true,
     links: [
       { url: "https://www.geckoterminal.com/base/pools/0xfa9d608b5a13a78bd403e61e2459660efa7566348357ef7ccb010522af3660f0", text: "GeckoTerminal" },
-      { url: "https://wip-staking.pages.dev/trade", text: "Buy and Stake $WIP" },
+      { url: "https://wip-staking.pages.dev/trade", text: "Buy and Stake" },
     ],
   },
   {
@@ -154,21 +154,6 @@ export const CommunityPerks = () => {
                   </div>
                 ))}
 
-                {/* Live price chart for token — lazy loaded */}
-                {perk.isToken && (
-                  <div className="mb-6 rounded-xl overflow-hidden border border-border">
-                    <iframe
-                      src="https://www.geckoterminal.com/base/pools/0xfa9d608b5a13a78bd403e61e2459660efa7566348357ef7ccb010522af3660f0?embed=1&info=0&swaps=0"
-                      width="100%"
-                      height="300"
-                      frameBorder="0"
-                      className="bg-background"
-                      title="$WIP Price Chart"
-                      loading="lazy"
-                    />
-                  </div>
-                )}
-                
                 {perk.links && (
                   <div className="flex flex-wrap justify-center gap-4">
                     {perk.links.filter(l => !l.text.toLowerCase().includes('stake')).map((link) => (
@@ -262,9 +247,9 @@ export const CommunityPerks = () => {
                   loading="lazy"
                 />
               </div>
-              <h3 className="text-2xl font-bold mb-4">Buy $WIP</h3>
+              <h3 className="text-2xl font-bold mb-4">Support with $WIP</h3>
               <p className="text-muted-foreground mb-6 leading-relaxed">
-                When you purchase $WIP, you're directly supporting the builders, creators, and artists who make this community thrive since 2019.
+                Buy or stake $WIP to support the builders, creators, and artists who keep the community moving.
               </p>
               <Button variant="hero" size="default" className="w-full" asChild>
                 <a href="https://wip-staking.pages.dev/trade" target="_blank" rel="noopener noreferrer">

@@ -66,7 +66,7 @@ const platforms = [
   },
   {
     name: "$WIP Token",
-    description: "Get rewarded",
+    description: "Trade & staking",
     url: "https://wip-staking.pages.dev/trade",
     icon: wipLogoStatic,
     color: "from-yellow-400 to-orange-500",
@@ -97,10 +97,10 @@ export const Platforms = () => {
         >
           
           <h2 className="text-4xl md:text-6xl font-bold mb-6">
-            Join Us <span className="text-gradient-rainbow">Everywhere</span>
+            Explore <span className="text-gradient-rainbow">The WIP</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            The WIP community lives across the metaverse. Connect with us wherever you vibe.
+            Find the main community spaces, broadcasts, updates, and ecosystem links in one place.
           </p>
         </motion.div>
 
