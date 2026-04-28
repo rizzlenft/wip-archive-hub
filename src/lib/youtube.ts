@@ -13,6 +13,8 @@ export interface Episode {
   episodeNumber: number | null;
 }
 
+export type Event = Episode;
+
 // Parse guests from video title
 // Common formats: "ft. Guest1 & Guest2", "ft Guest1, Guest2", "featuring Guest"
 export function parseGuestsFromTitle(title: string): string[] {
@@ -176,7 +178,7 @@ async function fetchNewsletterReplayVideos(): Promise<Episode[]> {
   }
 }
 
-// Fetch all episodes, merging live data with static archive
+// Fetch all events, merging live data with static archive
 export async function fetchAllEpisodes(): Promise<Episode[]> {
   // Build archive map
   const archiveMap = new Map<string, Episode>();
@@ -208,6 +210,8 @@ export async function fetchAllEpisodes(): Promise<Episode[]> {
   return episodes;
 }
 
+export const fetchAllEvents = fetchAllEpisodes;
+
 // Get unique guests from all episodes
 export function extractUniqueGuests(episodes: Episode[]): string[] {
   const guestSet = new Set<string>();
@@ -217,7 +221,7 @@ export function extractUniqueGuests(episodes: Episode[]): string[] {
   return Array.from(guestSet).sort();
 }
 
-// Group episodes by year
+// Group events by year
 export function groupEpisodesByYear(episodes: Episode[]): Map<number, Episode[]> {
   const grouped = new Map<number, Episode[]>();
   
@@ -238,6 +242,8 @@ export function groupEpisodesByYear(episodes: Episode[]): Map<number, Episode[]>
   
   return grouped;
 }
+
+export const groupEventsByYear = groupEpisodesByYear;
 
 // Get a random episode for the "Random Episode" feature
 export function getRandomEpisode(episodes: Episode[]): Episode | null {
