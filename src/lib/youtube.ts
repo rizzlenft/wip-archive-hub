@@ -27,11 +27,11 @@ const GUEST_OVERRIDES: Record<string, string[]> = {
   odVsoispuwg: ["Roustan"],
   oXFJjo4POuE: ["Benjy Bitpixi", "CVminigames"],
   quZrDqvycdI: [],
-  rQvZoZJviw: ["AnonSnail"],
+  "rQvZoZJ-viw": ["AnonSnail"],
   saiyAAhaI6I: ["EpicDylan", "TRINI protocol", "Lapin Mignon"],
   tpzk6lcpBj8: ["AL Crego", "0xSnail"],
   uDBrYHUgTKk: ["TheBeatMiner"],
-  vr5v5_49vGk: ["Fractilians"],
+  "vr5v5-49vGk": ["Fractilians"],
   xK98kbyKdm0: ["Matt"],
   zJAaWoVUVCc: ["Coldie"],
 };
