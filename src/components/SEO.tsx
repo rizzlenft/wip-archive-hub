@@ -11,7 +11,7 @@ interface SEOProps {
 
 const SITE_NAME = "The WIP Meetup";
 const DEFAULT_DESCRIPTION =
-  "The longest-running web3 metaverse meetup since 2019. Builders, creators, and artists gather every Thursday at 12 PM PT in the metaverse. 3,700+ community members strong.";
+  "The longest-running web3 metaverse meetup since 2019. Builders, creators, and artists gather every Thursday at 12 PM PT in the metaverse.";
 const DEFAULT_OG_IMAGE =
   "https://storage.googleapis.com/gpt-engineer-file-uploads/DM2lONnsGyMlKagJreu03ZO2vI43/social-images/social-1770403201523-wip_logo.gif";
 const SITE_URL = "https://thewipmeetup.com";
@@ -24,7 +24,7 @@ export const SEO = ({
   ogType = "website",
   noindex = false,
 }: SEOProps) => {
-  const fullTitle = title ? `${title} | ${SITE_NAME}` : `${SITE_NAME} — The Longest-Running Web3 Metaverse Meetup`;
+  const fullTitle = title ? `${title} | ${SITE_NAME}` : `${SITE_NAME} — Web3 Metaverse Events`;
   const canonicalUrl = canonical ? `${SITE_URL}${canonical}` : undefined;
 
   return (

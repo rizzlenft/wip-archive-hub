@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Sparkles } from "lucide-react";
+import { Clock, Sparkles } from "lucide-react";
 import { fetchNewsletters, type NewsletterIssue } from "@/lib/newsletter";
 import { getNextMeetupDate, isMeetupActive } from "@/lib/meetupSchedule";
 
@@ -117,6 +117,10 @@ export const ThisWeekCard = () => {
   return (
     <section className="relative px-4 pb-4 pt-5 md:pb-5 md:pt-6">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-background to-card/20" />
+      <div className="sticky top-16 z-30 mx-auto mb-3 flex max-w-5xl items-center justify-center rounded-full border border-border/70 bg-background/90 px-3 py-2 text-xs font-medium text-muted-foreground shadow-card backdrop-blur md:hidden">
+        <Clock className="mr-2 h-3.5 w-3.5 text-primary" />
+        <span className="truncate">Next meetup · Thursday 12 PM PT · {countdownText}</span>
+      </div>
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}

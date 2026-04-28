@@ -55,7 +55,7 @@ export const EpisodeCard = ({ episode, onGuestClick }: EpisodeCardProps) => {
           />
           
           {/* Dark gradient overlay for title readability */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/30 to-transparent" />
           
           {/* Badges */}
           <div className="absolute top-2 left-2 flex gap-1.5 z-10">
@@ -73,7 +73,7 @@ export const EpisodeCard = ({ episode, onGuestClick }: EpisodeCardProps) => {
 
           {/* Title overlay at bottom */}
           <div className="absolute bottom-0 left-0 right-0 p-3">
-            <h4 className="text-white text-sm font-medium line-clamp-2 drop-shadow-lg">
+            <h4 className="text-foreground text-sm font-medium line-clamp-2 drop-shadow-lg">
               {displayTitle}
             </h4>
           </div>
@@ -152,7 +152,7 @@ export const EpisodeCard = ({ episode, onGuestClick }: EpisodeCardProps) => {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
               transition={{ type: "spring", damping: 20 }}
-              className="relative w-full max-w-5xl aspect-video bg-black rounded-xl overflow-hidden shadow-2xl"
+              className="relative w-full max-w-5xl aspect-video bg-background rounded-xl overflow-hidden shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
               <iframe
