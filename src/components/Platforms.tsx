@@ -46,8 +46,8 @@ const platforms = [
     icon: "https://static.twitchcdn.net/assets/favicon-32-e29e246c157142c94346.png",
   },
   {
-    name: "Hyperworld",
-    description: "Step into the metaverse space",
+    name: "Metaverse",
+    description: "Step into our virtual space",
     url: "https://thewipmeetup.hyperworld.host/",
     icon: "https://hyperfy.io/favicon.ico",
   },
@@ -84,18 +84,18 @@ const getPlatform = (name: string) => platforms.find((platform) => platform.name
 const platformGroups = [
   {
     title: "Join Live",
-    description: "Discord, Hyperworld, stream backup, and Farcaster miniapps for Thursdays at 12 PM PT.",
-    platforms: [getPlatform("Discord"), getPlatform("Hyperworld"), getPlatform("Twitch"), getPlatform("Farcaster")],
+    description: "Discord and metaverse access for Thursdays at 12 PM PT.",
+    platforms: [getPlatform("Discord"), getPlatform("Metaverse")],
   },
   {
     title: "Watch",
     description: "Catch episodes and announcements.",
-    platforms: [getPlatform("YouTube"), getPlatform("Substack")],
+    platforms: [getPlatform("YouTube"), getPlatform("Twitch"), getPlatform("Substack")],
   },
   {
     title: "Follow",
     description: "Stay connected across social channels.",
-    platforms: [getPlatform("Twitter/X")],
+    platforms: [getPlatform("Twitter/X"), getPlatform("Farcaster")],
   },
   {
     title: "$WIP",
