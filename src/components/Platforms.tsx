@@ -6,32 +6,28 @@ import wipLogoStatic from "@/assets/wip-logo-static.png";
 const platforms = [
   {
     name: "Discord",
-    description: "Live events & community",
+    description: "Main community and live-event home",
     url: "https://discord.gg/bTjc6k5uss",
     icon: "https://cdn.prod.website-files.com/6257adef93867e50d84d30e2/636e0a6ca814282eca7172c6_icon_clyde_white_RGB.svg",
-    color: "from-indigo-500 to-purple-600",
     featured: true,
   },
   {
     name: "YouTube",
-    description: "Past episodes & highlights",
+    description: "Episodes, replays, and highlights",
     url: "https://www.youtube.com/@thewipmeetup",
     icon: "https://www.youtube.com/s/desktop/c01ea7e3/img/favicon_144x144.png",
-    color: "from-red-500 to-red-600",
   },
   {
     name: "Twitter/X",
     description: "Updates & announcements",
     url: "https://twitter.com/theWIPmeetup",
     icon: "https://abs.twimg.com/responsive-web/client-web/icon-ios.77d25eba.png",
-    color: "from-gray-600 to-gray-800",
   },
   {
     name: "Farcaster",
-    description: "Web3 social",
+    description: "Channel and miniapps",
     url: "https://farcaster.xyz/~/channel/thewipmeetup",
     icon: "https://warpcast.com/favicon.ico",
-    color: "from-purple-500 to-violet-600",
     miniapps: [
       {
         name: "Meetup Miniapp",
@@ -41,38 +37,38 @@ const platforms = [
   },
   {
     name: "Twitch",
-    description: "Live streams",
+    description: "Live stream backup",
     url: "https://www.twitch.tv/wipmeetup",
     icon: "https://static.twitchcdn.net/assets/favicon-32-e29e246c157142c94346.png",
-    color: "from-purple-600 to-indigo-700",
   },
   {
     name: "Hyperworld",
-    description: "Metaverse HQ",
+    description: "Step into the metaverse space",
     url: "https://thewipmeetup.hyperworld.host/",
     icon: "https://hyperfy.io/favicon.ico",
-    color: "from-cyan-400 to-blue-500",
   },
   {
     name: "Substack",
-    description: "Newsletter & updates",
+    description: "Newsletter and weekly updates",
     url: "https://thewipmeetup.substack.com/",
     icon: "https://substack.com/favicon.ico",
-    color: "from-orange-500 to-yellow-500",
   },
   {
     name: "$WIP Token",
-    description: "Trade & staking",
+    description: "Stake, trade, and track the token",
     url: "https://wip-staking.pages.dev/trade",
     icon: wipLogoStatic,
-    color: "from-yellow-400 to-orange-500",
     miniapps: [
       {
-        name: "WIPCoin Portal",
+        name: "Stake",
+        url: "https://wip-staking.pages.dev/",
+      },
+      {
+        name: "Trade",
         url: "https://farcaster.xyz/miniapps/eOxi0VR7PqQk/wipcoin-portal",
       },
       {
-        name: "GeckoTerminal",
+        name: "Chart",
         url: "https://www.geckoterminal.com/base/pools/0xfa9d608b5a13a78bd403e61e2459660efa7566348357ef7ccb010522af3660f0",
       },
     ],
@@ -84,18 +80,22 @@ const getPlatform = (name: string) => platforms.find((platform) => platform.name
 const platformGroups = [
   {
     title: "Join Live",
+    description: "Start here for weekly meetup access.",
     platforms: [getPlatform("Discord"), getPlatform("Hyperworld"), getPlatform("Twitch")],
   },
   {
-    title: "Watch & Read",
+    title: "Watch",
+    description: "Catch episodes and announcements.",
     platforms: [getPlatform("YouTube"), getPlatform("Substack")],
   },
   {
-    title: "Social",
+    title: "Follow",
+    description: "Stay connected across social channels.",
     platforms: [getPlatform("Twitter/X"), getPlatform("Farcaster")],
   },
   {
     title: "$WIP",
+    description: "Token links without hunting around.",
     platforms: [getPlatform("$WIP Token")],
   },
 ];
@@ -137,9 +137,12 @@ export const Platforms = () => {
               transition={{ duration: 0.4, delay: groupIndex * 0.08 }}
               className="rounded-2xl border border-border/60 bg-card/40 p-4 backdrop-blur-sm md:p-5"
             >
-              <h3 className="mb-4 text-xs font-bold uppercase tracking-widest text-primary">
-                {group.title}
-              </h3>
+              <div className="mb-4">
+                <h3 className="text-xs font-bold uppercase tracking-widest text-primary">
+                  {group.title}
+                </h3>
+                <p className="mt-1 text-sm text-muted-foreground">{group.description}</p>
+              </div>
               <div className="grid gap-3">
                 {group.platforms.map((platform, index) => (
               <motion.div
@@ -160,7 +163,7 @@ export const Platforms = () => {
                 className="group relative min-w-0"
               >
                 {/* Glow effect */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${platform.color} rounded-2xl blur-lg opacity-0 group-hover:opacity-40 transition-opacity duration-300`} />
+                <div className="absolute inset-0 rounded-2xl bg-gradient-rainbow opacity-0 blur-lg transition-opacity duration-300 group-hover:opacity-25" />
                 
                 <div className="relative bg-card/60 backdrop-blur-sm rounded-2xl border border-muted/50 group-hover:border-primary/40 transition-all duration-300 overflow-hidden">
                   <a
@@ -169,7 +172,7 @@ export const Platforms = () => {
                     rel="noopener noreferrer"
                     className="flex items-center gap-3 px-3 py-4 sm:gap-4 sm:px-4"
                   >
-                    <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${platform.color} shadow-md transition-shadow group-hover:shadow-lg`}>
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-muted/50 shadow-md transition-shadow group-hover:shadow-lg">
                       <img 
                         src={platform.icon} 
                         alt={platform.name}
