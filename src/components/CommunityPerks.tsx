@@ -2,9 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Gift, Coins, Heart, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import wipLogo from "@/assets/wip-logo.gif";
 import wipLogoStatic from "@/assets/wip-logo-static.png";
-import donateQr from "@/assets/donate-qr.png";
 import metaverseBg2 from "@/assets/metaverse-bg-2.gif";
 import nftGift1 from "@/assets/nft-gift-1.jpeg";
 import nftGift2 from "@/assets/nft-gift-2.avif";
@@ -17,18 +15,14 @@ const nftGallery = [nftGift1, nftGift2, nftGift3, nftGift4, nftGift5, nftGift6];
 const perks = [
   {
     title: "$WIP Token Rewards",
-    description: "Attend our weekly meetups and receive $WIP tokens as a thank you for being part of our community. Every attendee gets rewarded!",
+    description: "Attend the weekly meetup and receive $WIP as a thank you for being part of the community.",
     color: "from-yellow-400 to-orange-500",
     isToken: true,
-    links: [
-      { url: "https://www.geckoterminal.com/base/pools/0xfa9d608b5a13a78bd403e61e2459660efa7566348357ef7ccb010522af3660f0", text: "GeckoTerminal" },
-      { url: "https://wip-staking.pages.dev/trade", text: "Buy and Stake" },
-    ],
   },
   {
     icon: Gift,
     title: "Free NFT Gifts",
-    description: "Each week, our amazing artists Fabiano & Patrizia create unique voxel art NFTs that are gifted to attendees—beautiful collectibles just for showing up!",
+    description: "Fabiano & Patrizia create voxel art NFTs for attendees—unique collectibles from each meetup.",
     color: "from-pink-400 to-purple-500",
     hasGallery: true,
     artists: [
@@ -139,37 +133,6 @@ export const CommunityPerks = () => {
                   {perk.description}
                 </p>
                 
-                {perk.links && perk.links.filter(l => l.text.toLowerCase().includes('stake')).map((link) => (
-                  <div key={link.text} className="mb-6">
-                    <a
-                      href={link.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl bg-primary/10 border border-primary/30 text-primary hover:bg-primary/20 hover:border-primary/50 transition-all font-semibold text-sm"
-                    >
-                      <Coins className="w-4 h-4" />
-                      {link.text}
-                      <ExternalLink className="w-3.5 h-3.5" />
-                    </a>
-                  </div>
-                ))}
-
-                {perk.links && (
-                  <div className="flex flex-wrap justify-center gap-4">
-                    {perk.links.filter(l => !l.text.toLowerCase().includes('stake')).map((link) => (
-                      <a
-                        key={link.text}
-                        href={link.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors font-medium"
-                      >
-                        {link.text}
-                        <ExternalLink className="w-4 h-4" />
-                      </a>
-                    ))}
-                  </div>
-                )}
                 {perk.artists && (
                   <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-3 max-w-xs mx-auto">
