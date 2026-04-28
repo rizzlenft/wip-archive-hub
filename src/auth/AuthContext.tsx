@@ -29,7 +29,7 @@ const CONNECT_CLIENT_ID =
 
 export const AuthProvider = forwardRef<HTMLDivElement, { children: React.ReactNode }>(function AuthProvider(
   { children },
-  _ref,
+  ref,
 ) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -86,7 +86,11 @@ export const AuthProvider = forwardRef<HTMLDivElement, { children: React.ReactNo
     logout,
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <div ref={ref} className="contents">
+      <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+    </div>
+  );
 });
 
 export function useAuth() {
