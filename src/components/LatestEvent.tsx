@@ -66,42 +66,22 @@ export const LatestEvent = () => {
   return (
     <section id="about" className="py-16 pb-8 relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-b from-background via-card/20 to-background" />
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/5 rounded-full blur-3xl" />
 
       <div className="container mx-auto px-4 relative z-10">
-        {/* About Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16"
-        >
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">
-            What is <span className="text-gradient-rainbow">The WIP</span>?
-          </h2>
-          <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-            <span className="text-foreground font-semibold">WIP = Work in Progress.</span> A weekly gathering where web3 builders,
-            creators, and artists share ideas, explore projects, and build together.
-            Everyone is welcome.
-          </p>
-        </motion.div>
-
         {/* Latest Event */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="max-w-4xl mx-auto"
+          className="mx-auto max-w-4xl"
         >
-          <div className="text-center mb-8">
-            <h3 className="text-2xl md:text-3xl font-bold mb-2">
-              Catch Up on the <span className="text-primary">Latest Event</span>
-            </h3>
-            <p className="text-muted-foreground">
-              Missed the last meetup? Watch it now and stay in the loop.
+          <div className="mb-8 text-center">
+            <h2 className="mb-3 text-3xl font-bold md:text-5xl">
+              Watch <span className="text-gradient-rainbow">The WIP</span>
+            </h2>
+            <p className="mx-auto max-w-2xl text-muted-foreground md:text-lg">
+              Weekly conversations, project showcases, and community sessions from the meetup archive.
             </p>
           </div>
 
