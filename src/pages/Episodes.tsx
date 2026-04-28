@@ -220,6 +220,24 @@ const Episodes = () => {
                 className="pl-10 h-9"
               />
             </div>
+
+            <div className="flex items-center gap-1 overflow-x-auto rounded-lg border border-border/60 bg-card/35 p-1">
+              <SlidersHorizontal className="ml-2 hidden h-3.5 w-3.5 shrink-0 text-muted-foreground sm:block" />
+              {quickFilters.map((filter) => (
+                <button
+                  key={filter.id}
+                  type="button"
+                  onClick={() => setQuickFilter(filter.id)}
+                  className={`h-7 shrink-0 rounded-md px-3 text-xs font-semibold transition-colors ${
+                    quickFilter === filter.id
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  }`}
+                >
+                  {filter.label}
+                </button>
+              ))}
+            </div>
             
             {/* Guest Filter */}
             <div className="relative" onClick={(e) => e.stopPropagation()}>
