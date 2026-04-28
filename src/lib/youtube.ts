@@ -122,7 +122,7 @@ async function fetchLiveVideos(): Promise<Episode[]> {
       return {
         videoId: v.videoId,
         title: v.title,
-        thumbnail: `https://img.youtube.com/vi/${v.videoId}/mqdefault.jpg`,
+        thumbnail: v.thumbnail || `https://img.youtube.com/vi/${v.videoId}/mqdefault.jpg`,
         publishedAt,
         url: `https://www.youtube.com/watch?v=${v.videoId}`,
         guests: parseGuestsFromTitle(v.title),
