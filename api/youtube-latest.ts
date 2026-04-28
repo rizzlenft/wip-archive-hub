@@ -137,6 +137,35 @@ async function scrapeChannelVideos(count: number): Promise<VideoResult[]> {
   }
 }
 
+function extractYtInitialDataJson(html: string): string | null {
+  const marker = "ytInitialData";
+  const markerIndex = html.indexOf(marker);
+  if (markerIndex === -1) return null;
+  const start = html.indexOf("{", markerIndex);
+  if (start === -1) return null;
+
+  let depth = 0;
+  let inString = false;
+  let escaped = false;
+  for (let i = start; i < html.length; i += 1) {
+    const char = html[i];
+    if (inString) {
+      if (escaped) escaped = false;
+      else if (char === "\\") escaped = true;
+      else if (char === '"') inString = false;
+      continue;
+    }
+    if (char === '"') inString = true;
+    else if (char === "{") depth += 1;
+    else if (char === "}") {
+      depth -= 1;
+      if (depth === 0) return html.slice(start, i + 1);
+    }
+  }
+
+  return null;
+}
+
 /**
  * Extract videos from ytInitialData JSON structure
  */
