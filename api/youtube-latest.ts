@@ -166,10 +166,15 @@ function extractVideosFromInitialData(data: any, count: number): VideoResult[] {
   };
 
   try {
-    if (walk(data)) return videos;
-
     // Navigate the nested YouTube data structure
     const tabs = data?.contents?.twoColumnBrowseResultsRenderer?.tabs || [];
+    const selectedStreamsTab = tabs.find((tab: any) => {
+      const renderer = tab?.tabRenderer;
+      return renderer?.selected || renderer?.title === "Live" || renderer?.endpoint?.browseEndpoint?.canonicalBaseUrl?.endsWith("/streams");
+    });
+    if (selectedStreamsTab && walk(selectedStreamsTab.tabRenderer?.content)) return videos;
+
+    if (walk(tabs)) return videos;
     
     for (const tab of tabs) {
       const tabRenderer = tab?.tabRenderer;
