@@ -38,7 +38,7 @@ const GUEST_OVERRIDES: Record<string, string[]> = {
 };
 
 const TOPIC_BEFORE_WITH_PATTERN = /\b(blockchain radio|decentraland|dcl|dclgx|field trip|tour|hunt|party|event|festival|gallery|race|racing|build|takeover|deep dive|alpha|launch|drop|giveaway|adventure|wipmas|hyperfy|metaverse|cryptovoxels|voxels|parcel|wellness|music|meme nfa|wipson|babacci|tipn|museum|radio|grand opening)\b/i;
-const TOPIC_SUFFIX_PATTERN = /\s+\b(tour|deep dive|field trip|alpha|event|panel|takeover|birthday party|body part|forest of|marblecards|spatial art|voxel tour|voxels tour|art exhibit|reading|drag racing|vrm drop|music drop|charity drive|peek|surprise unveiling|talking|tribute|plane crash|game building|racing|build|launch|server kickoff|rebuild|animal spawn|bedtime stories|hiddenforces|upgrades|competition|gaming|with the|pirate adventure)\b.*$/i;
+const TOPIC_SUFFIX_PATTERN = /\s+\b(tour|deep dive|field trip|alpha|event|panel|takeover|birthday party|body part|forest of|marblecards|spatial art|voxel tour|voxels tour|art exhibit|reading|drag racing|vrm drop|music drop|charity drive|peek|surprise unveiling|talking|tribute|plane crash|game building|racing|build|launch|server kickoff|rebuild|animal spawn|bedtime stories|hiddenforces|upgrades|competition|gaming|hyperworld|with the|pirate adventure)\b.*$/i;
 
 function cleanGuestName(name: string): string | null {
   const cleaned = name
@@ -169,19 +169,36 @@ function getTitleFromIssue(issue: NewsletterIssue): string {
 
 function getNewestStoredEpisode(): Episode | null {
   return EPISODES_DATA.reduce<Episode | null>((newest, data) => {
-    const publishedAt = parsePublishDate(data.publishDate);
-    const episode: Episode = {
+    const episode = createEpisode({
       videoId: data.videoId,
       title: data.title,
-      thumbnail: `https://img.youtube.com/vi/${data.videoId}/mqdefault.jpg`,
-      publishedAt,
-      url: `https://www.youtube.com/watch?v=${data.videoId}`,
-      guests: getGuestsForEpisode(data.videoId, data.title),
-      episodeNumber: parseEpisodeNumber(data.title),
-    };
+      publishedAt: parsePublishDate(data.publishDate),
+    });
 
-    return !newest || publishedAt.getTime() > newest.publishedAt.getTime() ? episode : newest;
+    return !newest || episode.publishedAt.getTime() > newest.publishedAt.getTime() ? episode : newest;
   }, null);
+}
+
+export function createEpisode({
+  videoId,
+  title,
+  publishedAt,
+  thumbnail,
+}: {
+  videoId: string;
+  title: string;
+  publishedAt: Date;
+  thumbnail?: string;
+}): Episode {
+  return {
+    videoId,
+    title,
+    thumbnail: thumbnail || `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`,
+    publishedAt,
+    url: `https://www.youtube.com/watch?v=${videoId}`,
+    guests: getGuestsForEpisode(videoId, title),
+    episodeNumber: parseEpisodeNumber(title),
+  };
 }
 
 export function isNewerThanStoredCursor(episode: Episode, cursor: Episode | null): boolean {
@@ -209,15 +226,12 @@ async function fetchLiveVideos(cursor: Episode | null): Promise<Episode[]> {
       const publishedAt = parseDateFromTitle(v.title)
         || parseRelativeDate(v.publishedAt)
         || new Date();
-      return {
+      return createEpisode({
         videoId: v.videoId,
         title: v.title,
-        thumbnail: v.thumbnail || `https://img.youtube.com/vi/${v.videoId}/mqdefault.jpg`,
         publishedAt,
-        url: `https://www.youtube.com/watch?v=${v.videoId}`,
-        guests: getGuestsForEpisode(v.videoId, v.title),
-        episodeNumber: parseEpisodeNumber(v.title),
-      };
+        thumbnail: v.thumbnail,
+      });
     }).filter((episode: Episode) => isNewerThanStoredCursor(episode, cursor));
 
     const params = new URLSearchParams({ count: "15" });
@@ -254,15 +268,11 @@ async function fetchNewsletterReplayVideos(cursor: Episode | null): Promise<Epis
         const title = getTitleFromIssue(issue);
         const publishedAt = parseDateFromTitle(title)
           || parsePublishDate(issue.published_at || issue.week_of || issue.created_at);
-        return {
+        return createEpisode({
           videoId,
           title,
-          thumbnail: `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`,
           publishedAt,
-          url: `https://www.youtube.com/watch?v=${videoId}`,
-          guests: getGuestsForEpisode(videoId, title),
-          episodeNumber: parseEpisodeNumber(title),
-        } satisfies Episode;
+        });
       })
       .filter((episode): episode is Episode => Boolean(episode) && isNewerThanStoredCursor(episode, cursor));
   } catch {
@@ -275,15 +285,11 @@ export async function fetchAllEpisodes(): Promise<Episode[]> {
   // Build archive map
   const archiveMap = new Map<string, Episode>();
   EPISODES_DATA.forEach(data => {
-    archiveMap.set(data.videoId, {
+    archiveMap.set(data.videoId, createEpisode({
       videoId: data.videoId,
       title: data.title,
-      thumbnail: `https://img.youtube.com/vi/${data.videoId}/mqdefault.jpg`,
       publishedAt: parsePublishDate(data.publishDate),
-      url: `https://www.youtube.com/watch?v=${data.videoId}`,
-      guests: getGuestsForEpisode(data.videoId, data.title),
-      episodeNumber: parseEpisodeNumber(data.title),
-    });
+    }));
   });
 
   // Fetch only live/newsletter videos newer than the latest stored archive cursor.
