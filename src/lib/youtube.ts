@@ -1,6 +1,7 @@
 // YouTube utilities for The WIP Meetup channel
 
 import { EPISODES_DATA } from "./episodesData";
+import { fetchNewsletters, type NewsletterIssue } from "./newsletter";
 
 export interface Episode {
   videoId: string;
@@ -99,6 +100,21 @@ function parseRelativeDate(text: string): Date | null {
     day: 86400000, week: 604800000, month: 2592000000, year: 31536000000,
   };
   return new Date(now.getTime() - amount * (ms[unit] || 0));
+}
+
+function getYouTubeIdFromIssue(issue: NewsletterIssue): string | undefined {
+  if (issue.youtube_video_id) return issue.youtube_video_id;
+  const body = `${issue.body_html || ""} ${issue.body_markdown || ""}`;
+  return body.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/)?.[1];
+}
+
+function getTitleFromIssue(issue: NewsletterIssue): string {
+  const body = issue.body_html || issue.body_markdown || "";
+  return body.match(/<span[^>]*>(The WIP Meetup[^<]+)<\/span>/i)?.[1]
+    ?.replace(/&#39;/g, "'")
+    ?.replace(/&amp;/g, "&")
+    || issue.title
+    || "The WIP Meetup replay";
 }
 
 // Fetch live recent videos from the API
