@@ -119,14 +119,42 @@ function getTitleFromIssue(issue: NewsletterIssue): string {
     || "The WIP Meetup replay";
 }
 
+function getNewestStoredEpisode(): Episode | null {
+  return EPISODES_DATA.reduce<Episode | null>((newest, data) => {
+    const publishedAt = parsePublishDate(data.publishDate);
+    const episode: Episode = {
+      videoId: data.videoId,
+      title: data.title,
+      thumbnail: `https://img.youtube.com/vi/${data.videoId}/mqdefault.jpg`,
+      publishedAt,
+      url: `https://www.youtube.com/watch?v=${data.videoId}`,
+      guests: parseGuestsFromTitle(data.title),
+      episodeNumber: parseEpisodeNumber(data.title),
+    };
+
+    return !newest || publishedAt.getTime() > newest.publishedAt.getTime() ? episode : newest;
+  }, null);
+}
+
+function isNewerThanStoredCursor(episode: Episode, cursor: Episode | null): boolean {
+  if (!cursor) return true;
+  if (episode.videoId === cursor.videoId) return false;
+  return episode.publishedAt.getTime() > cursor.publishedAt.getTime();
+}
+
 // Fetch live recent videos from the API
-async function fetchLiveVideos(): Promise<Episode[]> {
+async function fetchLiveVideos(cursor: Episode | null): Promise<Episode[]> {
   const API_BASE =
     (import.meta.env.VITE_BACKEND_URL as string | undefined) ||
     "https://api.thewipmeetup.com";
 
   try {
-    const response = await fetch(`${API_BASE}/api/youtube-latest?count=10`, {
+    const params = new URLSearchParams({ count: "15" });
+    if (cursor) {
+      params.set("afterVideoId", cursor.videoId);
+      params.set("afterDate", cursor.publishedAt.toISOString());
+    }
+    const response = await fetch(`${API_BASE}/api/youtube-latest?${params.toString()}`, {
       signal: AbortSignal.timeout(8000),
     });
     if (!response.ok) return [];
@@ -146,13 +174,13 @@ async function fetchLiveVideos(): Promise<Episode[]> {
         guests: parseGuestsFromTitle(v.title),
         episodeNumber: parseEpisodeNumber(v.title),
       };
-    });
+    }).filter((episode: Episode) => isNewerThanStoredCursor(episode, cursor));
   } catch {
     return [];
   }
 }
 
-async function fetchNewsletterReplayVideos(): Promise<Episode[]> {
+async function fetchNewsletterReplayVideos(cursor: Episode | null): Promise<Episode[]> {
   try {
     const newsletters = await fetchNewsletters();
     return newsletters
@@ -172,7 +200,7 @@ async function fetchNewsletterReplayVideos(): Promise<Episode[]> {
           episodeNumber: parseEpisodeNumber(title),
         } satisfies Episode;
       })
-      .filter((episode): episode is Episode => Boolean(episode));
+      .filter((episode): episode is Episode => Boolean(episode) && isNewerThanStoredCursor(episode, cursor));
   } catch {
     return [];
   }
@@ -194,10 +222,11 @@ export async function fetchAllEpisodes(): Promise<Episode[]> {
     });
   });
 
-  // Fetch live videos and newsletter replay fallbacks, then merge with the static archive.
+  // Fetch only live/newsletter videos newer than the latest stored archive cursor.
+  const newestStoredEpisode = getNewestStoredEpisode();
   const [liveVideos, newsletterVideos] = await Promise.all([
-    fetchLiveVideos(),
-    fetchNewsletterReplayVideos(),
+    fetchLiveVideos(newestStoredEpisode),
+    fetchNewsletterReplayVideos(newestStoredEpisode),
   ]);
   [...newsletterVideos, ...liveVideos].forEach(ep => {
     archiveMap.set(ep.videoId, ep);

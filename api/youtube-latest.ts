@@ -4,6 +4,7 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
  * GET /api/youtube-latest — Returns recent videos from The WIP Meetup YouTube channel.
  * Query params:
  *   count=N  — number of videos to return (default 1, max 15)
+ *   afterVideoId=ID / afterDate=ISO — only return uploads newer than the stored archive cursor
  * Scrapes the YouTube channel page for video data (RSS feeds are deprecated/404).
  * Caches for 1 hour via CDN headers.
  */
@@ -16,6 +17,53 @@ interface VideoResult {
   title: string;
   publishedAt?: string;
   thumbnail?: string;
+}
+
+interface ArchiveCursor {
+  afterVideoId?: string;
+  afterDate?: Date;
+}
+
+function parseVideoDate(video: VideoResult): Date | null {
+  const fromTitle = video.title.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if (fromTitle) {
+    const [, month, day, year] = fromTitle;
+    const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    if (!isNaN(date.getTime())) return date;
+  }
+
+  const parsed = video.publishedAt ? new Date(video.publishedAt) : null;
+  return parsed && !isNaN(parsed.getTime()) ? parsed : null;
+}
+
+function filterVideosAfterCursor(videos: VideoResult[], cursor: ArchiveCursor): VideoResult[] {
+  const cursorIndex = cursor.afterVideoId
+    ? videos.findIndex((video) => video.videoId === cursor.afterVideoId)
+    : -1;
+
+  if (cursorIndex >= 0) return videos.slice(0, cursorIndex);
+  if (!cursor.afterDate) return videos;
+
+  return videos.filter((video) => {
+    const publishedAt = parseVideoDate(video);
+    return !publishedAt || publishedAt.getTime() > cursor.afterDate!.getTime();
+  });
+}
+
+function sendVideos(
+  res: VercelResponse,
+  videos: VideoResult[],
+  count: number,
+  source: string,
+  cursor: ArchiveCursor,
+) {
+  const filteredVideos = filterVideosAfterCursor(videos, cursor).slice(0, count);
+  if (count === 1) {
+    return filteredVideos[0]
+      ? res.status(200).json({ ...filteredVideos[0], source })
+      : res.status(200).json({ videos: [], source, cursorReached: true });
+  }
+  return res.status(200).json({ videos: filteredVideos, source, cursorReached: filteredVideos.length < videos.length });
 }
 
 export default async function handler(
@@ -32,24 +80,24 @@ export default async function handler(
   res.setHeader("Cache-Control", "public, s-maxage=3600, stale-while-revalidate=7200");
 
   const count = Math.min(Math.max(parseInt(String(req.query.count)) || 1, 1), 15);
+  const afterVideoId = typeof req.query.afterVideoId === "string" ? req.query.afterVideoId : undefined;
+  const afterDate = typeof req.query.afterDate === "string" ? new Date(req.query.afterDate) : undefined;
+  const cursor = {
+    afterVideoId,
+    afterDate: afterDate && !isNaN(afterDate.getTime()) ? afterDate : undefined,
+  };
 
   try {
     // Strategy 1: Scrape YouTube channel page for video data
     const channelVideos = await scrapeChannelVideos(count);
     if (channelVideos.length > 0) {
-      if (count === 1) {
-        return res.status(200).json({ ...channelVideos[0], source: "youtube-scrape" });
-      }
-      return res.status(200).json({ videos: channelVideos, source: "youtube-scrape" });
+      return sendVideos(res, channelVideos, count, "youtube-scrape", cursor);
     }
 
     // Strategy 2: Try YouTube RSS feed (sometimes works)
     const rssVideos = await fetchRSSVideos(count);
     if (rssVideos.length > 0) {
-      if (count === 1) {
-        return res.status(200).json({ ...rssVideos[0], source: "youtube-rss" });
-      }
-      return res.status(200).json({ videos: rssVideos, source: "youtube-rss" });
+      return sendVideos(res, rssVideos, count, "youtube-rss", cursor);
     }
 
     // Strategy 3: Invidious API instances
@@ -74,10 +122,7 @@ export default async function handler(
             title: v.title,
             publishedAt: v.publishedText || undefined,
           }));
-          if (count === 1) {
-            return res.status(200).json({ ...videos[0], source: "invidious" });
-          }
-          return res.status(200).json({ videos, source: "invidious" });
+          return sendVideos(res, videos, count, "invidious", cursor);
         }
       } catch {
         continue;
