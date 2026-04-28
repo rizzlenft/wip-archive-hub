@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Calendar, Users, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CountdownTimer } from "@/components/CountdownTimer";
 import { LiveStatusBanner } from "@/components/LiveStatusBanner";
@@ -9,7 +9,7 @@ import wipLogo from "@/assets/wip-logo.gif";
 
 export const Hero = () => {
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-24 md:pt-28">
+    <section className="relative flex min-h-[88vh] items-center justify-center overflow-hidden pt-24 md:min-h-[92vh] md:pt-28">
       {/* Background Image */}
       <div 
         className="absolute inset-0 bg-cover bg-no-repeat"
@@ -42,7 +42,7 @@ export const Hero = () => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="space-y-6"
+          className="mx-auto max-w-5xl space-y-5"
         >
           {/* Animated Logo */}
           <motion.div
@@ -65,7 +65,7 @@ export const Hero = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight"
+            className="text-4xl font-bold tracking-tight md:text-6xl lg:text-7xl"
           >
             <span className="text-gradient-rainbow glow-text">The WIP Meetup</span>
           </motion.h1>
@@ -81,32 +81,12 @@ export const Hero = () => {
             creators, and artists together <span className="font-semibold text-primary">every Thursday at 12 PM PT</span>.
           </motion.p>
 
-          {/* Stats */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
-            className="flex flex-wrap justify-center gap-6 md:gap-8 pt-2"
-          >
-            <div className="flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-primary" />
-              <span className="text-muted-foreground">6+ Years Running</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Users className="w-5 h-5 text-primary" />
-              <span className="text-muted-foreground">3,700+ Community Members</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-primary" />
-              <span className="text-muted-foreground">Weekly Insights & Connections</span>
-            </div>
-          </motion.div>
-
           {/* Live Status or Countdown */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7 }}
+            transition={{ delay: 0.6 }}
+            className="pt-2"
           >
             <LiveStatusBanner />
             <CountdownTimer />
@@ -116,7 +96,7 @@ export const Hero = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8 }}
+            transition={{ delay: 0.7 }}
             className="flex justify-center pt-2"
           >
             <Button variant="hero" size="xl" asChild>
