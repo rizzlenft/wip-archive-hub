@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Coins, ExternalLink, Gift, Sparkles } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import wipCv from "@/assets/wip-cv.gif";
 import wipLogoStatic from "@/assets/wip-logo-static.png";
 import nftGift1 from "@/assets/nft-gift-1.jpeg";
@@ -128,12 +128,6 @@ const platformGroups = [
   },
 ];
 
-const ecosystemHighlights = [
-  { icon: Sparkles, title: "Metaverse meetup", text: "Weekly Hyperworld spaces built around featured guests." },
-  { icon: Coins, title: "$WIP rewards", text: "Attendee token perks, staking, trading, and charts." },
-  { icon: Gift, title: "Voxel gifts", text: "Collectible weekly keepsakes from Fabiano & Patrizia." },
-];
-
 export const Platforms = () => {
   return (
     <section id="platforms" className="relative overflow-hidden py-12 md:py-16">
@@ -159,26 +153,6 @@ export const Platforms = () => {
           <p className="text-base text-muted-foreground max-w-2xl mx-auto md:text-lg">
             The community spaces, broadcasts, token links, and weekly perks in one place.
           </p>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="mx-auto mb-5 grid max-w-6xl gap-3 md:grid-cols-3"
-        >
-          {ecosystemHighlights.map((item) => (
-            <div key={item.title} className="flex gap-3 rounded-xl border border-border/60 bg-card/35 p-3 text-left backdrop-blur-sm">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary">
-                <item.icon className="h-5 w-5" />
-              </div>
-              <div>
-                <h3 className="text-sm font-semibold">{item.title}</h3>
-                <p className="mt-1 text-sm text-muted-foreground">{item.text}</p>
-              </div>
-            </div>
-          ))}
         </motion.div>
 
         <div className="mx-auto grid max-w-6xl gap-4 md:grid-cols-2 md:gap-5">
