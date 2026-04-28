@@ -81,18 +81,18 @@ export const ThisWeekCard = () => {
   const speakers = issue.speakers || [];
 
   return (
-    <section className="py-16 px-4">
+    <section className="px-4 py-8 md:py-10">
       <div className="container mx-auto max-w-3xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="text-center mb-8"
+          className="mb-5 text-center"
         >
           <div className="flex items-center justify-center gap-2 mb-2">
             <Sparkles className="w-5 h-5 text-primary" />
-            <h2 className="text-sm font-bold uppercase tracking-widest text-primary">
+              <h2 className="text-sm font-bold uppercase tracking-widest text-primary">
               Featured Guests
             </h2>
           </div>
@@ -102,7 +102,7 @@ export const ThisWeekCard = () => {
         </motion.div>
 
         {!expired && speakers.length > 0 && (
-          <div className={`grid gap-3 mx-auto ${speakers.length === 1 ? 'max-w-xs' : 'sm:grid-cols-2 max-w-xl'}`}>
+          <div className={`mx-auto grid gap-3 ${speakers.length === 1 ? 'max-w-xs' : 'max-w-xl sm:grid-cols-2'}`}>
             {speakers.slice(0, 4).map((speaker, idx) => (
               <motion.div
                 key={speaker.name}
