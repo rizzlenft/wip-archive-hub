@@ -222,10 +222,11 @@ export async function fetchAllEpisodes(): Promise<Episode[]> {
     });
   });
 
-  // Fetch live videos and newsletter replay fallbacks, then merge with the static archive.
+  // Fetch only live/newsletter videos newer than the latest stored archive cursor.
+  const newestStoredEpisode = getNewestStoredEpisode();
   const [liveVideos, newsletterVideos] = await Promise.all([
-    fetchLiveVideos(),
-    fetchNewsletterReplayVideos(),
+    fetchLiveVideos(newestStoredEpisode),
+    fetchNewsletterReplayVideos(newestStoredEpisode),
   ]);
   [...newsletterVideos, ...liveVideos].forEach(ep => {
     archiveMap.set(ep.videoId, ep);
