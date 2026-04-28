@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Play, ExternalLink, X } from "lucide-react";
+import { Archive, Play, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { fetchNewsletters, type NewsletterIssue } from "@/lib/newsletter";
@@ -121,8 +121,8 @@ export const LatestEvent = () => {
   };
 
   return (
-    <section id="about" className="relative overflow-hidden py-10 md:py-14">
-      <div className="absolute inset-0 bg-gradient-to-b from-background via-card/20 to-background" />
+    <section id="watch" className="relative overflow-hidden pb-10 pt-6 md:pb-14 md:pt-8">
+      <div className="absolute inset-0 bg-gradient-to-b from-card/20 via-card/10 to-background" />
 
       <div className="container mx-auto px-4 relative z-10">
         {/* Latest Event */}
@@ -133,12 +133,13 @@ export const LatestEvent = () => {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="mx-auto max-w-4xl"
         >
-          <div className="mb-6 text-center md:mb-8">
+          <div className="mb-5 text-center md:mb-7">
+            <div className="mx-auto mb-3 h-10 w-px bg-gradient-to-b from-primary/70 to-transparent" />
             <h2 className="mb-3 text-3xl font-bold leading-tight md:text-5xl">
               Watch <span className="text-gradient-rainbow">The WIP</span>
             </h2>
             <p className="mx-auto max-w-2xl text-muted-foreground md:text-lg">
-              Start with the latest meetup, then dig into the archive.
+              Catch the latest replay, then dig into the full event archive.
             </p>
           </div>
 
@@ -216,9 +217,9 @@ export const LatestEvent = () => {
 
           <div className="mt-4 flex justify-center">
             <Button variant="outline" size="lg" asChild>
-              <a href={`${CHANNEL_URL}/streams`} target="_blank" rel="noopener noreferrer">
-                <ExternalLink className="w-5 h-5" />
-                View All Events
+              <a href="/events">
+                <Archive className="w-5 h-5" />
+                Browse Event Archive
               </a>
             </Button>
           </div>
