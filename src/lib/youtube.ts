@@ -169,19 +169,36 @@ function getTitleFromIssue(issue: NewsletterIssue): string {
 
 function getNewestStoredEpisode(): Episode | null {
   return EPISODES_DATA.reduce<Episode | null>((newest, data) => {
-    const publishedAt = parsePublishDate(data.publishDate);
-    const episode: Episode = {
+    const episode = createEpisode({
       videoId: data.videoId,
       title: data.title,
-      thumbnail: `https://img.youtube.com/vi/${data.videoId}/mqdefault.jpg`,
-      publishedAt,
-      url: `https://www.youtube.com/watch?v=${data.videoId}`,
-      guests: getGuestsForEpisode(data.videoId, data.title),
-      episodeNumber: parseEpisodeNumber(data.title),
-    };
+      publishedAt: parsePublishDate(data.publishDate),
+    });
 
-    return !newest || publishedAt.getTime() > newest.publishedAt.getTime() ? episode : newest;
+    return !newest || episode.publishedAt.getTime() > newest.publishedAt.getTime() ? episode : newest;
   }, null);
+}
+
+export function createEpisode({
+  videoId,
+  title,
+  publishedAt,
+  thumbnail,
+}: {
+  videoId: string;
+  title: string;
+  publishedAt: Date;
+  thumbnail?: string;
+}): Episode {
+  return {
+    videoId,
+    title,
+    thumbnail: thumbnail || `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`,
+    publishedAt,
+    url: `https://www.youtube.com/watch?v=${videoId}`,
+    guests: getGuestsForEpisode(videoId, title),
+    episodeNumber: parseEpisodeNumber(title),
+  };
 }
 
 export function isNewerThanStoredCursor(episode: Episode, cursor: Episode | null): boolean {
@@ -209,15 +226,12 @@ async function fetchLiveVideos(cursor: Episode | null): Promise<Episode[]> {
       const publishedAt = parseDateFromTitle(v.title)
         || parseRelativeDate(v.publishedAt)
         || new Date();
-      return {
+      return createEpisode({
         videoId: v.videoId,
         title: v.title,
-        thumbnail: v.thumbnail || `https://img.youtube.com/vi/${v.videoId}/mqdefault.jpg`,
         publishedAt,
-        url: `https://www.youtube.com/watch?v=${v.videoId}`,
-        guests: getGuestsForEpisode(v.videoId, v.title),
-        episodeNumber: parseEpisodeNumber(v.title),
-      };
+        thumbnail: v.thumbnail,
+      });
     }).filter((episode: Episode) => isNewerThanStoredCursor(episode, cursor));
 
     const params = new URLSearchParams({ count: "15" });
