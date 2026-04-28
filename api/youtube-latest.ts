@@ -29,7 +29,7 @@ export default async function handler(
 
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET");
-    res.setHeader("Cache-Control", "public, s-maxage=3600, stale-while-revalidate=7200");
+  res.setHeader("Cache-Control", "public, s-maxage=3600, stale-while-revalidate=7200");
 
   const count = Math.min(Math.max(parseInt(String(req.query.count)) || 1, 1), 15);
 
@@ -156,8 +156,8 @@ function extractVideosFromInitialData(data: any, count: number): VideoResult[] {
 
   const walk = (node: any): boolean => {
     if (!node || typeof node !== "object") return false;
-    if (addVideo(node)) return true;
     if (addVideo(node.videoRenderer) || addVideo(node.gridVideoRenderer)) return true;
+    if (addVideo(node.reelItemRenderer) || addVideo(node.compactVideoRenderer)) return true;
     if (Array.isArray(node)) {
       for (const item of node) if (walk(item)) return true;
       return false;

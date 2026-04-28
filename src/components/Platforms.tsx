@@ -105,14 +105,14 @@ const platformGroups = [
 ];
 
 const ecosystemHighlights = [
-  { icon: Sparkles, title: "Custom metaverse builds", text: "A fresh Hyperworld space is created around each featured guest." },
-  { icon: Coins, title: "$WIP for showing up", text: "Attendees can collect community rewards tied to the weekly meetup." },
-  { icon: Gift, title: "Voxel art gifts", text: "Fabiano & Patrizia turn meetups into collectible weekly keepsakes." },
+  { icon: Sparkles, title: "Metaverse meetup", text: "Weekly Hyperworld spaces built around featured guests." },
+  { icon: Coins, title: "$WIP rewards", text: "Attendee token perks, staking, trading, and charts." },
+  { icon: Gift, title: "Voxel gifts", text: "Collectible weekly keepsakes from Fabiano & Patrizia." },
 ];
 
 export const Platforms = () => {
   return (
-    <section id="platforms" className="relative overflow-hidden py-14 md:py-20">
+    <section id="platforms" className="relative overflow-hidden py-12 md:py-16">
       {/* Animated background */}
       <div 
         className="absolute inset-0 bg-cover bg-center opacity-10"
@@ -126,13 +126,13 @@ export const Platforms = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="mb-10 text-center md:mb-14"
+          className="mb-8 text-center md:mb-10"
         >
           
-          <h2 className="mb-4 text-4xl font-bold md:mb-6 md:text-6xl">
+          <h2 className="mb-3 text-3xl font-bold md:text-5xl">
             Explore <span className="text-gradient-rainbow">The WIP</span>
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-base text-muted-foreground max-w-2xl mx-auto md:text-lg">
             The community spaces, broadcasts, token links, and weekly perks in one place.
           </p>
         </motion.div>
@@ -142,15 +142,15 @@ export const Platforms = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="mx-auto mb-6 grid max-w-6xl gap-3 md:grid-cols-3"
+          className="mx-auto mb-5 grid max-w-6xl gap-3 md:grid-cols-3"
         >
           {ecosystemHighlights.map((item) => (
-            <div key={item.title} className="flex gap-3 rounded-2xl border border-border/60 bg-card/35 p-4 text-left backdrop-blur-sm">
+            <div key={item.title} className="flex gap-3 rounded-xl border border-border/60 bg-card/35 p-3 text-left backdrop-blur-sm">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary">
                 <item.icon className="h-5 w-5" />
               </div>
               <div>
-                <h3 className="font-semibold">{item.title}</h3>
+                <h3 className="text-sm font-semibold">{item.title}</h3>
                 <p className="mt-1 text-sm text-muted-foreground">{item.text}</p>
               </div>
             </div>
@@ -165,7 +165,7 @@ export const Platforms = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: groupIndex * 0.08 }}
-              className="rounded-2xl border border-border/60 bg-card/40 p-4 backdrop-blur-sm md:p-5"
+              className="rounded-xl border border-border/60 bg-card/40 p-4 backdrop-blur-sm"
             >
               <div className="mb-4">
                 <h3 className="text-xs font-bold uppercase tracking-widest text-primary">
@@ -195,7 +195,7 @@ export const Platforms = () => {
                 {/* Glow effect */}
                 <div className="absolute inset-0 rounded-2xl bg-gradient-rainbow opacity-0 blur-lg transition-opacity duration-300 group-hover:opacity-25" />
                 
-                <div className="relative bg-card/60 backdrop-blur-sm rounded-2xl border border-muted/50 group-hover:border-primary/40 transition-all duration-300 overflow-hidden">
+                <div className="relative bg-card/60 backdrop-blur-sm rounded-xl border border-muted/50 group-hover:border-primary/40 transition-all duration-300 overflow-hidden">
                   <a
                     href={platform.url}
                     target="_blank"

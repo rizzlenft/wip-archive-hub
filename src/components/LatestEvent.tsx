@@ -53,6 +53,8 @@ export const LatestEvent = () => {
     };
 
     fetchLatestVideo();
+    const refreshTimer = window.setInterval(fetchLatestVideo, 3 * 60 * 60 * 1000);
+    return () => window.clearInterval(refreshTimer);
   }, []);
 
   const handleThumbnailError = () => {
