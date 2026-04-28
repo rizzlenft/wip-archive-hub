@@ -115,16 +115,17 @@ async function scrapeChannelVideos(count: number): Promise<VideoResult[]> {
 
     const html = await response.text();
 
-    // Extract ytInitialData JSON from the page
-    const dataMatch = html.match(/var\s+ytInitialData\s*=\s*({.+?});\s*<\/script>/s);
-    if (!dataMatch) {
+    // Extract ytInitialData JSON from the page. YouTube may emit either
+    // `var ytInitialData = ...` or `ytInitialData = ...`, so use balanced braces.
+    const initialDataJson = extractYtInitialDataJson(html);
+    if (!initialDataJson) {
       console.log("Could not find ytInitialData in YouTube page");
       // Fallback: try regex to find video IDs and titles directly
       return extractVideosFromHTML(html, count);
     }
 
     try {
-      const data = JSON.parse(dataMatch[1]);
+      const data = JSON.parse(initialDataJson);
       return extractVideosFromInitialData(data, count);
     } catch (parseErr) {
       console.log("Failed to parse ytInitialData:", parseErr);
