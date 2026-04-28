@@ -114,20 +114,18 @@ export const LatestEvent = () => {
                     <X className="w-5 h-5" />
                   </button>
                 </>
-              ) : (
+              ) : video ? (
                 <button
                   onClick={() => setIsPlaying(true)}
                   className="group w-full h-full cursor-pointer block"
                   aria-label="Play latest event video"
                 >
-                  {video && (
-                    <img
-                      src={video.thumbnail}
-                      alt={video.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      onError={handleThumbnailError}
-                    />
-                  )}
+                  <img
+                    src={video.thumbnail}
+                    alt={video.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    onError={handleThumbnailError}
+                  />
                   <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/20 to-transparent" />
                   
                   <div className="absolute inset-0 flex items-center justify-center">
@@ -143,6 +141,10 @@ export const LatestEvent = () => {
                     <p className="text-sm text-muted-foreground">Click to watch</p>
                   </div>
                 </button>
+              ) : (
+                <div className="flex h-full min-h-52 items-center justify-center bg-card/70 px-6 text-center">
+                  <p className="text-sm text-muted-foreground">Loading the latest WIP video…</p>
+                </div>
               )}
             </div>
           </div>
