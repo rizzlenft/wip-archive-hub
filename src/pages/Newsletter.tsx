@@ -147,10 +147,24 @@ const Newsletter = () => {
         description={
           selected
             ? selected.recap_summary || `ft. ${selected.speakers?.map(s => s.name).join(", ") || "the WIP community"}`
-            : "Catch up on the latest from The WIP Meetup — weekly recaps, speaker spotlights, and community highlights."
+            : "Read WIP Weekly for event recaps, featured guests, speaker spotlights, and web3 metaverse community highlights from The WIP Meetup."
         }
         canonical={selected ? `/newsletter?issue=${selected.id}` : "/newsletter"}
         ogImage={selected ? `${API_BASE}/api/og-image?id=${encodeURIComponent(selected.id)}` : undefined}
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": selected ? "Article" : "CollectionPage",
+          headline: selected?.title || "WIP Weekly Newsletter",
+          name: selected?.title || "WIP Weekly Newsletter",
+          description: selected?.recap_summary || "Weekly recaps, speaker spotlights, and community highlights from The WIP Meetup.",
+          url: selected ? `https://thewipmeetup.com/newsletter?issue=${selected.id}` : "https://thewipmeetup.com/newsletter",
+          datePublished: selected?.published_at || selected?.created_at,
+          publisher: {
+            "@type": "Organization",
+            name: "The WIP Meetup",
+            url: "https://thewipmeetup.com",
+          },
+        }}
       />
       <Navigation />
 
