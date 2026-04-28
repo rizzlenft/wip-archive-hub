@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Gift, Coins, Heart, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import wipLogoStatic from "@/assets/wip-logo-static.png";
@@ -88,19 +88,16 @@ export const CommunityPerks = () => {
               <div className="h-full p-8 rounded-2xl bg-card border-glow hover:scale-105 transition-all duration-300 text-center">
                 {'hasGallery' in perk && perk.hasGallery ? (
                   <div className="mb-6 rounded-xl overflow-hidden bg-muted/20 relative h-56">
-                    <AnimatePresence mode="wait">
-                      <motion.img
-                        key={currentNft}
-                        src={nftGallery[currentNft]}
-                        alt={`NFT Gift #${currentNft + 1}`}
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 1.05 }}
-                        transition={{ duration: 0.5 }}
-                        className="w-full h-full object-contain"
-                        loading="lazy"
-                      />
-                    </AnimatePresence>
+                    <motion.img
+                      key={currentNft}
+                      src={nftGallery[currentNft]}
+                      alt={`NFT Gift #${currentNft + 1}`}
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.5 }}
+                      className="w-full h-full object-contain"
+                      loading="lazy"
+                    />
                     <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
                       {nftGallery.map((_, i) => (
                         <button
