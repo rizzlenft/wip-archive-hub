@@ -156,6 +156,7 @@ function extractVideosFromInitialData(data: any, count: number): VideoResult[] {
 
   const walk = (node: any): boolean => {
     if (!node || typeof node !== "object") return false;
+    if (addVideo(node)) return true;
     if (addVideo(node.videoRenderer) || addVideo(node.gridVideoRenderer)) return true;
     if (Array.isArray(node)) {
       for (const item of node) if (walk(item)) return true;
