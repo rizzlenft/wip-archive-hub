@@ -7,6 +7,7 @@ interface SEOProps {
   ogImage?: string;
   ogType?: string;
   noindex?: boolean;
+  structuredData?: Record<string, unknown> | Record<string, unknown>[];
 }
 
 const SITE_NAME = "The WIP Meetup";
@@ -23,9 +24,11 @@ export const SEO = ({
   ogImage = DEFAULT_OG_IMAGE,
   ogType = "website",
   noindex = false,
+  structuredData,
 }: SEOProps) => {
   const fullTitle = title ? `${title} | ${SITE_NAME}` : `${SITE_NAME} — Web3 Metaverse Events`;
   const canonicalUrl = canonical ? `${SITE_URL}${canonical}` : undefined;
+  const jsonLd = structuredData ? JSON.stringify(structuredData) : undefined;
 
   return (
     <Helmet>
@@ -48,6 +51,9 @@ export const SEO = ({
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={ogImage} />
+      {jsonLd && <script type="application/ld+json">{jsonLd}</script>}
     </Helmet>
   );
 };
+
+export { SITE_NAME, SITE_URL, DEFAULT_DESCRIPTION, DEFAULT_OG_IMAGE };
