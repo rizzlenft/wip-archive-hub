@@ -6,7 +6,7 @@ import wipLogo from "@/assets/wip-logo.gif";
 
 export const Hero = () => {
   return (
-    <section className="relative flex min-h-[88vh] items-center justify-center overflow-hidden pt-24 md:min-h-[92vh] md:pt-28">
+    <section className="relative flex min-h-[76vh] items-center justify-center overflow-hidden pt-20 md:min-h-[82vh] md:pt-24">
       {/* Background Image */}
       <div 
         className="absolute inset-0 bg-cover bg-no-repeat"
@@ -39,7 +39,7 @@ export const Hero = () => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="mx-auto max-w-5xl space-y-5"
+          className="mx-auto max-w-5xl space-y-4 md:space-y-5"
         >
           {/* Animated Logo */}
           <motion.div
@@ -51,7 +51,7 @@ export const Hero = () => {
             <img 
               src={wipLogo} 
               alt="The WIP Logo" 
-              className="w-40 h-40 md:w-56 md:h-56 lg:w-64 lg:h-64 animate-float"
+              className="h-36 w-36 animate-float md:h-52 md:w-52 lg:h-60 lg:w-60"
               width={256}
               height={256}
             />
@@ -62,7 +62,7 @@ export const Hero = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="text-4xl font-bold tracking-tight md:text-6xl lg:text-7xl"
+            className="text-4xl font-bold leading-tight tracking-tight md:text-6xl lg:text-7xl"
           >
             <span className="text-gradient-rainbow glow-text">The WIP Meetup</span>
           </motion.h1>
