@@ -89,13 +89,14 @@ export default async function handler(
 
   try {
     // Strategy 1: Scrape YouTube channel page for video data
-    const channelVideos = await scrapeChannelVideos(count);
+    const sourceLimit = Math.max(count, 30);
+    const channelVideos = await scrapeChannelVideos(sourceLimit);
     if (channelVideos.length > 0) {
       return sendVideos(res, channelVideos, count, "youtube-scrape", cursor);
     }
 
     // Strategy 2: Try YouTube RSS feed (sometimes works)
-    const rssVideos = await fetchRSSVideos(count);
+    const rssVideos = await fetchRSSVideos(sourceLimit);
     if (rssVideos.length > 0) {
       return sendVideos(res, rssVideos, count, "youtube-rss", cursor);
     }
@@ -117,7 +118,7 @@ export default async function handler(
         if (!response.ok) continue;
         const data = await response.json();
         if (Array.isArray(data) && data.length > 0) {
-          const videos: VideoResult[] = data.slice(0, count).map((v: any) => ({
+          const videos: VideoResult[] = data.slice(0, sourceLimit).map((v: any) => ({
             videoId: v.videoId,
             title: v.title,
             publishedAt: v.publishedText || undefined,
