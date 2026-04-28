@@ -65,6 +65,45 @@ export const LatestEvent = () => {
         // fallback
       }
 
+      try {
+        const newsletters = await fetchNewsletters();
+        const withVideos = newsletters
+          .map((issue) => ({ issue, videoId: getYouTubeIdFromIssue(issue) }))
+          .filter((item): item is { issue: NewsletterIssue; videoId: string } => Boolean(item.videoId))
+          .sort(
+            (a, b) =>
+              new Date(b.issue.published_at || b.issue.created_at).getTime() -
+              new Date(a.issue.published_at || a.issue.created_at).getTime()
+          );
+
+        if (withVideos.length > 0) {
+          const latest = withVideos[0];
+          setVideo({
+            title: getFallbackTitleFromIssue(latest.issue),
+            videoId: latest.videoId,
+            thumbnail: `https://img.youtube.com/vi/${latest.videoId}/maxresdefault.jpg`,
+          });
+          setSource("Newsletter replay fallback");
+          return;
+        }
+      } catch {
+        // fallback
+      }
+
+      const archiveFallback = [...EPISODES_DATA].sort(
+        (a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime()
+      )[0];
+
+      if (archiveFallback) {
+        setVideo({
+          title: archiveFallback.title,
+          videoId: archiveFallback.videoId,
+          thumbnail: `https://img.youtube.com/vi/${archiveFallback.videoId}/maxresdefault.jpg`,
+        });
+        setSource("Static archive fallback");
+        return;
+      }
+
       setSource("Playlist embed");
       setUseFallbackEmbed(true);
     };
