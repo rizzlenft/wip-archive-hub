@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Sparkles } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/auth/AuthContext";
@@ -91,13 +91,6 @@ export const Navigation = () => {
 
             {/* CTA + Auth */}
             <div className="flex items-center gap-3">
-              <Button variant="electric" size="sm" className="hidden sm:flex" asChild>
-                <a href="https://discord.gg/bTjc6k5uss" target="_blank" rel="noopener noreferrer">
-                  <Sparkles className="w-4 h-4" />
-                  Join Us
-                </a>
-              </Button>
-
               {!isAuthenticated ? (
                 <Button
                   variant="outline"
@@ -195,13 +188,6 @@ export const Navigation = () => {
                     </Button>
                   </>
                 )}
-                <Button variant="electric" size="lg" className="mt-4" asChild>
-                  <a href="https://discord.gg/bTjc6k5uss" target="_blank" rel="noopener noreferrer">
-                    <Sparkles className="w-5 h-5" />
-                    Join the Community
-                  </a>
-                </Button>
-
                 {/* Social Icons */}
                 <div className="flex items-center gap-3 mt-6 flex-wrap justify-center">
                   {socialLinks.map((link) => (
