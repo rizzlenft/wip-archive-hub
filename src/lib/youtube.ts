@@ -136,7 +136,7 @@ function getNewestStoredEpisode(): Episode | null {
   }, null);
 }
 
-function isNewerThanStoredCursor(episode: Episode, cursor: Episode | null): boolean {
+export function isNewerThanStoredCursor(episode: Episode, cursor: Episode | null): boolean {
   if (!cursor) return true;
   if (episode.videoId === cursor.videoId) return false;
   const episodeTime = episode.publishedAt.getTime();
