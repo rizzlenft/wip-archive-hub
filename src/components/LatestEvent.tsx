@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Play, ExternalLink, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
+import { EPISODES_DATA } from "@/lib/episodesData";
 
 interface VideoData {
   title: string;
@@ -47,8 +48,17 @@ export const LatestEvent = () => {
         // fallback
       }
 
-      // If live sources are unavailable, use YouTube's uploads playlist embed.
-      // Do not fall back to the static episode archive here, because it can show stale events.
+      const latestArchived = EPISODES_DATA[0];
+      if (latestArchived) {
+        setVideo({
+          title: latestArchived.title,
+          videoId: latestArchived.videoId,
+          thumbnail: `https://img.youtube.com/vi/${latestArchived.videoId}/maxresdefault.jpg`,
+        });
+        setSource("Archive fallback");
+        return;
+      }
+
       setSource("Playlist embed");
       setUseFallbackEmbed(true);
     };
@@ -81,7 +91,7 @@ export const LatestEvent = () => {
               Watch <span className="text-gradient-rainbow">The WIP</span>
             </h2>
             <p className="mx-auto max-w-2xl text-muted-foreground md:text-lg">
-              Weekly conversations, project showcases, and community sessions from the meetup archive.
+              Start with the latest meetup, then dig into the archive.
             </p>
           </div>
 
