@@ -159,7 +159,7 @@ function getNewestStoredEpisode(): Episode | null {
       thumbnail: `https://img.youtube.com/vi/${data.videoId}/mqdefault.jpg`,
       publishedAt,
       url: `https://www.youtube.com/watch?v=${data.videoId}`,
-      guests: parseGuestsFromTitle(data.title),
+      guests: getGuestsForEpisode(data.videoId, data.title),
       episodeNumber: parseEpisodeNumber(data.title),
     };
 
@@ -198,7 +198,7 @@ async function fetchLiveVideos(cursor: Episode | null): Promise<Episode[]> {
         thumbnail: v.thumbnail || `https://img.youtube.com/vi/${v.videoId}/mqdefault.jpg`,
         publishedAt,
         url: `https://www.youtube.com/watch?v=${v.videoId}`,
-        guests: parseGuestsFromTitle(v.title),
+        guests: getGuestsForEpisode(v.videoId, v.title),
         episodeNumber: parseEpisodeNumber(v.title),
       };
     }).filter((episode: Episode) => isNewerThanStoredCursor(episode, cursor));
@@ -243,7 +243,7 @@ async function fetchNewsletterReplayVideos(cursor: Episode | null): Promise<Epis
           thumbnail: `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`,
           publishedAt,
           url: `https://www.youtube.com/watch?v=${videoId}`,
-          guests: parseGuestsFromTitle(title),
+          guests: getGuestsForEpisode(videoId, title),
           episodeNumber: parseEpisodeNumber(title),
         } satisfies Episode;
       })
@@ -264,7 +264,7 @@ export async function fetchAllEpisodes(): Promise<Episode[]> {
       thumbnail: `https://img.youtube.com/vi/${data.videoId}/mqdefault.jpg`,
       publishedAt: parsePublishDate(data.publishDate),
       url: `https://www.youtube.com/watch?v=${data.videoId}`,
-      guests: parseGuestsFromTitle(data.title),
+      guests: getGuestsForEpisode(data.videoId, data.title),
       episodeNumber: parseEpisodeNumber(data.title),
     });
   });
