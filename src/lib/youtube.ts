@@ -150,6 +150,32 @@ async function fetchLiveVideos(): Promise<Episode[]> {
   }
 }
 
+async function fetchNewsletterReplayVideos(): Promise<Episode[]> {
+  try {
+    const newsletters = await fetchNewsletters();
+    return newsletters
+      .map((issue) => {
+        const videoId = getYouTubeIdFromIssue(issue);
+        if (!videoId) return null;
+        const title = getTitleFromIssue(issue);
+        const publishedAt = parseDateFromTitle(title)
+          || parsePublishDate(issue.published_at || issue.week_of || issue.created_at);
+        return {
+          videoId,
+          title,
+          thumbnail: `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`,
+          publishedAt,
+          url: `https://www.youtube.com/watch?v=${videoId}`,
+          guests: parseGuestsFromTitle(title),
+          episodeNumber: parseEpisodeNumber(title),
+        } satisfies Episode;
+      })
+      .filter((episode): episode is Episode => Boolean(episode));
+  } catch {
+    return [];
+  }
+}
+
 // Fetch all episodes, merging live data with static archive
 export async function fetchAllEpisodes(): Promise<Episode[]> {
   // Build archive map
@@ -166,16 +192,19 @@ export async function fetchAllEpisodes(): Promise<Episode[]> {
     });
   });
 
-  // Fetch live videos and merge (live overrides archive for same videoId, adds new ones)
-  const liveVideos = await fetchLiveVideos();
-  liveVideos.forEach(ep => {
+  // Fetch live videos and newsletter replay fallbacks, then merge with the static archive.
+  const [liveVideos, newsletterVideos] = await Promise.all([
+    fetchLiveVideos(),
+    fetchNewsletterReplayVideos(),
+  ]);
+  [...newsletterVideos, ...liveVideos].forEach(ep => {
     archiveMap.set(ep.videoId, ep);
   });
 
   const episodes = Array.from(archiveMap.values());
   episodes.sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime());
   
-  console.log(`✅ Loaded ${episodes.length} episodes (${liveVideos.length} live, ${EPISODES_DATA.length} archived)`);
+  console.log(`✅ Loaded ${episodes.length} events (${liveVideos.length} live, ${newsletterVideos.length} newsletter, ${EPISODES_DATA.length} archived)`);
   return episodes;
 }
 
