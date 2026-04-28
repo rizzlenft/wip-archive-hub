@@ -18,9 +18,9 @@ const Index = () => {
       <ThisWeekCard />
       <LatestEvent />
       <MetaverseExperience />
-      <ContactRizzle />
       <CommunityPerks />
       <Platforms />
+      <ContactRizzle />
       <Footer />
     </div>
   );
