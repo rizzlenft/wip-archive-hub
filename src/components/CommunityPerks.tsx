@@ -31,7 +31,7 @@ export const CommunityPerks = () => {
   }, []);
 
   return (
-    <section className="py-16 relative overflow-hidden">
+    <section className="relative overflow-hidden py-14 md:py-20">
       {/* Background GIF */}
       <div 
         className="absolute inset-0 bg-cover bg-center opacity-10"
@@ -39,21 +39,15 @@ export const CommunityPerks = () => {
       />
       <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/80 to-background" />
       
-      {/* Background effects */}
-      <div className="absolute inset-0">
-        <div className="absolute top-1/3 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/3 right-1/4 w-96 h-96 bg-accent/10 rounded-full blur-3xl" />
-      </div>
-
       <div className="container mx-auto px-4 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          className="mb-10 text-center md:mb-14"
         >
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">
+          <h2 className="mb-4 text-4xl font-bold md:mb-6 md:text-5xl">
             Join & <span className="text-gradient-rainbow">Get Rewarded</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
@@ -67,10 +61,10 @@ export const CommunityPerks = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="mx-auto mb-16 max-w-5xl overflow-hidden rounded-2xl border-glow bg-card/80 backdrop-blur-sm"
+          className="mx-auto mb-10 max-w-5xl overflow-hidden rounded-2xl border-glow bg-card/80 backdrop-blur-sm md:mb-12"
         >
           <div className="grid gap-0 lg:grid-cols-[0.85fr_1.15fr]">
-            <div className="flex min-h-[360px] flex-col justify-between border-b border-border/80 p-6 sm:p-8 lg:border-b-0 lg:border-r">
+            <div className="flex min-h-[320px] flex-col justify-between border-b border-border/80 p-5 sm:p-8 lg:border-b-0 lg:border-r">
               <div className="space-y-5">
                 <div className="flex items-center gap-4">
                   <img
@@ -81,7 +75,7 @@ export const CommunityPerks = () => {
                     width={64}
                     height={64}
                   />
-                  <div className="min-w-0">
+                  <div className="min-w-0 text-left">
                     <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">Weekly Rewards</p>
                     <h3 className="text-2xl font-bold sm:text-3xl">$WIP for showing up</h3>
                   </div>
@@ -91,7 +85,7 @@ export const CommunityPerks = () => {
                 </p>
               </div>
 
-              <div className="mt-8 grid grid-cols-2 gap-3 text-sm">
+              <div className="mt-8 grid grid-cols-2 gap-3 text-sm max-[380px]:grid-cols-1">
                 <div className="rounded-xl border border-border bg-muted/30 p-4">
                   <p className="font-bold text-foreground">Thursdays</p>
                   <p className="text-muted-foreground">12–3 PM PT</p>
@@ -103,8 +97,8 @@ export const CommunityPerks = () => {
               </div>
             </div>
 
-            <div className="p-6 sm:p-8">
-              <div className="grid items-center gap-8 md:grid-cols-[0.95fr_1.05fr]">
+            <div className="p-5 sm:p-8">
+              <div className="grid items-center gap-6 md:grid-cols-[0.95fr_1.05fr] md:gap-8">
                 <div className="relative mx-auto aspect-square w-full max-w-[320px] overflow-hidden rounded-xl bg-muted/20">
                   <motion.img
                     key={currentNft}
@@ -135,7 +129,7 @@ export const CommunityPerks = () => {
                     Fabiano & Patrizia create unique collectibles for attendees, turning each week into a keepsake.
                   </p>
 
-                  <div className="mb-6 grid grid-cols-2 gap-3">
+                  <div className="mb-6 grid grid-cols-2 gap-3 max-[380px]:grid-cols-1">
                     {artists.map((artist) => (
                       <a
                         key={artist.name}
@@ -177,7 +171,7 @@ export const CommunityPerks = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="max-w-4xl mx-auto rounded-2xl border border-primary/20 bg-card/60 backdrop-blur-sm p-5 md:p-6"
+          className="mx-auto max-w-4xl rounded-2xl border border-primary/20 bg-card/60 p-5 backdrop-blur-sm md:p-6"
         >
           <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
             <div className="flex items-center gap-4 text-left">

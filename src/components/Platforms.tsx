@@ -102,7 +102,7 @@ const platformGroups = [
 
 export const Platforms = () => {
   return (
-    <section id="platforms" className="py-24 relative overflow-hidden">
+    <section id="platforms" className="relative overflow-hidden py-14 md:py-20">
       {/* Animated background */}
       <div 
         className="absolute inset-0 bg-cover bg-center opacity-10"
@@ -110,20 +110,16 @@ export const Platforms = () => {
       />
       <div className="absolute inset-0 bg-gradient-to-b from-background via-transparent to-background" />
       
-      {/* Floating orbs */}
-      <div className="absolute top-20 left-10 w-64 h-64 bg-primary/20 rounded-full blur-3xl animate-pulse" />
-      <div className="absolute bottom-20 right-10 w-80 h-80 bg-accent/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "1s" }} />
-
       <div className="container mx-auto px-4 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          className="mb-10 text-center md:mb-14"
         >
           
-          <h2 className="text-4xl md:text-6xl font-bold mb-6">
+          <h2 className="mb-4 text-4xl font-bold md:mb-6 md:text-6xl">
             Explore <span className="text-gradient-rainbow">The WIP</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
@@ -131,7 +127,7 @@ export const Platforms = () => {
           </p>
         </motion.div>
 
-        <div className="max-w-6xl mx-auto grid gap-5 md:grid-cols-2">
+        <div className="mx-auto grid max-w-6xl gap-4 md:grid-cols-2 md:gap-5">
           {platformGroups.map((group, groupIndex) => (
             <motion.div
               key={group.title}
@@ -139,7 +135,7 @@ export const Platforms = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: groupIndex * 0.08 }}
-              className="rounded-2xl border border-border/60 bg-card/40 backdrop-blur-sm p-4 md:p-5"
+              className="rounded-2xl border border-border/60 bg-card/40 p-4 backdrop-blur-sm md:p-5"
             >
               <h3 className="mb-4 text-xs font-bold uppercase tracking-widest text-primary">
                 {group.title}
@@ -171,16 +167,16 @@ export const Platforms = () => {
                     href={platform.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-4 px-4 py-4"
+                    className="flex items-center gap-3 px-3 py-4 sm:gap-4 sm:px-4"
                   >
-                    <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${platform.color} flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow shrink-0`}>
+                    <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${platform.color} shadow-md transition-shadow group-hover:shadow-lg`}>
                       <img 
                         src={platform.icon} 
                         alt={platform.name}
                         className="w-5 h-5 object-contain"
                       />
                     </div>
-                    <div className="min-w-0">
+                      <div className="min-w-0 text-left">
                       <div className="flex items-center gap-2">
                         <h4 className="font-semibold text-base truncate">{platform.name}</h4>
                         <ExternalLink className="w-3.5 h-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
