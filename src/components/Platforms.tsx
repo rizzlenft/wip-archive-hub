@@ -144,18 +144,18 @@ export const Platforms = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="mb-8 text-center md:mb-10"
+          className="mx-auto mb-8 max-w-2xl text-center md:mb-10"
         >
           
-          <h2 className="mb-3 text-3xl font-bold md:text-5xl">
+          <h2 className="mb-3 text-3xl font-bold leading-tight md:text-5xl">
             Explore <span className="text-gradient-rainbow">The WIP</span>
           </h2>
-          <p className="text-base text-muted-foreground max-w-2xl mx-auto md:text-lg">
-            The community spaces, broadcasts, token links, and weekly perks in one place.
+          <p className="text-base text-muted-foreground md:text-lg">
+            Quick links for joining live, watching replays, following updates, and collecting rewards.
           </p>
         </motion.div>
 
-        <div className="mx-auto grid max-w-6xl gap-4 md:grid-cols-2 md:gap-5">
+        <div className="mx-auto grid max-w-6xl gap-3 md:grid-cols-2 md:gap-4">
           {platformGroups.map((group, groupIndex) => (
             <motion.div
               key={group.title}
@@ -163,15 +163,15 @@ export const Platforms = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: groupIndex * 0.08 }}
-              className="rounded-xl border border-border/60 bg-card/40 p-4 backdrop-blur-sm"
+              className="rounded-xl border border-border/60 bg-card/35 p-4 backdrop-blur-sm md:p-5"
             >
-              <div className="mb-4">
-                <h3 className="text-xs font-bold uppercase tracking-widest text-primary">
+              <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+                <h3 className="text-xs font-bold uppercase tracking-widest text-primary sm:text-sm">
                   {group.title}
                 </h3>
-                <p className="mt-1 text-sm text-muted-foreground">{group.description}</p>
+                <p className="text-sm text-muted-foreground sm:text-right">{group.description}</p>
               </div>
-              <div className="grid gap-3">
+              <div className="grid gap-2">
                 {group.platforms.map((platform, index) => (
               <motion.div
                 key={platform.name}
