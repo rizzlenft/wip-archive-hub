@@ -115,12 +115,13 @@ export const ThisWeekCard = () => {
   const countdownText = `${String(timeLeft.days).padStart(2, "0")}d ${String(timeLeft.hours).padStart(2, "0")}h ${String(timeLeft.minutes).padStart(2, "0")}m ${String(timeLeft.seconds).padStart(2, "0")}s`;
 
   return (
-    <section className="px-4 py-5 md:py-6">
+    <section className="relative px-4 pb-4 pt-5 md:pb-5 md:pt-6">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-background to-card/20" />
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="mx-auto flex max-w-5xl flex-col gap-3 rounded-xl border border-border/70 bg-card/55 px-4 py-3 text-left backdrop-blur-sm sm:flex-row sm:items-center sm:justify-center sm:gap-4 md:px-5"
+        className="relative mx-auto flex max-w-5xl flex-col gap-3 rounded-xl border border-border/70 bg-card/55 px-4 py-3 text-left shadow-card backdrop-blur-sm sm:flex-row sm:items-center sm:justify-center sm:gap-4 md:px-5"
       >
         <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
           <span className="text-xs font-bold uppercase tracking-widest text-primary">Next meetup</span>

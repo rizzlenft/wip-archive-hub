@@ -18,7 +18,7 @@ import iconHyperfy from "@/assets/icon-hyperfy.png";
 import iconSubstack from "@/assets/icon-substack.png";
 
 const navLinks = [
-  { name: "Events", href: "/episodes" },
+  { name: "Events", href: "/events" },
   { name: "Newsletter", href: "/newsletter" },
   { name: "Merch", href: "/merch" },
 ];
@@ -96,7 +96,7 @@ export const Navigation = () => {
                   variant="outline"
                   size="sm"
                   className="hidden sm:inline-flex"
-                  onClick={() => login("/events")}
+                  onClick={() => login("/guest-book")}
                 >
                   Guest Book
                 </Button>
@@ -115,7 +115,7 @@ export const Navigation = () => {
                     <DropdownMenuLabel>Account</DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
-                      <Link to="/events">My events</Link>
+                      <Link to="/guest-book">My events</Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
@@ -167,14 +167,14 @@ export const Navigation = () => {
                     variant="outline"
                     size="lg"
                     className="mt-2"
-                    onClick={() => { closeMobile(); login("/events"); }}
+                    onClick={() => { closeMobile(); login("/guest-book"); }}
                   >
                     Guest Book
                   </Button>
                 ) : (
                   <>
                     <Button variant="ghost" size="lg" className="mt-2" asChild>
-                      <Link to="/events" onClick={closeMobile}>
+                      <Link to="/guest-book" onClick={closeMobile}>
                         {user?.email || "My events"}
                       </Link>
                     </Button>
