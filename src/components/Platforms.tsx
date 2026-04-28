@@ -33,6 +33,10 @@ const platforms = [
         name: "Meetup Miniapp",
         url: "https://farcaster.xyz/miniapps/yDcoJ9X6iJ2G/the-wip-meetup-miniapp",
       },
+      {
+        name: "WIPCoin Miniapp",
+        url: "https://farcaster.xyz/miniapps/eOxi0VR7PqQk/wipcoin-portal",
+      },
     ],
   },
   {
@@ -66,10 +70,6 @@ const platforms = [
       {
         name: "Trade",
         url: "https://wip-staking.pages.dev/trade",
-      },
-      {
-        name: "WIPCoin Miniapp",
-        url: "https://farcaster.xyz/miniapps/eOxi0VR7PqQk/wipcoin-portal",
       },
       {
         name: "Chart",
