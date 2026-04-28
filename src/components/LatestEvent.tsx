@@ -14,6 +14,28 @@ const CHANNEL_URL = "https://www.youtube.com/@thewipmeetup";
 const CHANNEL_ID = "UCRwQrMcwYE3K7gfP5nQVgng";
 const UPLOADS_PLAYLIST_ID = "UU" + CHANNEL_ID.slice(2);
 
+const getNewestArchivedEpisode = () =>
+  [...EPISODES_DATA].sort(
+    (a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime(),
+  )[0];
+
+const decodeHtml = (value: string) => {
+  const parser = new DOMParser();
+  return parser.parseFromString(value, "text/html").documentElement.textContent || value;
+};
+
+const extractNewsletterReplay = (html: string): VideoData | null => {
+  const videoId = html.match(/youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})/)?.[1];
+  if (!videoId) return null;
+
+  const titleMatch = html.match(new RegExp(`watch\\?v=${videoId}[\\s\\S]*?<span[^>]*>([^<]+)</span>`));
+  return {
+    title: titleMatch?.[1] ? decodeHtml(titleMatch[1]) : "The WIP Meetup replay",
+    videoId,
+    thumbnail: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
+  };
+};
+
 export const LatestEvent = () => {
   const [video, setVideo] = useState<VideoData | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -48,7 +70,26 @@ export const LatestEvent = () => {
         // fallback
       }
 
-      const latestArchived = EPISODES_DATA[0];
+      // Strategy 2: use the latest newsletter recap when YouTube scraping is blocked.
+      try {
+        const response = await fetch(`${API_BASE}/api/newsletter`, {
+          signal: AbortSignal.timeout(8000),
+        });
+        if (response.ok) {
+          const data = await response.json();
+          const latestNewsletter = data.newsletters?.[0]?.body_html;
+          const replay = latestNewsletter ? extractNewsletterReplay(latestNewsletter) : null;
+          if (replay) {
+            setVideo(replay);
+            setSource("Newsletter recap fallback");
+            return;
+          }
+        }
+      } catch {
+        // fallback
+      }
+
+      const latestArchived = getNewestArchivedEpisode();
       if (latestArchived) {
         setVideo({
           title: latestArchived.title,
