@@ -2,6 +2,9 @@ import { motion } from "framer-motion";
 import { Coins, ExternalLink, Gift, Sparkles } from "lucide-react";
 import wipCv from "@/assets/wip-cv.gif";
 import wipLogoStatic from "@/assets/wip-logo-static.png";
+import nftGift1 from "@/assets/nft-gift-1.jpeg";
+import nftGift2 from "@/assets/nft-gift-2.avif";
+import nftGift3 from "@/assets/nft-gift-3.avif";
 
 const platforms = [
   {
@@ -59,7 +62,7 @@ const platforms = [
   },
   {
     name: "$WIP Token",
-    description: "Stake, trade, and track the token",
+    description: "Stake, trade, and collect attendee rewards",
     url: "https://wip-staking.pages.dev/trade",
     icon: wipLogoStatic,
     miniapps: [
@@ -74,6 +77,27 @@ const platforms = [
       {
         name: "Chart",
         url: "https://www.geckoterminal.com/base/pools/0xfa9d608b5a13a78bd403e61e2459660efa7566348357ef7ccb010522af3660f0",
+      },
+    ],
+  },
+  {
+    name: "Voxel Gifts",
+    description: "Free weekly NFT keepsakes for attendees",
+    url: "https://opensea.io/collection/random-3d-things",
+    icon: nftGift1,
+    giftImages: [nftGift1, nftGift2, nftGift3],
+    miniapps: [
+      {
+        name: "@fabianospeziari",
+        url: "https://x.com/fabianospeziari",
+      },
+      {
+        name: "@patriziabarnato",
+        url: "https://x.com/patriziabarnato",
+      },
+      {
+        name: "Collection",
+        url: "https://opensea.io/collection/random-3d-things",
       },
     ],
   },
@@ -98,9 +122,9 @@ const platformGroups = [
     platforms: [getPlatform("Twitter/X"), getPlatform("Farcaster"), getPlatform("Substack")],
   },
   {
-    title: "$WIP",
-    description: "Stake, trade, chart, and collect attendee rewards.",
-    platforms: [getPlatform("$WIP Token")],
+    title: "Rewards",
+    description: "Collect $WIP token rewards and weekly voxel art gifts for showing up.",
+    platforms: [getPlatform("$WIP Token"), getPlatform("Voxel Gifts")],
   },
 ];
 
