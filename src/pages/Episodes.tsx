@@ -175,6 +175,12 @@ const Episodes = () => {
                 <Play className="w-4 h-4 text-primary" />
                 <span className="text-sm">{events.length} Events</span>
               </div>
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <span className="h-2 w-2 rounded-full bg-primary" />
+                <span className="text-sm">
+                  {archiveStatus}{newestEventDate ? ` · Latest ${newestEventDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}` : ""}
+                </span>
+              </div>
             </div>
           </motion.div>
         </div>
@@ -333,8 +339,20 @@ const Episodes = () => {
       {/* Netflix-Style Rows */}
       <section className="py-8">
         {loading ? (
-          <div className="flex items-center justify-center py-20">
-            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          <div className="container mx-auto space-y-8 px-4 py-6">
+            {[2026, 2025].map((year) => (
+              <div key={year} className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Skeleton className="h-8 w-24" />
+                  <Skeleton className="h-4 w-28" />
+                </div>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  {Array.from({ length: 4 }).map((_, index) => (
+                    <Skeleton key={index} className="aspect-video rounded-lg" />
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
         ) : filteredEvents.length === 0 ? (
           <div className="text-center py-20">
