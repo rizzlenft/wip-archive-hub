@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ExternalLink } from "lucide-react";
+import { Coins, ExternalLink, Gift, Sparkles } from "lucide-react";
 import wipCv from "@/assets/wip-cv.gif";
 import wipLogoStatic from "@/assets/wip-logo-static.png";
 
@@ -84,7 +84,7 @@ const getPlatform = (name: string) => platforms.find((platform) => platform.name
 const platformGroups = [
   {
     title: "Join Live",
-    description: "Start here for weekly meetup access.",
+    description: "Discord, Hyperworld, and stream links for Thursdays at 12 PM PT.",
     platforms: [getPlatform("Discord"), getPlatform("Hyperworld"), getPlatform("Twitch")],
   },
   {
@@ -99,9 +99,15 @@ const platformGroups = [
   },
   {
     title: "$WIP",
-    description: "Token links without hunting around.",
+    description: "Stake, trade, chart, and collect attendee rewards.",
     platforms: [getPlatform("$WIP Token")],
   },
+];
+
+const ecosystemHighlights = [
+  { icon: Sparkles, title: "Custom metaverse builds", text: "A fresh Hyperworld space is created around each featured guest." },
+  { icon: Coins, title: "$WIP for showing up", text: "Attendees can collect community rewards tied to the weekly meetup." },
+  { icon: Gift, title: "Voxel art gifts", text: "Fabiano & Patrizia turn meetups into collectible weekly keepsakes." },
 ];
 
 export const Platforms = () => {
@@ -127,8 +133,28 @@ export const Platforms = () => {
             Explore <span className="text-gradient-rainbow">The WIP</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Find the main community spaces, broadcasts, updates, and ecosystem links in one place.
+            The community spaces, broadcasts, token links, and weekly perks in one place.
           </p>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="mx-auto mb-6 grid max-w-6xl gap-3 md:grid-cols-3"
+        >
+          {ecosystemHighlights.map((item) => (
+            <div key={item.title} className="flex gap-3 rounded-2xl border border-border/60 bg-card/35 p-4 text-left backdrop-blur-sm">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary">
+                <item.icon className="h-5 w-5" />
+              </div>
+              <div>
+                <h3 className="font-semibold">{item.title}</h3>
+                <p className="mt-1 text-sm text-muted-foreground">{item.text}</p>
+              </div>
+            </div>
+          ))}
         </motion.div>
 
         <div className="mx-auto grid max-w-6xl gap-4 md:grid-cols-2 md:gap-5">

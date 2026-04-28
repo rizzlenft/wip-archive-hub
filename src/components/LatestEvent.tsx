@@ -2,7 +2,6 @@ import { motion } from "framer-motion";
 import { Play, ExternalLink, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
-import { EPISODES_DATA } from "@/lib/episodesData";
 
 interface VideoData {
   title: string;
@@ -13,28 +12,6 @@ interface VideoData {
 const CHANNEL_URL = "https://www.youtube.com/@thewipmeetup";
 const CHANNEL_ID = "UCRwQrMcwYE3K7gfP5nQVgng";
 const UPLOADS_PLAYLIST_ID = "UU" + CHANNEL_ID.slice(2);
-
-const getNewestArchivedEpisode = () =>
-  [...EPISODES_DATA].sort(
-    (a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime(),
-  )[0];
-
-const decodeHtml = (value: string) => {
-  const parser = new DOMParser();
-  return parser.parseFromString(value, "text/html").documentElement.textContent || value;
-};
-
-const extractNewsletterReplay = (html: string): VideoData | null => {
-  const videoId = html.match(/youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})/)?.[1];
-  if (!videoId) return null;
-
-  const titleMatch = html.match(new RegExp(`watch\\?v=${videoId}[\\s\\S]*?<span[^>]*>([^<]+)</span>`));
-  return {
-    title: titleMatch?.[1] ? decodeHtml(titleMatch[1]) : "The WIP Meetup replay",
-    videoId,
-    thumbnail: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
-  };
-};
 
 export const LatestEvent = () => {
   const [video, setVideo] = useState<VideoData | null>(null);
@@ -49,7 +26,8 @@ export const LatestEvent = () => {
         (import.meta.env.VITE_BACKEND_URL as string | undefined) ||
         "https://api.thewipmeetup.com";
 
-      // Strategy 1: Our own Vercel API
+      // Primary source: latest YouTube stream from the backend scrape. The API is cached for
+      // one hour, so title/thumbnail updates are picked up automatically throughout the week.
       try {
         const response = await fetch(`${API_BASE}/api/youtube-latest`, {
           signal: AbortSignal.timeout(8000),
@@ -60,7 +38,7 @@ export const LatestEvent = () => {
             setVideo({
               title: data.title,
               videoId: data.videoId,
-              thumbnail: `https://img.youtube.com/vi/${data.videoId}/maxresdefault.jpg`,
+              thumbnail: data.thumbnail || `https://img.youtube.com/vi/${data.videoId}/maxresdefault.jpg`,
             });
             setSource(`Live via API (${data.source})`);
             return;
@@ -68,36 +46,6 @@ export const LatestEvent = () => {
         }
       } catch {
         // fallback
-      }
-
-      // Strategy 2: use the latest newsletter recap when YouTube scraping is blocked.
-      try {
-        const response = await fetch(`${API_BASE}/api/newsletter`, {
-          signal: AbortSignal.timeout(8000),
-        });
-        if (response.ok) {
-          const data = await response.json();
-          const latestNewsletter = data.newsletters?.[0]?.body_html;
-          const replay = latestNewsletter ? extractNewsletterReplay(latestNewsletter) : null;
-          if (replay) {
-            setVideo(replay);
-            setSource("Newsletter recap fallback");
-            return;
-          }
-        }
-      } catch {
-        // fallback
-      }
-
-      const latestArchived = getNewestArchivedEpisode();
-      if (latestArchived) {
-        setVideo({
-          title: latestArchived.title,
-          videoId: latestArchived.videoId,
-          thumbnail: `https://img.youtube.com/vi/${latestArchived.videoId}/maxresdefault.jpg`,
-        });
-        setSource("Archive fallback");
-        return;
       }
 
       setSource("Playlist embed");

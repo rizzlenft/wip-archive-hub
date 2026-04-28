@@ -15,6 +15,7 @@ interface VideoResult {
   videoId: string;
   title: string;
   publishedAt?: string;
+  thumbnail?: string;
 }
 
 export default async function handler(
@@ -28,7 +29,7 @@ export default async function handler(
 
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET");
-  res.setHeader("Cache-Control", "public, s-maxage=3600, stale-while-revalidate=7200");
+    res.setHeader("Cache-Control", "public, s-maxage=3600, stale-while-revalidate=7200");
 
   const count = Math.min(Math.max(parseInt(String(req.query.count)) || 1, 1), 15);
 
@@ -140,10 +141,41 @@ async function scrapeChannelVideos(count: number): Promise<VideoResult[]> {
  */
 function extractVideosFromInitialData(data: any, count: number): VideoResult[] {
   const videos: VideoResult[] = [];
+  const seen = new Set<string>();
+
+  const addVideo = (vid: any) => {
+    if (!vid?.videoId || seen.has(vid.videoId)) return false;
+    const title = vid.title?.runs?.[0]?.text || vid.title?.simpleText || "The WIP Meetup";
+    const publishedAt = vid.publishedTimeText?.simpleText || undefined;
+    const thumbnails = vid.thumbnail?.thumbnails || [];
+    const thumbnail = thumbnails[thumbnails.length - 1]?.url?.replace(/\\u0026/g, "&");
+    seen.add(vid.videoId);
+    videos.push({ videoId: vid.videoId, title, publishedAt, thumbnail });
+    return videos.length >= count;
+  };
+
+  const walk = (node: any): boolean => {
+    if (!node || typeof node !== "object") return false;
+    if (addVideo(node)) return true;
+    if (addVideo(node.videoRenderer) || addVideo(node.gridVideoRenderer)) return true;
+    if (Array.isArray(node)) {
+      for (const item of node) if (walk(item)) return true;
+      return false;
+    }
+    for (const value of Object.values(node)) if (walk(value)) return true;
+    return false;
+  };
 
   try {
     // Navigate the nested YouTube data structure
     const tabs = data?.contents?.twoColumnBrowseResultsRenderer?.tabs || [];
+    const selectedStreamsTab = tabs.find((tab: any) => {
+      const renderer = tab?.tabRenderer;
+      return renderer?.selected || renderer?.title === "Live" || renderer?.endpoint?.browseEndpoint?.canonicalBaseUrl?.endsWith("/streams");
+    });
+    if (selectedStreamsTab && walk(selectedStreamsTab.tabRenderer?.content)) return videos;
+
+    if (walk(tabs)) return videos;
     
     for (const tab of tabs) {
       const tabRenderer = tab?.tabRenderer;
@@ -192,6 +224,24 @@ function extractVideosFromInitialData(data: any, count: number): VideoResult[] {
 function extractVideosFromHTML(html: string, count: number): VideoResult[] {
   const videos: VideoResult[] = [];
   const seen = new Set<string>();
+
+  const rendererPattern = /"videoRenderer"\s*:\s*\{([\s\S]*?)(?=\}\s*,\s*"trackingParams"|\}\s*\}\s*,\s*\{)/g;
+  let rendererMatch;
+  while ((rendererMatch = rendererPattern.exec(html)) !== null && videos.length < count) {
+    const block = rendererMatch[1];
+    const videoId = block.match(/"videoId"\s*:\s*"([a-zA-Z0-9_-]{11})"/)?.[1];
+    if (!videoId || seen.has(videoId)) continue;
+    const title = block.match(/"title"\s*:\s*\{\s*"runs"\s*:\s*\[\s*\{\s*"text"\s*:\s*"([^"]+)"/)?.[1]
+      || block.match(/"title"\s*:\s*\{\s*"simpleText"\s*:\s*"([^"]+)"/)?.[1]
+      || "The WIP Meetup";
+    const publishedAt = block.match(/"publishedTimeText"\s*:\s*\{\s*"simpleText"\s*:\s*"([^"]+)"/)?.[1];
+    const thumbMatches = [...block.matchAll(/"url"\s*:\s*"(https:\/\/i\.ytimg\.com\/vi\/[^"]+)"/g)];
+    const thumbnail = thumbMatches[thumbMatches.length - 1]?.[1]?.replace(/\\u0026/g, "&");
+    seen.add(videoId);
+    videos.push({ videoId, title, publishedAt, thumbnail });
+  }
+
+  if (videos.length >= count) return videos;
 
   // Pattern: "videoId":"XXXX" near "title":{"runs":[{"text":"TITLE"}]}
   const videoPattern = /"videoId"\s*:\s*"([a-zA-Z0-9_-]{11})"/g;
