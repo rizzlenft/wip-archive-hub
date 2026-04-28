@@ -29,7 +29,7 @@ const socialLinks = [
   { name: "YouTube", url: "https://www.youtube.com/@thewipmeetup", icon: "https://www.youtube.com/s/desktop/c01ea7e3/img/favicon_144x144.png" },
   { name: "Farcaster", url: "https://farcaster.xyz/~/channel/thewipmeetup", icon: iconFarcaster },
   { name: "Twitch", url: "https://www.twitch.tv/wipmeetup", icon: "https://static.twitchcdn.net/assets/favicon-32-e29e246c157142c94346.png" },
-  { name: "Hyperfy", url: "https://thewipmeetup.hyperworld.host/", icon: iconHyperfy },
+  { name: "Metaverse", url: "https://thewipmeetup.hyperworld.host/", icon: iconHyperfy },
   { name: "Substack", url: "https://thewipmeetup.substack.com/", icon: iconSubstack },
 ];
 

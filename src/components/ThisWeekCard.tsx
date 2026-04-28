@@ -115,28 +115,29 @@ export const ThisWeekCard = () => {
   const countdownText = `${String(timeLeft.days).padStart(2, "0")}d ${String(timeLeft.hours).padStart(2, "0")}h ${String(timeLeft.minutes).padStart(2, "0")}m ${String(timeLeft.seconds).padStart(2, "0")}s`;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="mx-auto flex max-w-4xl flex-col gap-3 rounded-xl border border-border/70 bg-card/55 px-4 py-3 text-left backdrop-blur-sm sm:flex-row sm:items-center sm:justify-center sm:gap-4 md:px-5"
-    >
-      <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
-        <span className="text-xs font-bold uppercase tracking-widest text-primary">Next meetup</span>
-        <span className="text-lg font-bold text-gradient-rainbow md:text-xl">{countdownText}</span>
-        <span className="text-xs text-muted-foreground">Thursday · 12 PM PT</span>
-      </div>
-
-      <div className="hidden h-8 w-px bg-border/70 sm:block" />
-
-      <div className="flex min-w-0 flex-wrap items-center justify-center gap-2">
-        <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-primary">
-          <Sparkles className="h-4 w-4" />
-          {speakers.length === 1 ? "Featured guest" : "Featured guests"}
+    <section className="px-4 py-5 md:py-6">
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="mx-auto flex max-w-5xl flex-col gap-3 rounded-xl border border-border/70 bg-card/55 px-4 py-3 text-left backdrop-blur-sm sm:flex-row sm:items-center sm:justify-center sm:gap-4 md:px-5"
+      >
+        <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
+          <span className="text-xs font-bold uppercase tracking-widest text-primary">Next meetup</span>
+          <span className="text-lg font-bold text-gradient-rainbow md:text-xl">{countdownText}</span>
+          <span className="text-xs text-muted-foreground">Thursday · 12 PM PT</span>
         </div>
-        {speakers.length > 0 ? (
-          <div className="flex min-w-0 flex-wrap items-center justify-center gap-2">
-            {speakers.map((speaker) => (
+
+        <div className="hidden h-8 w-px bg-border/70 sm:block" />
+
+        <div className="flex min-w-0 flex-wrap items-center justify-center gap-2">
+          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-primary">
+            <Sparkles className="h-4 w-4" />
+            {speakers.length === 1 ? "Featured guest" : "Featured guests"}
+          </div>
+          {speakers.length > 0 ? (
+            <div className="flex min-w-0 flex-wrap items-center justify-center gap-2">
+              {speakers.map((speaker) => (
               <a
                 key={speaker.name}
                 href={speaker.twitter ? `https://x.com/${speaker.twitter}` : undefined}
@@ -157,12 +158,13 @@ export const ThisWeekCard = () => {
                 />
                 <span className="truncate">{speaker.name}</span>
               </a>
-            ))}
-          </div>
-        ) : (
-          <span className="text-sm text-muted-foreground">Come back soon to find out</span>
-        )}
-      </div>
-    </motion.div>
+              ))}
+            </div>
+          ) : (
+            <span className="text-sm text-muted-foreground">Come back soon to find out</span>
+          )}
+        </div>
+      </motion.div>
+    </section>
   );
 };

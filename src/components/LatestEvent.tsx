@@ -65,7 +65,7 @@ export const LatestEvent = () => {
   };
 
   return (
-    <section id="about" className="py-16 pb-8 relative overflow-hidden">
+    <section id="about" className="relative overflow-hidden py-10 md:py-14">
       <div className="absolute inset-0 bg-gradient-to-b from-background via-card/20 to-background" />
 
       <div className="container mx-auto px-4 relative z-10">
@@ -77,8 +77,8 @@ export const LatestEvent = () => {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="mx-auto max-w-4xl"
         >
-          <div className="mb-8 text-center">
-            <h2 className="mb-3 text-3xl font-bold md:text-5xl">
+          <div className="mb-6 text-center md:mb-8">
+            <h2 className="mb-3 text-3xl font-bold leading-tight md:text-5xl">
               Watch <span className="text-gradient-rainbow">The WIP</span>
             </h2>
             <p className="mx-auto max-w-2xl text-muted-foreground md:text-lg">
@@ -86,7 +86,7 @@ export const LatestEvent = () => {
             </p>
           </div>
 
-          <div className="relative rounded-2xl overflow-hidden border-glow">
+          <div className="relative overflow-hidden rounded-xl border-glow">
             <div className="relative aspect-video bg-card">
               {useFallbackEmbed ? (
                 <iframe
@@ -114,20 +114,18 @@ export const LatestEvent = () => {
                     <X className="w-5 h-5" />
                   </button>
                 </>
-              ) : (
+              ) : video ? (
                 <button
                   onClick={() => setIsPlaying(true)}
                   className="group w-full h-full cursor-pointer block"
                   aria-label="Play latest event video"
                 >
-                  {video && (
-                    <img
-                      src={video.thumbnail}
-                      alt={video.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      onError={handleThumbnailError}
-                    />
-                  )}
+                  <img
+                    src={video.thumbnail}
+                    alt={video.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    onError={handleThumbnailError}
+                  />
                   <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/20 to-transparent" />
                   
                   <div className="absolute inset-0 flex items-center justify-center">
@@ -136,13 +134,17 @@ export const LatestEvent = () => {
                     </div>
                   </div>
 
-                  <div className="absolute bottom-0 left-0 right-0 p-6 text-left">
-                    <h4 className="text-xl md:text-2xl font-bold text-white mb-2 line-clamp-2">
+                  <div className="absolute bottom-0 left-0 right-0 p-4 text-left md:p-6">
+                    <h4 className="mb-2 line-clamp-2 text-lg font-bold text-foreground md:text-2xl">
                       {video?.title}
                     </h4>
-                    <p className="text-white/70 text-sm">Click to watch</p>
+                    <p className="text-sm text-muted-foreground">Click to watch</p>
                   </div>
                 </button>
+              ) : (
+                <div className="flex h-full min-h-52 items-center justify-center bg-card/70 px-6 text-center">
+                  <p className="text-sm text-muted-foreground">Loading the latest WIP video…</p>
+                </div>
               )}
             </div>
           </div>
@@ -156,7 +158,7 @@ export const LatestEvent = () => {
             </div>
           )}
 
-          <div className="flex justify-center mt-4">
+          <div className="mt-4 flex justify-center">
             <Button variant="outline" size="lg" asChild>
               <a href={`${CHANNEL_URL}/streams`} target="_blank" rel="noopener noreferrer">
                 <ExternalLink className="w-5 h-5" />
