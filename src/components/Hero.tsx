@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Calendar, Users, Sparkles, Play } from "lucide-react";
+import { Calendar, Users, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CountdownTimer } from "@/components/CountdownTimer";
 import { LiveStatusBanner } from "@/components/LiveStatusBanner";
@@ -75,10 +75,10 @@ export const Hero = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
-            className="max-w-xl mx-auto text-base md:text-lg text-muted-foreground leading-relaxed"
+            className="mx-auto max-w-2xl text-base leading-relaxed text-muted-foreground md:text-lg"
           >
-            The longest-running web3 metaverse meetup. Builders, creators, and artists gather
-            <span className="text-primary font-semibold"> every Thursday at 12 PM PT</span>—since 2019.
+            WIP = Work in Progress. The longest-running web3 metaverse meetup brings builders,
+            creators, and artists together <span className="font-semibold text-primary">every Thursday at 12 PM PT</span>.
           </motion.p>
 
           {/* Stats */}
@@ -112,39 +112,18 @@ export const Hero = () => {
             <CountdownTimer />
           </motion.div>
 
-          {/* CTA Buttons */}
+          {/* Primary CTA */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.8 }}
-            className="flex flex-wrap justify-center gap-4 pt-2"
+            className="flex justify-center pt-2"
           >
             <Button variant="hero" size="xl" asChild>
               <a href="https://discord.gg/bTjc6k5uss" target="_blank" rel="noopener noreferrer">
                 <Sparkles className="w-5 h-5" />
-                Join the Community
+                Join Discord
               </a>
-            </Button>
-            <Button 
-              variant="outline" 
-              size="xl" 
-              onClick={() => {
-                const streams = [
-                  "live/UyPHBnJNT0M",
-                  "live/L6wVfn9_jlA",
-                  "live/rJHxWrCHQEY",
-                  "live/HFIBsM1fk_I",
-                  "live/NjNlBEYfmFk",
-                  "live/Gf-7o8Y0AAk",
-                  "live/pP9dP3m2wB4",
-                  "live/YrT8z2zAp9I",
-                ];
-                const randomStream = streams[Math.floor(Math.random() * streams.length)];
-                window.open(`https://www.youtube.com/@thewipmeetup/${randomStream}`, '_blank');
-              }}
-            >
-              <Play className="w-5 h-5" />
-              Watch a Random Event
             </Button>
           </motion.div>
         </motion.div>
