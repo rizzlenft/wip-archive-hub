@@ -156,18 +156,7 @@ async function fetchLiveVideos(cursor: Episode | null): Promise<Episode[]> {
     "https://api.thewipmeetup.com";
 
   try {
-    const params = new URLSearchParams({ count: "15" });
-    if (cursor) {
-      params.set("afterVideoId", cursor.videoId);
-      params.set("afterDate", cursor.publishedAt.toISOString());
-    }
-    const response = await fetch(`${API_BASE}/api/youtube-latest?${params.toString()}`, {
-      signal: AbortSignal.timeout(8000),
-    });
-    if (!response.ok) return [];
-    const data = await response.json();
-    const videos = data.videos || [data];
-    return videos.map((v: any) => {
+    const toEpisodes = (videos: any[]) => videos.map((v: any) => {
       // Priority: date from title > relative date > fallback to now
       const publishedAt = parseDateFromTitle(v.title)
         || parseRelativeDate(v.publishedAt)
@@ -182,6 +171,26 @@ async function fetchLiveVideos(cursor: Episode | null): Promise<Episode[]> {
         episodeNumber: parseEpisodeNumber(v.title),
       };
     }).filter((episode: Episode) => isNewerThanStoredCursor(episode, cursor));
+
+    const params = new URLSearchParams({ count: "15" });
+    if (cursor) {
+      params.set("afterVideoId", cursor.videoId);
+      params.set("afterDate", cursor.publishedAt.toISOString());
+    }
+    const response = await fetch(`${API_BASE}/api/youtube-latest?${params.toString()}`, {
+      signal: AbortSignal.timeout(8000),
+    });
+    if (!response.ok) {
+      const fallbackResponse = await fetch(`${API_BASE}/api/youtube-latest`, {
+        signal: AbortSignal.timeout(8000),
+      });
+      if (!fallbackResponse.ok) return [];
+      const fallbackData = await fallbackResponse.json();
+      return fallbackData.videoId ? toEpisodes([fallbackData]) : [];
+    }
+    const data = await response.json();
+    const videos = data.videos || [data];
+    return toEpisodes(videos);
   } catch {
     return [];
   }
