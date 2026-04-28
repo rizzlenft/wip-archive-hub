@@ -17,11 +17,27 @@ export type Event = Episode;
 
 const GUEST_OVERRIDES: Record<string, string[]> = {
   "0X1SxcbuG40": ["Pierce_NFT"],
+  "-fQWgh5TVLk": ["Ol1y Art", "Fabiano"],
+  "3Kv4JyLdQwU": ["Reneil"],
+  "6o15XnMVTe4": [],
+  "8bAjqzMzzF8": ["Argent", "CodeTrip", "Stellacat"],
+  HFhqKFfejcs: ["Metageist"],
+  RV2mGGeeRW0: [],
+  n74Nu9HIjHE: ["Jin aka DankVR", "Openvoxels"],
+  odVsoispuwg: ["Roustan"],
+  oXFJjo4POuE: ["Benjy Bitpixi", "CVminigames"],
+  quZrDqvycdI: [],
+  rQvZoZJviw: ["AnonSnail"],
   saiyAAhaI6I: ["EpicDylan", "TRINI protocol", "Lapin Mignon"],
+  tpzk6lcpBj8: ["AL Crego", "0xSnail"],
+  uDBrYHUgTKk: ["TheBeatMiner"],
+  vr5v5_49vGk: ["Fractilians"],
+  xK98kbyKdm0: ["Matt"],
+  zJAaWoVUVCc: ["Coldie"],
 };
 
-const TOPIC_BEFORE_WITH_PATTERN = /\b(blockchain radio|decentraland|dcl|dclgx|field trip|tour|hunt|party|event|festival|gallery|race|racing|build|takeover|deep dive|alpha|launch|drop|giveaway|adventure|wipmas|hyperfy|metaverse|cryptovoxels|voxels|parcel|wellness|music|meme nfa|wipson|babacci|tipn|museum|radio)\b/i;
-const TOPIC_SUFFIX_PATTERN = /\s+\b(tour|deep dive|field trip|alpha|event|panel|takeover|birthday party|body part|forest of|marblecards|spatial art|voxel tour|voxels tour|art exhibit|reading|drag racing|vrm drop|music drop|charity drive|peek|surprise unveiling|talking|tribute|plane crash|game building|racing|build|launch|server kickoff|rebuild|animal spawn|bedtime stories|hiddenforces|upgrades|competition|gaming)\b.*$/i;
+const TOPIC_BEFORE_WITH_PATTERN = /\b(blockchain radio|decentraland|dcl|dclgx|field trip|tour|hunt|party|event|festival|gallery|race|racing|build|takeover|deep dive|alpha|launch|drop|giveaway|adventure|wipmas|hyperfy|metaverse|cryptovoxels|voxels|parcel|wellness|music|meme nfa|wipson|babacci|tipn|museum|radio|grand opening)\b/i;
+const TOPIC_SUFFIX_PATTERN = /\s+\b(tour|deep dive|field trip|alpha|event|panel|takeover|birthday party|body part|forest of|marblecards|spatial art|voxel tour|voxels tour|art exhibit|reading|drag racing|vrm drop|music drop|charity drive|peek|surprise unveiling|talking|tribute|plane crash|game building|racing|build|launch|server kickoff|rebuild|animal spawn|bedtime stories|hiddenforces|upgrades|competition|gaming|with the|pirate adventure)\b.*$/i;
 
 function cleanGuestName(name: string): string | null {
   const cleaned = name
