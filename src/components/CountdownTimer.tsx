@@ -55,11 +55,11 @@ export const CountdownTimer = () => {
   ];
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <p className="text-sm text-muted-foreground uppercase tracking-wider">
         Next Meetup In
       </p>
-      <div className="flex justify-center gap-3 md:gap-4">
+      <div className="mx-auto grid max-w-xl grid-cols-4 gap-2 sm:gap-3 md:gap-4">
         {timeBlocks.map((block, index) => (
           <motion.div
             key={block.label}
@@ -68,12 +68,12 @@ export const CountdownTimer = () => {
             transition={{ delay: index * 0.1 }}
             className="flex flex-col items-center"
           >
-            <div className="w-16 md:w-20 h-16 md:h-20 rounded-xl bg-card border-glow flex items-center justify-center">
-              <span className="text-2xl md:text-3xl font-bold text-gradient-rainbow">
+            <div className="flex h-14 w-full items-center justify-center rounded-xl bg-card/80 border-glow sm:h-16 md:h-20">
+              <span className="text-2xl font-bold text-gradient-rainbow md:text-3xl">
                 {String(block.value).padStart(2, "0")}
               </span>
             </div>
-            <span className="text-xs text-muted-foreground mt-2 uppercase tracking-wider">
+            <span className="mt-2 text-[10px] uppercase tracking-wider text-muted-foreground sm:text-xs">
               {block.label}
             </span>
           </motion.div>
