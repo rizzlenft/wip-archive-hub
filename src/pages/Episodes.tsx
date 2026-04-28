@@ -99,9 +99,9 @@ const Episodes = () => {
   };
 
   const handleRandomEpisode = () => {
-    const randomEp = events[Math.floor(Math.random() * events.length)];
-    if (randomEp) {
-      window.open(`https://www.youtube.com/watch?v=${randomEp.videoId}`, '_blank');
+    const randomEvent = events[Math.floor(Math.random() * events.length)];
+    if (randomEvent) {
+      window.open(`https://www.youtube.com/watch?v=${randomEvent.videoId}`, '_blank');
     }
   };
 
