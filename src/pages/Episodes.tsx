@@ -6,6 +6,7 @@ import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { EpisodeRow } from "@/components/episodes/EpisodeRow";
 import { SEO } from "@/components/SEO";
 import { 
@@ -18,6 +19,7 @@ import {
 const Episodes = () => {
   const [events, setEpisodes] = useState<Episode[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadedAt, setLoadedAt] = useState<Date | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedGuest, setSelectedGuest] = useState<string | null>(null);
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
@@ -30,6 +32,7 @@ const Episodes = () => {
       setLoading(true);
       const data = await fetchAllEpisodes();
       setEpisodes(data);
+      setLoadedAt(new Date());
       setLoading(false);
     };
     loadEpisodes();
@@ -106,6 +109,10 @@ const Episodes = () => {
   };
 
   const hasActiveFilters = searchQuery || selectedGuest || selectedYear;
+  const newestEventDate = events[0]?.publishedAt;
+  const archiveStatus = loadedAt
+    ? `Updated ${loadedAt.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`
+    : "Updating archive";
 
   return (
     <div className="min-h-screen bg-background">
