@@ -23,7 +23,7 @@ const features = [
 
 export const MetaverseExperience = () => {
   return (
-    <section className="py-24 relative overflow-hidden min-h-[80vh] flex items-center">
+    <section className="relative flex min-h-[72vh] items-center overflow-hidden py-16 md:py-24">
       {/* Full-bleed background image */}
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
@@ -33,12 +33,8 @@ export const MetaverseExperience = () => {
       <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-background/40" />
       <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/60" />
       
-      {/* Animated accent glows */}
-      <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-primary/20 rounded-full blur-3xl animate-pulse" />
-      <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-accent/15 rounded-full blur-3xl" />
-
       <div className="container mx-auto px-4 relative z-10">
-        <div className="max-w-4xl mx-auto text-center">
+        <div className="mx-auto max-w-4xl text-center">
           {/* Badge */}
 
           {/* Main heading */}
@@ -47,7 +43,7 @@ export const MetaverseExperience = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-5xl md:text-6xl lg:text-7xl font-bold mb-8 leading-tight"
+            className="mb-6 text-4xl font-bold leading-tight sm:text-5xl md:mb-8 md:text-6xl lg:text-7xl"
           >
             A <span className="text-gradient-rainbow">Unique World</span> Every Week
           </motion.h2>
@@ -58,7 +54,7 @@ export const MetaverseExperience = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-xl text-muted-foreground mb-12 leading-relaxed max-w-2xl mx-auto"
+            className="mx-auto mb-8 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg md:mb-10 md:text-xl"
           >
             Every Thursday, we transform our metaverse space into a completely custom experience 
             tailored for each guest. From the architecture to the atmosphere—no two meetups 
@@ -71,7 +67,7 @@ export const MetaverseExperience = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="flex flex-col sm:flex-row justify-center gap-6 mb-12"
+            className="mb-8 grid gap-3 sm:grid-cols-3 md:mb-10 md:gap-4"
           >
             {features.map((feature, index) => (
               <motion.div
@@ -80,9 +76,9 @@ export const MetaverseExperience = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: 0.4 + index * 0.1 }}
-                className="flex items-start gap-4 bg-background/30 backdrop-blur-sm rounded-xl p-4 border border-border/50 text-left"
+                className="flex items-start gap-3 rounded-xl border border-border/50 bg-background/35 p-4 text-left backdrop-blur-sm"
               >
-                <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center flex-shrink-0">
+                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-primary/20">
                   <feature.icon className="w-5 h-5 text-primary" />
                 </div>
                 <div>
