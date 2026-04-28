@@ -1,4 +1,4 @@
-import { lazy, Suspense, forwardRef } from "react";
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -26,7 +26,7 @@ const PageLoader = () => (
   </div>
 );
 
-const App = forwardRef<HTMLDivElement>((_props, _ref) => (
+const App = () => (
   <HelmetProvider>
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
@@ -63,8 +63,6 @@ const App = forwardRef<HTMLDivElement>((_props, _ref) => (
       </TooltipProvider>
     </QueryClientProvider>
   </HelmetProvider>
-));
-
-App.displayName = "App";
+);
 
 export default App;
