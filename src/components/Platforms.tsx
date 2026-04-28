@@ -193,38 +193,38 @@ export const Platforms = () => {
                 {/* Glow effect */}
                 <div className="absolute inset-0 rounded-2xl bg-gradient-rainbow opacity-0 blur-lg transition-opacity duration-300 group-hover:opacity-25" />
                 
-                <div className="relative bg-card/60 backdrop-blur-sm rounded-xl border border-muted/50 group-hover:border-primary/40 transition-all duration-300 overflow-hidden">
+                <div className="relative overflow-hidden rounded-lg border border-muted/50 bg-card/55 backdrop-blur-sm transition-all duration-300 group-hover:border-primary/40">
                   <a
                     href={platform.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-3 px-3 py-4 sm:gap-4 sm:px-4"
+                    className="flex min-h-20 items-center gap-3 px-3 py-3 sm:min-h-24 sm:px-4"
                   >
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-muted/50 shadow-md transition-shadow group-hover:shadow-lg">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-primary/20 bg-muted/50 shadow-md transition-shadow group-hover:shadow-lg sm:h-12 sm:w-12">
                       <img 
                         src={platform.icon} 
                         alt={platform.name}
-                        className="w-5 h-5 object-cover rounded-sm"
+                        className="h-5 w-5 rounded-sm object-cover sm:h-6 sm:w-6"
                       />
                     </div>
                       <div className="min-w-0 text-left">
                       <div className="flex items-center gap-2">
-                        <h4 className="font-semibold text-base truncate">{platform.name}</h4>
-                        <ExternalLink className="w-3.5 h-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <h4 className="truncate text-base font-semibold sm:text-lg">{platform.name}</h4>
+                        <ExternalLink className="h-3.5 w-3.5 shrink-0 text-muted-foreground opacity-60 transition-opacity group-hover:opacity-100" />
                       </div>
-                      <p className="text-xs text-muted-foreground">{platform.description}</p>
+                      <p className="text-sm leading-snug text-muted-foreground">{platform.description}</p>
                     </div>
                   </a>
 
                   {platform.miniapps && (
-                    <div className="flex flex-wrap gap-2 px-4 pb-4 -mt-1">
+                    <div className="-mt-1 flex flex-wrap gap-2 px-3 pb-3 sm:px-4">
                       {platform.miniapps.map((miniapp) => (
                         <a
                           key={miniapp.name}
                           href={miniapp.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-medium text-primary hover:bg-primary/20 transition-colors"
+                          className="rounded-full border border-primary/20 bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/20 sm:px-3"
                         >
                           {miniapp.name}
                         </a>
@@ -233,13 +233,13 @@ export const Platforms = () => {
                   )}
 
                   {platform.giftImages && (
-                    <div className="grid grid-cols-3 gap-2 px-4 pb-4 -mt-1">
+                    <div className="-mt-1 grid grid-cols-3 gap-2 px-3 pb-3 sm:px-4">
                       {platform.giftImages.map((image, giftIndex) => (
                         <img
                           key={image}
                           src={image}
                           alt={`Voxel gift preview ${giftIndex + 1}`}
-                          className="aspect-square w-full rounded-lg border border-primary/15 bg-muted/30 object-cover"
+                          className="aspect-square w-full rounded-md border border-primary/15 bg-muted/30 object-cover"
                           loading="lazy"
                         />
                       ))}
