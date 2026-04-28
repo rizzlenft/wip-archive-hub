@@ -65,6 +65,10 @@ const platforms = [
       },
       {
         name: "Trade",
+        url: "https://wip-staking.pages.dev/trade",
+      },
+      {
+        name: "WIPCoin Miniapp",
         url: "https://farcaster.xyz/miniapps/eOxi0VR7PqQk/wipcoin-portal",
       },
       {
