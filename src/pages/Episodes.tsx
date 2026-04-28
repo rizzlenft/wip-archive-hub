@@ -201,6 +201,9 @@ const Episodes = () => {
                 </span>
               </div>
             </div>
+            <p className="mt-3 text-xs text-muted-foreground">
+              Auto-updated from YouTube, then merged with the historical archive.
+            </p>
           </motion.div>
         </div>
       </section>
