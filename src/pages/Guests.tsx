@@ -6,31 +6,31 @@ import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { fetchAllEvents, extractUniqueGuests, type Event } from "@/lib/youtube";
+import { fetchAllEpisodes, extractUniqueGuests, type Episode } from "@/lib/youtube";
 import { SEO } from "@/components/SEO";
 import wipLogo from "@/assets/wip-logo.gif";
 
 interface GuestWithCount {
   name: string;
   count: number;
-  events: Event[];
+  events: Episode[];
 }
 
 const Guests = () => {
-  const [events, setEvents] = useState<Event[]>([]);
+  const [events, setEvents] = useState<Episode[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedGuest, setSelectedGuest] = useState<GuestWithCount | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const loadEvents = async () => {
+    const loadEpisodes = async () => {
       setLoading(true);
-      const data = await fetchAllEvents();
+      const data = await fetchAllEpisodes();
       setEvents(data);
       setLoading(false);
     };
-    loadEvents();
+    loadEpisodes();
   }, []);
 
   // Build guest data with event counts
@@ -88,7 +88,7 @@ const Guests = () => {
     }
   };
 
-  const handlePlayEvent = (event: Event) => {
+  const handlePlayEvent = (event: Episode) => {
     window.open(`https://www.youtube.com/watch?v=${event.videoId}`, '_blank');
   };
 

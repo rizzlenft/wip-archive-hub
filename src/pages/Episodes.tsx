@@ -6,17 +6,17 @@ import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { EventRow } from "@/components/events/EventRow";
+import { EpisodeRow } from "@/components/episodes/EpisodeRow";
 import { SEO } from "@/components/SEO";
 import { 
-  fetchAllEvents, 
+  fetchAllEpisodes, 
   extractUniqueGuests, 
-  groupEventsByYear,
-  type Event 
+  groupEpisodesByYear,
+  type Episode 
 } from "@/lib/youtube";
 
-const Events = () => {
-  const [events, setEvents] = useState<Event[]>([]);
+const Episodes = () => {
+  const [events, setEpisodes] = useState<Episode[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedGuest, setSelectedGuest] = useState<string | null>(null);
@@ -26,13 +26,13 @@ const Events = () => {
   const [showScrollTop, setShowScrollTop] = useState(false);
 
   useEffect(() => {
-    const loadEvents = async () => {
+    const loadEpisodes = async () => {
       setLoading(true);
-      const data = await fetchAllEvents();
-      setEvents(data);
+      const data = await fetchAllEpisodes();
+      setEpisodes(data);
       setLoading(false);
     };
-    loadEvents();
+    loadEpisodes();
   }, []);
 
   useEffect(() => {
@@ -86,7 +86,7 @@ const Events = () => {
   }, [events, searchQuery, selectedGuest, selectedYear]);
 
   // Group filtered events by year
-  const groupedByYear = useMemo(() => groupEventsByYear(filteredEvents), [filteredEvents]);
+  const groupedByYear = useMemo(() => groupEpisodesByYear(filteredEvents), [filteredEvents]);
   const sortedYears = useMemo(() => 
     Array.from(groupedByYear.keys()).sort((a, b) => b - a), 
     [groupedByYear]
@@ -98,7 +98,7 @@ const Events = () => {
     setSelectedYear(null);
   };
 
-  const handleRandomEvent = () => {
+  const handleRandomEpisode = () => {
     const randomEp = events[Math.floor(Math.random() * events.length)];
     if (randomEp) {
       window.open(`https://www.youtube.com/watch?v=${randomEp.videoId}`, '_blank');
@@ -140,7 +140,7 @@ const Events = () => {
             <div className="flex flex-wrap justify-center gap-3 mb-8">
               <Button
                 size="lg"
-                onClick={handleRandomEvent}
+                onClick={handleRandomEpisode}
                 className="bg-gradient-to-r from-primary to-accent hover:opacity-90 text-primary-foreground shadow-lg"
               >
                 <Shuffle className="w-5 h-5 mr-2" />
@@ -298,7 +298,7 @@ const Events = () => {
             <Button
               variant="outline"
               size="sm"
-              onClick={handleRandomEvent}
+              onClick={handleRandomEpisode}
               className="hidden sm:flex"
             >
               <Shuffle className="w-3.5 h-3.5 mr-1.5" />
@@ -339,7 +339,7 @@ const Events = () => {
         ) : (
           <div className="space-y-4">
             {sortedYears.map((year) => (
-              <EventRow
+              <EpisodeRow
                 key={year}
                 year={year}
                 events={groupedByYear.get(year) || []}
@@ -370,4 +370,4 @@ const Events = () => {
   );
 };
 
-export default Events;
+export default Episodes;

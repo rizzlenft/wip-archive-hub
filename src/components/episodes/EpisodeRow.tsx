@@ -1,16 +1,16 @@
 import { useRef, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { EventCard } from "./EventCard";
-import type { Event } from "@/lib/youtube";
+import { EpisodeCard } from "./EpisodeCard";
+import type { Episode } from "@/lib/youtube";
 
-interface EventRowProps {
+interface EpisodeRowProps {
   year: number;
-  events: Event[];
+  episodes: Episode[];
   onGuestClick?: (guest: string) => void;
 }
 
-export const EventRow = ({ year, events, onGuestClick }: EventRowProps) => {
+export const EpisodeRow = ({ year, episodes, onGuestClick }: EpisodeRowProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
@@ -30,7 +30,7 @@ export const EventRow = ({ year, events, onGuestClick }: EventRowProps) => {
       ref.addEventListener('scroll', checkScroll);
       return () => ref.removeEventListener('scroll', checkScroll);
     }
-  }, [events]);
+  }, [episodes]);
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
@@ -57,7 +57,7 @@ export const EventRow = ({ year, events, onGuestClick }: EventRowProps) => {
         </h2>
         <div className="h-px flex-1 bg-gradient-to-r from-primary/50 to-transparent" />
         <span className="text-sm text-muted-foreground">
-          {events.length} events
+          {episodes.length} events
         </span>
       </div>
 
@@ -95,10 +95,10 @@ export const EventRow = ({ year, events, onGuestClick }: EventRowProps) => {
           className="flex gap-4 overflow-x-auto scrollbar-hide px-4 md:px-8 pb-20"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
-          {events.map((event) => (
-            <EventCard
-              key={event.videoId}
-              event={event}
+          {episodes.map((episode) => (
+            <EpisodeCard
+              key={episode.videoId}
+              episode={episode}
               onGuestClick={onGuestClick}
             />
           ))}
