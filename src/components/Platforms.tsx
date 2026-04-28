@@ -90,12 +90,12 @@ const platformGroups = [
   {
     title: "Watch",
     description: "Catch episodes and announcements.",
-    platforms: [getPlatform("YouTube"), getPlatform("Twitch"), getPlatform("Substack")],
+    platforms: [getPlatform("YouTube"), getPlatform("Twitch")],
   },
   {
     title: "Follow",
     description: "Stay connected across social channels.",
-    platforms: [getPlatform("Twitter/X"), getPlatform("Farcaster")],
+    platforms: [getPlatform("Twitter/X"), getPlatform("Farcaster"), getPlatform("Substack")],
   },
   {
     title: "$WIP",
