@@ -139,7 +139,14 @@ function getNewestStoredEpisode(): Episode | null {
 function isNewerThanStoredCursor(episode: Episode, cursor: Episode | null): boolean {
   if (!cursor) return true;
   if (episode.videoId === cursor.videoId) return false;
-  return episode.publishedAt.getTime() > cursor.publishedAt.getTime();
+  const episodeTime = episode.publishedAt.getTime();
+  const cursorTime = cursor.publishedAt.getTime();
+  if (episodeTime > cursorTime) return true;
+
+  // YouTube stream dates parsed from titles are day-level dates, while the static archive can
+  // contain a newer non-meetup upload on the same day. Keep same-day meetup videos in scope so
+  // the newest Thursday event is not dropped behind shorts/clips that share the archive cursor day.
+  return episodeTime === cursorTime && /The WIP Meetup/i.test(episode.title);
 }
 
 // Fetch live recent videos from the API
