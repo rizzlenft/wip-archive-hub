@@ -230,7 +230,7 @@ export const Platforms = () => {
                       <img 
                         src={platform.icon} 
                         alt={platform.name}
-                        className="w-5 h-5 object-contain"
+                        className="w-5 h-5 object-cover rounded-sm"
                       />
                     </div>
                       <div className="min-w-0 text-left">
@@ -254,6 +254,20 @@ export const Platforms = () => {
                         >
                           {miniapp.name}
                         </a>
+                      ))}
+                    </div>
+                  )}
+
+                  {platform.giftImages && (
+                    <div className="grid grid-cols-3 gap-2 px-4 pb-4 -mt-1">
+                      {platform.giftImages.map((image, giftIndex) => (
+                        <img
+                          key={image}
+                          src={image}
+                          alt={`Voxel gift preview ${giftIndex + 1}`}
+                          className="aspect-square w-full rounded-lg border border-primary/15 bg-muted/30 object-cover"
+                          loading="lazy"
+                        />
                       ))}
                     </div>
                   )}
