@@ -342,7 +342,7 @@ const Episodes = () => {
               <EpisodeRow
                 key={year}
                 year={year}
-                events={groupedByYear.get(year) || []}
+                episodes={groupedByYear.get(year) || []}
                 onGuestClick={setSelectedGuest}
               />
             ))}
