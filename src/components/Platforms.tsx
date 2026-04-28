@@ -108,22 +108,22 @@ const getPlatform = (name: string) => platforms.find((platform) => platform.name
 const platformGroups = [
   {
     title: "Join Live",
-    description: "Discord and metaverse access for Thursdays at 12 PM PT.",
+    description: "Where the Thursday meetup happens.",
     platforms: [getPlatform("Discord"), getPlatform("Metaverse")],
   },
   {
     title: "Watch",
-    description: "Catch episodes and announcements.",
+    description: "Replay episodes and live streams.",
     platforms: [getPlatform("YouTube"), getPlatform("Twitch")],
   },
   {
     title: "Follow",
-    description: "Stay connected across social channels.",
+    description: "Social channels and weekly updates.",
     platforms: [getPlatform("Twitter/X"), getPlatform("Farcaster"), getPlatform("Substack")],
   },
   {
     title: "Rewards",
-    description: "Collect $WIP token rewards and weekly voxel art gifts for showing up.",
+    description: "$WIP links and weekly gift details.",
     platforms: [getPlatform("$WIP Token"), getPlatform("Voxel Gifts")],
   },
 ];
