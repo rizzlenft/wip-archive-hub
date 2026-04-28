@@ -26,10 +26,11 @@ const PageLoader = () => (
   </div>
 );
 
-const App = forwardRef<HTMLDivElement>((_props, _ref) => (
-  <HelmetProvider>
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
+const App = forwardRef<HTMLDivElement>((_props, ref) => (
+  <div ref={ref} className="contents">
+    <HelmetProvider>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
         <Toaster />
         <Sonner />
         <BrowserRouter
@@ -60,9 +61,10 @@ const App = forwardRef<HTMLDivElement>((_props, _ref) => (
             </Routes>
           </Suspense>
         </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
-  </HelmetProvider>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </HelmetProvider>
+  </div>
 ));
 
 App.displayName = "App";
