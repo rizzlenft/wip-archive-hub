@@ -2,6 +2,8 @@ import { motion } from "framer-motion";
 import { Play, ExternalLink, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
+import { fetchNewsletters, type NewsletterIssue } from "@/lib/newsletter";
+import { EPISODES_DATA } from "@/lib/episodesData";
 
 interface VideoData {
   title: string;
@@ -12,6 +14,21 @@ interface VideoData {
 const CHANNEL_URL = "https://www.youtube.com/@thewipmeetup";
 const CHANNEL_ID = "UCRwQrMcwYE3K7gfP5nQVgng";
 const UPLOADS_PLAYLIST_ID = "UU" + CHANNEL_ID.slice(2);
+
+const getYouTubeIdFromIssue = (issue: NewsletterIssue) => {
+  if (issue.youtube_video_id) return issue.youtube_video_id;
+  const body = `${issue.body_html || ""} ${issue.body_markdown || ""}`;
+  return body.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/)?.[1];
+};
+
+const getFallbackTitleFromIssue = (issue: NewsletterIssue) => {
+  const body = issue.body_html || issue.body_markdown || "";
+  return body.match(/<span[^>]*>(The WIP Meetup[^<]+)<\/span>/i)?.[1]
+    ?.replace(/&#39;/g, "'")
+    ?.replace(/&amp;/g, "&")
+    || issue.title
+    || "Latest WIP Meetup replay";
+};
 
 export const LatestEvent = () => {
   const [video, setVideo] = useState<VideoData | null>(null);
