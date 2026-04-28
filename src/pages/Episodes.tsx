@@ -73,6 +73,20 @@ const Episodes = () => {
     return Array.from(years).sort((a, b) => b - a);
   }, [events]);
 
+  const recentGuests = useMemo(() => {
+    const seen = new Set<string>();
+    return events
+      .slice(0, 18)
+      .flatMap((event) => event.guests)
+      .filter((guest) => {
+        const key = guest.toLowerCase();
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      })
+      .slice(0, 10);
+  }, [events]);
+
   // Filter events
   const filteredEvents = useMemo(() => {
     let result = [...events];
@@ -375,6 +389,34 @@ const Episodes = () => {
           )}
         </div>
       </section>
+
+      {recentGuests.length > 0 && (
+        <section className="border-b border-border/40 bg-card/20 py-4">
+          <div className="container mx-auto px-4">
+            <div className="flex flex-col gap-3 md:flex-row md:items-center">
+              <div className="shrink-0 text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                Recent guests
+              </div>
+              <div className="flex gap-2 overflow-x-auto pb-1 md:flex-wrap md:overflow-visible md:pb-0">
+                {recentGuests.map((guest) => (
+                  <button
+                    key={guest}
+                    type="button"
+                    onClick={() => setSelectedGuest(guest)}
+                    className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
+                      selectedGuest === guest
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-primary/25 bg-primary/10 text-primary hover:bg-primary/20"
+                    }`}
+                  >
+                    {guest}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Netflix-Style Rows */}
       <section className="py-8">
