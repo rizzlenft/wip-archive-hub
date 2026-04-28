@@ -151,8 +151,15 @@ const Episodes = () => {
     <div className="min-h-screen bg-background">
       <SEO
         title="Events"
-        description="Browse 250+ events from The WIP Meetup — the longest-running web3 metaverse meetup. Search by guest, year, or topic."
+        description="Browse The WIP Meetup event archive with 400+ web3 metaverse replays. Search by guest, year, topic, and latest YouTube recordings."
         canonical="/events"
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          name: "The WIP Meetup Event Archive",
+          description: "A searchable archive of The WIP Meetup event replays, guests, and web3 metaverse recordings.",
+          url: "https://thewipmeetup.com/events",
+        }}
       />
       <Navigation />
       
