@@ -1,28 +1,46 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import { fetchNewsletters, type NewsletterIssue } from "@/lib/newsletter";
+import { getNextMeetupDate, isMeetupActive } from "@/lib/meetupSchedule";
 
 const API_BASE =
   (import.meta.env.VITE_BACKEND_URL as string | undefined) ||
   "https://api.thewipmeetup.com";
 
+interface TimeLeft {
+  days: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
+}
+
+const calculateTimeLeft = (targetDate: Date): TimeLeft => {
+  const difference = targetDate.getTime() - Date.now();
+
+  if (difference <= 0) {
+    return { days: 0, hours: 0, minutes: 0, seconds: 0 };
+  }
+
+  return {
+    days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+    hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+    minutes: Math.floor((difference / 1000 / 60) % 60),
+    seconds: Math.floor((difference / 1000) % 60),
+  };
+};
+
 /**
  * Returns true if we're past the event window for the newsletter's week.
- * Event ends ~6 PM ET (3 PM PT) on Thursday — we check if "now" is after
- * the Thursday 6 PM ET of the issue's week.
+ * Event ends ~6 PM ET (3 PM PT) on Thursday.
  */
 function isAfterEventWindow(issue: NewsletterIssue): boolean {
   const weekOf = new Date(issue.week_of || issue.published_at || issue.created_at);
-
-  // Find the Thursday of that week
   const day = weekOf.getUTCDay();
   const daysToThursday = (4 - day + 7) % 7;
   const thursday = new Date(weekOf);
   thursday.setUTCDate(thursday.getUTCDate() + daysToThursday);
 
-  // 6 PM ET = 23:00 UTC (EST) or 22:00 UTC (EDT)
-  // Use Intl to get current ET offset
   const now = new Date();
   const etParts = new Intl.DateTimeFormat("en-US", {
     timeZone: "America/New_York",
@@ -32,21 +50,37 @@ function isAfterEventWindow(issue: NewsletterIssue): boolean {
   const match = tzPart.match(/GMT([+-])(\d+)/);
   const etOffsetHours = match ? (match[1] === "-" ? -1 : 1) * parseInt(match[2]) : -5;
 
-  // 6 PM ET in UTC
   const cutoffUTC = new Date(Date.UTC(
     thursday.getUTCFullYear(),
     thursday.getUTCMonth(),
     thursday.getUTCDate(),
-    18 - etOffsetHours, // 18 ET → UTC
-    0, 0
+    18 - etOffsetHours,
+    0,
+    0
   ));
 
   return now > cutoffUTC;
 }
 
 export const ThisWeekCard = () => {
+  const [targetDate] = useState(getNextMeetupDate);
+  const [timeLeft, setTimeLeft] = useState<TimeLeft>(calculateTimeLeft(targetDate));
+  const [active, setActive] = useState(isMeetupActive);
   const [issue, setIssue] = useState<NewsletterIssue | null>(null);
   const [expired, setExpired] = useState(false);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft(calculateTimeLeft(targetDate));
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [targetDate]);
+
+  useEffect(() => {
+    const checkActive = setInterval(() => setActive(isMeetupActive()), 30_000);
+    return () => clearInterval(checkActive);
+  }, []);
 
   useEffect(() => {
     fetchNewsletters()
@@ -67,7 +101,6 @@ export const ThisWeekCard = () => {
       .catch(() => {});
   }, []);
 
-  // Re-check expiry every minute
   useEffect(() => {
     if (!issue) return;
     const timer = setInterval(() => {
@@ -76,41 +109,40 @@ export const ThisWeekCard = () => {
     return () => clearInterval(timer);
   }, [issue]);
 
-  if (!issue) return null;
+  if (active) return null;
 
-  const speakers = issue.speakers || [];
+  const speakers = !expired ? (issue?.speakers || []).slice(0, 2) : [];
+  const countdownText = `${String(timeLeft.days).padStart(2, "0")}d ${String(timeLeft.hours).padStart(2, "0")}h ${String(timeLeft.minutes).padStart(2, "0")}m ${String(timeLeft.seconds).padStart(2, "0")}s`;
 
   return (
-    <section className="px-4 py-8 md:py-10">
-      <div className="container mx-auto max-w-3xl">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="mb-6 text-center"
-        >
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <Sparkles className="w-5 h-5 text-primary" />
-            <h2 className="text-sm font-bold uppercase tracking-widest text-primary">
-              Featured Guests
-            </h2>
-          </div>
-          <p className="text-muted-foreground text-sm">
-            {expired ? "Come back soon to find out!" : "Joining this week's meetup"}
-          </p>
-        </motion.div>
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="mx-auto flex max-w-4xl flex-col gap-3 rounded-xl border border-border/70 bg-card/55 px-4 py-3 text-left backdrop-blur-sm sm:flex-row sm:items-center sm:justify-center sm:gap-4 md:px-5"
+    >
+      <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
+        <span className="text-xs font-bold uppercase tracking-widest text-primary">Next meetup</span>
+        <span className="text-lg font-bold text-gradient-rainbow md:text-xl">{countdownText}</span>
+        <span className="text-xs text-muted-foreground">Thursday · 12 PM PT</span>
+      </div>
 
-        {!expired && speakers.length > 0 && (
-          <div className={`mx-auto grid gap-3 ${speakers.length === 1 ? 'max-w-xs' : 'max-w-xl sm:grid-cols-2'}`}>
-            {speakers.slice(0, 4).map((speaker, idx) => (
-              <motion.div
+      <div className="hidden h-8 w-px bg-border/70 sm:block" />
+
+      <div className="flex min-w-0 flex-wrap items-center justify-center gap-2">
+        <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-primary">
+          <Sparkles className="h-4 w-4" />
+          {speakers.length === 1 ? "Featured guest" : "Featured guests"}
+        </div>
+        {speakers.length > 0 ? (
+          <div className="flex min-w-0 flex-wrap items-center justify-center gap-2">
+            {speakers.map((speaker) => (
+              <a
                 key={speaker.name}
-                initial={{ opacity: 0, y: 15 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: idx * 0.1, duration: 0.4 }}
-                className={`flex items-center rounded-xl border border-border bg-card/60 backdrop-blur-sm ${speakers.length === 1 ? 'flex-col text-center gap-4 px-6 py-5' : 'gap-3 px-4 py-3'}`}
+                href={speaker.twitter ? `https://x.com/${speaker.twitter}` : undefined}
+                target={speaker.twitter ? "_blank" : undefined}
+                rel={speaker.twitter ? "noopener noreferrer" : undefined}
+                className="flex min-w-0 items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-2.5 py-1 text-sm font-medium text-foreground transition-colors hover:bg-primary/20"
               >
                 <img
                   src={
@@ -118,38 +150,19 @@ export const ThisWeekCard = () => {
                     `${API_BASE}/api/newsletter?action=avatar&${speaker.farcaster ? `farcaster=${encodeURIComponent(speaker.farcaster)}` : speaker.twitter ? `twitter=${encodeURIComponent(speaker.twitter)}` : `twitter=${encodeURIComponent(speaker.name)}`}`
                   }
                   alt={speaker.name}
-                  className={`rounded-full object-cover border border-primary/30 shrink-0 ${speakers.length === 1 ? 'w-16 h-16' : 'w-10 h-10'}`}
+                  className="h-5 w-5 shrink-0 rounded-full border border-primary/30 object-cover"
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(speaker.name)}&background=7c3aed&color=fff&size=40`;
                   }}
                 />
-                <div className="min-w-0">
-                  <div className={`flex items-center gap-1.5 flex-wrap ${speakers.length === 1 ? 'justify-center' : ''}`}>
-                    <span className={`font-semibold text-foreground ${speakers.length === 1 ? 'text-base' : 'text-sm'}`}>
-                      {speaker.name}
-                    </span>
-                    {speaker.twitter && (
-                      <a
-                        href={`https://x.com/${speaker.twitter}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs text-primary hover:underline"
-                      >
-                        @{speaker.twitter}
-                      </a>
-                    )}
-                  </div>
-                  {speaker.topic && (
-                    <p className={`text-muted-foreground truncate ${speakers.length === 1 ? 'text-sm' : 'text-xs'}`}>
-                      {speaker.topic}
-                    </p>
-                  )}
-                </div>
-              </motion.div>
+                <span className="truncate">{speaker.name}</span>
+              </a>
             ))}
           </div>
+        ) : (
+          <span className="text-sm text-muted-foreground">Come back soon to find out</span>
         )}
       </div>
-    </section>
+    </motion.div>
   );
 };
