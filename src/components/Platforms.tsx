@@ -70,6 +70,16 @@ const platforms = [
     url: "https://wip-staking.pages.dev/trade",
     icon: wipLogoStatic,
     color: "from-yellow-400 to-orange-500",
+    miniapps: [
+      {
+        name: "WIPCoin Portal",
+        url: "https://farcaster.xyz/miniapps/eOxi0VR7PqQk/wipcoin-portal",
+      },
+      {
+        name: "GeckoTerminal",
+        url: "https://www.geckoterminal.com/base/pools/0xfa9d608b5a13a78bd403e61e2459660efa7566348357ef7ccb010522af3660f0",
+      },
+    ],
   },
 ];
 
