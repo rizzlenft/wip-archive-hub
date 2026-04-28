@@ -112,7 +112,7 @@ const Episodes = () => {
       <SEO
         title="Events"
         description="Browse 250+ events from The WIP Meetup — the longest-running web3 metaverse meetup. Search by guest, year, or topic."
-        canonical="/episodes"
+        canonical="/events"
       />
       <Navigation />
       
