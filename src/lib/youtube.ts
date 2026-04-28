@@ -87,7 +87,7 @@ export function parseGuestsFromTitle(title: string): string[] {
   return Array.from(new Set(guests));
 }
 
-function getGuestsForEpisode(videoId: string, title: string): string[] {
+export function getGuestsForEpisode(videoId: string, title: string): string[] {
   return GUEST_OVERRIDES[videoId] || parseGuestsFromTitle(title);
 }
 
