@@ -96,8 +96,15 @@ const Guests = () => {
     <div className="min-h-screen bg-background">
       <SEO
         title="Guests"
-        description="Explore the full directory of guests and collaborators who have appeared on The WIP Meetup since 2019."
+        description="Explore The WIP Meetup guest archive — builders, artists, creators, and collaborators featured across web3 metaverse events since 2019."
         canonical="/guests"
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          name: "The WIP Meetup Guest Archive",
+          description: "A directory of guests and collaborators featured on The WIP Meetup.",
+          url: "https://thewipmeetup.com/guests",
+        }}
       />
       <Navigation />
       
