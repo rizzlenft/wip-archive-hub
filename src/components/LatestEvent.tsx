@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Archive, Play, X } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { fetchNewsletters, type NewsletterIssue } from "@/lib/newsletter";
@@ -11,7 +12,6 @@ interface VideoData {
   thumbnail: string;
 }
 
-const CHANNEL_URL = "https://www.youtube.com/@thewipmeetup";
 const CHANNEL_ID = "UCRwQrMcwYE3K7gfP5nQVgng";
 const UPLOADS_PLAYLIST_ID = "UU" + CHANNEL_ID.slice(2);
 
@@ -217,10 +217,10 @@ export const LatestEvent = () => {
 
           <div className="mt-4 flex justify-center">
             <Button variant="outline" size="lg" asChild>
-              <a href="/events">
+              <Link to="/events">
                 <Archive className="w-5 h-5" />
                 Browse Event Archive
-              </a>
+              </Link>
             </Button>
           </div>
         </motion.div>
