@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { CountdownTimer } from "@/components/CountdownTimer";
 import { LiveStatusBanner } from "@/components/LiveStatusBanner";
 
 import heroBg from "@/assets/hero-bg.jpg";
@@ -81,7 +80,7 @@ export const Hero = () => {
             creators, and artists together <span className="font-semibold text-primary">every Thursday at 12 PM PT</span>.
           </motion.p>
 
-          {/* Live Status or Countdown */}
+          {/* Live Status */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -89,7 +88,6 @@ export const Hero = () => {
             className="pt-2"
           >
             <LiveStatusBanner />
-            <CountdownTimer />
           </motion.div>
 
           {/* Primary CTA */}
