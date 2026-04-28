@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Coins, Heart, ExternalLink } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import wipLogoStatic from "@/assets/wip-logo-static.png";
 import metaverseBg2 from "@/assets/metaverse-bg-2.gif";
@@ -19,6 +19,9 @@ const artists = [
 ];
 
 const collectionUrl = "https://opensea.io/collection/random-3d-things";
+const stakingUrl = "https://wip-staking.pages.dev/";
+const tradeUrl = "https://wip-staking.pages.dev/trade";
+const chartUrl = "https://www.geckoterminal.com/base/pools/0xfa9d608b5a13a78bd403e61e2459660efa7566348357ef7ccb010522af3660f0";
 
 export const CommunityPerks = () => {
   const [currentNft, setCurrentNft] = useState(0);
@@ -64,7 +67,7 @@ export const CommunityPerks = () => {
           className="mx-auto mb-10 max-w-5xl overflow-hidden rounded-2xl border-glow bg-card/80 backdrop-blur-sm md:mb-12"
         >
           <div className="grid gap-0 lg:grid-cols-[0.85fr_1.15fr]">
-            <div className="flex min-h-[320px] flex-col justify-between border-b border-border/80 p-5 sm:p-8 lg:border-b-0 lg:border-r">
+            <div className="border-b border-border/80 p-5 sm:p-8 lg:border-b-0 lg:border-r">
               <div className="space-y-5">
                 <div className="flex items-center gap-4">
                   <img
@@ -81,18 +84,25 @@ export const CommunityPerks = () => {
                   </div>
                 </div>
                 <p className="text-base leading-relaxed text-muted-foreground sm:text-lg">
-                  Attend the meetup and receive $WIP as a thank you for contributing to the community.
+                  Attend the meetup and collect $WIP as a thank you for contributing to the community.
                 </p>
-              </div>
-
-              <div className="mt-8 grid grid-cols-2 gap-3 text-sm max-[380px]:grid-cols-1">
-                <div className="rounded-xl border border-border bg-muted/30 p-4">
-                  <p className="font-bold text-foreground">Thursdays</p>
-                  <p className="text-muted-foreground">12–3 PM PT</p>
-                </div>
-                <div className="rounded-xl border border-border bg-muted/30 p-4">
-                  <p className="font-bold text-foreground">Community</p>
-                  <p className="text-muted-foreground">Rewarded live</p>
+                <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
+                  <Button variant="hero" size="default" asChild>
+                    <a href={stakingUrl} target="_blank" rel="noopener noreferrer">
+                      Stake $WIP
+                      <ExternalLink className="h-4 w-4" />
+                    </a>
+                  </Button>
+                  <Button variant="outline" size="default" className="border-primary/30 hover:bg-primary/10" asChild>
+                    <a href={tradeUrl} target="_blank" rel="noopener noreferrer">
+                      Trade
+                    </a>
+                  </Button>
+                  <Button variant="outline" size="default" className="border-primary/30 hover:bg-primary/10" asChild>
+                    <a href={chartUrl} target="_blank" rel="noopener noreferrer">
+                      Chart
+                    </a>
+                  </Button>
                 </div>
               </div>
             </div>
@@ -166,41 +176,6 @@ export const CommunityPerks = () => {
           </div>
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="mx-auto max-w-4xl rounded-2xl border border-primary/20 bg-card/60 p-5 backdrop-blur-sm md:p-6"
-        >
-          <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
-            <div className="flex items-center gap-4 text-left">
-              <div className="hidden sm:flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10">
-                <Heart className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <h3 className="text-xl font-bold">Support The WIP</h3>
-                <p className="text-sm text-muted-foreground">
-                  Help keep the meetups running, artists creating, and community growing.
-                </p>
-              </div>
-            </div>
-            <div className="flex flex-col gap-3 sm:flex-row md:shrink-0">
-              <Button variant="hero" size="default" asChild>
-                <a href="https://wip-staking.pages.dev/trade" target="_blank" rel="noopener noreferrer">
-                  <Coins className="w-4 h-4" />
-                  Buy $WIP
-                </a>
-              </Button>
-              <Button variant="outline" size="default" className="border-primary/30 hover:bg-primary/10" asChild>
-                <a href="https://piri-pay.vercel.app/tip/qY3jM8YzHk" target="_blank" rel="noopener noreferrer">
-                  <Heart className="w-4 h-4 text-primary" />
-                  Donate
-                </a>
-              </Button>
-            </div>
-          </div>
-        </motion.div>
       </div>
     </section>
   );
