@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Calendar, Users, Play, X, ChevronDown, ArrowUp, Shuffle } from "lucide-react";
+import { Search, Calendar, Users, Play, X, ChevronDown, ArrowUp, Shuffle, SlidersHorizontal } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
@@ -16,11 +16,21 @@ import {
   type Episode 
 } from "@/lib/youtube";
 
+type QuickFilter = "all" | "latest" | "guests" | "numbered";
+
+const quickFilters: Array<{ id: QuickFilter; label: string }> = [
+  { id: "all", label: "All" },
+  { id: "latest", label: "Latest" },
+  { id: "guests", label: "Guests" },
+  { id: "numbered", label: "Meetups" },
+];
+
 const Episodes = () => {
   const [events, setEpisodes] = useState<Episode[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadedAt, setLoadedAt] = useState<Date | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [quickFilter, setQuickFilter] = useState<QuickFilter>("all");
   const [selectedGuest, setSelectedGuest] = useState<string | null>(null);
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [showGuestDropdown, setShowGuestDropdown] = useState(false);
@@ -84,9 +94,17 @@ const Episodes = () => {
     if (selectedYear) {
       result = result.filter(ep => ep.publishedAt.getFullYear() === selectedYear);
     }
+
+    if (quickFilter === "latest") {
+      result = result.slice(0, 24);
+    } else if (quickFilter === "guests") {
+      result = result.filter(ep => ep.guests.length > 0);
+    } else if (quickFilter === "numbered") {
+      result = result.filter(ep => ep.episodeNumber !== null);
+    }
     
     return result;
-  }, [events, searchQuery, selectedGuest, selectedYear]);
+  }, [events, searchQuery, quickFilter, selectedGuest, selectedYear]);
 
   // Group filtered events by year
   const groupedByYear = useMemo(() => groupEpisodesByYear(filteredEvents), [filteredEvents]);
@@ -97,6 +115,7 @@ const Episodes = () => {
 
   const clearFilters = () => {
     setSearchQuery("");
+    setQuickFilter("all");
     setSelectedGuest(null);
     setSelectedYear(null);
   };
@@ -108,7 +127,7 @@ const Episodes = () => {
     }
   };
 
-  const hasActiveFilters = searchQuery || selectedGuest || selectedYear;
+  const hasActiveFilters = searchQuery || quickFilter !== "all" || selectedGuest || selectedYear;
   const newestEventDate = events[0]?.publishedAt;
   const archiveStatus = loadedAt
     ? `Updated ${loadedAt.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`
@@ -200,6 +219,24 @@ const Episodes = () => {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10 h-9"
               />
+            </div>
+
+            <div className="flex items-center gap-1 overflow-x-auto rounded-lg border border-border/60 bg-card/35 p-1">
+              <SlidersHorizontal className="ml-2 hidden h-3.5 w-3.5 shrink-0 text-muted-foreground sm:block" />
+              {quickFilters.map((filter) => (
+                <button
+                  key={filter.id}
+                  type="button"
+                  onClick={() => setQuickFilter(filter.id)}
+                  className={`h-7 shrink-0 rounded-md px-3 text-xs font-semibold transition-colors ${
+                    quickFilter === filter.id
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  }`}
+                >
+                  {filter.label}
+                </button>
+              ))}
             </div>
             
             {/* Guest Filter */}

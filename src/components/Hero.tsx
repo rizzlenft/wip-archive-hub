@@ -1,5 +1,8 @@
 import { motion } from "framer-motion";
+import { ArrowDownCircle, CalendarDays, PlayCircle } from "lucide-react";
+import { Link } from "react-router-dom";
 import { LiveStatusBanner } from "@/components/LiveStatusBanner";
+import { Button } from "@/components/ui/button";
 
 import heroBg from "@/assets/hero-bg.jpg";
 import wipLogo from "@/assets/wip-logo.gif";
@@ -77,6 +80,37 @@ export const Hero = () => {
             WIP = Work in Progress. The longest-running web3 metaverse meetup brings builders,
             creators, and artists together <span className="font-semibold text-primary">every Thursday at 12 PM PT</span>.
           </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.55 }}
+            className="flex flex-col items-center justify-center gap-3 pt-2 sm:flex-row"
+          >
+            <Button size="lg" asChild>
+              <a href="#watch">
+                <PlayCircle className="h-5 w-5" />
+                Watch Latest Event
+              </a>
+            </Button>
+            <Button variant="outline" size="lg" asChild>
+              <Link to="/events">
+                <CalendarDays className="h-5 w-5" />
+                Browse Events
+              </Link>
+            </Button>
+          </motion.div>
+
+          <motion.a
+            href="#watch"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.9 }}
+            className="mx-auto hidden w-fit items-center gap-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground transition-colors hover:text-primary md:flex"
+          >
+            <ArrowDownCircle className="h-4 w-4" />
+            Latest replay below
+          </motion.a>
 
           {/* Live Status */}
           <motion.div

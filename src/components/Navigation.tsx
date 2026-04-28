@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { ExternalLink, Menu, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/auth/AuthContext";
@@ -151,13 +151,13 @@ export const Navigation = () => {
             className="fixed inset-0 z-40 bg-background/95 backdrop-blur-lg pt-20 md:hidden"
           >
             <div className="container mx-auto px-4 py-8">
-              <div className="flex flex-col gap-6">
+              <div className="flex flex-col gap-5">
                 {navLinks.map((link) => (
                   <Link
                     key={link.name}
                     to={link.href}
                     onClick={closeMobile}
-                    className="text-2xl font-medium text-foreground hover:text-primary transition-colors"
+                    className="rounded-lg border border-border/60 bg-card/40 px-4 py-3 text-xl font-semibold text-foreground transition-colors hover:border-primary/40 hover:bg-primary/10 hover:text-primary"
                   >
                     {link.name}
                   </Link>
@@ -189,7 +189,9 @@ export const Navigation = () => {
                   </>
                 )}
                 {/* Social Icons */}
-                <div className="flex items-center gap-3 mt-6 flex-wrap justify-center">
+                <div className="mt-4 border-t border-border/60 pt-5">
+                  <p className="mb-3 text-xs font-bold uppercase tracking-widest text-muted-foreground">Follow The WIP</p>
+                  <div className="grid grid-cols-2 gap-2">
                   {socialLinks.map((link) => (
                     <a
                       key={link.name}
@@ -197,11 +199,16 @@ export const Navigation = () => {
                       target="_blank"
                       rel="noopener noreferrer"
                       title={link.name}
-                      className="w-10 h-10 flex items-center justify-center rounded-full bg-muted/50 hover:bg-primary/20 hover:scale-110 transition-all"
+                      className="flex h-11 items-center justify-between rounded-lg border border-border/60 bg-muted/35 px-3 text-sm font-medium text-foreground transition-colors hover:border-primary/40 hover:bg-primary/10"
                     >
-                      <img src={link.icon} alt={link.name} className="w-5 h-5 object-contain" loading="lazy" width={20} height={20} />
+                      <span className="flex min-w-0 items-center gap-2">
+                        <img src={link.icon} alt="" className="h-5 w-5 shrink-0 object-contain" loading="lazy" width={20} height={20} />
+                        <span className="truncate">{link.name}</span>
+                      </span>
+                      <ExternalLink className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                     </a>
                   ))}
+                  </div>
                 </div>
               </div>
             </div>
