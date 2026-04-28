@@ -5,7 +5,7 @@ import rizzlePfp from "@/assets/rizzle-pfp-3.jpeg";
 
 export const ContactRizzle = () => {
   return (
-    <section className="py-10 relative overflow-hidden">
+    <section className="relative overflow-hidden py-8 md:py-10">
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
 
       <div className="container mx-auto px-4 relative z-10">
@@ -14,9 +14,9 @@ export const ContactRizzle = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="max-w-5xl mx-auto"
+          className="mx-auto max-w-5xl"
         >
-          <div className="rounded-2xl border border-primary/20 bg-card/60 backdrop-blur-sm px-5 py-5 md:px-6">
+          <div className="rounded-2xl border border-primary/20 bg-card/60 px-5 py-5 backdrop-blur-sm md:px-6">
             <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
               {/* Rizzle PFP */}
               <motion.a
@@ -25,9 +25,9 @@ export const ContactRizzle = () => {
                 rel="noopener noreferrer"
                 whileHover={{ scale: 1.05, rotate: 2 }}
                 whileTap={{ scale: 0.97 }}
-                className="shrink-0 group relative self-center md:self-auto"
+                className="group relative shrink-0 self-center md:self-auto"
               >
-                <div className="w-16 h-16 rounded-xl overflow-hidden ring-2 ring-primary/30 group-hover:ring-primary/60 transition-all shadow-lg group-hover:shadow-primary/20">
+                <div className="h-16 w-16 overflow-hidden rounded-xl shadow-lg ring-2 ring-primary/30 transition-all group-hover:shadow-primary/20 group-hover:ring-primary/60">
                   <img
                     src={rizzlePfp}
                     alt="Rizzle"
@@ -61,7 +61,7 @@ export const ContactRizzle = () => {
                       Be a Guest
                     </a>
                   </Button>
-                  <Button variant="glow" size="default" asChild>
+                  <Button variant="outline" size="default" className="border-primary/30 hover:bg-primary/10" asChild>
                     <a
                       href="https://x.com/NFTland"
                       target="_blank"
