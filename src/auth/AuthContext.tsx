@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, forwardRef, useContext, useEffect, useState } from "react";
 
 type User = {
   sub: string;
@@ -27,7 +27,10 @@ const TOKENSMART_URL =
 const CONNECT_CLIENT_ID =
   (import.meta.env.VITE_CONNECT_CLIENT_ID as string | undefined) || "wip-app";
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export const AuthProvider = forwardRef<HTMLDivElement, { children: React.ReactNode }>(function AuthProvider(
+  { children },
+  _ref,
+) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -84,7 +87,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}
+});
 
 export function useAuth() {
   const ctx = useContext(AuthContext);
