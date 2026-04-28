@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
 import { Play, ExternalLink, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { fetchAllEpisodes } from "@/lib/youtube";
 import { useState, useEffect } from "react";
 
 interface VideoData {
@@ -48,55 +47,8 @@ export const LatestEvent = () => {
         // fallback
       }
 
-      // Strategy 2: Invidious
-      const invidiousInstances = [
-        "https://inv.nadeko.net",
-        "https://invidious.fdn.fr",
-        "https://invidious.privacyredirect.com",
-        "https://vid.puffyan.us",
-      ];
-
-      for (const instance of invidiousInstances) {
-        try {
-          const response = await fetch(
-            `${instance}/api/v1/channels/${CHANNEL_ID}/videos?fields=videoId,title&sort_by=newest`,
-            { signal: AbortSignal.timeout(5000) }
-          );
-          if (!response.ok) continue;
-          const videos = await response.json();
-          if (Array.isArray(videos) && videos.length > 0) {
-            const latest = videos[0];
-            setVideo({
-              title: latest.title,
-              videoId: latest.videoId,
-              thumbnail: `https://img.youtube.com/vi/${latest.videoId}/maxresdefault.jpg`,
-            });
-            setSource("Live via Invidious");
-            return;
-          }
-        } catch {
-          continue;
-        }
-      }
-
-      // Strategy 3: Archive
-      try {
-        const episodes = await fetchAllEpisodes();
-        const latestEpisode = episodes[0];
-        if (latestEpisode) {
-          setVideo({
-            title: latestEpisode.title,
-            videoId: latestEpisode.videoId,
-            thumbnail: `https://img.youtube.com/vi/${latestEpisode.videoId}/maxresdefault.jpg`,
-          });
-          setSource("Archive fallback");
-          return;
-        }
-      } catch {
-        // final fallback
-      }
-
-      // Strategy 4: Playlist embed
+      // If live sources are unavailable, use YouTube's uploads playlist embed.
+      // Do not fall back to the static episode archive here, because it can show stale events.
       setSource("Playlist embed");
       setUseFallbackEmbed(true);
     };
