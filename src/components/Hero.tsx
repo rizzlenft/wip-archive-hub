@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ArrowDownCircle, CalendarDays, PlayCircle } from "lucide-react";
+import { CalendarDays, PlayCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { LiveStatusBanner } from "@/components/LiveStatusBanner";
 import { Button } from "@/components/ui/button";
@@ -100,17 +100,6 @@ export const Hero = () => {
               </Link>
             </Button>
           </motion.div>
-
-          <motion.a
-            href="#watch"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.9 }}
-            className="mx-auto hidden w-fit items-center gap-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground transition-colors hover:text-primary md:flex"
-          >
-            <ArrowDownCircle className="h-4 w-4" />
-            Latest replay below
-          </motion.a>
 
           {/* Live Status */}
           <motion.div
