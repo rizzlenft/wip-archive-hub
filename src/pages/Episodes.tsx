@@ -1,11 +1,11 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Calendar, Users, Play, X, ChevronDown, ArrowUp, Shuffle, SlidersHorizontal } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Search, Calendar, X, ArrowUp, Shuffle, SlidersHorizontal } from "lucide-react";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EpisodeRow } from "@/components/episodes/EpisodeRow";
 import { SEO } from "@/components/SEO";
@@ -32,8 +32,6 @@ const Episodes = () => {
   const [quickFilter, setQuickFilter] = useState<QuickFilter>("all");
   const [selectedGuest, setSelectedGuest] = useState<string | null>(null);
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
-  const [showGuestDropdown, setShowGuestDropdown] = useState(false);
-  const [showYearDropdown, setShowYearDropdown] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
 
   useEffect(() => {
@@ -54,45 +52,11 @@ const Episodes = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Close dropdowns when clicking outside
-  useEffect(() => {
-    const handleClickOutside = () => {
-      setShowGuestDropdown(false);
-      setShowYearDropdown(false);
-    };
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setShowGuestDropdown(false);
-        setShowYearDropdown(false);
-      }
-    };
-    document.addEventListener('click', handleClickOutside);
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('click', handleClickOutside);
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, []);
-
   // Extract all unique guests and years
   const allGuests = useMemo(() => extractUniqueGuests(events), [events]);
   const allYears = useMemo(() => {
     const years = new Set(events.map(ep => ep.publishedAt.getFullYear()));
     return Array.from(years).sort((a, b) => b - a);
-  }, [events]);
-
-  const recentGuests = useMemo(() => {
-    const seen = new Set<string>();
-    return events
-      .slice(0, 18)
-      .flatMap((event) => event.guests)
-      .filter((guest) => {
-        const key = guest.toLowerCase();
-        if (seen.has(key)) return false;
-        seen.add(key);
-        return true;
-      })
-      .slice(0, 10);
   }, [events]);
 
   // Filter events
@@ -197,16 +161,6 @@ const Episodes = () => {
                 <Shuffle className="w-5 h-5 mr-2" />
                 Random Event
               </Button>
-              <Link to="/guests">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-primary/50 hover:border-primary hover:bg-primary/5"
-                >
-                  <Users className="w-5 h-5 mr-2" />
-                  Explore {allGuests.length}+ Guests
-                </Button>
-              </Link>
             </div>
             
             {/* Stats Row */}
@@ -214,10 +168,6 @@ const Episodes = () => {
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Calendar className="w-4 h-4 text-primary" />
                 <span className="text-sm">Since 2019</span>
-              </div>
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Play className="w-4 h-4 text-primary" />
-                <span className="text-sm">{events.length} Events</span>
               </div>
             </div>
           </motion.div>
@@ -244,149 +194,82 @@ const Episodes = () => {
               />
             </div>
 
-            <div className="flex items-center gap-1 overflow-x-auto rounded-lg border border-border/60 bg-card/35 p-1">
-              <SlidersHorizontal className="ml-2 hidden h-3.5 w-3.5 shrink-0 text-muted-foreground sm:block" />
-              {quickFilters.map((filter) => (
-                <button
-                  key={filter.id}
-                  type="button"
-                  onClick={() => setQuickFilter(filter.id)}
-                  aria-pressed={quickFilter === filter.id}
-                  className={`h-7 shrink-0 rounded-md px-3 text-xs font-semibold transition-colors ${
-                    quickFilter === filter.id
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                  }`}
-                >
-                  {filter.label}
-                </button>
-              ))}
-            </div>
-            
-            {/* Guest Filter */}
-            <div className="relative" onClick={(e) => e.stopPropagation()}>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  setShowGuestDropdown(!showGuestDropdown);
-                  setShowYearDropdown(false);
-                }}
-                aria-expanded={showGuestDropdown}
-                aria-haspopup="listbox"
-                className={selectedGuest ? "border-primary text-primary" : ""}
-              >
-                <Users className="w-3.5 h-3.5 mr-1.5" />
-                <span className="hidden sm:inline">{selectedGuest || "Guests"}</span>
-                <span className="sm:hidden">Guests</span>
-                <ChevronDown className="w-3.5 h-3.5 ml-1.5" />
-              </Button>
-              
-              <AnimatePresence>
-                {showGuestDropdown && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    role="listbox"
-                    aria-label="Filter by guest"
-                    className="absolute top-full left-0 mt-2 w-64 max-h-80 overflow-auto bg-popover border border-border rounded-lg shadow-xl z-50"
-                  >
-                    <button
-                      onClick={() => {
-                        setSelectedGuest(null);
-                        setShowGuestDropdown(false);
-                      }}
-                      className="w-full px-4 py-2 text-left hover:bg-muted transition-colors text-sm font-medium"
-                    >
-                      All Guests
-                    </button>
-                    {allGuests.map(guest => (
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm" className={selectedGuest || selectedYear ? "border-primary text-primary" : ""}>
+                  <SlidersHorizontal className="h-3.5 w-3.5" />
+                  Filter
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="end" className="w-[min(22rem,calc(100vw-2rem))] space-y-5">
+                <div>
+                  <div className="mb-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Type</div>
+                  <div className="grid grid-cols-2 gap-2">
+                    {quickFilters.map((filter) => (
                       <button
-                        key={guest}
-                        onClick={() => {
-                          setSelectedGuest(guest);
-                          setShowGuestDropdown(false);
-                        }}
-                        className={`w-full px-4 py-2 text-left hover:bg-muted transition-colors text-sm ${
-                          selectedGuest === guest ? "bg-primary/10 text-primary" : ""
+                        key={filter.id}
+                        type="button"
+                        onClick={() => setQuickFilter(filter.id)}
+                        aria-pressed={quickFilter === filter.id}
+                        className={`rounded-md px-3 py-2 text-sm font-semibold transition-colors ${
+                          quickFilter === filter.id
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
                         }`}
                       >
-                        {guest}
+                        {filter.label}
                       </button>
                     ))}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-            
-            {/* Year Filter */}
-            <div className="relative" onClick={(e) => e.stopPropagation()}>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  setShowYearDropdown(!showYearDropdown);
-                  setShowGuestDropdown(false);
-                }}
-                aria-expanded={showYearDropdown}
-                aria-haspopup="listbox"
-                className={selectedYear ? "border-primary text-primary" : ""}
-              >
-                <Calendar className="w-3.5 h-3.5 mr-1.5" />
-                {selectedYear || "Year"}
-                <ChevronDown className="w-3.5 h-3.5 ml-1.5" />
-              </Button>
-              
-              <AnimatePresence>
-                {showYearDropdown && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    role="listbox"
-                    aria-label="Filter by year"
-                    className="absolute top-full left-0 mt-2 w-32 bg-popover border border-border rounded-lg shadow-xl z-50"
-                  >
+                  </div>
+                </div>
+
+                <div>
+                  <div className="mb-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Year</div>
+                  <div className="flex flex-wrap gap-2">
                     <button
-                      onClick={() => {
-                        setSelectedYear(null);
-                        setShowYearDropdown(false);
-                      }}
-                      className="w-full px-4 py-2 text-left hover:bg-muted transition-colors text-sm font-medium"
+                      type="button"
+                      onClick={() => setSelectedYear(null)}
+                      className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${!selectedYear ? "bg-primary text-primary-foreground" : "bg-muted/50 text-muted-foreground hover:bg-muted"}`}
                     >
-                      All Years
+                      All
                     </button>
-                    {allYears.map(year => (
+                    {allYears.map((year) => (
                       <button
                         key={year}
-                        onClick={() => {
-                          setSelectedYear(year);
-                          setShowYearDropdown(false);
-                        }}
-                        className={`w-full px-4 py-2 text-left hover:bg-muted transition-colors text-sm ${
-                          selectedYear === year ? "bg-primary/10 text-primary" : ""
-                        }`}
+                        type="button"
+                        onClick={() => setSelectedYear(year)}
+                        className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${selectedYear === year ? "bg-primary text-primary-foreground" : "bg-muted/50 text-muted-foreground hover:bg-muted"}`}
                       >
                         {year}
                       </button>
                     ))}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+                  </div>
+                </div>
 
-            {/* Random Event Button */}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleRandomEpisode}
-              disabled={events.length === 0}
-              className="hidden sm:flex"
-            >
-              <Shuffle className="w-3.5 h-3.5 mr-1.5" />
-              Random
-            </Button>
+                <div>
+                  <div className="mb-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Guest</div>
+                  <div className="max-h-48 space-y-1 overflow-auto pr-1">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedGuest(null)}
+                      className={`w-full rounded-md px-3 py-2 text-left text-sm transition-colors ${!selectedGuest ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
+                    >
+                      All guests
+                    </button>
+                    {allGuests.map((guest) => (
+                      <button
+                        key={guest}
+                        type="button"
+                        onClick={() => setSelectedGuest(guest)}
+                        className={`w-full rounded-md px-3 py-2 text-left text-sm transition-colors ${selectedGuest === guest ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
+                      >
+                        {guest}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
             
             {/* Clear Filters */}
             {hasActiveFilters && (
@@ -405,34 +288,6 @@ const Episodes = () => {
           )}
         </div>
       </section>
-
-      {recentGuests.length > 0 && (
-        <section className="border-b border-border/40 bg-card/20 py-4">
-          <div className="container mx-auto px-4">
-            <div className="flex flex-col gap-3 md:flex-row md:items-center">
-              <div className="shrink-0 text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                Recent guests
-              </div>
-              <div className="scrollbar-hide flex gap-2 overflow-x-auto pb-1 md:flex-wrap md:overflow-visible md:pb-0">
-                {recentGuests.map((guest) => (
-                  <button
-                    key={guest}
-                    type="button"
-                    onClick={() => setSelectedGuest(guest)}
-                    className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
-                      selectedGuest === guest
-                        ? "border-primary bg-primary text-primary-foreground"
-                        : "border-primary/25 bg-primary/10 text-primary hover:bg-primary/20"
-                    }`}
-                  >
-                    {guest}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* Netflix-Style Rows */}
       <section className="py-8">
