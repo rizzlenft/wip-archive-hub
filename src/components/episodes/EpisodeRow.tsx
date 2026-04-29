@@ -70,6 +70,7 @@ export const EpisodeRow = ({ year, episodes, onGuestClick }: EpisodeRowProps) =>
           className="absolute left-0 top-0 bottom-0 z-20 w-12 md:w-16 bg-gradient-to-r from-background via-background/80 to-transparent flex items-center justify-start pl-2 md:pl-4"
           onClick={() => scroll('left')}
           disabled={!canScrollLeft}
+          aria-label={`Scroll ${year} events left`}
         >
           <div className="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors shadow-lg">
             <ChevronLeft className="w-5 h-5" />
@@ -83,6 +84,7 @@ export const EpisodeRow = ({ year, episodes, onGuestClick }: EpisodeRowProps) =>
           className="absolute right-0 top-0 bottom-0 z-20 w-12 md:w-16 bg-gradient-to-l from-background via-background/80 to-transparent flex items-center justify-end pr-2 md:pr-4"
           onClick={() => scroll('right')}
           disabled={!canScrollRight}
+          aria-label={`Scroll ${year} events right`}
         >
           <div className="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors shadow-lg">
             <ChevronRight className="w-5 h-5" />
@@ -92,7 +94,9 @@ export const EpisodeRow = ({ year, episodes, onGuestClick }: EpisodeRowProps) =>
         {/* Events Scroll Container */}
         <div
           ref={scrollRef}
-          className="flex gap-4 overflow-x-auto scrollbar-hide px-4 md:px-8 pb-20"
+          tabIndex={0}
+          aria-label={`${year} event replays`}
+          className="flex gap-4 overflow-x-auto scrollbar-hide px-4 md:px-8 pb-20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {episodes.map((episode) => (
