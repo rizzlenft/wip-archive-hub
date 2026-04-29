@@ -44,10 +44,19 @@ export const EpisodeCard = ({ episode, onGuestClick }: EpisodeCardProps) => {
   return (
     <>
       <motion.div
+        role="button"
+        tabIndex={0}
+        aria-label={`Play ${displayTitle}`}
         className="group relative flex-shrink-0 w-[280px] cursor-pointer overflow-hidden rounded-lg border border-border/70 bg-card/60 shadow-card transition-colors hover:border-primary/50 md:w-[320px]"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         onClick={handleClick}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            handleClick();
+          }
+        }}
         whileHover={{ scale: 1.05, zIndex: 20 }}
         transition={{ duration: 0.2 }}
       >
@@ -124,6 +133,7 @@ export const EpisodeCard = ({ episode, onGuestClick }: EpisodeCardProps) => {
                     e.stopPropagation();
                     onGuestClick?.(guest);
                   }}
+                  aria-label={`Filter events by ${guest}`}
                   className="flex max-w-full items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary transition-colors hover:bg-primary/20"
                 >
                   <User className="h-2.5 w-2.5 shrink-0" />
