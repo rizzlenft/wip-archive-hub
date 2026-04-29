@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Calendar, Users, X, ArrowUp, Shuffle, SlidersHorizontal } from "lucide-react";
+import { Search, Calendar, X, ArrowUp, Shuffle, SlidersHorizontal } from "lucide-react";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
