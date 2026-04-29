@@ -28,7 +28,6 @@ const quickFilters: Array<{ id: QuickFilter; label: string }> = [
 const Episodes = () => {
   const [events, setEpisodes] = useState<Episode[]>([]);
   const [loading, setLoading] = useState(true);
-  const [loadedAt, setLoadedAt] = useState<Date | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [quickFilter, setQuickFilter] = useState<QuickFilter>("all");
   const [selectedGuest, setSelectedGuest] = useState<string | null>(null);
@@ -42,7 +41,6 @@ const Episodes = () => {
       setLoading(true);
       const data = await fetchAllEpisodes();
       setEpisodes(data);
-      setLoadedAt(new Date());
       setLoading(false);
     };
     loadEpisodes();
@@ -152,10 +150,6 @@ const Episodes = () => {
   };
 
   const hasActiveFilters = searchQuery || quickFilter !== "all" || selectedGuest || selectedYear;
-  const newestEventDate = events[0]?.publishedAt;
-  const archiveStatus = loadedAt
-    ? `Updated ${loadedAt.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`
-    : "Updating archive";
 
   return (
     <div className="min-h-screen bg-background">
@@ -225,16 +219,7 @@ const Episodes = () => {
                 <Play className="w-4 h-4 text-primary" />
                 <span className="text-sm">{events.length} Events</span>
               </div>
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <span className="h-2 w-2 rounded-full bg-primary" />
-                <span className="text-sm">
-                  {archiveStatus}{newestEventDate ? ` · Latest ${newestEventDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}` : ""}
-                </span>
-              </div>
             </div>
-            <p className="mt-3 text-xs text-muted-foreground">
-              Auto-updated from YouTube, then merged with the historical archive.
-            </p>
           </motion.div>
         </div>
       </section>
