@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { motion } from "framer-motion";
+import { memo, useState } from "react";
 import { Calendar, Play, User, X } from "lucide-react";
 import type { Episode } from "@/lib/youtube";
 
@@ -8,7 +7,7 @@ interface EpisodeCardProps {
   onGuestClick?: (guest: string) => void;
 }
 
-export const EpisodeCard = ({ episode, onGuestClick }: EpisodeCardProps) => {
+export const EpisodeCard = memo(({ episode, onGuestClick }: EpisodeCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [thumbnailFailed, setThumbnailFailed] = useState(false);
@@ -43,11 +42,11 @@ export const EpisodeCard = ({ episode, onGuestClick }: EpisodeCardProps) => {
 
   return (
     <>
-      <motion.div
+      <div
         role="button"
         tabIndex={0}
         aria-label={`Play ${displayTitle}`}
-        className="group relative flex-shrink-0 w-[280px] cursor-pointer overflow-hidden rounded-lg border border-border/70 bg-card/60 shadow-card transition-colors hover:border-primary/50 md:w-[320px]"
+        className="group relative flex-shrink-0 w-[280px] cursor-pointer overflow-hidden rounded-lg border border-border/70 bg-card/60 shadow-card transition-colors hover:border-primary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 md:w-[320px]"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         onClick={handleClick}
@@ -57,8 +56,6 @@ export const EpisodeCard = ({ episode, onGuestClick }: EpisodeCardProps) => {
             handleClick();
           }
         }}
-        whileHover={{ scale: 1.05, zIndex: 20 }}
-        transition={{ duration: 0.2 }}
       >
         {/* Thumbnail */}
         <div className="relative aspect-video overflow-hidden bg-muted">
@@ -100,16 +97,13 @@ export const EpisodeCard = ({ episode, onGuestClick }: EpisodeCardProps) => {
           </div>
           
           {/* Play button on hover */}
-          <motion.div 
-            className="absolute inset-0 flex items-center justify-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: isHovered ? 1 : 0 }}
-            transition={{ duration: 0.2 }}
+          <div
+            className={`absolute inset-0 flex items-center justify-center transition-opacity duration-200 ${isHovered ? "opacity-100" : "opacity-0"}`}
           >
             <div className="w-14 h-14 rounded-full bg-primary/90 flex items-center justify-center shadow-lg shadow-primary/30 group-hover:scale-110 transition-transform">
               <Play className="w-6 h-6 text-primary-foreground ml-1" fill="currentColor" />
             </div>
-          </motion.div>
+          </div>
         </div>
 
         <div className="space-y-2 p-3">
@@ -148,21 +142,15 @@ export const EpisodeCard = ({ episode, onGuestClick }: EpisodeCardProps) => {
             </div>
           )}
         </div>
-      </motion.div>
+      </div>
 
       {/* Video Modal */}
       {isPlaying && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+          <div
             className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/90 backdrop-blur-md"
             onClick={handleClose}
           >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ type: "spring", damping: 20 }}
+            <div
               className="relative w-full max-w-5xl aspect-video bg-background rounded-xl overflow-hidden shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
@@ -180,9 +168,11 @@ export const EpisodeCard = ({ episode, onGuestClick }: EpisodeCardProps) => {
               >
                 <X className="h-5 w-5" />
               </button>
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
         )}
     </>
   );
-};
+});
+
+EpisodeCard.displayName = "EpisodeCard";
