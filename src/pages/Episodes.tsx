@@ -1,11 +1,11 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Calendar, Users, Play, X, ChevronDown, ArrowUp, Shuffle, SlidersHorizontal } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Search, Calendar, Users, X, ArrowUp, Shuffle, SlidersHorizontal } from "lucide-react";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EpisodeRow } from "@/components/episodes/EpisodeRow";
 import { SEO } from "@/components/SEO";
@@ -32,8 +32,6 @@ const Episodes = () => {
   const [quickFilter, setQuickFilter] = useState<QuickFilter>("all");
   const [selectedGuest, setSelectedGuest] = useState<string | null>(null);
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
-  const [showGuestDropdown, setShowGuestDropdown] = useState(false);
-  const [showYearDropdown, setShowYearDropdown] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
 
   useEffect(() => {
@@ -54,45 +52,11 @@ const Episodes = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Close dropdowns when clicking outside
-  useEffect(() => {
-    const handleClickOutside = () => {
-      setShowGuestDropdown(false);
-      setShowYearDropdown(false);
-    };
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setShowGuestDropdown(false);
-        setShowYearDropdown(false);
-      }
-    };
-    document.addEventListener('click', handleClickOutside);
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('click', handleClickOutside);
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, []);
-
   // Extract all unique guests and years
   const allGuests = useMemo(() => extractUniqueGuests(events), [events]);
   const allYears = useMemo(() => {
     const years = new Set(events.map(ep => ep.publishedAt.getFullYear()));
     return Array.from(years).sort((a, b) => b - a);
-  }, [events]);
-
-  const recentGuests = useMemo(() => {
-    const seen = new Set<string>();
-    return events
-      .slice(0, 18)
-      .flatMap((event) => event.guests)
-      .filter((guest) => {
-        const key = guest.toLowerCase();
-        if (seen.has(key)) return false;
-        seen.add(key);
-        return true;
-      })
-      .slice(0, 10);
   }, [events]);
 
   // Filter events
