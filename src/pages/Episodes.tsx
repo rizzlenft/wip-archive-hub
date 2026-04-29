@@ -62,8 +62,18 @@ const Episodes = () => {
       setShowGuestDropdown(false);
       setShowYearDropdown(false);
     };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setShowGuestDropdown(false);
+        setShowYearDropdown(false);
+      }
+    };
     document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
   }, []);
 
   // Extract all unique guests and years
@@ -235,8 +245,12 @@ const Episodes = () => {
           <div className="flex flex-wrap items-center gap-3">
             {/* Search Input */}
             <div className="relative flex-1 min-w-[180px] max-w-md">
+              <label htmlFor="events-search" className="sr-only">
+                Search events or guests
+              </label>
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
+                id="events-search"
                 type="text"
                 placeholder="Search events or guests..."
                 value={searchQuery}
@@ -252,6 +266,7 @@ const Episodes = () => {
                   key={filter.id}
                   type="button"
                   onClick={() => setQuickFilter(filter.id)}
+                  aria-pressed={quickFilter === filter.id}
                   className={`h-7 shrink-0 rounded-md px-3 text-xs font-semibold transition-colors ${
                     quickFilter === filter.id
                       ? "bg-primary text-primary-foreground"
@@ -272,6 +287,8 @@ const Episodes = () => {
                   setShowGuestDropdown(!showGuestDropdown);
                   setShowYearDropdown(false);
                 }}
+                aria-expanded={showGuestDropdown}
+                aria-haspopup="listbox"
                 className={selectedGuest ? "border-primary text-primary" : ""}
               >
                 <Users className="w-3.5 h-3.5 mr-1.5" />
@@ -286,6 +303,8 @@ const Episodes = () => {
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
+                    role="listbox"
+                    aria-label="Filter by guest"
                     className="absolute top-full left-0 mt-2 w-64 max-h-80 overflow-auto bg-popover border border-border rounded-lg shadow-xl z-50"
                   >
                     <button
@@ -325,6 +344,8 @@ const Episodes = () => {
                   setShowYearDropdown(!showYearDropdown);
                   setShowGuestDropdown(false);
                 }}
+                aria-expanded={showYearDropdown}
+                aria-haspopup="listbox"
                 className={selectedYear ? "border-primary text-primary" : ""}
               >
                 <Calendar className="w-3.5 h-3.5 mr-1.5" />
@@ -338,6 +359,8 @@ const Episodes = () => {
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
+                    role="listbox"
+                    aria-label="Filter by year"
                     className="absolute top-full left-0 mt-2 w-32 bg-popover border border-border rounded-lg shadow-xl z-50"
                   >
                     <button
@@ -373,6 +396,7 @@ const Episodes = () => {
               variant="outline"
               size="sm"
               onClick={handleRandomEpisode}
+              disabled={events.length === 0}
               className="hidden sm:flex"
             >
               <Shuffle className="w-3.5 h-3.5 mr-1.5" />
@@ -472,6 +496,7 @@ const Episodes = () => {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            aria-label="Scroll to top"
             className="fixed bottom-8 right-8 w-12 h-12 bg-primary text-primary-foreground rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition-transform z-50"
           >
             <ArrowUp className="w-5 h-5" />
