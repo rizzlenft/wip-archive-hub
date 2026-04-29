@@ -428,7 +428,7 @@ const Episodes = () => {
               <div className="shrink-0 text-xs font-bold uppercase tracking-widest text-muted-foreground">
                 Recent guests
               </div>
-              <div className="flex gap-2 overflow-x-auto pb-1 md:flex-wrap md:overflow-visible md:pb-0">
+              <div className="scrollbar-hide flex gap-2 overflow-x-auto pb-1 md:flex-wrap md:overflow-visible md:pb-0">
                 {recentGuests.map((guest) => (
                   <button
                     key={guest}

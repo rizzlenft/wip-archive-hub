@@ -4,6 +4,9 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { EpisodeCard } from "./EpisodeCard";
 import type { Episode } from "@/lib/youtube";
 
+const INITIAL_VISIBLE_EPISODES = 12;
+const VISIBLE_EPISODE_INCREMENT = 12;
+
 interface EpisodeRowProps {
   year: number;
   episodes: Episode[];
@@ -14,6 +17,10 @@ export const EpisodeRow = ({ year, episodes, onGuestClick }: EpisodeRowProps) =>
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
+  const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_EPISODES);
+
+  const visibleEpisodes = episodes.slice(0, visibleCount);
+  const remainingCount = Math.max(episodes.length - visibleEpisodes.length, 0);
 
   const checkScroll = () => {
     if (scrollRef.current) {
@@ -30,6 +37,11 @@ export const EpisodeRow = ({ year, episodes, onGuestClick }: EpisodeRowProps) =>
       ref.addEventListener('scroll', checkScroll);
       return () => ref.removeEventListener('scroll', checkScroll);
     }
+  }, [episodes, visibleCount]);
+
+  useEffect(() => {
+    setVisibleCount(INITIAL_VISIBLE_EPISODES);
+    scrollRef.current?.scrollTo({ left: 0 });
   }, [episodes]);
 
   const scroll = (direction: 'left' | 'right') => {
@@ -99,13 +111,24 @@ export const EpisodeRow = ({ year, episodes, onGuestClick }: EpisodeRowProps) =>
           className="flex gap-4 overflow-x-auto scrollbar-hide px-4 md:px-8 pb-20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
-          {episodes.map((episode) => (
+          {visibleEpisodes.map((episode) => (
             <EpisodeCard
               key={episode.videoId}
               episode={episode}
               onGuestClick={onGuestClick}
             />
           ))}
+          {remainingCount > 0 && (
+            <div className="flex w-[220px] flex-shrink-0 items-center justify-center rounded-lg border border-border/70 bg-card/40 p-4">
+              <button
+                type="button"
+                onClick={() => setVisibleCount((count) => count + VISIBLE_EPISODE_INCREMENT)}
+                className="rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/20"
+              >
+                Load {Math.min(remainingCount, VISIBLE_EPISODE_INCREMENT)} more
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </motion.div>
