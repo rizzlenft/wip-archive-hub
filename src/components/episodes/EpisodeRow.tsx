@@ -37,7 +37,7 @@ export const EpisodeRow = ({ year, episodes, onGuestClick }: EpisodeRowProps) =>
       ref.addEventListener('scroll', checkScroll);
       return () => ref.removeEventListener('scroll', checkScroll);
     }
-  }, [episodes]);
+  }, [episodes, visibleCount]);
 
   useEffect(() => {
     setVisibleCount(INITIAL_VISIBLE_EPISODES);
