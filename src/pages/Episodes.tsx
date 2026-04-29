@@ -28,7 +28,6 @@ const quickFilters: Array<{ id: QuickFilter; label: string }> = [
 const Episodes = () => {
   const [events, setEpisodes] = useState<Episode[]>([]);
   const [loading, setLoading] = useState(true);
-  const [loadedAt, setLoadedAt] = useState<Date | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [quickFilter, setQuickFilter] = useState<QuickFilter>("all");
   const [selectedGuest, setSelectedGuest] = useState<string | null>(null);
@@ -42,7 +41,6 @@ const Episodes = () => {
       setLoading(true);
       const data = await fetchAllEpisodes();
       setEpisodes(data);
-      setLoadedAt(new Date());
       setLoading(false);
     };
     loadEpisodes();
