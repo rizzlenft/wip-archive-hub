@@ -121,13 +121,33 @@ const Episodes = () => {
         title="Events"
         description="Browse The WIP Meetup event archive with 400+ web3 metaverse replays. Search by guest, year, topic, and latest YouTube recordings."
         canonical="/events"
-        structuredData={{
-          "@context": "https://schema.org",
-          "@type": "CollectionPage",
-          name: "The WIP Meetup Event Archive",
-          description: "A searchable archive of The WIP Meetup event replays, guests, and web3 metaverse recordings.",
-          url: "https://thewipmeetup.com/events",
-        }}
+        structuredData={[
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Home", item: "https://thewipmeetup.com/" },
+              { "@type": "ListItem", position: 2, name: "Events", item: "https://thewipmeetup.com/events" },
+            ],
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            name: "The WIP Meetup Event Archive",
+            description: "A searchable archive of The WIP Meetup event replays, guests, and web3 metaverse recordings.",
+            url: "https://thewipmeetup.com/events",
+            mainEntity: {
+              "@type": "ItemList",
+              numberOfItems: events.length,
+              itemListElement: events.slice(0, 50).map((ep, idx) => ({
+                "@type": "ListItem",
+                position: idx + 1,
+                url: `https://www.youtube.com/watch?v=${ep.videoId}`,
+                name: ep.title,
+              })),
+            },
+          },
+        ]}
       />
       <Navigation />
       
