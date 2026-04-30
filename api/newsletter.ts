@@ -1270,6 +1270,30 @@ Community links (style as "entry points" in the ticket section):
     // 0) Strip any <style> blocks the AI may have included (Substack strips them)
     generated.body_html = generated.body_html.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "");
 
+    // 0a) Fix placeholder VIDEOID leaks — the AI sometimes copies the literal
+    // "VIDEOID" string from prompt examples instead of using the real video id.
+    // Replace with the real id when available; otherwise neutralize the dead link.
+    const realVid = youtube_video_id || lastWeekVideoId;
+    if (realVid) {
+      generated.body_html = generated.body_html.replace(/VIDEOID/g, realVid);
+      generated.body_markdown = generated.body_markdown.replace(/VIDEOID/g, realVid);
+    } else {
+      // No real id — strip the dead replay anchor entirely so we don't ship a broken link
+      generated.body_html = generated.body_html.replace(
+        /<a[^>]*href=["'][^"']*VIDEOID[^"']*["'][^>]*>[\s\S]*?<\/a>/gi,
+        "",
+      );
+      generated.body_html = generated.body_html.replace(
+        /<img[^>]*src=["'][^"']*VIDEOID[^"']*["'][^>]*\/?>/gi,
+        "",
+      );
+      generated.body_markdown = generated.body_markdown.replace(
+        /^.*VIDEOID.*$/gm,
+        "",
+      );
+    }
+
+
     // 0b) Ensure any old Uniswap links are replaced with the staking page
     generated.body_html = generated.body_html.replace(
       /https?:\/\/app\.uniswap\.org[^\s"'<>]*/gi,
