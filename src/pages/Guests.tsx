@@ -1,12 +1,11 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Shuffle, Play, ArrowLeft, Users } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Search, Shuffle, Play, Users, X } from "lucide-react";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { fetchAllEpisodes, extractUniqueGuests, type Episode } from "@/lib/youtube";
+import { fetchAllEpisodes, type Episode } from "@/lib/youtube";
 import { SEO } from "@/components/SEO";
 import wipLogo from "@/assets/wip-logo.gif";
 
@@ -21,7 +20,6 @@ const Guests = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedGuest, setSelectedGuest] = useState<GuestWithCount | null>(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const loadEpisodes = async () => {
@@ -158,14 +156,14 @@ const Guests = () => {
               />
             </div>
             
-            {/* Feeling Lucky */}
+            {/* Surprise me */}
             <Button
               variant="outline"
               onClick={handleRandomGuest}
               className="border-primary/50 hover:border-primary"
             >
               <Shuffle className="w-4 h-4 mr-2" />
-              Feeling Lucky
+              Surprise me
             </Button>
           </div>
         </div>
@@ -259,8 +257,9 @@ const Guests = () => {
                   <button
                     onClick={() => setSelectedGuest(null)}
                     className="w-10 h-10 rounded-full bg-muted hover:bg-muted/80 flex items-center justify-center transition-colors"
+                    aria-label="Close"
                   >
-                    <span className="text-xl">×</span>
+                    <X className="w-5 h-5" />
                   </button>
                 </div>
               </div>
