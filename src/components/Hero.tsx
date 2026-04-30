@@ -51,12 +51,14 @@ export const Hero = () => {
             transition={{ delay: 0.2, duration: 0.6 }}
             className="flex justify-center"
           >
-            <img 
-              src={wipLogo} 
-              alt="The WIP Logo" 
+            <img
+              src={wipLogo}
+              alt=""
               className="h-36 w-36 animate-float md:h-52 md:w-52 lg:h-60 lg:w-60"
               width={256}
               height={256}
+              loading="eager"
+              fetchPriority="high"
             />
           </motion.div>
 
@@ -93,7 +95,7 @@ export const Hero = () => {
                 Watch Latest Event
               </a>
             </Button>
-            <Button variant="outline" size="lg" asChild>
+            <Button variant="ghost" size="lg" asChild>
               <Link to="/events">
                 <CalendarDays className="h-5 w-5" />
                 Browse Events
