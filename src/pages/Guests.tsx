@@ -96,13 +96,32 @@ const Guests = () => {
         title="Guests"
         description="Explore The WIP Meetup guest archive — builders, artists, creators, and collaborators featured across web3 metaverse events since 2019."
         canonical="/guests"
-        structuredData={{
-          "@context": "https://schema.org",
-          "@type": "CollectionPage",
-          name: "The WIP Meetup Guest Archive",
-          description: "A directory of guests and collaborators featured on The WIP Meetup.",
-          url: "https://thewipmeetup.com/guests",
-        }}
+        structuredData={[
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Home", item: "https://thewipmeetup.com/" },
+              { "@type": "ListItem", position: 2, name: "Guests", item: "https://thewipmeetup.com/guests" },
+            ],
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            name: "The WIP Meetup Guest Archive",
+            description: "A directory of guests and collaborators featured on The WIP Meetup.",
+            url: "https://thewipmeetup.com/guests",
+            mainEntity: {
+              "@type": "ItemList",
+              numberOfItems: guestsWithCounts.length,
+              itemListElement: guestsWithCounts.slice(0, 100).map((g, idx) => ({
+                "@type": "ListItem",
+                position: idx + 1,
+                item: { "@type": "Person", name: g.name },
+              })),
+            },
+          },
+        ]}
       />
       <Navigation />
       

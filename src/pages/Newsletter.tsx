@@ -140,6 +140,69 @@ const Newsletter = () => {
     );
   });
 
+  const breadcrumbList = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://thewipmeetup.com/" },
+      { "@type": "ListItem", position: 2, name: "Newsletter", item: "https://thewipmeetup.com/newsletter" },
+      ...(selected
+        ? [{ "@type": "ListItem", position: 3, name: selected.title, item: `https://thewipmeetup.com/newsletter?issue=${selected.id}` }]
+        : []),
+    ],
+  };
+
+  const articleStructuredData = selected
+    ? {
+        "@context": "https://schema.org",
+        "@type": "NewsArticle",
+        headline: selected.title,
+        description:
+          selected.recap_summary ||
+          `WIP Weekly newsletter ft. ${selected.speakers?.map((s) => s.name).join(", ") || "the WIP community"}`,
+        image: [`https://thewipmeetup.com/api/og-newsletter?id=${encodeURIComponent(selected.id)}`],
+        datePublished: selected.published_at || selected.created_at,
+        dateModified: selected.published_at || selected.created_at,
+        author: { "@type": "Organization", name: "The WIP Meetup", url: "https://thewipmeetup.com" },
+        publisher: {
+          "@type": "Organization",
+          name: "The WIP Meetup",
+          url: "https://thewipmeetup.com",
+          logo: {
+            "@type": "ImageObject",
+            url: "https://storage.googleapis.com/gpt-engineer-file-uploads/DM2lONnsGyMlKagJreu03ZO2vI43/uploads/1770403228998-wip_logo.gif",
+          },
+        },
+        mainEntityOfPage: {
+          "@type": "WebPage",
+          "@id": `https://thewipmeetup.com/newsletter?issue=${selected.id}`,
+        },
+        about: selected.speakers?.map((s) => ({ "@type": "Person", name: s.name })),
+        isPartOf: { "@type": "Periodical", name: "WIP Weekly", url: "https://thewipmeetup.com/newsletter" },
+      }
+    : null;
+
+  const collectionStructuredData = !selected
+    ? {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        name: "WIP Weekly Newsletter Archive",
+        description: "Weekly recaps, speaker spotlights, and community highlights from The WIP Meetup.",
+        url: "https://thewipmeetup.com/newsletter",
+        isPartOf: { "@type": "WebSite", name: "The WIP Meetup", url: "https://thewipmeetup.com" },
+        mainEntity: {
+          "@type": "ItemList",
+          numberOfItems: issues.length,
+          itemListElement: issues.slice(0, 50).map((iss, idx) => ({
+            "@type": "ListItem",
+            position: idx + 1,
+            url: `https://thewipmeetup.com/newsletter?issue=${iss.id}`,
+            name: iss.title,
+          })),
+        },
+      }
+    : null;
+
   return (
     <div className="min-h-screen bg-background">
       <SEO
@@ -151,20 +214,12 @@ const Newsletter = () => {
         }
         canonical={selected ? `/newsletter?issue=${selected.id}` : "/newsletter"}
         ogImage={selected ? `https://thewipmeetup.com/api/og-newsletter?id=${encodeURIComponent(selected.id)}` : undefined}
-        structuredData={{
-          "@context": "https://schema.org",
-          "@type": selected ? "Article" : "CollectionPage",
-          headline: selected?.title || "WIP Weekly Newsletter",
-          name: selected?.title || "WIP Weekly Newsletter",
-          description: selected?.recap_summary || "Weekly recaps, speaker spotlights, and community highlights from The WIP Meetup.",
-          url: selected ? `https://thewipmeetup.com/newsletter?issue=${selected.id}` : "https://thewipmeetup.com/newsletter",
-          datePublished: selected?.published_at || selected?.created_at,
-          publisher: {
-            "@type": "Organization",
-            name: "The WIP Meetup",
-            url: "https://thewipmeetup.com",
-          },
-        }}
+        ogType={selected ? "article" : "website"}
+        structuredData={[
+          breadcrumbList,
+          ...(articleStructuredData ? [articleStructuredData] : []),
+          ...(collectionStructuredData ? [collectionStructuredData] : []),
+        ]}
       />
       <Navigation />
 

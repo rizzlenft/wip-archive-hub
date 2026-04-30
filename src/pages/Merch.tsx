@@ -49,13 +49,41 @@ const Merch = () => {
         title="Merch"
         description="Shop official The WIP Meetup merch including rainbow logo hats, tees, hoodies, and mugs that support the web3 metaverse community."
         canonical="/merch"
-        structuredData={{
-          "@context": "https://schema.org",
-          "@type": "CollectionPage",
-          name: "The WIP Meetup Merch",
-          description: "Official merchandise for The WIP Meetup community.",
-          url: "https://thewipmeetup.com/merch",
-        }}
+        structuredData={[
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Home", item: "https://thewipmeetup.com/" },
+              { "@type": "ListItem", position: 2, name: "Merch", item: "https://thewipmeetup.com/merch" },
+            ],
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            name: "The WIP Meetup Merch",
+            description: "Official merchandise for The WIP Meetup community.",
+            url: "https://thewipmeetup.com/merch",
+            numberOfItems: products.length,
+            itemListElement: products.map((p, idx) => ({
+              "@type": "ListItem",
+              position: idx + 1,
+              item: {
+                "@type": "Product",
+                name: p.name,
+                description: p.description,
+                image: `https://thewipmeetup.com${p.image}`,
+                offers: {
+                  "@type": "Offer",
+                  price: p.price.replace(/[^0-9.]/g, ""),
+                  priceCurrency: "USD",
+                  url: p.buyUrl,
+                  availability: "https://schema.org/InStock",
+                },
+              },
+            })),
+          },
+        ]}
       />
       <Navigation />
 
