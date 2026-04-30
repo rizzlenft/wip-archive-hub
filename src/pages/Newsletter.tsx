@@ -150,7 +150,7 @@ const Newsletter = () => {
             : "Read WIP Weekly for event recaps, featured guests, speaker spotlights, and web3 metaverse community highlights from The WIP Meetup."
         }
         canonical={selected ? `/newsletter?issue=${selected.id}` : "/newsletter"}
-        ogImage={selected ? `${API_BASE}/api/og-image?id=${encodeURIComponent(selected.id)}` : undefined}
+        ogImage={selected ? `https://thewipmeetup.com/api/og-newsletter?id=${encodeURIComponent(selected.id)}` : undefined}
         structuredData={{
           "@context": "https://schema.org",
           "@type": selected ? "Article" : "CollectionPage",
@@ -287,39 +287,6 @@ const Newsletter = () => {
 
               {loading ? (
                 <p className="text-muted-foreground">Loading newsletters…</p>
-              ) : issues.length === 0 ? (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="rounded-2xl border border-border bg-card p-12 text-center space-y-5"
-                >
-                  <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
-                    <Sparkles className="w-10 h-10 text-primary" />
-                  </div>
-                  <h2 className="text-2xl font-bold">Coming Soon</h2>
-                  <p className="text-muted-foreground max-w-md mx-auto">
-                    The WIP Weekly newsletter is launching soon. Subscribe on{" "}
-                    <a
-                      href="https://thewipmeetup.substack.com/"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-primary hover:underline font-medium"
-                    >
-                      Substack
-                    </a>{" "}
-                    to be the first to receive it in your inbox.
-                  </p>
-                  <Button variant="outline" size="sm" asChild>
-                    <a
-                      href="https://thewipmeetup.substack.com/"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <ExternalLink className="w-4 h-4" />
-                      Go to Substack
-                    </a>
-                  </Button>
-                </motion.div>
               ) : filteredIssues.length === 0 ? (
                 <div className="rounded-xl border border-border bg-card p-8 text-center">
                   <p className="text-muted-foreground">No issues match your search.</p>
@@ -345,7 +312,7 @@ const Newsletter = () => {
                                   `${API_BASE}/api/newsletter?action=avatar&${speaker.farcaster ? `farcaster=${encodeURIComponent(speaker.farcaster)}` : speaker.twitter ? `twitter=${encodeURIComponent(speaker.twitter)}` : `twitter=${encodeURIComponent(speaker.name)}`}`
                                 }
                                 alt={speaker.name}
-                                className="w-9 h-9 rounded-full object-cover border border-primary/30 transition-all duration-200 group-hover:scale-110 hover:!scale-125 hover:border-primary hover:shadow-[0_0_12px_hsl(var(--primary)/0.4)]"
+                                className="w-9 h-9 rounded-full object-cover border border-primary/30 transition-all duration-200 group-hover:border-primary group-hover:shadow-[0_0_12px_hsl(var(--primary)/0.4)] hover:!scale-110"
                                 onError={(e) => { (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(speaker.name)}&background=7c3aed&color=fff&size=36`; }}
                               />
                               <span className="text-[10px] text-muted-foreground truncate max-w-[60px]">{speaker.name}</span>

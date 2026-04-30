@@ -134,7 +134,7 @@ const Merch = () => {
             <p className="text-muted-foreground mb-6">
               Drop us a message on Discord and let us know what WIP merch you'd love to see next!
             </p>
-            <Button variant="hero" size="lg" asChild>
+            <Button variant="outline" size="lg" asChild>
               <a href="https://discord.gg/bTjc6k5uss" target="_blank" rel="noopener noreferrer">
                 Join Discord
               </a>

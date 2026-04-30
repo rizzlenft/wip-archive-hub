@@ -25,13 +25,16 @@ const navLinks = [
 
 const socialLinks = [
   { name: "Discord", url: "https://discord.gg/bTjc6k5uss", icon: "https://cdn.prod.website-files.com/6257adef93867e50d84d30e2/636e0a6ca814282eca7172c6_icon_clyde_white_RGB.svg" },
-  { name: "Twitter", url: "https://twitter.com/theWIPmeetup", icon: "https://abs.twimg.com/responsive-web/client-web/icon-ios.77d25eba.png" },
   { name: "YouTube", url: "https://www.youtube.com/@thewipmeetup", icon: "https://www.youtube.com/s/desktop/c01ea7e3/img/favicon_144x144.png" },
+  { name: "Twitter", url: "https://twitter.com/theWIPmeetup", icon: "https://abs.twimg.com/responsive-web/client-web/icon-ios.77d25eba.png" },
   { name: "Farcaster", url: "https://farcaster.xyz/~/channel/thewipmeetup", icon: iconFarcaster },
   { name: "Twitch", url: "https://www.twitch.tv/wipmeetup", icon: "https://static.twitchcdn.net/assets/favicon-32-e29e246c157142c94346.png" },
   { name: "Metaverse", url: "https://thewipmeetup.hyperworld.host/", icon: iconHyperfy },
   { name: "Substack", url: "https://thewipmeetup.substack.com/", icon: iconSubstack },
 ];
+
+// Header shows only the top three; mobile menu still shows all.
+const headerSocialLinks = socialLinks.slice(0, 3);
 
 export const Navigation = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -75,7 +78,7 @@ export const Navigation = () => {
 
             {/* Social Icons */}
             <div className="hidden md:flex items-center gap-2">
-              {socialLinks.map((link) => (
+              {headerSocialLinks.map((link) => (
                 <a
                   key={link.name}
                   href={link.url}

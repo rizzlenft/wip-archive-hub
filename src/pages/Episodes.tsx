@@ -148,27 +148,19 @@ const Episodes = () => {
               Event <span className="text-gradient-rainbow">Archive</span>
             </h1>
             <p className="text-muted-foreground mb-6">
-              {events.length}+ events from the longest-running web3 metaverse meetup
+              {events.length}+ events since 2019 — the longest-running web3 metaverse meetup
             </p>
             
             {/* Action Buttons */}
-            <div className="flex flex-wrap justify-center gap-3 mb-8">
+            <div className="flex flex-wrap justify-center gap-3">
               <Button
                 size="lg"
+                variant="outline"
                 onClick={handleRandomEpisode}
-                className="bg-gradient-to-r from-primary to-accent hover:opacity-90 text-primary-foreground shadow-lg"
               >
                 <Shuffle className="w-5 h-5 mr-2" />
                 Random Event
               </Button>
-            </div>
-            
-            {/* Stats Row */}
-            <div className="flex flex-wrap justify-center gap-4 md:gap-8">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Calendar className="w-4 h-4 text-primary" />
-                <span className="text-sm">Since 2019</span>
-              </div>
             </div>
           </motion.div>
         </div>
@@ -179,7 +171,7 @@ const Episodes = () => {
         <div className="container mx-auto px-4">
           <div className="flex flex-wrap items-center gap-3">
             {/* Search Input */}
-            <div className="relative flex-1 min-w-[180px] max-w-md">
+            <div className="relative flex-1 min-w-[140px] max-w-md">
               <label htmlFor="events-search" className="sr-only">
                 Search events or guests
               </label>
