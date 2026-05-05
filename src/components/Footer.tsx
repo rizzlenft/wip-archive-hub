@@ -1,5 +1,4 @@
 import wipLogo from "@/assets/wip-logo-static.png";
-import rizzlePfp from "@/assets/rizzle-pfp.jpeg";
 
 const socialLinks = [
   { name: "Discord", url: "https://discord.gg/bTjc6k5uss" },
@@ -37,23 +36,9 @@ export const Footer = () => {
             ))}
           </div>
 
-          {/* Copyright & Credit */}
+          {/* Copyright */}
           <div className="text-center text-sm text-muted-foreground md:text-right">
             <p>© {new Date().getFullYear()} The WIP Meetup</p>
-            <a 
-              href="https://rizzle.io" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-xs mt-1 hover:text-primary transition-colors group"
-            >
-              <span>Hosted & produced by</span>
-              <img 
-                src={rizzlePfp} 
-                alt="rizzle" 
-                className="w-4 h-4 rounded-full group-hover:scale-110 transition-transform"
-              />
-              <span className="underline underline-offset-2">rizzle</span>
-            </a>
           </div>
         </div>
       </div>
