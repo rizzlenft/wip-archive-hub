@@ -1,5 +1,4 @@
 import wipLogo from "@/assets/wip-logo-static.png";
-import rizzlePfp from "@/assets/rizzle-pfp.jpeg";
 
 const socialLinks = [
   { name: "Discord", url: "https://discord.gg/bTjc6k5uss" },
