@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { ExternalLink } from "lucide-react";
-import wipCv from "@/assets/wip-cv.gif";
+import wipCv from "@/assets/wip-cv.jpg";
 import wipLogoStatic from "@/assets/wip-logo-static.png";
 import nftGift1 from "@/assets/nft-gift-1.jpeg";
 import nftGift2 from "@/assets/nft-gift-2.avif";

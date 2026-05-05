@@ -10,13 +10,16 @@ import wipLogo from "@/assets/wip-logo.gif";
 export const Hero = () => {
   return (
     <section className="relative flex min-h-[76vh] items-center justify-center overflow-hidden pt-20 md:min-h-[82vh] md:pt-24">
-      {/* Background Image */}
-      <div 
-        className="absolute inset-0 bg-cover bg-no-repeat"
-        style={{ backgroundImage: `url(${heroBg})`, backgroundPosition: 'center center' }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/50 to-background" />
-      </div>
+      {/* Background Image (LCP) */}
+      <img
+        src={heroBg}
+        alt=""
+        aria-hidden="true"
+        fetchPriority="high"
+        decoding="async"
+        className="absolute inset-0 h-full w-full object-cover"
+      />
+      <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/50 to-background" />
 
       {/* Grid overlay */}
       <div className="absolute inset-0 bg-grid opacity-20" />
@@ -33,6 +36,7 @@ export const Hero = () => {
           alt="" 
           className="w-[500px] h-[500px] md:w-[700px] md:h-[700px] lg:w-[900px] lg:h-[900px]"
           loading="lazy"
+          decoding="async"
         />
       </motion.div>
 
