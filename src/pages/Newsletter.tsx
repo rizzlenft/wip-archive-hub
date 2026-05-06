@@ -16,14 +16,15 @@ const API_BASE =
   (import.meta.env.VITE_BACKEND_URL as string | undefined) ||
   "https://api.thewipmeetup.com";
 
+// Direct unavatar URLs (proxy bypassed — Vercel function bundle was failing on GET)
 function proxyUnavatarHtml(html: string): string {
-  return html.replace(
-    /https:\/\/unavatar\.io\/(farcaster|twitter)\/([a-zA-Z0-9_.-]+)/g,
-    (_m, service: string, handle: string) => {
-      const key = service === "farcaster" ? "farcaster" : "twitter";
-      return `${API_BASE}/api/newsletter?action=avatar&${key}=${encodeURIComponent(handle)}`;
-    },
-  );
+  return html;
+}
+
+function buildAvatarUrl(speaker: { name: string; farcaster?: string; twitter?: string }): string {
+  if (speaker.farcaster) return `https://unavatar.io/farcaster/${encodeURIComponent(speaker.farcaster)}`;
+  if (speaker.twitter) return `https://unavatar.io/twitter/${encodeURIComponent(speaker.twitter)}`;
+  return `https://unavatar.io/twitter/${encodeURIComponent(speaker.name)}`;
 }
 
 /** Strip leading cover/thumbnail images from newsletter HTML (e.g. YouTube thumbs from prior week) */
@@ -364,7 +365,7 @@ const Newsletter = () => {
                               <img
                                 src={
                                   speaker.profile_image_url ||
-                                  `${API_BASE}/api/newsletter?action=avatar&${speaker.farcaster ? `farcaster=${encodeURIComponent(speaker.farcaster)}` : speaker.twitter ? `twitter=${encodeURIComponent(speaker.twitter)}` : `twitter=${encodeURIComponent(speaker.name)}`}`
+                                  buildAvatarUrl(speaker)
                                 }
                                 alt={speaker.name}
                                 className="w-9 h-9 rounded-full object-cover border border-primary/30 transition-all duration-200 group-hover:border-primary group-hover:shadow-[0_0_12px_hsl(var(--primary)/0.4)] hover:!scale-110"

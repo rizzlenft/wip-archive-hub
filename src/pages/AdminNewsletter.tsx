@@ -25,16 +25,14 @@ const API_BASE =
   "https://api.thewipmeetup.com";
 
 function buildAvatarProxyUrl(params: { url?: string | null; farcaster?: string; twitter?: string }): string {
-  const base = `${API_BASE}/api/newsletter?action=avatar`;
-
-  if (params.url) return `${base}&url=${encodeURIComponent(params.url)}`;
-  if (params.farcaster) return `${base}&farcaster=${encodeURIComponent(params.farcaster)}`;
-  if (params.twitter) return `${base}&twitter=${encodeURIComponent(params.twitter)}`;
+  if (params.url) return params.url;
+  if (params.farcaster) return `https://unavatar.io/farcaster/${encodeURIComponent(params.farcaster)}`;
+  if (params.twitter) return `https://unavatar.io/twitter/${encodeURIComponent(params.twitter)}`;
   return "";
 }
 
 function isAvatarProxyUrl(url?: string): boolean {
-  return Boolean(url && url.startsWith(`${API_BASE}/api/newsletter?action=avatar`));
+  return Boolean(url && url.startsWith("https://unavatar.io/"));
 }
 
 function tryParseUrl(raw: string): URL | null {

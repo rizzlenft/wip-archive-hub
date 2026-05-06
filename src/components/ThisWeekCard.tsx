@@ -149,7 +149,9 @@ export const ThisWeekCard = () => {
                     <img
                       src={
                         speaker.profile_image_url ||
-                        `${API_BASE}/api/newsletter?action=avatar&${speaker.farcaster ? `farcaster=${encodeURIComponent(speaker.farcaster)}` : speaker.twitter ? `twitter=${encodeURIComponent(speaker.twitter)}` : `twitter=${encodeURIComponent(speaker.name)}`}`
+                        (speaker.farcaster
+                          ? `https://unavatar.io/farcaster/${encodeURIComponent(speaker.farcaster)}`
+                          : `https://unavatar.io/twitter/${encodeURIComponent(speaker.twitter || speaker.name)}`)
                       }
                       alt={speaker.name}
                       className="h-5 w-5 shrink-0 rounded-full border border-primary/30 object-cover"
