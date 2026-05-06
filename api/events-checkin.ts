@@ -83,10 +83,7 @@ export default async function handler(
 
   const apiKey =
     process.env.CONNECT_API_KEY || process.env.CONNECT_CLIENT_SECRET;
-  const base =
-    process.env.TOKENSMART_URL ||
-    process.env.NEXT_PUBLIC_TOKENSMART_URL ||
-    "https://www.tokensmart.co";
+  // base is declared above for both GET and POST
 
   if (!apiKey) {
     console.error("CONNECT_API_KEY or CONNECT_CLIENT_SECRET not set");
