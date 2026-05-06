@@ -10,8 +10,46 @@ export default async function handler(
   if (req.method === "OPTIONS") {
     return res.status(204).end();
   }
+
+  const base =
+    process.env.TOKENSMART_URL ||
+    process.env.NEXT_PUBLIC_TOKENSMART_URL ||
+    "https://www.tokensmart.co";
+
+  // GET: check if event is in check-in window (no auth)
+  if (req.method === "GET") {
+    const eventId = req.query.eventId as string;
+    if (!eventId) {
+      return res.status(400).json({ error: "eventId required" });
+    }
+    try {
+      const tsRes = await fetch(
+        `${base}/api/events/check-in/${encodeURIComponent(eventId)}`,
+      );
+      if (!tsRes.ok) {
+        return res.status(tsRes.status).json({
+          check_in_available: false,
+          error: await tsRes.text().catch(() => "Unknown"),
+        });
+      }
+      const data = (await tsRes.json()) as {
+        check_in_available?: boolean;
+        scheduled_start?: string;
+        scheduled_end?: string;
+      };
+      return res.status(200).json({
+        check_in_available: data.check_in_available ?? false,
+        scheduled_start: data.scheduled_start,
+        scheduled_end: data.scheduled_end,
+      });
+    } catch (err) {
+      console.error("events-check-in error", err);
+      return res.status(500).json({ check_in_available: false });
+    }
+  }
+
   if (req.method !== "POST") {
-    res.setHeader("Allow", "POST");
+    res.setHeader("Allow", "GET, POST");
     return res.status(405).end("Method Not Allowed");
   }
 
@@ -45,10 +83,7 @@ export default async function handler(
 
   const apiKey =
     process.env.CONNECT_API_KEY || process.env.CONNECT_CLIENT_SECRET;
-  const base =
-    process.env.TOKENSMART_URL ||
-    process.env.NEXT_PUBLIC_TOKENSMART_URL ||
-    "https://www.tokensmart.co";
+  // base is declared above for both GET and POST
 
   if (!apiKey) {
     console.error("CONNECT_API_KEY or CONNECT_CLIENT_SECRET not set");
