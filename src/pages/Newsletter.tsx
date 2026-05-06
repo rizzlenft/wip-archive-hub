@@ -365,7 +365,7 @@ const Newsletter = () => {
                               <img
                                 src={
                                   speaker.profile_image_url ||
-                                  `${API_BASE}/api/newsletter?action=avatar&${speaker.farcaster ? `farcaster=${encodeURIComponent(speaker.farcaster)}` : speaker.twitter ? `twitter=${encodeURIComponent(speaker.twitter)}` : `twitter=${encodeURIComponent(speaker.name)}`}`
+                                  buildAvatarUrl(speaker)
                                 }
                                 alt={speaker.name}
                                 className="w-9 h-9 rounded-full object-cover border border-primary/30 transition-all duration-200 group-hover:border-primary group-hover:shadow-[0_0_12px_hsl(var(--primary)/0.4)] hover:!scale-110"
