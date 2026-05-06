@@ -1,5 +1,6 @@
 {
   "rewrites": [
+    { "source": "/api/events-check-in/:eventId", "destination": "/api/events-checkin?eventId=:eventId" },
     { "source": "/api/:path*", "destination": "/api/:path*" },
     { "source": "/(.*)", "destination": "/" }
   ]
