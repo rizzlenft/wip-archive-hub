@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { setCorsHeaders } from "./_cors.js";
+import { setCorsHeaders } from "../api-shared/_cors.js";
 
 /**
  * GET /api/events - List partner events (no auth).
