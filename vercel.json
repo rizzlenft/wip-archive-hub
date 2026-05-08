@@ -1,21 +1,7 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "functions": {
-    "api/newsletter.ts": {
-      "memory": 1024,
-      "maxDuration": 60
-    },
-    "api/og-newsletter.ts": {
-      "memory": 1024,
-      "maxDuration": 60
-    },
-    "api/youtube-latest.ts": {
-      "memory": 1024,
-      "maxDuration": 60
-    }
-  },
   "rewrites": [
-    { "source": "/api/events-check-in/:eventId", "destination": "/api/events-checkin?eventId=:eventId" },
-    { "source": "/((?!api/).*)", "destination": "/" }
+    { "source": "/api/:path*", "destination": "/api/:path*" },
+    { "source": "/(.*)", "destination": "/" }
   ]
 }
+

@@ -5,7 +5,7 @@ import rizzlePfp from "@/assets/rizzle-pfp-3.jpeg";
 
 export const ContactRizzle = () => {
   return (
-    <section className="relative overflow-hidden py-8 md:py-12">
+    <section className="relative overflow-hidden py-8 md:py-10">
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
 
       <div className="container mx-auto px-4 relative z-10">
@@ -16,7 +16,7 @@ export const ContactRizzle = () => {
           transition={{ duration: 0.5 }}
           className="mx-auto max-w-5xl"
         >
-          <div className="rounded-xl border border-primary/20 bg-card/60 px-5 py-5 backdrop-blur-sm md:px-6">
+          <div className="rounded-2xl border border-primary/20 bg-card/60 px-5 py-5 backdrop-blur-sm md:px-6">
             <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
               {/* Rizzle PFP */}
               <motion.a
@@ -50,7 +50,7 @@ export const ContactRizzle = () => {
                 </p>
               </div>
 
-          <div className="flex flex-col gap-3 sm:flex-row md:shrink-0">
+              <div className="flex flex-col gap-3 sm:flex-row md:shrink-0">
                   <Button variant="hero" size="default" asChild>
                     <a
                       href="https://x.com/NFTland"

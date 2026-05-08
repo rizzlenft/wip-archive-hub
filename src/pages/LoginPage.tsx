@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useAuth } from "@/auth/AuthContext";
 import { Button } from "@/components/ui/button";
-import { SEO } from "@/components/SEO";
 
 const SITE_URL =
   (import.meta.env.VITE_APP_URL as string | undefined) ||
@@ -41,7 +40,6 @@ const LoginPage = () => {
   if (didLogout) {
     return (
       <main className="flex min-h-screen flex-col items-center justify-center gap-4">
-        <SEO title="Guest Book Sign In" noindex />
         <p className="text-lg font-semibold text-muted-foreground">
           You&apos;ve been signed out. Redirecting to thewipmeetup.com…
         </p>
@@ -54,7 +52,6 @@ const LoginPage = () => {
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-4">
-      <SEO title="Guest Book Sign In" noindex />
       {error && (
         <p className="text-sm font-medium text-destructive">
           Sign-in error: {error}

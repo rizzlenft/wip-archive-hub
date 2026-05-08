@@ -4,7 +4,6 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
  * GET /api/youtube-latest — Returns recent videos from The WIP Meetup YouTube channel.
  * Query params:
  *   count=N  — number of videos to return (default 1, max 15)
- *   afterVideoId=ID / afterDate=ISO — only return uploads newer than the stored archive cursor
  * Scrapes the YouTube channel page for video data (RSS feeds are deprecated/404).
  * Caches for 1 hour via CDN headers.
  */
@@ -17,53 +16,6 @@ interface VideoResult {
   title: string;
   publishedAt?: string;
   thumbnail?: string;
-}
-
-interface ArchiveCursor {
-  afterVideoId?: string;
-  afterDate?: Date;
-}
-
-function parseVideoDate(video: VideoResult): Date | null {
-  const fromTitle = video.title.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
-  if (fromTitle) {
-    const [, month, day, year] = fromTitle;
-    const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
-    if (!isNaN(date.getTime())) return date;
-  }
-
-  const parsed = video.publishedAt ? new Date(video.publishedAt) : null;
-  return parsed && !isNaN(parsed.getTime()) ? parsed : null;
-}
-
-function filterVideosAfterCursor(videos: VideoResult[], cursor: ArchiveCursor): VideoResult[] {
-  const cursorIndex = cursor.afterVideoId
-    ? videos.findIndex((video) => video.videoId === cursor.afterVideoId)
-    : -1;
-
-  if (cursorIndex >= 0) return videos.slice(0, cursorIndex);
-  if (!cursor.afterDate) return videos;
-
-  return videos.filter((video) => {
-    const publishedAt = parseVideoDate(video);
-    return !publishedAt || publishedAt.getTime() > cursor.afterDate!.getTime();
-  });
-}
-
-function sendVideos(
-  res: VercelResponse,
-  videos: VideoResult[],
-  count: number,
-  source: string,
-  cursor: ArchiveCursor,
-) {
-  const filteredVideos = filterVideosAfterCursor(videos, cursor).slice(0, count);
-  if (count === 1) {
-    return filteredVideos[0]
-      ? res.status(200).json({ ...filteredVideos[0], source })
-      : res.status(200).json({ videos: [], source, cursorReached: true });
-  }
-  return res.status(200).json({ videos: filteredVideos, source, cursorReached: filteredVideos.length < videos.length });
 }
 
 export default async function handler(
@@ -80,25 +32,24 @@ export default async function handler(
   res.setHeader("Cache-Control", "public, s-maxage=3600, stale-while-revalidate=7200");
 
   const count = Math.min(Math.max(parseInt(String(req.query.count)) || 1, 1), 15);
-  const afterVideoId = typeof req.query.afterVideoId === "string" ? req.query.afterVideoId : undefined;
-  const afterDate = typeof req.query.afterDate === "string" ? new Date(req.query.afterDate) : undefined;
-  const cursor = {
-    afterVideoId,
-    afterDate: afterDate && !isNaN(afterDate.getTime()) ? afterDate : undefined,
-  };
 
   try {
     // Strategy 1: Scrape YouTube channel page for video data
-    const sourceLimit = Math.max(count, 30);
-    const channelVideos = await scrapeChannelVideos(sourceLimit);
+    const channelVideos = await scrapeChannelVideos(count);
     if (channelVideos.length > 0) {
-      return sendVideos(res, channelVideos, count, "youtube-scrape", cursor);
+      if (count === 1) {
+        return res.status(200).json({ ...channelVideos[0], source: "youtube-scrape" });
+      }
+      return res.status(200).json({ videos: channelVideos, source: "youtube-scrape" });
     }
 
     // Strategy 2: Try YouTube RSS feed (sometimes works)
-    const rssVideos = await fetchRSSVideos(sourceLimit);
+    const rssVideos = await fetchRSSVideos(count);
     if (rssVideos.length > 0) {
-      return sendVideos(res, rssVideos, count, "youtube-rss", cursor);
+      if (count === 1) {
+        return res.status(200).json({ ...rssVideos[0], source: "youtube-rss" });
+      }
+      return res.status(200).json({ videos: rssVideos, source: "youtube-rss" });
     }
 
     // Strategy 3: Invidious API instances
@@ -118,12 +69,15 @@ export default async function handler(
         if (!response.ok) continue;
         const data = await response.json();
         if (Array.isArray(data) && data.length > 0) {
-          const videos: VideoResult[] = data.slice(0, sourceLimit).map((v: any) => ({
+          const videos: VideoResult[] = data.slice(0, count).map((v: any) => ({
             videoId: v.videoId,
             title: v.title,
             publishedAt: v.publishedText || undefined,
           }));
-          return sendVideos(res, videos, count, "invidious", cursor);
+          if (count === 1) {
+            return res.status(200).json({ ...videos[0], source: "invidious" });
+          }
+          return res.status(200).json({ videos, source: "invidious" });
         }
       } catch {
         continue;
@@ -161,17 +115,16 @@ async function scrapeChannelVideos(count: number): Promise<VideoResult[]> {
 
     const html = await response.text();
 
-    // Extract ytInitialData JSON from the page. YouTube may emit either
-    // `var ytInitialData = ...` or `ytInitialData = ...`, so use balanced braces.
-    const initialDataJson = extractYtInitialDataJson(html);
-    if (!initialDataJson) {
+    // Extract ytInitialData JSON from the page
+    const dataMatch = html.match(/var\s+ytInitialData\s*=\s*({.+?});\s*<\/script>/s);
+    if (!dataMatch) {
       console.log("Could not find ytInitialData in YouTube page");
       // Fallback: try regex to find video IDs and titles directly
       return extractVideosFromHTML(html, count);
     }
 
     try {
-      const data = JSON.parse(initialDataJson);
+      const data = JSON.parse(dataMatch[1]);
       return extractVideosFromInitialData(data, count);
     } catch (parseErr) {
       console.log("Failed to parse ytInitialData:", parseErr);
@@ -181,35 +134,6 @@ async function scrapeChannelVideos(count: number): Promise<VideoResult[]> {
     console.log("YouTube scrape error:", err);
     return [];
   }
-}
-
-function extractYtInitialDataJson(html: string): string | null {
-  const marker = "ytInitialData";
-  const markerIndex = html.indexOf(marker);
-  if (markerIndex === -1) return null;
-  const start = html.indexOf("{", markerIndex);
-  if (start === -1) return null;
-
-  let depth = 0;
-  let inString = false;
-  let escaped = false;
-  for (let i = start; i < html.length; i += 1) {
-    const char = html[i];
-    if (inString) {
-      if (escaped) escaped = false;
-      else if (char === "\\") escaped = true;
-      else if (char === '"') inString = false;
-      continue;
-    }
-    if (char === '"') inString = true;
-    else if (char === "{") depth += 1;
-    else if (char === "}") {
-      depth -= 1;
-      if (depth === 0) return html.slice(start, i + 1);
-    }
-  }
-
-  return null;
 }
 
 /**

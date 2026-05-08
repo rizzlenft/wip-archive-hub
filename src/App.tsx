@@ -1,8 +1,9 @@
 import { createElement, lazy, Suspense, forwardRef } from "react";
+import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Navigate, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import Index from "./pages/Index";
 import { ProtectedRoute } from "@/auth/ProtectedRoute";
@@ -38,6 +39,7 @@ const App = forwardRef<HTMLDivElement>((_props, ref) =>
         createElement(
           TooltipProvider,
           null,
+          createElement(Toaster),
           createElement(Sonner),
           createElement(
             BrowserRouter,
@@ -56,11 +58,10 @@ const App = forwardRef<HTMLDivElement>((_props, ref) =>
                 createElement(Route, { path: "/login", element: createElement(LoginPage) }),
                 createElement(Route, { path: "/", element: createElement(Index) }),
                 createElement(Route, {
-                  path: "/guest-book",
+                  path: "/events",
                   element: createElement(ProtectedRoute, null, createElement(EventsPage)),
                 }),
-                createElement(Route, { path: "/events", element: createElement(Episodes) }),
-                createElement(Route, { path: "/episodes", element: createElement(Navigate, { to: "/events", replace: true }) }),
+                createElement(Route, { path: "/episodes", element: createElement(Episodes) }),
                 createElement(Route, { path: "/guests", element: createElement(Guests) }),
                 createElement(Route, { path: "/merch", element: createElement(Merch) }),
                 createElement(Route, { path: "/newsletter", element: createElement(Newsletter) }),

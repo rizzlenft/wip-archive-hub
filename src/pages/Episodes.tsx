@@ -1,12 +1,11 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Calendar, X, ArrowUp, Shuffle, SlidersHorizontal } from "lucide-react";
+import { Search, Calendar, Users, Play, X, ChevronDown, ArrowUp, Shuffle } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Skeleton } from "@/components/ui/skeleton";
 import { EpisodeRow } from "@/components/episodes/EpisodeRow";
 import { SEO } from "@/components/SEO";
 import { 
@@ -16,22 +15,14 @@ import {
   type Episode 
 } from "@/lib/youtube";
 
-type QuickFilter = "all" | "latest" | "guests" | "numbered";
-
-const quickFilters: Array<{ id: QuickFilter; label: string }> = [
-  { id: "all", label: "All" },
-  { id: "latest", label: "Latest" },
-  { id: "guests", label: "Guests" },
-  { id: "numbered", label: "Meetups" },
-];
-
 const Episodes = () => {
-  const [events, setEpisodes] = useState<Episode[]>([]);
+  const [episodes, setEpisodes] = useState<Episode[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [quickFilter, setQuickFilter] = useState<QuickFilter>("all");
   const [selectedGuest, setSelectedGuest] = useState<string | null>(null);
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
+  const [showGuestDropdown, setShowGuestDropdown] = useState(false);
+  const [showYearDropdown, setShowYearDropdown] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
 
   useEffect(() => {
@@ -52,16 +43,26 @@ const Episodes = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Extract all unique guests and years
-  const allGuests = useMemo(() => extractUniqueGuests(events), [events]);
-  const allYears = useMemo(() => {
-    const years = new Set(events.map(ep => ep.publishedAt.getFullYear()));
-    return Array.from(years).sort((a, b) => b - a);
-  }, [events]);
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setShowGuestDropdown(false);
+      setShowYearDropdown(false);
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
 
-  // Filter events
-  const filteredEvents = useMemo(() => {
-    let result = [...events];
+  // Extract all unique guests and years
+  const allGuests = useMemo(() => extractUniqueGuests(episodes), [episodes]);
+  const allYears = useMemo(() => {
+    const years = new Set(episodes.map(ep => ep.publishedAt.getFullYear()));
+    return Array.from(years).sort((a, b) => b - a);
+  }, [episodes]);
+
+  // Filter episodes
+  const filteredEpisodes = useMemo(() => {
+    let result = [...episodes];
     
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
@@ -80,20 +81,12 @@ const Episodes = () => {
     if (selectedYear) {
       result = result.filter(ep => ep.publishedAt.getFullYear() === selectedYear);
     }
-
-    if (quickFilter === "latest") {
-      result = result.slice(0, 24);
-    } else if (quickFilter === "guests") {
-      result = result.filter(ep => ep.guests.length > 0);
-    } else if (quickFilter === "numbered") {
-      result = result.filter(ep => ep.episodeNumber !== null);
-    }
     
     return result;
-  }, [events, searchQuery, quickFilter, selectedGuest, selectedYear]);
+  }, [episodes, searchQuery, selectedGuest, selectedYear]);
 
-  // Group filtered events by year
-  const groupedByYear = useMemo(() => groupEpisodesByYear(filteredEvents), [filteredEvents]);
+  // Group filtered episodes by year
+  const groupedByYear = useMemo(() => groupEpisodesByYear(filteredEpisodes), [filteredEpisodes]);
   const sortedYears = useMemo(() => 
     Array.from(groupedByYear.keys()).sort((a, b) => b - a), 
     [groupedByYear]
@@ -101,53 +94,25 @@ const Episodes = () => {
 
   const clearFilters = () => {
     setSearchQuery("");
-    setQuickFilter("all");
     setSelectedGuest(null);
     setSelectedYear(null);
   };
 
   const handleRandomEpisode = () => {
-    const randomEvent = events[Math.floor(Math.random() * events.length)];
-    if (randomEvent) {
-      window.open(`https://www.youtube.com/watch?v=${randomEvent.videoId}`, '_blank');
+    const randomEp = episodes[Math.floor(Math.random() * episodes.length)];
+    if (randomEp) {
+      window.open(`https://www.youtube.com/watch?v=${randomEp.videoId}`, '_blank');
     }
   };
 
-  const hasActiveFilters = searchQuery || quickFilter !== "all" || selectedGuest || selectedYear;
+  const hasActiveFilters = searchQuery || selectedGuest || selectedYear;
 
   return (
     <div className="min-h-screen bg-background">
       <SEO
-        title="Events"
-        description="Browse The WIP Meetup event archive with 400+ web3 metaverse replays. Search by guest, year, topic, and latest YouTube recordings."
-        canonical="/events"
-        structuredData={[
-          {
-            "@context": "https://schema.org",
-            "@type": "BreadcrumbList",
-            itemListElement: [
-              { "@type": "ListItem", position: 1, name: "Home", item: "https://thewipmeetup.com/" },
-              { "@type": "ListItem", position: 2, name: "Events", item: "https://thewipmeetup.com/events" },
-            ],
-          },
-          {
-            "@context": "https://schema.org",
-            "@type": "CollectionPage",
-            name: "The WIP Meetup Event Archive",
-            description: "A searchable archive of The WIP Meetup event replays, guests, and web3 metaverse recordings.",
-            url: "https://thewipmeetup.com/events",
-            mainEntity: {
-              "@type": "ItemList",
-              numberOfItems: events.length,
-              itemListElement: events.slice(0, 50).map((ep, idx) => ({
-                "@type": "ListItem",
-                position: idx + 1,
-                url: `https://www.youtube.com/watch?v=${ep.videoId}`,
-                name: ep.title,
-              })),
-            },
-          },
-        ]}
+        title="Episodes"
+        description="Browse 250+ episodes from The WIP Meetup — the longest-running web3 metaverse meetup. Search by guest, year, or topic."
+        canonical="/episodes"
       />
       <Navigation />
       
@@ -165,22 +130,44 @@ const Episodes = () => {
             className="text-center max-w-3xl mx-auto"
           >
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              Event <span className="text-gradient-rainbow">Archive</span>
+              Episode <span className="text-gradient-rainbow">Archive</span>
             </h1>
             <p className="text-muted-foreground mb-6">
-              {events.length}+ events since 2019 — the longest-running web3 metaverse meetup
+              {episodes.length}+ episodes from the longest-running web3 metaverse meetup
             </p>
             
             {/* Action Buttons */}
-            <div className="flex flex-wrap justify-center gap-3">
+            <div className="flex flex-wrap justify-center gap-3 mb-8">
               <Button
                 size="lg"
-                variant="outline"
                 onClick={handleRandomEpisode}
+                className="bg-gradient-to-r from-primary to-accent hover:opacity-90 text-primary-foreground shadow-lg"
               >
                 <Shuffle className="w-5 h-5 mr-2" />
-                Random Event
+                Random Episode
               </Button>
+              <Link to="/guests">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-primary/50 hover:border-primary hover:bg-primary/5"
+                >
+                  <Users className="w-5 h-5 mr-2" />
+                  Explore {allGuests.length}+ Guests
+                </Button>
+              </Link>
+            </div>
+            
+            {/* Stats Row */}
+            <div className="flex flex-wrap justify-center gap-4 md:gap-8">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Calendar className="w-4 h-4 text-primary" />
+                <span className="text-sm">Since 2019</span>
+              </div>
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Play className="w-4 h-4 text-primary" />
+                <span className="text-sm">{episodes.length} Episodes</span>
+              </div>
             </div>
           </motion.div>
         </div>
@@ -191,97 +178,132 @@ const Episodes = () => {
         <div className="container mx-auto px-4">
           <div className="flex flex-wrap items-center gap-3">
             {/* Search Input */}
-            <div className="relative flex-1 min-w-[140px] max-w-md">
-              <label htmlFor="events-search" className="sr-only">
-                Search events or guests
-              </label>
+            <div className="relative flex-1 min-w-[180px] max-w-md">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
-                id="events-search"
                 type="text"
-                placeholder="Search events or guests..."
+                placeholder="Search episodes or guests..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10 h-9"
               />
             </div>
-
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" size="sm" className={selectedGuest || selectedYear ? "border-primary text-primary" : ""}>
-                  <SlidersHorizontal className="h-3.5 w-3.5" />
-                  Filter
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent align="end" className="w-[min(22rem,calc(100vw-2rem))] space-y-5">
-                <div>
-                  <div className="mb-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Type</div>
-                  <div className="grid grid-cols-2 gap-2">
-                    {quickFilters.map((filter) => (
-                      <button
-                        key={filter.id}
-                        type="button"
-                        onClick={() => setQuickFilter(filter.id)}
-                        aria-pressed={quickFilter === filter.id}
-                        className={`rounded-md px-3 py-2 text-sm font-semibold transition-colors ${
-                          quickFilter === filter.id
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
-                        }`}
-                      >
-                        {filter.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <div className="mb-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Year</div>
-                  <div className="flex flex-wrap gap-2">
+            
+            {/* Guest Filter */}
+            <div className="relative" onClick={(e) => e.stopPropagation()}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setShowGuestDropdown(!showGuestDropdown);
+                  setShowYearDropdown(false);
+                }}
+                className={selectedGuest ? "border-primary text-primary" : ""}
+              >
+                <Users className="w-3.5 h-3.5 mr-1.5" />
+                <span className="hidden sm:inline">{selectedGuest || "Guests"}</span>
+                <span className="sm:hidden">Guests</span>
+                <ChevronDown className="w-3.5 h-3.5 ml-1.5" />
+              </Button>
+              
+              <AnimatePresence>
+                {showGuestDropdown && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="absolute top-full left-0 mt-2 w-64 max-h-80 overflow-auto bg-popover border border-border rounded-lg shadow-xl z-50"
+                  >
                     <button
-                      type="button"
-                      onClick={() => setSelectedYear(null)}
-                      className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${!selectedYear ? "bg-primary text-primary-foreground" : "bg-muted/50 text-muted-foreground hover:bg-muted"}`}
+                      onClick={() => {
+                        setSelectedGuest(null);
+                        setShowGuestDropdown(false);
+                      }}
+                      className="w-full px-4 py-2 text-left hover:bg-muted transition-colors text-sm font-medium"
                     >
-                      All
+                      All Guests
                     </button>
-                    {allYears.map((year) => (
-                      <button
-                        key={year}
-                        type="button"
-                        onClick={() => setSelectedYear(year)}
-                        className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${selectedYear === year ? "bg-primary text-primary-foreground" : "bg-muted/50 text-muted-foreground hover:bg-muted"}`}
-                      >
-                        {year}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <div className="mb-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Guest</div>
-                  <div className="max-h-48 space-y-1 overflow-auto pr-1">
-                    <button
-                      type="button"
-                      onClick={() => setSelectedGuest(null)}
-                      className={`w-full rounded-md px-3 py-2 text-left text-sm transition-colors ${!selectedGuest ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
-                    >
-                      All guests
-                    </button>
-                    {allGuests.map((guest) => (
+                    {allGuests.map(guest => (
                       <button
                         key={guest}
-                        type="button"
-                        onClick={() => setSelectedGuest(guest)}
-                        className={`w-full rounded-md px-3 py-2 text-left text-sm transition-colors ${selectedGuest === guest ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
+                        onClick={() => {
+                          setSelectedGuest(guest);
+                          setShowGuestDropdown(false);
+                        }}
+                        className={`w-full px-4 py-2 text-left hover:bg-muted transition-colors text-sm ${
+                          selectedGuest === guest ? "bg-primary/10 text-primary" : ""
+                        }`}
                       >
                         {guest}
                       </button>
                     ))}
-                  </div>
-                </div>
-              </PopoverContent>
-            </Popover>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+            
+            {/* Year Filter */}
+            <div className="relative" onClick={(e) => e.stopPropagation()}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setShowYearDropdown(!showYearDropdown);
+                  setShowGuestDropdown(false);
+                }}
+                className={selectedYear ? "border-primary text-primary" : ""}
+              >
+                <Calendar className="w-3.5 h-3.5 mr-1.5" />
+                {selectedYear || "Year"}
+                <ChevronDown className="w-3.5 h-3.5 ml-1.5" />
+              </Button>
+              
+              <AnimatePresence>
+                {showYearDropdown && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="absolute top-full left-0 mt-2 w-32 bg-popover border border-border rounded-lg shadow-xl z-50"
+                  >
+                    <button
+                      onClick={() => {
+                        setSelectedYear(null);
+                        setShowYearDropdown(false);
+                      }}
+                      className="w-full px-4 py-2 text-left hover:bg-muted transition-colors text-sm font-medium"
+                    >
+                      All Years
+                    </button>
+                    {allYears.map(year => (
+                      <button
+                        key={year}
+                        onClick={() => {
+                          setSelectedYear(year);
+                          setShowYearDropdown(false);
+                        }}
+                        className={`w-full px-4 py-2 text-left hover:bg-muted transition-colors text-sm ${
+                          selectedYear === year ? "bg-primary/10 text-primary" : ""
+                        }`}
+                      >
+                        {year}
+                      </button>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Random Episode Button */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleRandomEpisode}
+              className="hidden sm:flex"
+            >
+              <Shuffle className="w-3.5 h-3.5 mr-1.5" />
+              Random
+            </Button>
             
             {/* Clear Filters */}
             {hasActiveFilters && (
@@ -295,7 +317,7 @@ const Episodes = () => {
           {/* Results count */}
           {hasActiveFilters && (
             <p className="text-xs text-muted-foreground mt-2">
-              Showing {filteredEvents.length} of {events.length} events
+              Showing {filteredEpisodes.length} of {episodes.length} episodes
             </p>
           )}
         </div>
@@ -304,24 +326,12 @@ const Episodes = () => {
       {/* Netflix-Style Rows */}
       <section className="py-8">
         {loading ? (
-          <div className="container mx-auto space-y-8 px-4 py-6">
-            {[2026, 2025].map((year) => (
-              <div key={year} className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <Skeleton className="h-8 w-24" />
-                  <Skeleton className="h-4 w-28" />
-                </div>
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                  {Array.from({ length: 4 }).map((_, index) => (
-                    <Skeleton key={index} className="aspect-video rounded-lg" />
-                  ))}
-                </div>
-              </div>
-            ))}
+          <div className="flex items-center justify-center py-20">
+            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
           </div>
-        ) : filteredEvents.length === 0 ? (
+        ) : filteredEpisodes.length === 0 ? (
           <div className="text-center py-20">
-            <p className="text-muted-foreground text-lg">No events found matching your criteria.</p>
+            <p className="text-muted-foreground text-lg">No episodes found matching your criteria.</p>
             <Button variant="outline" className="mt-4" onClick={clearFilters}>
               Clear Filters
             </Button>
@@ -348,7 +358,6 @@ const Episodes = () => {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            aria-label="Scroll to top"
             className="fixed bottom-8 right-8 w-12 h-12 bg-primary text-primary-foreground rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition-transform z-50"
           >
             <ArrowUp className="w-5 h-5" />

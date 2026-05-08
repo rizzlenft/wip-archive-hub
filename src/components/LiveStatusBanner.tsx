@@ -64,7 +64,7 @@ export const LiveStatusBanner = () => {
               <Button variant="outline" size="lg" asChild>
                 <a href={HYPERFY_URL} target="_blank" rel="noopener noreferrer">
                   <Sparkles className="w-4 h-4" />
-                  Open Hyperworld
+                  Open Hyperfy
                 </a>
               </Button>
               <Button variant="outline" size="lg" asChild>

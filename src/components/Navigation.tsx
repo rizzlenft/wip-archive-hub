@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ExternalLink, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/auth/AuthContext";
@@ -18,23 +18,20 @@ import iconHyperfy from "@/assets/icon-hyperfy.png";
 import iconSubstack from "@/assets/icon-substack.png";
 
 const navLinks = [
-  { name: "Events", href: "/events" },
+  { name: "Episodes", href: "/episodes" },
   { name: "Newsletter", href: "/newsletter" },
   { name: "Merch", href: "/merch" },
 ];
 
 const socialLinks = [
   { name: "Discord", url: "https://discord.gg/bTjc6k5uss", icon: "https://cdn.prod.website-files.com/6257adef93867e50d84d30e2/636e0a6ca814282eca7172c6_icon_clyde_white_RGB.svg" },
-  { name: "YouTube", url: "https://www.youtube.com/@thewipmeetup", icon: "https://www.youtube.com/s/desktop/c01ea7e3/img/favicon_144x144.png" },
   { name: "Twitter", url: "https://twitter.com/theWIPmeetup", icon: "https://abs.twimg.com/responsive-web/client-web/icon-ios.77d25eba.png" },
+  { name: "YouTube", url: "https://www.youtube.com/@thewipmeetup", icon: "https://www.youtube.com/s/desktop/c01ea7e3/img/favicon_144x144.png" },
   { name: "Farcaster", url: "https://farcaster.xyz/~/channel/thewipmeetup", icon: iconFarcaster },
   { name: "Twitch", url: "https://www.twitch.tv/wipmeetup", icon: "https://static.twitchcdn.net/assets/favicon-32-e29e246c157142c94346.png" },
-  { name: "Metaverse", url: "https://thewipmeetup.hyperworld.host/", icon: iconHyperfy },
+  { name: "Hyperfy", url: "https://thewipmeetup.hyperworld.host/", icon: iconHyperfy },
   { name: "Substack", url: "https://thewipmeetup.substack.com/", icon: iconSubstack },
 ];
-
-// Header shows only the top three; mobile menu still shows all.
-const headerSocialLinks = socialLinks.slice(0, 3);
 
 export const Navigation = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -78,7 +75,7 @@ export const Navigation = () => {
 
             {/* Social Icons */}
             <div className="hidden md:flex items-center gap-2">
-              {headerSocialLinks.map((link) => (
+              {socialLinks.map((link) => (
                 <a
                   key={link.name}
                   href={link.url}
@@ -99,7 +96,7 @@ export const Navigation = () => {
                   variant="outline"
                   size="sm"
                   className="hidden sm:inline-flex"
-                  onClick={() => login("/guest-book")}
+                  onClick={() => login("/events")}
                 >
                   Guest Book
                 </Button>
@@ -118,7 +115,7 @@ export const Navigation = () => {
                     <DropdownMenuLabel>Account</DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
-                      <Link to="/guest-book">My events</Link>
+                      <Link to="/events">My events</Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
@@ -154,13 +151,13 @@ export const Navigation = () => {
             className="fixed inset-0 z-40 bg-background/95 backdrop-blur-lg pt-20 md:hidden"
           >
             <div className="container mx-auto px-4 py-8">
-              <div className="flex flex-col gap-5">
+              <div className="flex flex-col gap-6">
                 {navLinks.map((link) => (
                   <Link
                     key={link.name}
                     to={link.href}
                     onClick={closeMobile}
-                    className="rounded-lg border border-border/60 bg-card/40 px-4 py-3 text-xl font-semibold text-foreground transition-colors hover:border-primary/40 hover:bg-primary/10 hover:text-primary"
+                    className="text-2xl font-medium text-foreground hover:text-primary transition-colors"
                   >
                     {link.name}
                   </Link>
@@ -170,14 +167,14 @@ export const Navigation = () => {
                     variant="outline"
                     size="lg"
                     className="mt-2"
-                    onClick={() => { closeMobile(); login("/guest-book"); }}
+                    onClick={() => { closeMobile(); login("/events"); }}
                   >
                     Guest Book
                   </Button>
                 ) : (
                   <>
                     <Button variant="ghost" size="lg" className="mt-2" asChild>
-                      <Link to="/guest-book" onClick={closeMobile}>
+                      <Link to="/events" onClick={closeMobile}>
                         {user?.email || "My events"}
                       </Link>
                     </Button>
@@ -192,9 +189,7 @@ export const Navigation = () => {
                   </>
                 )}
                 {/* Social Icons */}
-                <div className="mt-4 border-t border-border/60 pt-5">
-                  <p className="mb-3 text-xs font-bold uppercase tracking-widest text-muted-foreground">Follow The WIP</p>
-                  <div className="grid grid-cols-2 gap-2">
+                <div className="flex items-center gap-3 mt-6 flex-wrap justify-center">
                   {socialLinks.map((link) => (
                     <a
                       key={link.name}
@@ -202,16 +197,11 @@ export const Navigation = () => {
                       target="_blank"
                       rel="noopener noreferrer"
                       title={link.name}
-                      className="flex h-11 items-center justify-between rounded-lg border border-border/60 bg-muted/35 px-3 text-sm font-medium text-foreground transition-colors hover:border-primary/40 hover:bg-primary/10"
+                      className="w-10 h-10 flex items-center justify-center rounded-full bg-muted/50 hover:bg-primary/20 hover:scale-110 transition-all"
                     >
-                      <span className="flex min-w-0 items-center gap-2">
-                        <img src={link.icon} alt="" className="h-5 w-5 shrink-0 object-contain" loading="lazy" width={20} height={20} />
-                        <span className="truncate">{link.name}</span>
-                      </span>
-                      <ExternalLink className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                      <img src={link.icon} alt={link.name} className="w-5 h-5 object-contain" loading="lazy" width={20} height={20} />
                     </a>
                   ))}
-                  </div>
                 </div>
               </div>
             </div>

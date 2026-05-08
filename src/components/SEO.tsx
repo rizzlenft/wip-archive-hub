@@ -7,12 +7,11 @@ interface SEOProps {
   ogImage?: string;
   ogType?: string;
   noindex?: boolean;
-  structuredData?: Record<string, unknown> | Record<string, unknown>[];
 }
 
 const SITE_NAME = "The WIP Meetup";
 const DEFAULT_DESCRIPTION =
-  "The longest-running web3 metaverse meetup since 2019. Builders, creators, and artists gather every Thursday at 12 PM PT in the metaverse.";
+  "The longest-running web3 metaverse meetup since 2019. Builders, creators, and artists gather every Thursday at 12 PM PT in the metaverse. 3,700+ community members strong.";
 const DEFAULT_OG_IMAGE =
   "https://storage.googleapis.com/gpt-engineer-file-uploads/DM2lONnsGyMlKagJreu03ZO2vI43/social-images/social-1770403201523-wip_logo.gif";
 const SITE_URL = "https://thewipmeetup.com";
@@ -24,11 +23,9 @@ export const SEO = ({
   ogImage = DEFAULT_OG_IMAGE,
   ogType = "website",
   noindex = false,
-  structuredData,
 }: SEOProps) => {
-  const fullTitle = title ? `${title} | ${SITE_NAME}` : `${SITE_NAME} — Web3 Metaverse Events`;
+  const fullTitle = title ? `${title} | ${SITE_NAME}` : `${SITE_NAME} — The Longest-Running Web3 Metaverse Meetup`;
   const canonicalUrl = canonical ? `${SITE_URL}${canonical}` : undefined;
-  const jsonLd = structuredData ? JSON.stringify(structuredData) : undefined;
 
   return (
     <Helmet>
@@ -51,14 +48,6 @@ export const SEO = ({
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={ogImage} />
-      {jsonLd && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: jsonLd }}
-        />
-      )}
     </Helmet>
   );
 };
-
-export { SITE_NAME, SITE_URL, DEFAULT_DESCRIPTION, DEFAULT_OG_IMAGE };

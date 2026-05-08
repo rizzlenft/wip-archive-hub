@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { setCorsHeaders } from "../api-shared/_cors.js";
+import { setCorsHeaders } from "./_cors.js";
 
 const SUBSTACK_SUBSCRIBE_URL =
   "https://thewipmeetup.substack.com/api/v1/free?noRedirect=true";
