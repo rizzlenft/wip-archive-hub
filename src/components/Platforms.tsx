@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { ExternalLink } from "lucide-react";
-import wipCv from "@/assets/wip-cv.gif";
+import wipCv from "@/assets/wip-cv.jpg";
 import wipLogoStatic from "@/assets/wip-logo-static.png";
 import nftGift1 from "@/assets/nft-gift-1.jpeg";
 import nftGift2 from "@/assets/nft-gift-2.avif";
@@ -16,7 +16,7 @@ const platforms = [
   },
   {
     name: "YouTube",
-    description: "Episodes, replays, and highlights",
+    description: "Events, replays, and highlights",
     url: "https://www.youtube.com/@thewipmeetup",
     icon: "https://www.youtube.com/s/desktop/c01ea7e3/img/favicon_144x144.png",
   },
@@ -113,7 +113,7 @@ const platformGroups = [
   },
   {
     title: "Watch",
-    description: "Replay episodes and live streams.",
+    description: "Replay events and live streams.",
     platforms: [getPlatform("YouTube"), getPlatform("Twitch")],
   },
   {
@@ -130,7 +130,7 @@ const platformGroups = [
 
 export const Platforms = () => {
   return (
-    <section id="platforms" className="relative overflow-hidden py-12 md:py-16">
+    <section id="platforms" className="relative overflow-hidden py-10 md:py-14">
       {/* Animated background */}
       <div 
         className="absolute inset-0 bg-cover bg-center opacity-10"
@@ -155,7 +155,7 @@ export const Platforms = () => {
           </p>
         </motion.div>
 
-        <div className="mx-auto grid max-w-6xl gap-3 md:grid-cols-2 md:gap-4">
+        <div className="mx-auto grid max-w-6xl gap-3 lg:grid-cols-2 md:gap-4">
           {platformGroups.map((group, groupIndex) => (
             <motion.div
               key={group.title}
@@ -198,21 +198,21 @@ export const Platforms = () => {
                     href={platform.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex min-h-20 items-center gap-3 px-3 py-3 sm:min-h-24 sm:px-4"
+                    className="flex min-h-16 items-center gap-3 px-3 py-3 sm:min-h-20 sm:px-4"
                   >
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-primary/20 bg-muted/50 shadow-md transition-shadow group-hover:shadow-lg sm:h-12 sm:w-12">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-primary/20 bg-muted/50 shadow-md transition-shadow group-hover:shadow-lg sm:h-11 sm:w-11">
                       <img 
                         src={platform.icon} 
                         alt={platform.name}
-                        className="h-5 w-5 rounded-sm object-cover sm:h-6 sm:w-6"
+                        className="h-5 w-5 rounded-sm object-cover"
                       />
                     </div>
                       <div className="min-w-0 text-left">
                       <div className="flex items-center gap-2">
-                        <h4 className="truncate text-base font-semibold sm:text-lg">{platform.name}</h4>
+                        <h4 className="truncate text-base font-semibold">{platform.name}</h4>
                         <ExternalLink className="h-3.5 w-3.5 shrink-0 text-muted-foreground opacity-60 transition-opacity group-hover:opacity-100" />
                       </div>
-                      <p className="text-sm leading-snug text-muted-foreground">{platform.description}</p>
+                      <p className="text-xs leading-snug text-muted-foreground sm:text-sm">{platform.description}</p>
                     </div>
                   </a>
 

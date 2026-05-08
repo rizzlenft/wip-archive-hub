@@ -115,54 +115,58 @@ export const ThisWeekCard = () => {
   const countdownText = `${String(timeLeft.days).padStart(2, "0")}d ${String(timeLeft.hours).padStart(2, "0")}h ${String(timeLeft.minutes).padStart(2, "0")}m ${String(timeLeft.seconds).padStart(2, "0")}s`;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="mx-auto flex max-w-4xl flex-col gap-3 rounded-xl border border-border/70 bg-card/55 px-4 py-3 text-left backdrop-blur-sm sm:flex-row sm:items-center sm:justify-center sm:gap-4 md:px-5"
-    >
-      <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
-        <span className="text-xs font-bold uppercase tracking-widest text-primary">Next meetup</span>
-        <span className="text-lg font-bold text-gradient-rainbow md:text-xl">{countdownText}</span>
-        <span className="text-xs text-muted-foreground">Thursday · 12 PM PT</span>
-      </div>
-
-      <div className="hidden h-8 w-px bg-border/70 sm:block" />
-
-      <div className="flex min-w-0 flex-wrap items-center justify-center gap-2">
-        <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-primary">
-          <Sparkles className="h-4 w-4" />
-          {speakers.length === 1 ? "Featured guest" : "Featured guests"}
+    <section className="relative px-4 pb-3 pt-3 md:pb-5 md:pt-6">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-background to-card/20" />
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="relative mx-auto flex max-w-5xl flex-col gap-2 rounded-xl border border-border/70 bg-card/55 px-4 py-3 text-left shadow-card backdrop-blur-sm sm:flex-row sm:items-center sm:justify-center sm:gap-4 md:px-5"
+      >
+        <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
+          <span className="text-xs font-bold uppercase tracking-widest text-primary">Next meetup</span>
+          <span className="text-lg font-bold text-gradient-rainbow md:text-xl">{countdownText}</span>
+          <span className="text-xs text-muted-foreground">Thursday · 12 PM PT</span>
         </div>
-        {speakers.length > 0 ? (
-          <div className="flex min-w-0 flex-wrap items-center justify-center gap-2">
-            {speakers.map((speaker) => (
-              <a
-                key={speaker.name}
-                href={speaker.twitter ? `https://x.com/${speaker.twitter}` : undefined}
-                target={speaker.twitter ? "_blank" : undefined}
-                rel={speaker.twitter ? "noopener noreferrer" : undefined}
-                className="flex min-w-0 items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-2.5 py-1 text-sm font-medium text-foreground transition-colors hover:bg-primary/20"
-              >
-                <img
-                  src={
-                    speaker.profile_image_url ||
-                    `${API_BASE}/api/newsletter?action=avatar&${speaker.farcaster ? `farcaster=${encodeURIComponent(speaker.farcaster)}` : speaker.twitter ? `twitter=${encodeURIComponent(speaker.twitter)}` : `twitter=${encodeURIComponent(speaker.name)}`}`
-                  }
-                  alt={speaker.name}
-                  className="h-5 w-5 shrink-0 rounded-full border border-primary/30 object-cover"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(speaker.name)}&background=7c3aed&color=fff&size=40`;
-                  }}
-                />
-                <span className="truncate">{speaker.name}</span>
-              </a>
-            ))}
-          </div>
-        ) : (
-          <span className="text-sm text-muted-foreground">Come back soon to find out</span>
+
+        {speakers.length > 0 && (
+          <>
+            <div className="hidden h-8 w-px bg-border/70 sm:block" />
+            <div className="flex min-w-0 flex-wrap items-center justify-center gap-2">
+              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-primary">
+                <Sparkles className="h-4 w-4" />
+                {speakers.length === 1 ? "Featured guest" : "Featured guests"}
+              </div>
+              <div className="flex min-w-0 flex-wrap items-center justify-center gap-2">
+                {speakers.map((speaker) => (
+                  <a
+                    key={speaker.name}
+                    href={speaker.twitter ? `https://x.com/${speaker.twitter}` : undefined}
+                    target={speaker.twitter ? "_blank" : undefined}
+                    rel={speaker.twitter ? "noopener noreferrer" : undefined}
+                    className="flex min-w-0 items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-2.5 py-1 text-sm font-medium text-foreground transition-colors hover:bg-primary/20"
+                  >
+                    <img
+                      src={
+                        speaker.profile_image_url ||
+                        (speaker.farcaster
+                          ? `https://unavatar.io/farcaster/${encodeURIComponent(speaker.farcaster)}`
+                          : `https://unavatar.io/twitter/${encodeURIComponent(speaker.twitter || speaker.name)}`)
+                      }
+                      alt={speaker.name}
+                      className="h-5 w-5 shrink-0 rounded-full border border-primary/30 object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(speaker.name)}&background=7c3aed&color=fff&size=40`;
+                      }}
+                    />
+                    <span className="truncate">{speaker.name}</span>
+                  </a>
+                ))}
+              </div>
+            </div>
+          </>
         )}
-      </div>
-    </motion.div>
+      </motion.div>
+    </section>
   );
 };

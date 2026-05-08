@@ -1,7 +1,10 @@
 import { motion } from "framer-motion";
-import { Play, ExternalLink, X } from "lucide-react";
+import { Archive, Play, X } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
+import { fetchNewsletters, type NewsletterIssue } from "@/lib/newsletter";
+import { EPISODES_DATA } from "@/lib/episodesData";
 
 interface VideoData {
   title: string;
@@ -9,9 +12,23 @@ interface VideoData {
   thumbnail: string;
 }
 
-const CHANNEL_URL = "https://www.youtube.com/@thewipmeetup";
 const CHANNEL_ID = "UCRwQrMcwYE3K7gfP5nQVgng";
 const UPLOADS_PLAYLIST_ID = "UU" + CHANNEL_ID.slice(2);
+
+const getYouTubeIdFromIssue = (issue: NewsletterIssue) => {
+  if (issue.youtube_video_id) return issue.youtube_video_id;
+  const body = `${issue.body_html || ""} ${issue.body_markdown || ""}`;
+  return body.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/)?.[1];
+};
+
+const getFallbackTitleFromIssue = (issue: NewsletterIssue) => {
+  const body = issue.body_html || issue.body_markdown || "";
+  return body.match(/<span[^>]*>(The WIP Meetup[^<]+)<\/span>/i)?.[1]
+    ?.replace(/&#39;/g, "'")
+    ?.replace(/&amp;/g, "&")
+    || issue.title
+    || "Latest WIP Meetup replay";
+};
 
 export const LatestEvent = () => {
   const [video, setVideo] = useState<VideoData | null>(null);
@@ -48,6 +65,45 @@ export const LatestEvent = () => {
         // fallback
       }
 
+      try {
+        const newsletters = await fetchNewsletters();
+        const withVideos = newsletters
+          .map((issue) => ({ issue, videoId: getYouTubeIdFromIssue(issue) }))
+          .filter((item): item is { issue: NewsletterIssue; videoId: string } => Boolean(item.videoId))
+          .sort(
+            (a, b) =>
+              new Date(b.issue.published_at || b.issue.created_at).getTime() -
+              new Date(a.issue.published_at || a.issue.created_at).getTime()
+          );
+
+        if (withVideos.length > 0) {
+          const latest = withVideos[0];
+          setVideo({
+            title: getFallbackTitleFromIssue(latest.issue),
+            videoId: latest.videoId,
+            thumbnail: `https://img.youtube.com/vi/${latest.videoId}/maxresdefault.jpg`,
+          });
+          setSource("Newsletter replay fallback");
+          return;
+        }
+      } catch {
+        // fallback
+      }
+
+      const archiveFallback = [...EPISODES_DATA].sort(
+        (a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime()
+      )[0];
+
+      if (archiveFallback) {
+        setVideo({
+          title: archiveFallback.title,
+          videoId: archiveFallback.videoId,
+          thumbnail: `https://img.youtube.com/vi/${archiveFallback.videoId}/maxresdefault.jpg`,
+        });
+        setSource("Static archive fallback");
+        return;
+      }
+
       setSource("Playlist embed");
       setUseFallbackEmbed(true);
     };
@@ -65,8 +121,8 @@ export const LatestEvent = () => {
   };
 
   return (
-    <section id="about" className="py-16 pb-8 relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-b from-background via-card/20 to-background" />
+    <section id="watch" className="relative overflow-hidden pb-10 pt-6 md:pb-14 md:pt-8">
+      <div className="absolute inset-0 bg-gradient-to-b from-card/20 via-card/10 to-background" />
 
       <div className="container mx-auto px-4 relative z-10">
         {/* Latest Event */}
@@ -77,16 +133,17 @@ export const LatestEvent = () => {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="mx-auto max-w-4xl"
         >
-          <div className="mb-8 text-center">
-            <h2 className="mb-3 text-3xl font-bold md:text-5xl">
+          <div className="mb-5 text-center md:mb-7">
+            <div className="mx-auto mb-3 h-10 w-px bg-gradient-to-b from-primary/70 to-transparent" />
+            <h2 className="mb-3 text-3xl font-bold leading-tight md:text-5xl">
               Watch <span className="text-gradient-rainbow">The WIP</span>
             </h2>
             <p className="mx-auto max-w-2xl text-muted-foreground md:text-lg">
-              Start with the latest meetup, then dig into the archive.
+              Catch the latest replay, then dig into the full event archive.
             </p>
           </div>
 
-          <div className="relative rounded-2xl overflow-hidden border-glow">
+          <div className="relative overflow-hidden rounded-xl border-glow">
             <div className="relative aspect-video bg-card">
               {useFallbackEmbed ? (
                 <iframe
@@ -114,20 +171,18 @@ export const LatestEvent = () => {
                     <X className="w-5 h-5" />
                   </button>
                 </>
-              ) : (
+              ) : video ? (
                 <button
                   onClick={() => setIsPlaying(true)}
                   className="group w-full h-full cursor-pointer block"
                   aria-label="Play latest event video"
                 >
-                  {video && (
-                    <img
-                      src={video.thumbnail}
-                      alt={video.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      onError={handleThumbnailError}
-                    />
-                  )}
+                  <img
+                    src={video.thumbnail}
+                    alt={video.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    onError={handleThumbnailError}
+                  />
                   <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/20 to-transparent" />
                   
                   <div className="absolute inset-0 flex items-center justify-center">
@@ -136,13 +191,17 @@ export const LatestEvent = () => {
                     </div>
                   </div>
 
-                  <div className="absolute bottom-0 left-0 right-0 p-6 text-left">
-                    <h4 className="text-xl md:text-2xl font-bold text-white mb-2 line-clamp-2">
+                  <div className="absolute bottom-0 left-0 right-0 p-4 text-left md:p-6">
+                    <h4 className="mb-2 line-clamp-2 text-lg font-bold text-foreground md:text-2xl">
                       {video?.title}
                     </h4>
-                    <p className="text-white/70 text-sm">Click to watch</p>
+                    <p className="text-sm text-muted-foreground">Click to watch</p>
                   </div>
                 </button>
+              ) : (
+                <div className="flex h-full min-h-52 items-center justify-center bg-card/70 px-6 text-center">
+                  <p className="text-sm text-muted-foreground">Loading the latest WIP video…</p>
+                </div>
               )}
             </div>
           </div>
@@ -156,12 +215,12 @@ export const LatestEvent = () => {
             </div>
           )}
 
-          <div className="flex justify-center mt-4">
+          <div className="mt-4 flex justify-center">
             <Button variant="outline" size="lg" asChild>
-              <a href={`${CHANNEL_URL}/streams`} target="_blank" rel="noopener noreferrer">
-                <ExternalLink className="w-5 h-5" />
-                View All Events
-              </a>
+              <Link to="/events">
+                <Archive className="w-5 h-5" />
+                Browse Event Archive
+              </Link>
             </Button>
           </div>
         </motion.div>

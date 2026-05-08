@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { getConnectUserFromRequest } from "./_connect-verify.js";
-import { setCorsHeaders } from "./_cors.js";
+import { getConnectUserFromRequest } from "../api-shared/_connect-verify.js";
+import { setCorsHeaders } from "../api-shared/_cors.js";
 
 export default async function handler(
   req: VercelRequest,

@@ -1,19 +1,25 @@
 import { motion } from "framer-motion";
+import { CalendarDays, PlayCircle } from "lucide-react";
+import { Link } from "react-router-dom";
 import { LiveStatusBanner } from "@/components/LiveStatusBanner";
+import { Button } from "@/components/ui/button";
 
 import heroBg from "@/assets/hero-bg.jpg";
 import wipLogo from "@/assets/wip-logo.gif";
 
 export const Hero = () => {
   return (
-    <section className="relative flex min-h-[88vh] items-center justify-center overflow-hidden pt-24 md:min-h-[92vh] md:pt-28">
-      {/* Background Image */}
-      <div 
-        className="absolute inset-0 bg-cover bg-no-repeat"
-        style={{ backgroundImage: `url(${heroBg})`, backgroundPosition: 'center center' }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/50 to-background" />
-      </div>
+    <section className="relative flex min-h-[76vh] items-center justify-center overflow-hidden pt-20 md:min-h-[82vh] md:pt-24">
+      {/* Background Image (LCP) */}
+      <img
+        src={heroBg}
+        alt=""
+        aria-hidden="true"
+        fetchPriority="high"
+        decoding="async"
+        className="absolute inset-0 h-full w-full object-cover"
+      />
+      <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/50 to-background" />
 
       {/* Grid overlay */}
       <div className="absolute inset-0 bg-grid opacity-20" />
@@ -30,6 +36,7 @@ export const Hero = () => {
           alt="" 
           className="w-[500px] h-[500px] md:w-[700px] md:h-[700px] lg:w-[900px] lg:h-[900px]"
           loading="lazy"
+          decoding="async"
         />
       </motion.div>
 
@@ -39,7 +46,7 @@ export const Hero = () => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="mx-auto max-w-5xl space-y-5"
+          className="mx-auto max-w-5xl space-y-4 md:space-y-5"
         >
           {/* Animated Logo */}
           <motion.div
@@ -48,12 +55,14 @@ export const Hero = () => {
             transition={{ delay: 0.2, duration: 0.6 }}
             className="flex justify-center"
           >
-            <img 
-              src={wipLogo} 
-              alt="The WIP Logo" 
-              className="w-40 h-40 md:w-56 md:h-56 lg:w-64 lg:h-64 animate-float"
+            <img
+              src={wipLogo}
+              alt=""
+              className="h-36 w-36 animate-float md:h-52 md:w-52 lg:h-60 lg:w-60"
               width={256}
               height={256}
+              loading="eager"
+              fetchPriority="high"
             />
           </motion.div>
 
@@ -62,7 +71,7 @@ export const Hero = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="text-4xl font-bold tracking-tight md:text-6xl lg:text-7xl"
+            className="text-4xl font-bold leading-tight tracking-tight md:text-6xl lg:text-7xl"
           >
             <span className="text-gradient-rainbow glow-text">The WIP Meetup</span>
           </motion.h1>
@@ -77,6 +86,26 @@ export const Hero = () => {
             WIP = Work in Progress. The longest-running web3 metaverse meetup brings builders,
             creators, and artists together <span className="font-semibold text-primary">every Thursday at 12 PM PT</span>.
           </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.55 }}
+            className="flex flex-col items-center justify-center gap-3 pt-2 sm:flex-row"
+          >
+            <Button size="lg" asChild>
+              <a href="#watch">
+                <PlayCircle className="h-5 w-5" />
+                Watch Latest Event
+              </a>
+            </Button>
+            <Button variant="ghost" size="lg" asChild>
+              <Link to="/events">
+                <CalendarDays className="h-5 w-5" />
+                Browse Events
+              </Link>
+            </Button>
+          </motion.div>
 
           {/* Live Status */}
           <motion.div

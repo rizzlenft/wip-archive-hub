@@ -16,14 +16,15 @@ const API_BASE =
   (import.meta.env.VITE_BACKEND_URL as string | undefined) ||
   "https://api.thewipmeetup.com";
 
+// Direct unavatar URLs (proxy bypassed — Vercel function bundle was failing on GET)
 function proxyUnavatarHtml(html: string): string {
-  return html.replace(
-    /https:\/\/unavatar\.io\/(farcaster|twitter)\/([a-zA-Z0-9_.-]+)/g,
-    (_m, service: string, handle: string) => {
-      const key = service === "farcaster" ? "farcaster" : "twitter";
-      return `${API_BASE}/api/newsletter?action=avatar&${key}=${encodeURIComponent(handle)}`;
-    },
-  );
+  return html;
+}
+
+function buildAvatarUrl(speaker: { name: string; farcaster?: string; twitter?: string }): string {
+  if (speaker.farcaster) return `https://unavatar.io/farcaster/${encodeURIComponent(speaker.farcaster)}`;
+  if (speaker.twitter) return `https://unavatar.io/twitter/${encodeURIComponent(speaker.twitter)}`;
+  return `https://unavatar.io/twitter/${encodeURIComponent(speaker.name)}`;
 }
 
 /** Strip leading cover/thumbnail images from newsletter HTML (e.g. YouTube thumbs from prior week) */
@@ -140,6 +141,69 @@ const Newsletter = () => {
     );
   });
 
+  const breadcrumbList = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://thewipmeetup.com/" },
+      { "@type": "ListItem", position: 2, name: "Newsletter", item: "https://thewipmeetup.com/newsletter" },
+      ...(selected
+        ? [{ "@type": "ListItem", position: 3, name: selected.title, item: `https://thewipmeetup.com/newsletter?issue=${selected.id}` }]
+        : []),
+    ],
+  };
+
+  const articleStructuredData = selected
+    ? {
+        "@context": "https://schema.org",
+        "@type": "NewsArticle",
+        headline: selected.title,
+        description:
+          selected.recap_summary ||
+          `WIP Weekly newsletter ft. ${selected.speakers?.map((s) => s.name).join(", ") || "the WIP community"}`,
+        image: [`https://thewipmeetup.com/api/og-newsletter?id=${encodeURIComponent(selected.id)}`],
+        datePublished: selected.published_at || selected.created_at,
+        dateModified: selected.published_at || selected.created_at,
+        author: { "@type": "Organization", name: "The WIP Meetup", url: "https://thewipmeetup.com" },
+        publisher: {
+          "@type": "Organization",
+          name: "The WIP Meetup",
+          url: "https://thewipmeetup.com",
+          logo: {
+            "@type": "ImageObject",
+            url: "https://storage.googleapis.com/gpt-engineer-file-uploads/DM2lONnsGyMlKagJreu03ZO2vI43/uploads/1770403228998-wip_logo.gif",
+          },
+        },
+        mainEntityOfPage: {
+          "@type": "WebPage",
+          "@id": `https://thewipmeetup.com/newsletter?issue=${selected.id}`,
+        },
+        about: selected.speakers?.map((s) => ({ "@type": "Person", name: s.name })),
+        isPartOf: { "@type": "Periodical", name: "WIP Weekly", url: "https://thewipmeetup.com/newsletter" },
+      }
+    : null;
+
+  const collectionStructuredData = !selected
+    ? {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        name: "WIP Weekly Newsletter Archive",
+        description: "Weekly recaps, speaker spotlights, and community highlights from The WIP Meetup.",
+        url: "https://thewipmeetup.com/newsletter",
+        isPartOf: { "@type": "WebSite", name: "The WIP Meetup", url: "https://thewipmeetup.com" },
+        mainEntity: {
+          "@type": "ItemList",
+          numberOfItems: issues.length,
+          itemListElement: issues.slice(0, 50).map((iss, idx) => ({
+            "@type": "ListItem",
+            position: idx + 1,
+            url: `https://thewipmeetup.com/newsletter?issue=${iss.id}`,
+            name: iss.title,
+          })),
+        },
+      }
+    : null;
+
   return (
     <div className="min-h-screen bg-background">
       <SEO
@@ -147,10 +211,16 @@ const Newsletter = () => {
         description={
           selected
             ? selected.recap_summary || `ft. ${selected.speakers?.map(s => s.name).join(", ") || "the WIP community"}`
-            : "Catch up on the latest from The WIP Meetup — weekly recaps, speaker spotlights, and community highlights."
+            : "Read WIP Weekly for event recaps, featured guests, speaker spotlights, and web3 metaverse community highlights from The WIP Meetup."
         }
         canonical={selected ? `/newsletter?issue=${selected.id}` : "/newsletter"}
-        ogImage={selected ? `${API_BASE}/api/og-image?id=${encodeURIComponent(selected.id)}` : undefined}
+        ogImage={selected ? `https://thewipmeetup.com/api/og-newsletter?id=${encodeURIComponent(selected.id)}` : undefined}
+        ogType={selected ? "article" : "website"}
+        structuredData={[
+          breadcrumbList,
+          ...(articleStructuredData ? [articleStructuredData] : []),
+          ...(collectionStructuredData ? [collectionStructuredData] : []),
+        ]}
       />
       <Navigation />
 
@@ -273,39 +343,6 @@ const Newsletter = () => {
 
               {loading ? (
                 <p className="text-muted-foreground">Loading newsletters…</p>
-              ) : issues.length === 0 ? (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="rounded-2xl border border-border bg-card p-12 text-center space-y-5"
-                >
-                  <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
-                    <Sparkles className="w-10 h-10 text-primary" />
-                  </div>
-                  <h2 className="text-2xl font-bold">Coming Soon</h2>
-                  <p className="text-muted-foreground max-w-md mx-auto">
-                    The WIP Weekly newsletter is launching soon. Subscribe on{" "}
-                    <a
-                      href="https://thewipmeetup.substack.com/"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-primary hover:underline font-medium"
-                    >
-                      Substack
-                    </a>{" "}
-                    to be the first to receive it in your inbox.
-                  </p>
-                  <Button variant="outline" size="sm" asChild>
-                    <a
-                      href="https://thewipmeetup.substack.com/"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <ExternalLink className="w-4 h-4" />
-                      Go to Substack
-                    </a>
-                  </Button>
-                </motion.div>
               ) : filteredIssues.length === 0 ? (
                 <div className="rounded-xl border border-border bg-card p-8 text-center">
                   <p className="text-muted-foreground">No issues match your search.</p>
@@ -328,10 +365,10 @@ const Newsletter = () => {
                               <img
                                 src={
                                   speaker.profile_image_url ||
-                                  `${API_BASE}/api/newsletter?action=avatar&${speaker.farcaster ? `farcaster=${encodeURIComponent(speaker.farcaster)}` : speaker.twitter ? `twitter=${encodeURIComponent(speaker.twitter)}` : `twitter=${encodeURIComponent(speaker.name)}`}`
+                                  buildAvatarUrl(speaker)
                                 }
                                 alt={speaker.name}
-                                className="w-9 h-9 rounded-full object-cover border border-primary/30 transition-all duration-200 group-hover:scale-110 hover:!scale-125 hover:border-primary hover:shadow-[0_0_12px_hsl(var(--primary)/0.4)]"
+                                className="w-9 h-9 rounded-full object-cover border border-primary/30 transition-all duration-200 group-hover:border-primary group-hover:shadow-[0_0_12px_hsl(var(--primary)/0.4)] hover:!scale-110"
                                 onError={(e) => { (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(speaker.name)}&background=7c3aed&color=fff&size=36`; }}
                               />
                               <span className="text-[10px] text-muted-foreground truncate max-w-[60px]">{speaker.name}</span>
