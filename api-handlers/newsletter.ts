@@ -347,7 +347,7 @@ function getRequestOrigin(req: VercelRequest): string {
   const host =
     (req.headers["x-forwarded-host"] as string | undefined) ||
     (req.headers.host as string | undefined) ||
-    "api.thewipmeetup.com";
+    "thewipmeetup.com";
   return `${proto}://${host}`;
 }
 
