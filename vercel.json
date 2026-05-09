@@ -1,15 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "functions": {
-    "api/newsletter.ts": {
-      "memory": 1024,
-      "maxDuration": 60
-    },
-    "api/og-newsletter.ts": {
-      "memory": 1024,
-      "maxDuration": 60
-    },
-    "api/youtube-latest.ts": {
+    "api/[...path].ts": {
       "memory": 1024,
       "maxDuration": 60
     }

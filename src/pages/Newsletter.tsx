@@ -14,7 +14,7 @@ import wipLogo from "@/assets/wip-logo-static.png";
 
 const API_BASE =
   (import.meta.env.VITE_BACKEND_URL as string | undefined) ||
-  "https://api.thewipmeetup.com";
+  "https://thewipmeetup.com";
 
 // Direct unavatar URLs (proxy bypassed — Vercel function bundle was failing on GET)
 function proxyUnavatarHtml(html: string): string {

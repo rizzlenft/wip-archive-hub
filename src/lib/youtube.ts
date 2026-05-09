@@ -218,7 +218,7 @@ export function isNewerThanStoredCursor(episode: Episode, cursor: Episode | null
 async function fetchLiveVideos(cursor: Episode | null): Promise<Episode[]> {
   const API_BASE =
     (import.meta.env.VITE_BACKEND_URL as string | undefined) ||
-    "https://api.thewipmeetup.com";
+    "https://thewipmeetup.com";
 
   try {
     const toEpisodes = (videos: any[]) => videos.map((v: any) => {

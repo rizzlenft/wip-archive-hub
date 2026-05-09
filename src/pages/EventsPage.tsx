@@ -10,7 +10,7 @@ import { getNextMeetupDate } from "@/lib/meetupSchedule";
 
 const API_BASE =
   (import.meta.env.VITE_BACKEND_URL as string | undefined) ||
-  "https://api.thewipmeetup.com";
+  "https://thewipmeetup.com";
 
 type EventDetails = {
   id: string;
