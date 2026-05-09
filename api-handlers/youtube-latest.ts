@@ -1,4 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
+import { EPISODES_DATA } from "../src/lib/episodesData.js";
 
 /**
  * GET /api/youtube-latest — Returns recent videos from The WIP Meetup YouTube channel.
@@ -130,7 +131,16 @@ export default async function handler(
       }
     }
 
-    return res.status(502).json({ error: "All YouTube sources unavailable" });
+    const archiveVideos = EPISODES_DATA
+      .map((episode) => ({
+        videoId: episode.videoId,
+        title: episode.title,
+        publishedAt: episode.publishDate,
+        thumbnail: `https://img.youtube.com/vi/${episode.videoId}/maxresdefault.jpg`,
+      }))
+      .sort((a, b) => (parseVideoDate(b)?.getTime() || 0) - (parseVideoDate(a)?.getTime() || 0));
+
+    return sendVideos(res, archiveVideos, count, "static-archive", cursor);
   } catch (err: any) {
     console.error("youtube-latest error:", err);
     return res.status(500).json({ error: "Internal server error" });
