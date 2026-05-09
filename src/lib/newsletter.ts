@@ -29,7 +29,7 @@ export interface NewsletterIssue {
 
 const API_BASE =
   (import.meta.env.VITE_BACKEND_URL as string | undefined) ||
-  "https://api.thewipmeetup.com";
+  "https://thewipmeetup.com";
 
 export async function fetchNewsletters(): Promise<NewsletterIssue[]> {
   const res = await fetch(`${API_BASE}/api/newsletter`);

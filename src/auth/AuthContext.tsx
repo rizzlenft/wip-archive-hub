@@ -20,7 +20,7 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 const API_BASE =
   (import.meta.env.VITE_BACKEND_URL as string | undefined) ||
-  "https://api.thewipmeetup.com";
+  "https://thewipmeetup.com";
 const TOKENSMART_URL =
   (import.meta.env.VITE_TOKENSMART_URL as string) ||
   "https://www.tokensmart.co";
