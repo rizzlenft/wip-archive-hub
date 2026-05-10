@@ -1,15 +1,15 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 
-import authCallback from "../api-handlers/auth-callback.js";
-import authLogout from "../api-handlers/auth-logout.js";
-import authMe from "../api-handlers/auth-me.js";
-import eventsCheckin from "../api-handlers/events-checkin.js";
-import eventsCheckins from "../api-handlers/events-checkins.js";
-import events from "../api-handlers/events.js";
-import newsletter from "../api-handlers/newsletter.js";
-import ogNewsletter from "../api-handlers/og-newsletter.js";
-import substackSubscribe from "../api-handlers/substack-subscribe.js";
-import youtubeLatest from "../api-handlers/youtube-latest.js";
+import authCallback from "./_handlers/auth-callback.js";
+import authLogout from "./_handlers/auth-logout.js";
+import authMe from "./_handlers/auth-me.js";
+import eventsCheckin from "./_handlers/events-checkin.js";
+import eventsCheckins from "./_handlers/events-checkins.js";
+import events from "./_handlers/events.js";
+import newsletter from "./_handlers/newsletter.js";
+import ogNewsletter from "./_handlers/og-newsletter.js";
+import substackSubscribe from "./_handlers/substack-subscribe.js";
+import youtubeLatest from "./_handlers/youtube-latest.js";
 
 type Handler = (req: VercelRequest, res: VercelResponse) => unknown | Promise<unknown>;
 
