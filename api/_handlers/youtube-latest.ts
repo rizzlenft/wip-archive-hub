@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { EPISODES_DATA } from "../src/lib/episodesData.js";
+import { CURRENT_STREAM_ARCHIVE } from "../_shared/current-stream-archive.js";
 
 /**
  * GET /api/youtube-latest — Returns recent videos from The WIP Meetup YouTube channel.
@@ -131,7 +131,7 @@ export default async function handler(
       }
     }
 
-    const archiveVideos = EPISODES_DATA
+    const archiveVideos = CURRENT_STREAM_ARCHIVE
       .map((episode) => ({
         videoId: episode.videoId,
         title: episode.title,
@@ -240,8 +240,27 @@ function extractVideosFromInitialData(data: any, count: number): VideoResult[] {
     return videos.length >= count;
   };
 
+  const addLockup = (lockup: any) => {
+    const videoId = lockup?.contentId;
+    if (!videoId || seen.has(videoId) || lockup?.contentType !== "LOCKUP_CONTENT_TYPE_VIDEO") return false;
+    const metadata = lockup.metadata?.lockupMetadataViewModel;
+    const title = metadata?.title?.content || "The WIP Meetup";
+    const rows = metadata?.metadata?.contentMetadataViewModel?.metadataRows || [];
+    const publishedAt = rows
+      .flatMap((row: any) => row?.metadataParts || [])
+      .map((part: any) => part?.text?.content)
+      .filter(Boolean)
+      .find((text: string) => /ago|streamed|premiered|\d{4}/i.test(text));
+    const sources = lockup.contentImage?.thumbnailViewModel?.image?.sources || [];
+    const thumbnail = sources[sources.length - 1]?.url?.replace(/\u0026/g, "&");
+    seen.add(videoId);
+    videos.push({ videoId, title, publishedAt, thumbnail });
+    return videos.length >= count;
+  };
+
   const walk = (node: any): boolean => {
     if (!node || typeof node !== "object") return false;
+    if (addLockup(node.lockupViewModel)) return true;
     if (addVideo(node.videoRenderer) || addVideo(node.gridVideoRenderer)) return true;
     if (addVideo(node.reelItemRenderer) || addVideo(node.compactVideoRenderer)) return true;
     if (Array.isArray(node)) {
