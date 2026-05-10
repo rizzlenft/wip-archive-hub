@@ -1,6 +1,7 @@
 // YouTube utilities for The WIP Meetup channel
 
 import { EPISODES_DATA } from "./episodesData";
+import { CURRENT_STREAM_ARCHIVE } from "./currentStreamArchive";
 import { fetchNewsletters, type NewsletterIssue } from "./newsletter";
 
 export interface Episode {
@@ -168,7 +169,7 @@ function getTitleFromIssue(issue: NewsletterIssue): string {
 }
 
 function getNewestStoredEpisode(): Episode | null {
-  return EPISODES_DATA.reduce<Episode | null>((newest, data) => {
+  return [...EPISODES_DATA, ...CURRENT_STREAM_ARCHIVE].reduce<Episode | null>((newest, data) => {
     const episode = createEpisode({
       videoId: data.videoId,
       title: data.title,
@@ -284,7 +285,7 @@ async function fetchNewsletterReplayVideos(cursor: Episode | null): Promise<Epis
 export async function fetchAllEpisodes(): Promise<Episode[]> {
   // Build archive map
   const archiveMap = new Map<string, Episode>();
-  EPISODES_DATA.forEach(data => {
+  [...EPISODES_DATA, ...CURRENT_STREAM_ARCHIVE].forEach(data => {
     archiveMap.set(data.videoId, createEpisode({
       videoId: data.videoId,
       title: data.title,
@@ -305,7 +306,7 @@ export async function fetchAllEpisodes(): Promise<Episode[]> {
   const episodes = Array.from(archiveMap.values());
   episodes.sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime());
   
-  console.log(`✅ Loaded ${episodes.length} events (${liveVideos.length} live, ${newsletterVideos.length} newsletter, ${EPISODES_DATA.length} archived)`);
+  console.log(`✅ Loaded ${episodes.length} events (${liveVideos.length} live, ${newsletterVideos.length} newsletter, ${EPISODES_DATA.length + CURRENT_STREAM_ARCHIVE.length} archived)`);
   return episodes;
 }
 
