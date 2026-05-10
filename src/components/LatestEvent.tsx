@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { fetchNewsletters, type NewsletterIssue } from "@/lib/newsletter";
 import { EPISODES_DATA } from "@/lib/episodesData";
+import { CURRENT_STREAM_ARCHIVE } from "@/lib/currentStreamArchive";
 
 interface VideoData {
   title: string;
@@ -90,7 +91,7 @@ export const LatestEvent = () => {
         // fallback
       }
 
-      const archiveFallback = [...EPISODES_DATA].sort(
+      const archiveFallback = [...EPISODES_DATA, ...CURRENT_STREAM_ARCHIVE].sort(
         (a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime()
       )[0];
 
