@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { Redis } from "@upstash/redis";
-import { setCorsHeaders } from "../_shared/_cors.js";
+import { setCorsHeaders } from "./_shared/_cors.js";
 
 /**
  * Unified newsletter endpoint:
