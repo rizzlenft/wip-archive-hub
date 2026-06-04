@@ -41,10 +41,6 @@ export const LatestEvent = () => {
 
   useEffect(() => {
     const fetchLatestVideo = async () => {
-      const API_BASE =
-        (import.meta.env.VITE_BACKEND_URL as string | undefined) ||
-        "https://thewipmeetup.com";
-
       // Primary source: latest YouTube stream from the backend scrape. The API is cached for
       // one hour, so title/thumbnail updates are picked up automatically throughout the week.
       try {
