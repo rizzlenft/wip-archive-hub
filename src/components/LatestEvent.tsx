@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { fetchNewsletters, type NewsletterIssue } from "@/lib/newsletter";
 import { EPISODES_DATA } from "@/lib/episodesData";
 import { CURRENT_STREAM_ARCHIVE } from "@/lib/currentStreamArchive";
+import { API_BASE } from "@/lib/api";
 
 interface VideoData {
   title: string;
