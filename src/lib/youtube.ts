@@ -3,6 +3,7 @@
 import { EPISODES_DATA } from "./episodesData";
 import { CURRENT_STREAM_ARCHIVE } from "./currentStreamArchive";
 import { fetchNewsletters, type NewsletterIssue } from "./newsletter";
+import { API_BASE } from "./api";
 
 export interface Episode {
   videoId: string;
@@ -217,10 +218,6 @@ export function isNewerThanStoredCursor(episode: Episode, cursor: Episode | null
 
 // Fetch live recent videos from the API
 async function fetchLiveVideos(cursor: Episode | null): Promise<Episode[]> {
-  const API_BASE =
-    (import.meta.env.VITE_BACKEND_URL as string | undefined) ||
-    "https://thewipmeetup.com";
-
   try {
     const toEpisodes = (videos: any[]) => videos.map((v: any) => {
       // Priority: date from title > relative date > fallback to now
