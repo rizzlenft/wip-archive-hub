@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { CURRENT_STREAM_ARCHIVE } from "./_shared/current-stream-archive.js";
+import { CURRENT_STREAM_ARCHIVE } from "../api-lib/current-stream-archive.js";
 
 /**
  * GET /api/youtube-latest — Returns recent videos from The WIP Meetup YouTube channel.

@@ -1,7 +1,7 @@
 // Deploy marker: force Vercel to re-bundle this function (2026-06-04)
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { Redis } from "@upstash/redis";
-import { setCorsHeaders } from "./_shared/_cors.js";
+import { setCorsHeaders } from "../api-lib/_cors.js";
 
 
 
