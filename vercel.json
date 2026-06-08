@@ -7,7 +7,6 @@
     }
   },
   "rewrites": [
-    { "source": "/api/newsletter", "destination": "/api/weekly" },
     { "source": "/api/events-check-in/:eventId", "destination": "/api/events-checkin?eventId=:eventId" },
     { "source": "/((?!api/).*)", "destination": "/" }
   ]
