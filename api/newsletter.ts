@@ -115,28 +115,40 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (req.method === "GET") {
       if (action === "avatar") {
-        const farcaster = typeof req.query.farcaster === "string" ? req.query.farcaster : "";
-        const twitter = typeof req.query.twitter === "string" ? req.query.twitter : "";
-        const name = typeof req.query.name === "string" ? req.query.name : "";
-        let target = "";
-        if (farcaster) target = `https://unavatar.io/farcaster/${encodeURIComponent(farcaster)}`;
-        else if (twitter) target = `https://unavatar.io/twitter/${encodeURIComponent(twitter)}`;
-        else if (name) target = `https://unavatar.io/twitter/${encodeURIComponent(name)}`;
-        else return res.status(400).json({ error: "Missing avatar identifier" });
-        try {
-          const upstream = await fetch(target);
-          if (!upstream.ok || !upstream.body) {
-            res.setHeader("Location", target);
-            return res.status(302).end();
-          }
-          const buf = Buffer.from(await upstream.arrayBuffer());
-          res.setHeader("Content-Type", upstream.headers.get("content-type") || "image/png");
-          res.setHeader("Cache-Control", "public, max-age=86400, s-maxage=86400");
-          return res.status(200).send(buf);
-        } catch {
-          res.setHeader("Location", target);
-          return res.status(302).end();
+        const farcaster = typeof req.query.farcaster === "string" ? req.query.farcaster.trim() : "";
+        const twitter = typeof req.query.twitter === "string" ? req.query.twitter.trim() : "";
+        const name = typeof req.query.name === "string" ? req.query.name.trim() : "";
+
+        const candidates: string[] = [];
+        if (farcaster) candidates.push(`https://unavatar.io/farcaster/${encodeURIComponent(farcaster)}`);
+        if (twitter) {
+          candidates.push(`https://unavatar.io/x/${encodeURIComponent(twitter)}`);
+          candidates.push(`https://unavatar.io/twitter/${encodeURIComponent(twitter)}`);
         }
+        if (name) {
+          candidates.push(`https://unavatar.io/x/${encodeURIComponent(name)}`);
+          candidates.push(`https://unavatar.io/twitter/${encodeURIComponent(name)}`);
+        }
+        const initialsName = name || twitter || farcaster || "WIP";
+        const fallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(initialsName)}&background=7c3aed&color=fff&size=144&bold=true`;
+        candidates.push(fallback);
+
+        for (const target of candidates) {
+          try {
+            const upstream = await fetch(target, { redirect: "follow" });
+            const ct = upstream.headers.get("content-type") || "";
+            if (!upstream.ok || !ct.startsWith("image/")) continue;
+            const buf = Buffer.from(await upstream.arrayBuffer());
+            if (buf.length < 200) continue; // skip tiny placeholders
+            res.setHeader("Content-Type", ct || "image/png");
+            res.setHeader("Cache-Control", "public, max-age=86400, s-maxage=86400");
+            return res.status(200).send(buf);
+          } catch {
+            continue;
+          }
+        }
+        res.setHeader("Location", fallback);
+        return res.status(302).end();
       }
       return handleGet(req, res);
     }
