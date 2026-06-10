@@ -258,9 +258,7 @@ const Newsletter = () => {
                 <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
                   <span className="flex items-center gap-1">
                     <Calendar className="w-4 h-4" />
-                    {new Date(selected.published_at || selected.created_at).toLocaleDateString(
-                      "en-US", { month: "long", day: "numeric", year: "numeric" }
-                    )}
+                    {formatIssueDate(selected, "long")}
                   </span>
                   {selected.speakers?.length > 0 && (
                     <span className="flex items-center gap-1">
@@ -405,9 +403,7 @@ const Newsletter = () => {
                         )}
                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
                           <Calendar className="w-3 h-3" />
-                          {new Date(issue.published_at || issue.created_at).toLocaleDateString("en-US", {
-                            month: "short", day: "numeric", year: "numeric",
-                          })}
+                          {formatIssueDate(issue, "short")}
                           {issue.speakers?.length > 0 && (
                             <span>• ft. {issue.speakers.map((s) => s.name).join(", ")}</span>
                           )}
