@@ -250,12 +250,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (req.method === "GET") {
       if (action === "avatar") {
-        const farcaster = typeof req.query.farcaster === "string" ? req.query.farcaster.trim() : "";
-        const twitter = typeof req.query.twitter === "string" ? req.query.twitter.trim() : "";
+        const farcaster = normalizeHandle(req.query.farcaster, true);
+        const twitter = normalizeHandle(req.query.twitter);
         const name = typeof req.query.name === "string" ? req.query.name.trim() : "";
+        const directUrl = typeof req.query.url === "string" ? req.query.url.trim() : "";
 
         const candidates: string[] = [];
-        if (farcaster) candidates.push(`https://unavatar.io/farcaster/${encodeURIComponent(farcaster)}`);
+        if (directUrl && isAllowedAvatarUrl(directUrl)) candidates.push(directUrl);
+        if (farcaster) {
+          const warpcastPfp = await getWarpcastPfp(farcaster);
+          if (warpcastPfp) candidates.push(warpcastPfp);
+          candidates.push(`https://unavatar.io/farcaster/${encodeURIComponent(farcaster)}`);
+        }
         if (twitter) {
           candidates.push(`https://unavatar.io/x/${encodeURIComponent(twitter)}`);
           candidates.push(`https://unavatar.io/twitter/${encodeURIComponent(twitter)}`);
@@ -270,14 +276,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         for (const target of candidates) {
           try {
-            const upstream = await fetch(target, { redirect: "follow" });
-            const ct = upstream.headers.get("content-type") || "";
-            if (!upstream.ok || !ct.startsWith("image/")) continue;
-            const buf = Buffer.from(await upstream.arrayBuffer());
-            if (buf.length < 200) continue; // skip tiny placeholders
-            res.setHeader("Content-Type", ct || "image/png");
-            res.setHeader("Cache-Control", "public, max-age=86400, s-maxage=86400");
-            return res.status(200).send(buf);
+            const image = await fetchImage(target);
+            if (!image) continue;
+            res.setHeader("Content-Type", image.contentType || "image/png");
+            res.setHeader("Cache-Control", "public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800");
+            res.setHeader("Content-Length", String(image.buffer.length));
+            return res.status(200).send(image.buffer);
           } catch {
             continue;
           }
