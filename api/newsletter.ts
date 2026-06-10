@@ -111,12 +111,40 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method === "OPTIONS") return res.status(204).end();
 
   try {
-    if (req.method === "GET") return handleGet(req, res);
+    const action = typeof req.query.action === "string" ? req.query.action : "";
+
+    if (req.method === "GET") {
+      if (action === "avatar") {
+        const farcaster = typeof req.query.farcaster === "string" ? req.query.farcaster : "";
+        const twitter = typeof req.query.twitter === "string" ? req.query.twitter : "";
+        const name = typeof req.query.name === "string" ? req.query.name : "";
+        let target = "";
+        if (farcaster) target = `https://unavatar.io/farcaster/${encodeURIComponent(farcaster)}`;
+        else if (twitter) target = `https://unavatar.io/twitter/${encodeURIComponent(twitter)}`;
+        else if (name) target = `https://unavatar.io/twitter/${encodeURIComponent(name)}`;
+        else return res.status(400).json({ error: "Missing avatar identifier" });
+        try {
+          const upstream = await fetch(target);
+          if (!upstream.ok || !upstream.body) {
+            res.setHeader("Location", target);
+            return res.status(302).end();
+          }
+          const buf = Buffer.from(await upstream.arrayBuffer());
+          res.setHeader("Content-Type", upstream.headers.get("content-type") || "image/png");
+          res.setHeader("Cache-Control", "public, max-age=86400, s-maxage=86400");
+          return res.status(200).send(buf);
+        } catch {
+          res.setHeader("Location", target);
+          return res.status(302).end();
+        }
+      }
+      return handleGet(req, res);
+    }
 
     if (req.method === "POST") {
-      const action = typeof req.query.action === "string" ? req.query.action : "save";
-      if (action === "delete") return handleDelete(req, res);
-      if (action === "generate") {
+      const postAction = action || "save";
+      if (postAction === "delete") return handleDelete(req, res);
+      if (postAction === "generate") {
         return res.status(503).json({
           error: "Newsletter generation is temporarily unavailable while the public archive endpoint is restored.",
         });
