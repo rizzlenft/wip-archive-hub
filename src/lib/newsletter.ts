@@ -26,6 +26,7 @@ export interface NewsletterIssue {
   status: NewsletterStatus;
   created_at: string;
   published_at?: string;
+  event_date?: string;
   week_of: string; // ISO date string for the week this covers
 }
 

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, Calendar, User, ExternalLink, Search, Sparkles, Loader2, CheckCircle2 } from "lucide-react";
 import { type NewsletterIssue, fetchNewsletters, fetchNewsletter } from "@/lib/newsletter";
+import { API_BASE as NEWSLETTER_API_BASE } from "@/lib/api";
 import { useNewsletterLogoFallback } from "@/hooks/use-newsletter-logo-fallback";
 import wipLogo from "@/assets/wip-logo-static.png";
 
@@ -22,9 +23,27 @@ function proxyUnavatarHtml(html: string): string {
 }
 
 function buildAvatarUrl(speaker: { name: string; farcaster?: string; twitter?: string }): string {
-  if (speaker.farcaster) return `https://unavatar.io/farcaster/${encodeURIComponent(speaker.farcaster)}`;
-  if (speaker.twitter) return `https://unavatar.io/twitter/${encodeURIComponent(speaker.twitter)}`;
-  return `https://unavatar.io/twitter/${encodeURIComponent(speaker.name)}`;
+  const params = new URLSearchParams({ action: "avatar", name: speaker.name });
+  if (speaker.farcaster) params.set("farcaster", speaker.farcaster);
+  if (speaker.twitter) params.set("twitter", speaker.twitter);
+  return `${NEWSLETTER_API_BASE}/api/newsletter?${params.toString()}`;
+}
+
+function getIssueDate(issue: NewsletterIssue): Date {
+  const titleMatch = issue.title.match(/\b(\d{1,2})\/(\d{1,2})\/(\d{4})\b/);
+  const rawDate = issue.event_date || (titleMatch ? `${titleMatch[3]}-${titleMatch[1].padStart(2, "0")}-${titleMatch[2].padStart(2, "0")}T12:00:00` : "") || issue.week_of || issue.published_at || issue.created_at;
+  const parsed = new Date(rawDate);
+  return Number.isNaN(parsed.getTime()) ? new Date(issue.published_at || issue.created_at) : parsed;
+}
+
+function cleanTopic(topic?: string): string {
+  return (topic || "").replace(/^(topic:\s*)+/i, "").trim();
+}
+
+function formatIssueDate(issue: NewsletterIssue, format: "short" | "long") {
+  return getIssueDate(issue).toLocaleDateString("en-US", format === "long"
+    ? { month: "long", day: "numeric", year: "numeric" }
+    : { month: "short", day: "numeric", year: "numeric" });
 }
 
 /** Strip leading cover/thumbnail images from newsletter HTML (e.g. YouTube thumbs from prior week) */
@@ -130,13 +149,12 @@ const Newsletter = () => {
   const filteredIssues = issues.filter((issue) => {
     if (!searchQuery.trim()) return true;
     const q = searchQuery.toLowerCase();
-    const dateStr = new Date(issue.published_at || issue.created_at).toLocaleDateString("en-US", {
-      month: "long", day: "numeric", year: "numeric",
-    }).toLowerCase();
+    const dateStr = formatIssueDate(issue, "long").toLowerCase();
     return (
       issue.title.toLowerCase().includes(q) ||
       dateStr.includes(q) ||
       issue.speakers?.some((s) => s.name.toLowerCase().includes(q)) ||
+      issue.speakers?.some((s) => cleanTopic(s.topic).toLowerCase().includes(q)) ||
       issue.recap_summary?.toLowerCase().includes(q)
     );
   });
@@ -240,9 +258,7 @@ const Newsletter = () => {
                 <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
                   <span className="flex items-center gap-1">
                     <Calendar className="w-4 h-4" />
-                    {new Date(selected.published_at || selected.created_at).toLocaleDateString(
-                      "en-US", { month: "long", day: "numeric", year: "numeric" }
-                    )}
+                    {formatIssueDate(selected, "long")}
                   </span>
                   {selected.speakers?.length > 0 && (
                     <span className="flex items-center gap-1">
@@ -387,9 +403,7 @@ const Newsletter = () => {
                         )}
                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
                           <Calendar className="w-3 h-3" />
-                          {new Date(issue.published_at || issue.created_at).toLocaleDateString("en-US", {
-                            month: "short", day: "numeric", year: "numeric",
-                          })}
+                          {formatIssueDate(issue, "short")}
                           {issue.speakers?.length > 0 && (
                             <span>• ft. {issue.speakers.map((s) => s.name).join(", ")}</span>
                           )}
