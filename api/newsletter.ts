@@ -181,13 +181,14 @@ async function getNewsletterIndex(redis: Redis): Promise<string[]> {
 
 async function handleGet(req: VercelRequest, res: VercelResponse) {
   const redis = getRedis();
+  const apiBase = getRequestOrigin(req);
   const id = typeof req.query.id === "string" ? req.query.id : "";
   const status = typeof req.query.status === "string" ? req.query.status : "";
 
   if (id) {
     const newsletter = parseStoredNewsletter(await redis.get(`newsletter:${id}`));
     if (!newsletter) return res.status(404).json({ error: "Not found" });
-    return res.status(200).json({ newsletter });
+    return res.status(200).json({ newsletter: normalizeNewsletterRecord(newsletter, apiBase) });
   }
 
   const index = await getNewsletterIndex(redis);
@@ -197,7 +198,7 @@ async function handleGet(req: VercelRequest, res: VercelResponse) {
     const issue = parseStoredNewsletter(await redis.get(`newsletter:${newsletterId}`));
     if (!issue) continue;
     if (status && issue.status !== status) continue;
-    newsletters.push(issue);
+    newsletters.push(normalizeNewsletterRecord(issue, apiBase));
   }
 
   newsletters.sort((a, b) => {
