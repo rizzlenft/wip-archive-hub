@@ -271,7 +271,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           candidates.push(`https://unavatar.io/twitter/${encodeURIComponent(name)}`);
         }
         const initialsName = name || twitter || farcaster || "WIP";
-        const fallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(initialsName)}&background=7c3aed&color=fff&size=144&bold=true`;
+        const fallback = fallbackAvatarUrl(initialsName);
         candidates.push(fallback);
 
         for (const target of candidates) {
