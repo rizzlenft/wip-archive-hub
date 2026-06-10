@@ -142,9 +142,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (req.method === "POST") {
-      const action = typeof req.query.action === "string" ? req.query.action : "save";
-      if (action === "delete") return handleDelete(req, res);
-      if (action === "generate") {
+      const postAction = action || "save";
+      if (postAction === "delete") return handleDelete(req, res);
+      if (postAction === "generate") {
         return res.status(503).json({
           error: "Newsletter generation is temporarily unavailable while the public archive endpoint is restored.",
         });
