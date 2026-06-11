@@ -4,9 +4,7 @@ import { Sparkles } from "lucide-react";
 import { fetchNewsletters, type NewsletterIssue } from "@/lib/newsletter";
 import { getNextMeetupDate, isMeetupActive } from "@/lib/meetupSchedule";
 
-const API_BASE =
-  (import.meta.env.VITE_BACKEND_URL as string | undefined) ||
-  "https://thewipmeetup.com";
+import { API_BASE } from "@/lib/api";
 
 interface TimeLeft {
   days: number;
