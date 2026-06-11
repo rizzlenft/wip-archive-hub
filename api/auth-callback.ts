@@ -109,6 +109,9 @@ export default async function handler(
       typeof intended === "string" && intended.startsWith("/") ? intended : "/";
 
     const cookieDomain = process.env.COOKIE_DOMAIN; // e.g. .thewipmeetup.com
+    // 30 days — keeps users signed in across visits instead of forcing
+    // a TokenSmart re-auth every hour.
+    const COOKIE_MAX_AGE = 60 * 60 * 24 * 30;
     const cookie = [
       `jwt=${access_token}`,
       "Path=/",
@@ -116,7 +119,7 @@ export default async function handler(
       "SameSite=None",
       "Secure",
       cookieDomain ? `Domain=${cookieDomain}` : "",
-      "Max-Age=3600",
+      `Max-Age=${COOKIE_MAX_AGE}`,
     ]
       .filter(Boolean)
       .join("; ");
