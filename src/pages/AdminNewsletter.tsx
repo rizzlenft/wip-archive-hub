@@ -22,15 +22,18 @@ import { useNewsletterLogoFallback } from "@/hooks/use-newsletter-logo-fallback"
 
 import { API_BASE } from "@/lib/api";
 
-function buildAvatarProxyUrl(params: { url?: string | null; farcaster?: string; twitter?: string }): string {
-  if (params.url) return params.url;
-  if (params.farcaster) return `https://unavatar.io/farcaster/${encodeURIComponent(params.farcaster)}`;
-  if (params.twitter) return `https://unavatar.io/twitter/${encodeURIComponent(params.twitter)}`;
-  return "";
+function buildAvatarProxyUrl(params: { url?: string | null; farcaster?: string; twitter?: string; name?: string }): string {
+  const qs = new URLSearchParams();
+  if (params.url) qs.set("url", params.url);
+  if (params.farcaster) qs.set("farcaster", params.farcaster);
+  if (params.twitter) qs.set("twitter", params.twitter);
+  if (params.name) qs.set("name", params.name);
+  if (![...qs.keys()].length) return "";
+  return `${API_BASE}/api/newsletter?action=avatar&${qs.toString()}`;
 }
 
 function isAvatarProxyUrl(url?: string): boolean {
-  return Boolean(url && url.startsWith("https://unavatar.io/"));
+  return Boolean(url && (url.startsWith("https://unavatar.io/") || url.includes("/api/newsletter?action=avatar")));
 }
 
 function tryParseUrl(raw: string): URL | null {
