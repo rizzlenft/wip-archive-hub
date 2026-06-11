@@ -20,9 +20,7 @@ import {
 } from "@/lib/newsletter";
 import { useNewsletterLogoFallback } from "@/hooks/use-newsletter-logo-fallback";
 
-const API_BASE =
-  (import.meta.env.VITE_BACKEND_URL as string | undefined) ||
-  "https://thewipmeetup.com";
+import { API_BASE } from "@/lib/api";
 
 function buildAvatarProxyUrl(params: { url?: string | null; farcaster?: string; twitter?: string }): string {
   if (params.url) return params.url;

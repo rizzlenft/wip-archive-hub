@@ -13,9 +13,7 @@ import { useNewsletterLogoFallback } from "@/hooks/use-newsletter-logo-fallback"
 import wipLogo from "@/assets/wip-logo-static.png";
 
 
-const API_BASE =
-  (import.meta.env.VITE_BACKEND_URL as string | undefined) ||
-  "https://thewipmeetup.com";
+const API_BASE = NEWSLETTER_API_BASE;
 
 // Direct unavatar URLs (proxy bypassed — Vercel function bundle was failing on GET)
 function proxyUnavatarHtml(html: string): string {
