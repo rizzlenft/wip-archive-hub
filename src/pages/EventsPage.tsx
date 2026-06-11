@@ -8,9 +8,7 @@ import { Input } from "@/components/ui/input";
 import { LogOut, Mail, Calendar } from "lucide-react";
 import { getNextMeetupDate } from "@/lib/meetupSchedule";
 
-const API_BASE =
-  (import.meta.env.VITE_BACKEND_URL as string | undefined) ||
-  "https://thewipmeetup.com";
+import { API_BASE } from "@/lib/api";
 
 type EventDetails = {
   id: string;
