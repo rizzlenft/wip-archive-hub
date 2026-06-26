@@ -14,6 +14,22 @@ const PORT = process.env.PORT || 4000;
 const APP_URL = process.env.APP_URL || "http://localhost:8080";
 const TOKENSMART_URL =
   process.env.TOKENSMART_URL || "https://www.tokensmart.co";
+
+function getAllowedOrigins() {
+  const origins = new Set([APP_URL]);
+  try {
+    const url = new URL(APP_URL);
+    const host = url.hostname;
+    if (host.startsWith("www.")) {
+      origins.add(`${url.protocol}//${host.slice(4)}${url.port ? `:${url.port}` : ""}`);
+    } else {
+      origins.add(`${url.protocol}//www.${host}${url.port ? `:${url.port}` : ""}`);
+    }
+  } catch {
+    // ignore invalid APP_URL
+  }
+  return [...origins];
+}
 const CLIENT_ID = process.env.CONNECT_CLIENT_ID;
 const CLIENT_SECRET = process.env.CONNECT_CLIENT_SECRET;
 const PROJECT_ID = process.env.CONNECT_PROJECT_ID;
@@ -28,7 +44,14 @@ if (!CLIENT_ID || !CLIENT_SECRET) {
 
 app.use(
   cors({
-    origin: APP_URL,
+    origin(origin, callback) {
+      const allowed = getAllowedOrigins();
+      if (!origin || allowed.includes(origin)) {
+        callback(null, true);
+        return;
+      }
+      callback(new Error(`CORS blocked for origin: ${origin}`));
+    },
     credentials: true,
   }),
 );

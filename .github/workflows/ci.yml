@@ -31,6 +31,23 @@ jobs:
       - name: Build
         run: npm run build
 
+  api:
+    name: API (typecheck)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck serverless API
+        run: npm run typecheck:api
+
   backend:
     name: Backend (syntax check)
     runs-on: ubuntu-latest

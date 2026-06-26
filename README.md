@@ -5,8 +5,8 @@ Community hub for The WIP Meetup — a web3 community podcast and events platfor
 ## Tech Stack
 
 - **Frontend:** React, Vite, TypeScript, Tailwind CSS, shadcn/ui
-- **Serverless APIs:** Vercel functions (`api/`) — newsletter, YouTube, OG images
-- **Backend:** Express.js (`backend/`) — auth, events, check-ins
+- **Serverless APIs:** Vercel functions (`api/`) at `api.thewipmeetup.com` — auth, events, newsletter, YouTube
+- **Backend:** Express.js (`backend/`) — **local development only** (mirrors auth/events; see `backend/README.md`)
 - **Auth:** TokenSmart Connect (OAuth + JWT)
 
 ## Project Structure
@@ -15,7 +15,7 @@ Community hub for The WIP Meetup — a web3 community podcast and events platfor
 src/           → React frontend (Vite)
 api/           → Vercel serverless functions (newsletter, YouTube, OG)
 api-lib/       → Shared helpers for serverless functions
-backend/       → Express API server (auth, events, check-ins)
+backend/       → Express API (local dev only — production uses api/)
 docs/          → Architecture and operational docs
 public/        → Static assets (images, robots.txt, sitemap)
 ```
@@ -32,11 +32,13 @@ npm install
 npm run dev
 ```
 
-### Backend
+### Backend (local dev only)
+
+See [backend/README.md](backend/README.md). Production APIs run on Vercel — you usually do **not** need this.
 
 ```sh
 cd backend
-cp .env.example .env   # fill in your credentials
+cp .env.example .env
 npm install
 npm start
 ```
@@ -47,7 +49,7 @@ npm start
 
 | Variable | Description |
 |---|---|
-| `VITE_BACKEND_URL` | URL of the deployed Express backend |
+| `VITE_BACKEND_URL` | API base URL (default: `https://api.thewipmeetup.com`) |
 | `VITE_TOKENSMART_URL` | TokenSmart base URL (default: `https://www.tokensmart.co`) |
 | `VITE_CONNECT_CLIENT_ID` | OAuth client ID (default: `wip-app`) |
 
@@ -69,11 +71,12 @@ npm start
 
 This project is deployed independently of any AI builder platform.
 
-1. **Frontend** — [Cloudflare Pages](docs/CLOUDFLARE_PAGES.md) (`npm run build` → `dist/`). Same pattern as rizzle.io.
-2. **Serverless APIs** — Vercel at `api.thewipmeetup.com` (env vars in Vercel dashboard).
-3. **Express backend** (optional) — deploy `backend/` to Railway/Render if used instead of Vercel stubs.
-4. **TokenSmart** — redirect URI: `https://api.thewipmeetup.com/api/auth-callback`
-5. Set `COOKIE_DOMAIN=.thewipmeetup.com` on Vercel (and Railway if using Express).
+1. **Frontend** — [Cloudflare Pages](docs/CLOUDFLARE_PAGES.md) (`npm run build` → `dist/`)
+2. **APIs** — Vercel at `api.thewipmeetup.com` (env vars in Vercel dashboard)
+3. **TokenSmart** — redirect URI: `https://api.thewipmeetup.com/api/auth-callback`
+4. Set `COOKIE_DOMAIN=.thewipmeetup.com` on Vercel
+
+`backend/` is for local development only — do not deploy unless intentionally migrating off Vercel.
 
 ### CI
 
@@ -91,4 +94,5 @@ Optional automated code review. **You do not need to run it locally** — see [d
 - Metaverse experience showcase
 - TokenSmart Connect authentication
 - Newsletter archive and admin editor
-<!-- deploy test 2026-06-26 -->
+
+See also: [YouTube archive maintenance](docs/YOUTUBE_ARCHIVE.md)

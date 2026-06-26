@@ -64,5 +64,5 @@ All routes below are served from **`api.thewipmeetup.com`**:
 ## Known fragilities
 
 - **YouTube scraper** (`api/youtube-latest.ts`) — HTML scrape + static fallback archive
-- **Newsletter AI generation** — disabled (`action=generate` returns 503)
+- **Newsletter AI generation** — disabled; admin editor builds manual drafts locally
 - **Dual API layers** — `backend/` and `api/` can drift; prefer `api/` for production
