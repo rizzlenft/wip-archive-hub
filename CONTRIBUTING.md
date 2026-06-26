@@ -5,9 +5,16 @@ Thanks for your interest in contributing! Here's how to get started.
 ## Development Setup
 
 1. **Fork & clone** the repo
-2. Install dependencies: `npm install`
-3. Start the frontend: `npm run dev`
-4. For backend work: `cd backend && npm install && cp .env.example .env` (fill in credentials), then `npm start`
+2. Copy env template: `cp .env.example .env`
+3. Install dependencies: `npm install`
+4. Start the frontend: `npm run dev`
+5. For backend work: `cd backend && npm install && cp .env.example .env` (fill in credentials), then `npm start`
+
+CI runs `lint`, `test`, and `build` automatically on PRs. Run them locally before pushing:
+
+```sh
+npm run lint && npm test && npm run build
+```
 
 ## Branch Naming
 
@@ -47,7 +54,14 @@ Use descriptive branch names:
 | `src/auth/` | Authentication context & guards |
 | `src/lib/` | Utilities, data, and helpers |
 | `src/assets/` | Images and static assets |
+| `api/` | Vercel serverless functions |
+| `api-lib/` | Shared serverless helpers |
 | `backend/` | Express API server |
+| `docs/` | Architecture and tooling docs |
+
+## Automated code review
+
+See [docs/CLAWPATCH.md](docs/CLAWPATCH.md) for running [clawpatch](https://github.com/openclaw/clawpatch) against this repo.
 
 ## Reporting Issues
 

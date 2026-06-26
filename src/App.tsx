@@ -64,7 +64,10 @@ const App = forwardRef<HTMLDivElement>((_props, ref) =>
                 createElement(Route, { path: "/guests", element: createElement(Guests) }),
                 createElement(Route, { path: "/merch", element: createElement(Merch) }),
                 createElement(Route, { path: "/newsletter", element: createElement(Newsletter) }),
-                createElement(Route, { path: "/admin/newsletter", element: createElement(AdminNewsletter) }),
+                createElement(Route, {
+                  path: "/admin/newsletter",
+                  element: createElement(ProtectedRoute, null, createElement(AdminNewsletter)),
+                }),
                 createElement(Route, { path: "*", element: createElement(NotFound) }),
               ),
             ),

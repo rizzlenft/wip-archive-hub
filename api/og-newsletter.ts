@@ -7,8 +7,7 @@ import { Redis } from "@upstash/redis";
  * Regular users never see this — they get the normal SPA.
  */
 
-const DEFAULT_OG_IMAGE =
-  "https://storage.googleapis.com/gpt-engineer-file-uploads/DM2lONnsGyMlKagJreu03ZO2vI43/social-images/social-1770403201523-wip_logo.gif";
+const DEFAULT_OG_IMAGE = "https://thewipmeetup.com/images/og-social.png";
 const SITE_URL = "https://thewipmeetup.com";
 const SITE_NAME = "The WIP Meetup";
 

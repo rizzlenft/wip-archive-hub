@@ -1,26 +1,33 @@
-# The WIP Meetup 
+# The WIP Meetup
 
 Community hub for The WIP Meetup — a web3 community podcast and events platform.
 
 ## Tech Stack
 
 - **Frontend:** React, Vite, TypeScript, Tailwind CSS, shadcn/ui
-- **Backend:** Express.js (Node) — deployed separately
+- **Serverless APIs:** Vercel functions (`api/`) — newsletter, YouTube, OG images
+- **Backend:** Express.js (`backend/`) — auth, events, check-ins
 - **Auth:** TokenSmart Connect (OAuth + JWT)
 
 ## Project Structure
 
 ```
 src/           → React frontend (Vite)
+api/           → Vercel serverless functions (newsletter, YouTube, OG)
+api-lib/       → Shared helpers for serverless functions
 backend/       → Express API server (auth, events, check-ins)
-api/           → Vercel-style serverless stubs (not used in production)
+docs/          → Architecture and operational docs
+public/        → Static assets (images, robots.txt, sitemap)
 ```
+
+See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full deployment map and API surface.
 
 ## Getting Started
 
 ### Frontend
 
 ```sh
+cp .env.example .env   # adjust VITE_BACKEND_URL if needed
 npm install
 npm run dev
 ```
@@ -36,7 +43,7 @@ npm start
 
 ### Environment Variables
 
-**Frontend** (`.env` or Lovable secrets):
+**Frontend** (`.env`):
 
 | Variable | Description |
 |---|---|
@@ -60,15 +67,27 @@ npm start
 
 ## Deployment
 
-1. **Frontend** — deployed via Lovable (auto-builds from repo)
-2. **Backend** — deploy `backend/` to Railway, Render, or similar
-3. **TokenSmart** — set redirect URI to `<BACKEND_URL>/api/auth-callback`
-4. Set `COOKIE_DOMAIN=.thewipmeetup.com` so the JWT cookie is shared across subdomains
+This project is deployed independently of any AI builder platform.
+
+1. **Frontend + serverless APIs** — deploy the repo root to [Vercel](https://vercel.com). `vercel.json` configures SPA rewrites and function limits. Set env vars in the Vercel dashboard.
+2. **Express backend** — deploy `backend/` to Railway, Render, or similar at `api.thewipmeetup.com`.
+3. **TokenSmart** — set redirect URI to `<BACKEND_URL>/api/auth-callback`.
+4. Set `COOKIE_DOMAIN=.thewipmeetup.com` so the JWT cookie is shared across subdomains.
+5. Point `thewipmeetup.com` DNS to Vercel.
+
+### CI
+
+GitHub Actions runs `lint`, `test`, and `build` on every push and PR to `main`. See `.github/workflows/ci.yml`.
+
+### Code review with Clawpatch
+
+[Clawpatch](https://github.com/openclaw/clawpatch) provides automated semantic code review. See [docs/CLAWPATCH.md](docs/CLAWPATCH.md) for setup and usage.
 
 ## Features
 
-- 🎙️ Episode archive with YouTube integration
-- 📅 Live events with check-in system
-- 🛍️ Merch store
-- 🌐 Metaverse experience showcase
-- 🔐 TokenSmart Connect authentication
+- Episode archive with YouTube integration
+- Live events with check-in system
+- Merch store
+- Metaverse experience showcase
+- TokenSmart Connect authentication
+- Newsletter archive and admin editor

@@ -1,15 +1,22 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 
-const ALLOWED_ORIGINS = [
+const PRODUCTION_ORIGINS = [
   process.env.APP_URL || "https://thewipmeetup.com",
-  "https://wip-archive-hub.lovable.app",
+  "https://www.thewipmeetup.com",
 ];
 
-// Also allow any *.lovableproject.com or *.lovable.app preview origins
+const DEV_ORIGINS = [
+  "http://localhost:8080",
+  "http://localhost:5173",
+  "http://127.0.0.1:8080",
+  "http://127.0.0.1:5173",
+];
+
 function isAllowedOrigin(origin: string | undefined): string | null {
-  if (!origin) return ALLOWED_ORIGINS[0];
-  if (ALLOWED_ORIGINS.includes(origin)) return origin;
-  if (origin.endsWith(".lovableproject.com") || origin.endsWith(".lovable.app")) return origin;
+  if (!origin) return PRODUCTION_ORIGINS[0];
+  if (PRODUCTION_ORIGINS.includes(origin) || DEV_ORIGINS.includes(origin)) {
+    return origin;
+  }
   return null;
 }
 
@@ -18,7 +25,7 @@ function isAllowedOrigin(origin: string | undefined): string | null {
  */
 export function setCorsHeaders(res: VercelResponse, req?: VercelRequest): void {
   const origin = req?.headers?.origin as string | undefined;
-  const allowed = isAllowedOrigin(origin) || ALLOWED_ORIGINS[0];
+  const allowed = isAllowedOrigin(origin) || PRODUCTION_ORIGINS[0];
   res.setHeader("Access-Control-Allow-Origin", allowed);
   res.setHeader("Access-Control-Allow-Credentials", "true");
   res.setHeader(

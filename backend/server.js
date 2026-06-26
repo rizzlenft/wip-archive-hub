@@ -138,15 +138,25 @@ app.get("/api/auth-me", async (req, res) => {
   });
 });
 
-// Logout (clear cookie)
-app.post("/api/auth-logout", (req, res) => {
-  res.clearCookie("jwt", {
+// Logout (clear cookie). GET redirects for browser navigation; POST for API clients.
+function clearJwtCookie(res) {
+  const cookieOptions = {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     domain: process.env.COOKIE_DOMAIN || undefined,
     path: "/",
-  });
+  };
+  res.clearCookie("jwt", cookieOptions);
+}
+
+app.get("/api/auth-logout", (req, res) => {
+  clearJwtCookie(res);
+  return res.redirect(`${APP_URL}/login?logout=true`);
+});
+
+app.post("/api/auth-logout", (req, res) => {
+  clearJwtCookie(res);
   return res.status(204).end();
 });
 
