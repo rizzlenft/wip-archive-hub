@@ -1,9 +1,7 @@
 /**
- * Vercel Edge Middleware — detects social media crawlers requesting
- * /newsletter?issue=ID and rewrites them to /api/og-newsletter so they
- * receive proper OG meta tags. Regular users get the normal SPA.
- *
- * Uses standard Web API (no Next.js dependency).
+ * Vercel Edge Middleware — bot OG rewrite for /newsletter?issue=ID.
+ * Only runs when the frontend is deployed on Vercel. Cloudflare Pages does not
+ * execute this file; crawlers rely on SPA meta tags and api/og-newsletter.
  */
 
 const BOT_PATTERNS = [

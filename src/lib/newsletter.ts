@@ -44,44 +44,64 @@ export async function fetchNewsletter(id: string): Promise<NewsletterIssue | nul
   return data.newsletter ?? null;
 }
 
-export async function generateNewsletter(payload: {
+function formatTitleDate(d: Date): string {
+  return d.toLocaleDateString("en-US", { month: "numeric", day: "numeric", year: "numeric" });
+}
+
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+/** Build an editable draft locally (AI generation is disabled on the API). */
+export function createManualNewsletterDraft(payload: {
   speakers: NewsletterSpeaker[];
   transcript?: string;
   youtube_video_id?: string;
-}): Promise<NewsletterIssue> {
-  const maxAttempts = 3;
-  let lastError = "Generation failed";
+}): NewsletterIssue {
+  const now = new Date().toISOString();
+  const id = `wip-weekly-${Date.now()}`;
+  const speakers = payload.speakers.filter((s) => s.name.trim());
+  const names = speakers.map((s) => s.name.trim()).join(", ");
+  const title = `The WIP Meetup ${formatTitleDate(new Date())}${names ? ` — ft ${names}` : ""}`;
+  const recap = payload.transcript?.trim() || "Add this week's recap here.";
 
-  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
-    const res = await fetch(`${API_BASE}/api/newsletter?action=generate`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify(payload),
-    });
+  const speakerMarkdown = speakers
+    .map((s) => {
+      const handles = [s.twitter && `@${s.twitter}`, s.farcaster && `@${s.farcaster}`]
+        .filter(Boolean)
+        .join(" · ");
+      const topic = s.topic?.trim() ? `\n\n**Topic:** ${s.topic.trim()}` : "";
+      return `### ${s.name.trim()}${handles ? ` (${handles})` : ""}${topic}`;
+    })
+    .join("\n\n");
 
-    if (res.ok) {
-      return (await res.json()) as NewsletterIssue;
-    }
+  const body_markdown = `## This Week's Speakers\n\n${speakerMarkdown}\n\n## Last Week's Recap\n\n${recap}`;
+  const speakerHtml = speakers
+    .map((s) => {
+      const topic = s.topic?.trim() ? `<p><strong>Topic:</strong> ${escapeHtml(s.topic.trim())}</p>` : "";
+      return `<h3>${escapeHtml(s.name.trim())}</h3>${topic}`;
+    })
+    .join("");
+  const body_html = `<h2>This Week's Speakers</h2>${speakerHtml}<h2>Last Week's Recap</h2><p>${escapeHtml(recap).replace(/\n/g, "<br>")}</p>`;
 
-    const err = await res.json().catch(() => ({}));
-    const detail = (err as { error?: string }).error || `HTTP ${res.status}`;
-    lastError = detail;
+  const youtubeId = payload.youtube_video_id?.trim() || "";
 
-    const retryable = [429, 502, 503, 504].includes(res.status);
-    if (!retryable || attempt === maxAttempts) {
-      throw new Error(detail);
-    }
-
-    const retryAfterHeader = Number(res.headers.get("retry-after") || "");
-    const delayMs = Number.isFinite(retryAfterHeader) && retryAfterHeader > 0
-      ? retryAfterHeader * 1000
-      : Math.min(12000, 1200 * 2 ** (attempt - 1));
-
-    await new Promise((resolve) => setTimeout(resolve, delayMs));
-  }
-
-  throw new Error(lastError);
+  return {
+    id,
+    title,
+    body_html,
+    body_markdown,
+    speakers,
+    recap_summary: recap.slice(0, 280),
+    cover_image: youtubeId ? `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg` : undefined,
+    youtube_video_id: youtubeId,
+    status: "draft",
+    created_at: now,
+    week_of: now,
+  };
 }
 
 export async function saveNewsletter(issue: Partial<NewsletterIssue> & { id: string }): Promise<void> {

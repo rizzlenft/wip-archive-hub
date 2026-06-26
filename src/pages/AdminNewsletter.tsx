@@ -5,14 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  Sparkles, Plus, Trash2, Send, Eye, Save, Loader2, ArrowLeft, Youtube, User, CheckCircle2, XCircle, AlertCircle, Clock, FileText,
+  Plus, Trash2, Send, Eye, Save, Loader2, ArrowLeft, Youtube, User, CheckCircle2, XCircle, AlertCircle, Clock, FileText,
 } from "lucide-react";
 import { SubstackExportModal } from "@/components/SubstackExportModal";
 import { useAuth } from "@/auth/AuthContext";
 import {
   type NewsletterSpeaker,
   type NewsletterIssue,
-  generateNewsletter,
+  createManualNewsletterDraft,
   saveNewsletter,
   publishNewsletter,
   fetchNewsletters,
@@ -70,7 +70,7 @@ function normalizeTwitterHandle(input?: string): string {
 
   v = v.replace(/^@/, "").trim();
   // keep common handle chars
-  v = v.replace(/[^a-zA-Z0-9_\.]/g, "");
+  v = v.replace(/[^a-zA-Z0-9_.]/g, "");
   return v;
 }
 
@@ -89,7 +89,7 @@ function normalizeFarcasterHandle(input?: string): string {
   }
 
   v = v.replace(/^@/, "").trim();
-  v = v.replace(/[^a-zA-Z0-9_\.\-]/g, "");
+  v = v.replace(/[^a-zA-Z0-9_.-]/g, "");
   return v;
 }
 
@@ -142,7 +142,7 @@ const AdminNewsletter = () => {
   const [editableMarkdown, setEditableMarkdown] = useState("");
   const [editableTitle, setEditableTitle] = useState("");
 
-  const [generating, setGenerating] = useState(false);
+  const [creatingDraft, setCreatingDraft] = useState(false);
   const [saving, setSaving] = useState(false);
   const [publishing, setPublishing] = useState(false);
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; msg: string } | null>(null);
@@ -254,7 +254,7 @@ const AdminNewsletter = () => {
     );
   };
 
-  const handleGenerate = async (e: FormEvent) => {
+  const handleCreateDraft = (e: FormEvent) => {
     e.preventDefault();
     const validSpeakers = speakers.filter((s) => s.name.trim());
     if (validSpeakers.length === 0) {
@@ -262,11 +262,9 @@ const AdminNewsletter = () => {
       return;
     }
 
-    setGenerating(true);
+    setCreatingDraft(true);
     setFeedback(null);
     try {
-      // Normalize handles/URLs so PFPs reliably resolve (even when pasting full profile links)
-      // and ALWAYS route through our API proxy to avoid browser ORB/CORS issues.
       const cleanedSpeakers = validSpeakers.map((s) => {
         const twitter = normalizeTwitterHandle(s.twitter);
         const farcaster = normalizeFarcasterHandle(s.farcaster);
@@ -290,7 +288,7 @@ const AdminNewsletter = () => {
         };
       });
 
-      const issue = await generateNewsletter({
+      const issue = createManualNewsletterDraft({
         speakers: cleanedSpeakers,
         transcript: transcript.trim() || undefined,
         youtube_video_id: youtubeVideoId.trim() || undefined,
@@ -300,14 +298,14 @@ const AdminNewsletter = () => {
       setEditableMarkdown(issue.body_markdown);
       setEditableTitle(issue.title);
       setView("preview");
-      setFeedback({ type: "success", msg: "Newsletter generated! Review and edit below." });
+      setFeedback({ type: "success", msg: "Draft created — edit the content below, then save and publish." });
     } catch (err) {
       setFeedback({
         type: "error",
-        msg: err instanceof Error ? err.message : "Generation failed",
+        msg: err instanceof Error ? err.message : "Failed to create draft",
       });
     } finally {
-      setGenerating(false);
+      setCreatingDraft(false);
     }
   };
 
@@ -423,7 +421,7 @@ const AdminNewsletter = () => {
                 WIP Weekly Editor
               </h1>
               <p className="text-sm text-muted-foreground">
-                Generate and publish the weekly newsletter
+                Compose and publish the weekly newsletter
               </p>
             </div>
             <div className="flex gap-1">
@@ -473,7 +471,7 @@ const AdminNewsletter = () => {
 
           {/* COMPOSE VIEW */}
           {view === "compose" && (
-            <form onSubmit={handleGenerate} className="space-y-6">
+            <form onSubmit={handleCreateDraft} className="space-y-6">
               {/* YouTube auto-pull */}
               <section className="rounded-lg border border-border bg-card p-5 space-y-3">
                 <div className="flex items-center gap-2">
@@ -717,35 +715,33 @@ const AdminNewsletter = () => {
               <section className="rounded-lg border border-border bg-card p-5 space-y-3">
                 <h2 className="text-lg font-semibold">Last Week's Recap</h2>
                 <p className="text-xs text-muted-foreground">
-                  Paste a Discord/YouTube transcript or bullet-point notes. AI will expand this into
-                  an engaging recap.
+                  Paste recap notes or a transcript. This becomes the starting text in your draft — edit freely in preview.
                 </p>
                 <Textarea
                   value={transcript}
                   onChange={(e) => setTranscript(e.target.value)}
-                  placeholder="Paste transcript or notes here... (optional — AI will generate a general recap if empty)"
+                  placeholder="Paste transcript or bullet-point notes for last week's recap…"
                   rows={8}
                   className="bg-background"
                 />
               </section>
 
 
-              {/* Generate */}
               <Button
                 type="submit"
                 size="lg"
-                disabled={generating}
+                disabled={creatingDraft}
                 className="w-full sm:w-auto"
               >
-                {generating ? (
+                {creatingDraft ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    Generating newsletter…
+                    Creating draft…
                   </>
                 ) : (
                   <>
-                    <Sparkles className="w-4 h-4" />
-                    Generate Newsletter
+                    <FileText className="w-4 h-4" />
+                    Create Draft
                   </>
                 )}
               </Button>
@@ -759,18 +755,6 @@ const AdminNewsletter = () => {
                 <Button variant="ghost" size="sm" onClick={() => setView("compose")}>
                   <ArrowLeft className="w-4 h-4" />
                   Back to compose
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={generating}
-                  onClick={(e) => handleGenerate(e as unknown as FormEvent)}
-                >
-                  {generating ? (
-                    <><Loader2 className="w-4 h-4 animate-spin" /> Regenerating…</>
-                  ) : (
-                    <><Sparkles className="w-4 h-4" /> Regenerate</>
-                  )}
                 </Button>
               </div>
 

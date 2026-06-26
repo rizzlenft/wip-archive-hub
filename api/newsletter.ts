@@ -309,7 +309,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (postAction === "delete") return handleDelete(req, res);
       if (postAction === "generate") {
         return res.status(503).json({
-          error: "Newsletter generation is temporarily unavailable while the public archive endpoint is restored.",
+          error: "Newsletter AI generation is disabled. Use the admin editor to compose drafts manually.",
         });
       }
       return handleSave(req, res);
