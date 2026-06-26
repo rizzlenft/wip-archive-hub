@@ -2,6 +2,7 @@ import type { EpisodeData } from "./episodesData";
 
 // Manually pinned from the live YouTube streams tab so the site stays current even when
 // YouTube scraping or the deployment API is unavailable.
+// Keep in sync with api-lib/current-stream-archive.ts
 export const CURRENT_STREAM_ARCHIVE: EpisodeData[] = [
   { videoId: "-QxKs2OmoGQ", title: "The WIP Meetup 5/8/2026 Raw Footage ft Viv Ford & The Crypto Castle Show Watch Party + Scott PHD", publishDate: "May 8, 2026" },
   { videoId: "0VGRhlI8lfQ", title: "The WIP Meetup 4/30/2026 Raw Footage ft Penguin w/ AZBOTS & Foxyoga's Wedding Spawn Ceremony", publishDate: "Apr 30, 2026" },
