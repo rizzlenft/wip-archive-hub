@@ -2,43 +2,55 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { Redis } from "@upstash/redis";
 
 /**
- * Serves a minimal HTML page with correct OG meta tags for a specific newsletter.
- * Called by the Edge Middleware when a social media crawler hits /newsletter?issue=ID.
- * Regular users never see this — they get the normal SPA.
+ * HTML page with OG meta tags for a newsletter issue.
+ * Used when crawlers request the OG endpoint directly.
+ * Regular users should use the SPA at /newsletter?issue=ID.
  */
 
-const DEFAULT_OG_IMAGE = "https://thewipmeetup.com/images/og-social.png";
 const SITE_URL = "https://thewipmeetup.com";
 const SITE_NAME = "The WIP Meetup";
+const DEFAULT_OG_IMAGE = `${SITE_URL}/images/og-social.png`;
+
+function getRedis(): Redis | null {
+  const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+  if (!url || !token) return null;
+  return new Redis({ url, token });
+}
+
+function resolveOgImage(issue: Record<string, unknown> | null): string {
+  const cover = issue?.cover_image;
+  if (typeof cover === "string" && cover.startsWith("https://")) {
+    return cover;
+  }
+  return DEFAULT_OG_IMAGE;
+}
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const id = (req.query.id as string) || "";
   if (!id) {
-    res.writeHead(302, { Location: "/newsletter" });
+    res.writeHead(302, { Location: `${SITE_URL}/newsletter` });
     res.end();
     return;
   }
 
   let title = "WIP Weekly Newsletter";
   let description = "Weekly recaps, speaker spotlights, and community highlights from The WIP Meetup.";
-  // Static newsletter share template (used for all issues)
-  const ogImage = `${SITE_URL}/newsletter-share.jpg`;
-  let speakers = "";
+  let ogImage = DEFAULT_OG_IMAGE;
 
   try {
-    const redis = new Redis({
-      url: process.env.KV_REST_API_URL!,
-      token: process.env.KV_REST_API_TOKEN!,
-    });
-
-    const raw = await redis.get(`newsletter:${id}`);
-    if (raw) {
-      const issue = typeof raw === "string" ? JSON.parse(raw) : raw;
-      if (issue.title) title = issue.title;
-      if (issue.recap_summary) description = issue.recap_summary;
-      if (issue.speakers?.length) {
-        speakers = issue.speakers.map((s: { name: string }) => s.name).join(", ");
-        description = `ft. ${speakers}. ${description}`;
+    const redis = getRedis();
+    if (redis) {
+      const raw = await redis.get(`newsletter:${id}`);
+      if (raw) {
+        const issue = typeof raw === "string" ? JSON.parse(raw) : raw;
+        if (issue.title) title = issue.title;
+        if (issue.recap_summary) description = issue.recap_summary;
+        ogImage = resolveOgImage(issue);
+        if (issue.speakers?.length) {
+          const speakers = issue.speakers.map((s: { name: string }) => s.name).join(", ");
+          description = `ft. ${speakers}. ${description}`;
+        }
       }
     }
   } catch {
@@ -75,7 +87,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   <meta name="twitter:description" content="${safeDesc}">
   <meta name="twitter:image" content="${safeImage}">
 
-  <!-- Redirect non-crawlers to the real SPA page -->
   <meta http-equiv="refresh" content="0;url=${safeCanonical}">
 </head>
 <body>

@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { Redis } from "@upstash/redis";
+import { getConnectUserFromRequest } from "../api-lib/_connect-verify.js";
 import { setCorsHeaders } from "../api-lib/_cors.js";
 
 type NewsletterRecord = Record<string, unknown> & {
@@ -210,7 +211,17 @@ async function handleGet(req: VercelRequest, res: VercelResponse) {
   return res.status(200).json({ newsletters });
 }
 
+async function requireAuth(req: VercelRequest, res: VercelResponse) {
+  const user = await getConnectUserFromRequest(req);
+  if (!user) {
+    res.status(401).json({ error: "Not authenticated" });
+    return null;
+  }
+  return user;
+}
+
 async function handleSave(req: VercelRequest, res: VercelResponse) {
+  if (!(await requireAuth(req, res))) return;
   const body = (req.body || {}) as NewsletterRecord;
   const id = typeof body.id === "string" ? body.id : "";
   if (!id) return res.status(400).json({ error: "Missing newsletter id" });
@@ -229,6 +240,7 @@ async function handleSave(req: VercelRequest, res: VercelResponse) {
 }
 
 async function handleDelete(req: VercelRequest, res: VercelResponse) {
+  if (!(await requireAuth(req, res))) return;
   const body = (req.body || {}) as NewsletterRecord;
   const id = typeof body.id === "string" ? body.id : "";
   if (!id) return res.status(400).json({ error: "Missing newsletter id" });

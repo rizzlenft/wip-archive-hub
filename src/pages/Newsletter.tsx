@@ -14,6 +14,15 @@ import wipLogo from "@/assets/wip-logo-static.png";
 
 
 const API_BASE = NEWSLETTER_API_BASE;
+const SITE_URL = "https://thewipmeetup.com";
+const DEFAULT_NEWSLETTER_OG_IMAGE = `${SITE_URL}/images/og-social.png`;
+
+function newsletterShareImage(issue: NewsletterIssue): string {
+  if (issue.cover_image?.startsWith("https://")) {
+    return issue.cover_image;
+  }
+  return DEFAULT_NEWSLETTER_OG_IMAGE;
+}
 
 // Direct unavatar URLs (proxy bypassed — Vercel function bundle was failing on GET)
 function proxyUnavatarHtml(html: string): string {
@@ -177,7 +186,7 @@ const Newsletter = () => {
         description:
           selected.recap_summary ||
           `WIP Weekly newsletter ft. ${selected.speakers?.map((s) => s.name).join(", ") || "the WIP community"}`,
-        image: [`https://thewipmeetup.com/api/og-newsletter?id=${encodeURIComponent(selected.id)}`],
+        image: [newsletterShareImage(selected)],
         datePublished: selected.published_at || selected.created_at,
         dateModified: selected.published_at || selected.created_at,
         author: { "@type": "Organization", name: "The WIP Meetup", url: "https://thewipmeetup.com" },
@@ -230,7 +239,7 @@ const Newsletter = () => {
             : "Read WIP Weekly for event recaps, featured guests, speaker spotlights, and web3 metaverse community highlights from The WIP Meetup."
         }
         canonical={selected ? `/newsletter?issue=${selected.id}` : "/newsletter"}
-        ogImage={selected ? `https://thewipmeetup.com/api/og-newsletter?id=${encodeURIComponent(selected.id)}` : undefined}
+        ogImage={selected ? newsletterShareImage(selected) : undefined}
         ogType={selected ? "article" : "website"}
         structuredData={[
           breadcrumbList,

@@ -4,6 +4,7 @@ export interface StreamArchiveItem {
   publishDate: string;
 }
 
+// Keep in sync with src/lib/currentStreamArchive.ts
 export const CURRENT_STREAM_ARCHIVE: StreamArchiveItem[] = [
   { videoId: "-QxKs2OmoGQ", title: "The WIP Meetup 5/8/2026 Raw Footage ft Viv Ford & The Crypto Castle Show Watch Party + Scott PHD", publishDate: "May 8, 2026" },
   { videoId: "0VGRhlI8lfQ", title: "The WIP Meetup 4/30/2026 Raw Footage ft Penguin w/ AZBOTS & Foxyoga's Wedding Spawn Ceremony", publishDate: "Apr 30, 2026" },
@@ -20,4 +21,19 @@ export const CURRENT_STREAM_ARCHIVE: StreamArchiveItem[] = [
   { videoId: "A_CrnPJrI7M", title: "The WIP Meetup 2/5/2026 Raw Footage ft Stina Jones & Carlos Marcial", publishDate: "Feb 5, 2026" },
   { videoId: "bcDx_9I9vJc", title: "The WIP Meetup 1/29/2026 Raw Footage ft Smoke the Artist", publishDate: "Jan 29, 2026" },
   { videoId: "xK98kbyKdm0", title: "The WIP Meetup 1/22/2026 Raw Footage ft Matt's Awkward Retirement Party", publishDate: "Jan 23, 2026" },
+  { videoId: "Sfh9nHoS-_s", title: "The WIP Meetup 1/16/2026 Raw Footage ft GeorgeBoya Hiddenforces @fractilians Animal Spawn Bonanza", publishDate: "Jan 16, 2026" },
+  { videoId: "WHl7672Q6zo", title: "The WIP Meetup 1/8/2026 Raw Footage ft Oona Under Surveillance & The Dear David Project", publishDate: "Jan 10, 2026" },
+  { videoId: "0orMajvsuFc", title: "The WIP Meetup 12/18/2025 Raw Footage ft WIPMAS 2025 Prize & Disaster Fest by Rizzle", publishDate: "Dec 19, 2025" },
+  { videoId: "Oc9i-eLEAlY", title: "The WIP Meetup 12/05/2025 Raw Footage ft RiverMouth District Opening in Substrata", publishDate: "Dec 5, 2025" },
+  { videoId: "HuoAEEohUoo", title: "The WIP Meetup 12/05/2025 Raw Footage ft MrRichi & Money Laundering 2", publishDate: "Dec 5, 2025" },
+  { videoId: "_sCuN0HQl8s", title: "The WIP Meetup 11/20/2025 Raw Footage ft Wipsgiving 2025 Pt 2", publishDate: "Nov 21, 2025" },
+  { videoId: "Qhqh92RLiME", title: "The WIP Meetup 11/20/2025 Raw Footage ft Wipsgiving 2025 Pt 1", publishDate: "Nov 21, 2025" },
+  { videoId: "oa-ZHgUfsC0", title: "The WIP Meetup 11/13/2025 Raw Footage ft LapinMignon & Diving into the Gotchiverse w/ @Aavegotchi", publishDate: "Nov 14, 2025" },
+  { videoId: "8qhml6uqpEw", title: "The WIP Meetup 11/06/2025 Raw Footage ft Meme.com Launch & Paradoxx Alpha + New WIP Server Kickoff", publishDate: "Nov 7, 2025" },
+  { videoId: "uDBrYHUgTKk", title: "The WIP Meetup 10/30/2025 Raw Footage ft Ride Park 2 Grand Opening in Substrata w/ TheBeatminer", publishDate: "Oct 31, 2025" },
+  { videoId: "a_C4vr5m1fc", title: "The WIP Meetup 10/24/2025 Raw Footage ft TheBeatMiner not so mini-tour of Cryptovoxels", publishDate: "Oct 24, 2025" },
+  { videoId: "EQhlOkCwZYM", title: "The WIP Meetup 10/16/2025 Raw Footage ft Bababbi V2 Alpha Drop + VoxCon Preview", publishDate: "Oct 17, 2025" },
+  { videoId: "S10exnY4JX8", title: "The WIP Meetup 09/25/2025 Raw Footage ft @decentraland_foundation Art Week w/ Bay Backner", publishDate: "Sep 26, 2025" },
+  { videoId: "JiAGx8tgesk", title: "The WIP Meetup 09/18/2025 Raw Footage ft Meme.com alpha + Ezincrypto & Jose Cabrera", publishDate: "Sep 19, 2025" },
+  { videoId: "8-LCrUvySiM", title: "The WIP Meetup 09/11/2025 Raw Footage ft Arthr Babyfest 2025 VRM drop", publishDate: "Sep 12, 2025" },
 ];

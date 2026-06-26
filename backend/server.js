@@ -83,14 +83,14 @@ app.get("/api/auth-callback", async (req, res) => {
       typeof intended === "string" && intended.startsWith("/") ? intended : "/";
     const targetUrl = `${APP_URL}${safePath}`;
 
-    // Set jwt cookie (HTTP-only)
+    // Set jwt cookie (HTTP-only) — match Vercel api/auth-callback.ts for cross-subdomain auth
     res.cookie("jwt", access_token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       domain: process.env.COOKIE_DOMAIN || undefined,
       path: "/",
-      maxAge: 60 * 60 * 1000, // 1 hour
+      maxAge: 60 * 60 * 24 * 30 * 1000, // 30 days
     });
 
     return res.redirect(targetUrl);
@@ -143,7 +143,7 @@ function clearJwtCookie(res) {
   const cookieOptions = {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     domain: process.env.COOKIE_DOMAIN || undefined,
     path: "/",
   };
