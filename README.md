@@ -91,3 +91,4 @@ GitHub Actions runs `lint`, `test`, and `build` on every push and PR to `main`. 
 - Metaverse experience showcase
 - TokenSmart Connect authentication
 - Newsletter archive and admin editor
+<!-- deploy test 2026-06-26 -->
