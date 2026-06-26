@@ -30,6 +30,10 @@ backend/.env.*
 .clawpatch/*.lock
 .clawpatch/project.json
 
+# Local clawpatch reports (CI uploads artifacts)
+clawpatch-report.md
+clawpatch-report-final.md
+
 # Local build artifacts
 backend/node_modules
 
