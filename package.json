@@ -12,7 +12,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "clawpatch:run": "bash scripts/run-clawpatch.sh"
+    "clawpatch:run": "bash scripts/run-clawpatch.sh",
+    "clawpatch:fix-one": "bash scripts/clawpatch-fix-one.sh"
   },
   "dependencies": {
     "@fontsource/space-grotesk": "^5.2.10",
