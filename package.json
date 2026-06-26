@@ -11,7 +11,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "clawpatch:run": "bash scripts/run-clawpatch.sh"
   },
   "dependencies": {
     "@fontsource/space-grotesk": "^5.2.10",

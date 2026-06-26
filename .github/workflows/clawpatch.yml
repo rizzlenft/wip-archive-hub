@@ -1,0 +1,93 @@
+name: Clawpatch Stabilization
+
+on:
+  workflow_dispatch:
+    inputs:
+      provider:
+        description: "clawpatch provider (cursor, codex, claude)"
+        required: false
+        default: "cursor"
+      fix_limit:
+        description: "Max findings to auto-fix (0 = review only)"
+        required: false
+        default: "15"
+      open_pr:
+        description: "Open a PR with fixes (true/false)"
+        required: false
+        default: "true"
+
+jobs:
+  clawpatch:
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+      CLAWPATCH_PROVIDER: ${{ github.event.inputs.provider }}
+      CLAWPATCH_FIX_LIMIT: ${{ github.event.inputs.fix_limit }}
+      CLAWPATCH_CURSOR_EXPERIMENTAL: "1"
+      CLAWPATCH_CURSOR_ALLOW_WRITE: "1"
+      CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install clawpatch
+        run: npm install -g clawpatch@latest
+
+      - name: Install Cursor Agent CLI
+        if: github.event.inputs.provider == 'cursor'
+        run: |
+          curl -fsSL https://cursor.com/install | bash || true
+          echo "$HOME/.cursor/bin" >> "$GITHUB_PATH"
+          cursor-agent --version || echo "::warning::cursor-agent not available; set CURSOR_API_KEY or use codex provider"
+
+      - name: Run clawpatch
+        run: |
+          chmod +x scripts/run-clawpatch.sh
+          if [ "${{ github.event.inputs.fix_limit }}" = "0" ]; then
+            clawpatch init || true
+            clawpatch map
+            clawpatch review --provider "${{ github.event.inputs.provider }}" --jobs 2 --limit 20 || true
+            clawpatch report -o clawpatch-report.md
+          else
+            bash scripts/run-clawpatch.sh
+          fi
+
+      - name: Upload reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: clawpatch-reports
+          path: |
+            clawpatch-report.md
+            clawpatch-report-final.md
+          if-no-files-found: warn
+
+      - name: Create PR with fixes
+        if: github.event.inputs.open_pr == 'true' && github.event.inputs.fix_limit != '0'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if git diff --quiet && git diff --cached --quiet; then
+            echo "No changes from clawpatch; skipping PR."
+            exit 0
+          fi
+          BRANCH="clawpatch/stabilization-$(date +%Y%m%d-%H%M)"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          git add -A
+          git commit -m "chore(clawpatch): stabilization fixes from automated review"
+          git push -u origin "$BRANCH"
+          gh pr create \
+            --title "Clawpatch stabilization fixes" \
+            --body "Automated fixes from the Clawpatch stabilization workflow. Review carefully before merge." \
+            --base main \
+            --head "$BRANCH"

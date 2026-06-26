@@ -14,7 +14,7 @@
     ".clawpatch/**"
   ],
   "provider": {
-    "name": "codex",
+    "name": "cursor",
     "model": null,
     "reasoningEffort": null,
     "codexConfig": {}

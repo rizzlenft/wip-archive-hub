@@ -1,73 +1,99 @@
 # Clawpatch setup
 
-[Clawpatch](https://github.com/openclaw/clawpatch) maps this repo into semantic feature slices, reviews each with an AI provider, and records findings for systematic fixes.
+[Clawpatch](https://github.com/openclaw/clawpatch) maps this repo into semantic feature slices, reviews each with a provider, and fixes findings one at a time with validation.
 
-## Install
+## Autonomous run (recommended)
 
-```bash
-npm install -g clawpatch
-# or: pnpm add -g clawpatch
-```
-
-You also need a provider CLI. The default is Codex:
+Same workflow as [rizzle.io](https://github.com/rizzlenft/rizzle):
 
 ```bash
-codex --version
-clawpatch doctor
+npm run clawpatch:run
 ```
 
-Cursor Agent CLI is also supported (experimental). See the [clawpatch README](https://github.com/openclaw/clawpatch/blob/main/README.md) for Claude Code and other providers.
+This runs `scripts/run-clawpatch.sh` which:
 
-## Workflow
+1. Maps the repo into features
+2. Reviews up to 20 features
+3. Fixes up to 15 findings (one at a time)
+4. Runs `npm run build`, `npm test`, `npm run lint` after each fix
+5. Writes `clawpatch-report.md` and `clawpatch-report-final.md`
+
+### Requirements
+
+- **Cursor Agent CLI** (default provider):
+
+  ```bash
+  curl -fsSL https://cursor.com/install | bash
+  cursor-agent --version
+  ```
+
+- Or set `CLAWPATCH_PROVIDER=codex` / `claude` if you use those CLIs instead.
+
+### Environment variables
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `CLAWPATCH_PROVIDER` | `cursor` | Provider CLI to use |
+| `CLAWPATCH_FIX_LIMIT` | `15` | Max findings to fix per run |
+| `CLAWPATCH_CURSOR_EXPERIMENTAL` | `1` | Required for Cursor provider |
+| `CLAWPATCH_CURSOR_ALLOW_WRITE` | `1` | Required for `fix` with Cursor |
+| `CURSOR_API_KEY` | — | Headless auth (CI / scripts) |
+
+### After the run
 
 ```bash
-# One-time setup (creates .clawpatch/ state directory)
-clawpatch init
-
-# Map the repo into reviewable features
-clawpatch map
-
-# Review features and generate findings
-clawpatch review --limit 5
-
-# View report
-clawpatch report
-
-# Inspect a specific finding
-clawpatch show --finding <id>
-
-# Fix one finding at a time (requires clean git worktree)
-clawpatch fix --finding <id>
+git status
+git diff
 ```
 
-## Validation commands
+Review changes, then commit on a branch and open a PR (branch protection requires this).
 
-Clawpatch uses the project's npm scripts for validation after fixes:
+---
 
-| Script | Command |
-|---|---|
-| lint | `npm run lint` |
-| test | `npm test` |
-| build | `npm run build` |
+## GitHub Actions (optional)
 
-These are configured in `.clawpatch/config.json`.
+**Actions → Clawpatch Stabilization → Run workflow**
 
-## What to expect for this repo
+| Input | Default | Notes |
+|---|---|---|
+| provider | `cursor` | Needs `CURSOR_API_KEY` repo secret for CI |
+| fix_limit | `15` | Set `0` for review-only |
+| open_pr | `true` | Opens a PR with fixes automatically |
 
-Clawpatch will likely surface issues in:
+Add secret: **Settings → Secrets → `CURSOR_API_KEY`**
 
-- Duplicated API handlers between `backend/` and `api/`
-- Auth/logout/cookie handling across deployments
+---
+
+## Manual commands
+
+```bash
+npx clawpatch doctor --provider cursor
+npx clawpatch map
+npx clawpatch review --limit 10
+npx clawpatch report
+npx clawpatch next
+npx clawpatch show --finding <id>
+npx clawpatch fix --finding <id>
+```
+
+---
+
+## Validation
+
+Configured in `.clawpatch/config.json`:
+
+- `npm run lint`
+- `npm test`
+- `npm run build`
+
+---
+
+## What clawpatch will target in this repo
+
+- Duplicated API handlers (`backend/` vs `api/`)
+- Auth / cookie / CORS edge cases
 - YouTube scraper fragility
-- TypeScript strictness gaps
-- Unprotected or inconsistently guarded routes
+- TypeScript and route protection gaps
+- Dead or disabled code paths
 
-Review findings before applying fixes. Clawpatch does not auto-commit or auto-deploy.
-
-## CI integration (optional)
-
-To run clawpatch in GitHub Actions you need a provider available in CI (e.g. Codex CLI with credentials). For local development, run `clawpatch review` before opening PRs.
-
-```bash
-clawpatch ci --since origin/main --output clawpatch-report.md
-```
+Review the report before merging fix PRs.
