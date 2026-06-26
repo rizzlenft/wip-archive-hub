@@ -1,99 +1,87 @@
-# Clawpatch setup
+# Clawpatch on this repo
 
-[Clawpatch](https://github.com/openclaw/clawpatch) maps this repo into semantic feature slices, reviews each with a provider, and fixes findings one at a time with validation.
+**You do not need to run clawpatch locally.** For bug fixes, merge normal PRs from the cloud agent or your editor. Clawpatch here is a **review tool** that finds issues; fixes land via PRs you approve.
 
-## Autonomous run (recommended)
+This repo is messier than rizzle.io (Lovable legacy, duplicated `api/` + `backend/`, loose TypeScript). Fully hands-off auto-fix is unreliable with the experimental Cursor provider. We use **safeguards + PR-based fixes** instead.
 
-Same workflow as [rizzle.io](https://github.com/rizzlenft/rizzle):
+---
+
+## Recommended path (hands-off)
+
+### 1. Bug fixes → normal PRs
+
+Ask the cloud agent to fix bugs. Review and merge PRs like any other change. No clawpatch required.
+
+### 2. Optional audit → GitHub Actions
+
+**Actions → Clawpatch Review → Run workflow** (defaults: review only, no code changes)
+
+Download the `clawpatch-report` artifact. Use it as a backlog, not something you act on immediately.
+
+### 3. Optional local review (no fixes)
+
+```bash
+npm run clawpatch:review
+```
+
+Writes `clawpatch-report.md`. Does not edit any files.
+
+---
+
+## Local auto-fix (advanced only)
+
+Only if you have **Codex CLI** installed (`codex --version`). Codex is clawpatch's stable default provider.
 
 ```bash
 npm run clawpatch:run
 ```
 
-This runs `scripts/run-clawpatch.sh` which:
+What the script does:
 
-1. Maps the repo into features
-2. Reviews up to 20 features
-3. Fixes up to 15 findings (one at a time)
-4. Runs `npm run build`, `npm test`, `npm run lint` after each fix
-5. Writes `clawpatch-report.md` and `clawpatch-report-final.md`
+1. Reviews up to 20 features
+2. Attempts up to 10 fixes (one finding at a time)
+3. **Auto-reverts** fixes that touch forbidden files (`.clawpatch/`, `package.json`, CI configs, etc.)
+4. Auto-commits each good fix on your current branch
+5. Writes `clawpatch-report-final.md`
 
-### Requirements
-
-- **Cursor Agent CLI** (default provider):
-
-  ```bash
-  curl -fsSL https://cursor.com/install | bash
-  cursor-agent --version
-  ```
-
-- Or set `CLAWPATCH_PROVIDER=codex` / `claude` if you use those CLIs instead.
-
-### Environment variables
+Push your branch and open a PR when done.
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `CLAWPATCH_PROVIDER` | `cursor` | Provider CLI to use |
-| `CLAWPATCH_FIX_LIMIT` | `15` | Max findings to fix per run |
-| `CLAWPATCH_CURSOR_EXPERIMENTAL` | `1` | Required for Cursor provider |
-| `CLAWPATCH_CURSOR_ALLOW_WRITE` | `1` | Required for `fix` with Cursor |
-| `CURSOR_API_KEY` | — | Headless auth (CI / scripts) |
-
-### After the run
-
-```bash
-git status
-git diff
-```
-
-Review changes, then commit on a branch and open a PR (branch protection requires this).
+| `CLAWPATCH_PROVIDER` | codex (if available) | Override with `cursor` / `claude` |
+| `CLAWPATCH_FIX_LIMIT` | `10` | Set `0` for review-only |
+| `CLAWPATCH_REVIEW_LIMIT` | `20` | Features to review |
 
 ---
 
-## GitHub Actions (optional)
+## What clawpatch will flag (defer most of these)
 
-**Actions → Clawpatch Stabilization → Run workflow**
+| Category | Action |
+|---|---|
+| UI polish (404 logging, progress clamp) | Safe — fix via PR |
+| Null checks / guards | Usually safe |
+| Auth / cookies / CORS | Careful — test login/logout |
+| Merge `api/` + `backend/` | **Defer** — dedicated architecture PR |
+| TypeScript strict mode | **Defer** — large project |
+| YouTube scraper rewrite | **Defer** — high risk |
 
-| Input | Default | Notes |
-|---|---|---|
-| provider | `cursor` | Needs `CURSOR_API_KEY` repo secret for CI |
-| fix_limit | `15` | Set `0` for review-only |
-| open_pr | `true` | Opens a PR with fixes automatically |
-
-Add secret: **Settings → Secrets → `CURSOR_API_KEY`**
+See [ARCHITECTURE.md](ARCHITECTURE.md) for what production actually uses.
 
 ---
 
 ## Manual commands
 
 ```bash
-npx clawpatch doctor --provider cursor
+npx clawpatch doctor --provider codex
 npx clawpatch map
 npx clawpatch review --limit 10
 npx clawpatch report
-npx clawpatch next
-npx clawpatch show --finding <id>
-npx clawpatch fix --finding <id>
 ```
+
+Do **not** run `clawpatch fix` by hand unless you know what you're doing. Use `npm run clawpatch:run` so safeguards apply.
 
 ---
 
 ## Validation
 
-Configured in `.clawpatch/config.json`:
-
-- `npm run lint`
-- `npm test`
-- `npm run build`
-
----
-
-## What clawpatch will target in this repo
-
-- Duplicated API handlers (`backend/` vs `api/`)
-- Auth / cookie / CORS edge cases
-- YouTube scraper fragility
-- TypeScript and route protection gaps
-- Dead or disabled code paths
-
-Review the report before merging fix PRs.
+Configured in `.clawpatch/config.json`: `lint`, `test`, `build`. Fixes require high confidence before auto-apply.
