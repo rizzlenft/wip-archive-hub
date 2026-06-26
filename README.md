@@ -69,11 +69,11 @@ npm start
 
 This project is deployed independently of any AI builder platform.
 
-1. **Frontend + serverless APIs** — deploy the repo root to [Vercel](https://vercel.com). `vercel.json` configures SPA rewrites and function limits. Set env vars in the Vercel dashboard.
-2. **Express backend** — deploy `backend/` to Railway, Render, or similar at `api.thewipmeetup.com`.
-3. **TokenSmart** — set redirect URI to `<BACKEND_URL>/api/auth-callback`.
-4. Set `COOKIE_DOMAIN=.thewipmeetup.com` so the JWT cookie is shared across subdomains.
-5. Point `thewipmeetup.com` DNS to Vercel.
+1. **Frontend** — [Cloudflare Pages](docs/CLOUDFLARE_PAGES.md) (`npm run build` → `dist/`). Same pattern as rizzle.io.
+2. **Serverless APIs** — Vercel at `api.thewipmeetup.com` (env vars in Vercel dashboard).
+3. **Express backend** (optional) — deploy `backend/` to Railway/Render if used instead of Vercel stubs.
+4. **TokenSmart** — redirect URI: `https://api.thewipmeetup.com/api/auth-callback`
+5. Set `COOKIE_DOMAIN=.thewipmeetup.com` on Vercel (and Railway if using Express).
 
 ### CI
 

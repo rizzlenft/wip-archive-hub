@@ -1,0 +1,5 @@
+# Cloudflare Pages SPA fallback for react-router-dom.
+# Direct URLs like /events or /newsletter must serve index.html (200),
+# not a 404. Static files in dist/ (assets, images, robots.txt) are unchanged.
+
+/*    /index.html   200
