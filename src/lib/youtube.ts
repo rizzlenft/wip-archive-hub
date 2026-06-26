@@ -219,7 +219,13 @@ export function isNewerThanStoredCursor(episode: Episode, cursor: Episode | null
 // Fetch live recent videos from the API
 async function fetchLiveVideos(cursor: Episode | null): Promise<Episode[]> {
   try {
-    const toEpisodes = (videos: any[]) => videos.map((v: any) => {
+    type ApiVideo = {
+      videoId: string;
+      title: string;
+      publishedAt?: string;
+      thumbnail?: string;
+    };
+    const toEpisodes = (videos: ApiVideo[]) => videos.map((v) => {
       // Priority: date from title > relative date > fallback to now
       const publishedAt = parseDateFromTitle(v.title)
         || parseRelativeDate(v.publishedAt)

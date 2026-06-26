@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { getConnectUserFromRequest } from "../api-lib/_connect-verify.js";
+import { getJwtCookie } from "../api-lib/_cookies.js";
 import { setCorsHeaders } from "../api-lib/_cors.js";
 
 export default async function handler(
@@ -21,15 +22,7 @@ export default async function handler(
       return res.status(401).json({ authenticated: false });
     }
 
-    // Optionally enrich with wallets from TokenSmart userinfo
-    const cookieHeader = req.headers.cookie ?? "";
-    const cookies: Record<string, string> = {};
-    cookieHeader.split(";").forEach((part) => {
-      const [name, ...rest] = part.split("=");
-      if (!name || !rest.length) return;
-      cookies[name.trim()] = decodeURIComponent(rest.join("="));
-    });
-    const token = cookies.jwt;
+    const token = getJwtCookie(req);
 
     let ethAddress: string | undefined;
     if (token) {
