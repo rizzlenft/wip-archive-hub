@@ -35,9 +35,11 @@ The WIP Meetup frontend is a Vite + React SPA. Deploy it to **Cloudflare Pages**
 |---|---|
 | Production branch | `main` |
 | Framework preset | None (or Vite) |
-| Build command | `npm run build` |
+| Build command | `npm ci && npm run build` |
 | Build output directory | `dist` |
 | Root directory | `/` (leave empty) |
+
+Cloudflare may auto-detect Bun if `bun.lockb` is present — this repo uses **npm only** (`package-lock.json`).
 
 ### 4. Environment variables
 

@@ -11,6 +11,8 @@ node_modules
 dist
 dist-ssr
 *.local
+bun.lockb
+bun.lock
 
 # Env / secrets
 .env
