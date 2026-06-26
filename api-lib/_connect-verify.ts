@@ -1,5 +1,6 @@
 import { jwtVerify } from "jose";
 import type { VercelRequest } from "@vercel/node";
+import { getJwtCookie } from "./_cookies.js";
 
 const JWT_ISSUER = "tokensmart-connect";
 const JWT_AUDIENCE = "tokensmart-partner";
@@ -99,14 +100,7 @@ export async function verifyConnectJwt(
 export async function getConnectUserFromRequest(
   req: VercelRequest,
 ): Promise<ConnectUserPayload | null> {
-  const cookieHeader = req.headers.cookie ?? "";
-  const cookies: Record<string, string> = {};
-  cookieHeader.split(";").forEach((part) => {
-    const [name, ...rest] = part.split("=");
-    if (!name || !rest.length) return;
-    cookies[name.trim()] = decodeURIComponent(rest.join("="));
-  });
-  const token = cookies.jwt;
+  const token = getJwtCookie(req);
   if (!token) return null;
   return verifyConnectJwt(token);
 }

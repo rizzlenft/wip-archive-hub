@@ -23,4 +23,11 @@ export default tseslint.config(
       "@typescript-eslint/no-unused-vars": "off",
     },
   },
+  {
+    files: ["api/youtube-latest.ts"],
+    rules: {
+      // YouTube scraper walks untyped ytInitialData JSON from page HTML
+      "@typescript-eslint/no-explicit-any": "off",
+    },
+  },
 );
