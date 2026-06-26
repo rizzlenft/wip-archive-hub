@@ -81,7 +81,7 @@ GitHub Actions runs `lint`, `test`, and `build` on every push and PR to `main`. 
 
 ### Code review with Clawpatch
 
-[Clawpatch](https://github.com/openclaw/clawpatch) provides automated semantic code review. See [docs/CLAWPATCH.md](docs/CLAWPATCH.md) for setup and usage.
+Optional automated code review. **You do not need to run it locally** — see [docs/CLAWPATCH.md](docs/CLAWPATCH.md). Bug fixes land via normal PRs.
 
 ## Features
 

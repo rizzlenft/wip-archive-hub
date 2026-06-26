@@ -14,7 +14,7 @@
     ".clawpatch/**"
   ],
   "provider": {
-    "name": "cursor",
+    "name": "codex",
     "model": null,
     "reasoningEffort": null,
     "codexConfig": {}
@@ -30,7 +30,7 @@
     "maxContextFiles": 24,
     "maxOwnedFiles": 12,
     "maxFindingsPerFeature": 10,
-    "minConfidenceToFix": "medium"
+    "minConfidenceToFix": "high"
   },
   "git": {
     "requireCleanWorktreeForFix": true,
