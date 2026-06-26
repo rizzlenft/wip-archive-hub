@@ -8,7 +8,7 @@ function isWipLogo(img: HTMLImageElement): boolean {
   const src = (img.getAttribute("src") || "").toLowerCase();
   const alt = (img.getAttribute("alt") || "").toLowerCase().trim();
   return (
-    /wip-logo|wip-archive-hub\.lovable|thewipmeetup\.com\/images/i.test(src) ||
+    /wip-logo|thewipmeetup\.com\/images/i.test(src) ||
     (alt === "wip" && !src.includes("avatar") && !src.includes("pfp"))
   );
 }

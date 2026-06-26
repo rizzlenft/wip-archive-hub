@@ -187,7 +187,7 @@ const Newsletter = () => {
           url: "https://thewipmeetup.com",
           logo: {
             "@type": "ImageObject",
-            url: "https://storage.googleapis.com/gpt-engineer-file-uploads/DM2lONnsGyMlKagJreu03ZO2vI43/uploads/1770403228998-wip_logo.gif",
+            url: "https://thewipmeetup.com/images/wip-logo.gif",
           },
         },
         mainEntityOfPage: {

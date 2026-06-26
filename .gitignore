@@ -15,8 +15,18 @@ dist-ssr
 # Env / secrets
 .env
 .env.*
+!.env.example
 backend/.env
 backend/.env.*
+
+# Clawpatch runtime state (config.json is committed)
+.clawpatch/features/
+.clawpatch/findings/
+.clawpatch/patches/
+.clawpatch/reports/
+.clawpatch/runs/
+.clawpatch/*.lock
+.clawpatch/project.json
 
 # Local build artifacts
 backend/node_modules
