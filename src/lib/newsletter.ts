@@ -1,6 +1,10 @@
-// Newsletter types and utilities
-
 import { API_BASE } from "./api";
+import {
+  buildNewsletterPosterHtml,
+  buildNewsletterPosterMarkdown,
+  getNextMeetupDateLabel,
+  resolveSpeakerAvatarUrl,
+} from "./newsletterPoster";
 
 export type NewsletterStatus = "draft" | "published";
 
@@ -44,18 +48,11 @@ export async function fetchNewsletter(id: string): Promise<NewsletterIssue | nul
   return data.newsletter ?? null;
 }
 
-function formatTitleDate(d: Date): string {
-  return d.toLocaleDateString("en-US", { month: "numeric", day: "numeric", year: "numeric" });
-}
-
-function escapeHtml(text: string): string {
-  return text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
-}
-
-/** Build an editable draft locally (AI generation is disabled on the API). */
+/**
+ * Build a full poster-style draft locally.
+ * Restores the visual layout the old AI generator produced (logo, speaker PFPs,
+ * YouTube cover, community sections) without calling the disabled generate API.
+ */
 export function createManualNewsletterDraft(payload: {
   speakers: NewsletterSpeaker[];
   transcript?: string;
@@ -63,40 +60,44 @@ export function createManualNewsletterDraft(payload: {
 }): NewsletterIssue {
   const now = new Date().toISOString();
   const id = `wip-weekly-${Date.now()}`;
-  const speakers = payload.speakers.filter((s) => s.name.trim());
-  const names = speakers.map((s) => s.name.trim()).join(", ");
-  const title = `The WIP Meetup ${formatTitleDate(new Date())}${names ? ` — ft ${names}` : ""}`;
-  const recap = payload.transcript?.trim() || "Add this week's recap here.";
-
-  const speakerMarkdown = speakers
-    .map((s) => {
-      const handles = [s.twitter && `@${s.twitter}`, s.farcaster && `@${s.farcaster}`]
-        .filter(Boolean)
-        .join(" · ");
-      const topic = s.topic?.trim() ? `\n\n**Topic:** ${s.topic.trim()}` : "";
-      return `### ${s.name.trim()}${handles ? ` (${handles})` : ""}${topic}`;
-    })
-    .join("\n\n");
-
-  const body_markdown = `## This Week's Speakers\n\n${speakerMarkdown}\n\n## Last Week's Recap\n\n${recap}`;
-  const speakerHtml = speakers
-    .map((s) => {
-      const topic = s.topic?.trim() ? `<p><strong>Topic:</strong> ${escapeHtml(s.topic.trim())}</p>` : "";
-      return `<h3>${escapeHtml(s.name.trim())}</h3>${topic}`;
-    })
-    .join("");
-  const body_html = `<h2>This Week's Speakers</h2>${speakerHtml}<h2>Last Week's Recap</h2><p>${escapeHtml(recap).replace(/\n/g, "<br>")}</p>`;
-
+  const speakers = payload.speakers
+    .filter((s) => s.name.trim())
+    .map((s) => ({
+      ...s,
+      profile_image_url: resolveSpeakerAvatarUrl(s),
+    }));
+  const meetupDate = getNextMeetupDateLabel();
+  const title = `WIP Meetup - ${meetupDate}`;
   const youtubeId = payload.youtube_video_id?.trim() || "";
+  const recap =
+    payload.transcript?.trim() ||
+    (youtubeId
+      ? "Missed last week? Our guests dropped some incredible insights — catch the replay!"
+      : "Add this week's recap here.");
+
+  const body_html = buildNewsletterPosterHtml({
+    speakers,
+    transcript: payload.transcript,
+    youtube_video_id: youtubeId,
+  });
+  const body_markdown = buildNewsletterPosterMarkdown({
+    title,
+    speakers,
+    transcript: payload.transcript,
+    youtube_video_id: youtubeId,
+  });
 
   return {
     id,
     title,
+    subtitle: "",
     body_html,
     body_markdown,
     speakers,
     recap_summary: recap.slice(0, 280),
-    cover_image: youtubeId ? `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg` : undefined,
+    cover_image: youtubeId
+      ? `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`
+      : undefined,
     youtube_video_id: youtubeId,
     status: "draft",
     created_at: now,

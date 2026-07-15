@@ -298,7 +298,10 @@ const AdminNewsletter = () => {
       setEditableMarkdown(issue.body_markdown);
       setEditableTitle(issue.title);
       setView("preview");
-      setFeedback({ type: "success", msg: "Draft created — edit the content below, then save and publish." });
+      setFeedback({
+        type: "success",
+        msg: "Poster draft created with speaker photos and layout — edit below, then save and publish.",
+      });
     } catch (err) {
       setFeedback({
         type: "error",
@@ -421,7 +424,7 @@ const AdminNewsletter = () => {
                 WIP Weekly Editor
               </h1>
               <p className="text-sm text-muted-foreground">
-                Compose and publish the weekly newsletter
+                Compose speakers + recap, then create a full poster draft to edit and publish
               </p>
             </div>
             <div className="flex gap-1">
