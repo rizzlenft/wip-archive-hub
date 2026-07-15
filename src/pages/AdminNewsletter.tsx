@@ -133,6 +133,7 @@ const AdminNewsletter = () => {
   ]);
   const [transcript, setTranscript] = useState("");
   const [youtubeVideoId, setYoutubeVideoId] = useState("");
+  const [youtubeVideoTitle, setYoutubeVideoTitle] = useState("");
   
   const [autoFetchingVideo, setAutoFetchingVideo] = useState(false);
   
@@ -216,7 +217,7 @@ const AdminNewsletter = () => {
     });
   }, [speakers, pfpStatus]);
 
-  // Auto-fetch latest YouTube video
+  // Auto-fetch latest YouTube video (id + title)
   useEffect(() => {
     async function fetchLatestVideo() {
       setAutoFetchingVideo(true);
@@ -224,14 +225,57 @@ const AdminNewsletter = () => {
         const res = await fetch(`${API_BASE}/api/youtube-latest?count=1`);
         if (res.ok) {
           const data = await res.json();
-          const vid = data.videoId || data.videos?.[0]?.videoId;
-          if (vid) setYoutubeVideoId(vid);
+          const first = data.videos?.[0] ?? data;
+          const vid = typeof first?.videoId === "string" ? first.videoId : "";
+          const title = typeof first?.title === "string" ? first.title : "";
+          if (vid) {
+            setYoutubeVideoId(vid);
+            setYoutubeVideoTitle(title);
+          }
         }
       } catch { /* ignore */ }
       setAutoFetchingVideo(false);
     }
     void fetchLatestVideo();
   }, []);
+
+  const extractYoutubeId = (raw: string): string => {
+    const value = raw.trim();
+    if (!value) return "";
+    try {
+      const url = new URL(value.startsWith("http") ? value : `https://${value}`);
+      if (url.hostname.includes("youtu.be")) {
+        return url.pathname.split("/").filter(Boolean)[0] || "";
+      }
+      if (url.hostname.includes("youtube.com")) {
+        return url.searchParams.get("v") || url.pathname.split("/").filter(Boolean).pop() || "";
+      }
+    } catch {
+      // not a URL — treat as bare id
+    }
+    const match = value.match(/[a-zA-Z0-9_-]{11}/);
+    return match?.[0] || value;
+  };
+
+  const handleYoutubeInputChange = async (raw: string) => {
+    const vid = extractYoutubeId(raw);
+    setYoutubeVideoId(vid);
+    if (!vid) {
+      setYoutubeVideoTitle("");
+      return;
+    }
+    // If the user pasted a different id, try to resolve its title from the latest feed
+    try {
+      const res = await fetch(`${API_BASE}/api/youtube-latest?count=15`);
+      if (!res.ok) return;
+      const data = await res.json();
+      const videos = Array.isArray(data.videos) ? data.videos : data.videoId ? [data] : [];
+      const match = videos.find((v: { videoId?: string }) => v.videoId === vid);
+      setYoutubeVideoTitle(typeof match?.title === "string" ? match.title : "");
+    } catch {
+      setYoutubeVideoTitle("");
+    }
+  };
 
   // Fetch past issues
   useEffect(() => {
@@ -292,6 +336,7 @@ const AdminNewsletter = () => {
         speakers: cleanedSpeakers,
         transcript: transcript.trim() || undefined,
         youtube_video_id: youtubeVideoId.trim() || undefined,
+        youtube_video_title: youtubeVideoTitle.trim() || undefined,
       });
       setDraft(issue);
       setEditableHtml(issue.body_html);
@@ -485,18 +530,23 @@ const AdminNewsletter = () => {
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Auto-pulled from your channel. This will be used for the recap & cover image.
+                  Auto-pulled from your channel (latest episode + title). Used for the recap cover image.
                 </p>
                 {youtubeVideoId ? (
                   <div className="space-y-2">
                     <img
                       src={`https://img.youtube.com/vi/${youtubeVideoId}/mqdefault.jpg`}
-                      alt="Latest video thumbnail"
+                      alt={youtubeVideoTitle || "Latest video thumbnail"}
                       className="rounded-md w-full max-w-sm"
                     />
+                    {youtubeVideoTitle && (
+                      <p className="text-sm font-medium text-foreground max-w-sm leading-snug">
+                        {youtubeVideoTitle}
+                      </p>
+                    )}
                     <Input
                       value={youtubeVideoId}
-                      onChange={(e) => setYoutubeVideoId(e.target.value)}
+                      onChange={(e) => void handleYoutubeInputChange(e.target.value)}
                       placeholder="YouTube video ID"
                       className="max-w-sm bg-background"
                     />
@@ -504,7 +554,7 @@ const AdminNewsletter = () => {
                 ) : (
                   <Input
                     value={youtubeVideoId}
-                    onChange={(e) => setYoutubeVideoId(e.target.value)}
+                    onChange={(e) => void handleYoutubeInputChange(e.target.value)}
                     placeholder="Paste YouTube video ID or URL"
                     className="max-w-sm bg-background"
                   />

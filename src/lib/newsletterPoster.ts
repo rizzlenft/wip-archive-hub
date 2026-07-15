@@ -144,14 +144,20 @@ function speakersSectionHtml(speakers: NewsletterSpeaker[], theme: PosterTheme):
   </tr>`;
 }
 
-function youtubeSectionHtml(youtubeId: string | undefined, theme: PosterTheme, recap: string): string {
+function youtubeSectionHtml(
+  youtubeId: string | undefined,
+  theme: PosterTheme,
+  recap: string,
+  youtubeTitle?: string,
+): string {
   const synopsis = escapeHtml(recap).replace(/\n/g, "<br>");
+  const overlayTitle = (youtubeTitle || "").trim() || "The WIP Meetup — Watch the Replay";
   const replay = youtubeId
     ? `
       <a href="https://youtube.com/watch?v=${escapeHtml(youtubeId)}" target="_blank" style="display:block;position:relative;text-decoration:none;margin:16px 0;">
-        <img src="https://img.youtube.com/vi/${escapeHtml(youtubeId)}/maxresdefault.jpg" width="100%" style="display:block;border-radius:8px;" alt="Last week's replay" />
+        <img src="https://img.youtube.com/vi/${escapeHtml(youtubeId)}/maxresdefault.jpg" width="100%" style="display:block;border-radius:8px;" alt="${escapeHtml(overlayTitle)}" />
         <div style="position:absolute;bottom:0;left:0;right:0;padding:16px 12px 12px;background:linear-gradient(transparent, rgba(0,0,0,0.85));border-radius:0 0 8px 8px;">
-          <span style="color:#f5f0e8;font-size:14px;font-weight:bold;text-shadow:0 1px 3px rgba(0,0,0,0.8);">The WIP Meetup — Watch the Replay</span>
+          <span style="color:#f5f0e8;font-size:14px;font-weight:bold;text-shadow:0 1px 3px rgba(0,0,0,0.8);">${escapeHtml(overlayTitle)}</span>
         </div>
       </a>
       <table align="center" cellpadding="0" cellspacing="0"><tr><td align="center" style="text-align:center;">
@@ -230,10 +236,12 @@ export function buildNewsletterPosterHtml(input: {
   speakers: NewsletterSpeaker[];
   transcript?: string;
   youtube_video_id?: string;
+  youtube_video_title?: string;
 }): string {
   const theme = pickTheme();
   const speakers = input.speakers.filter((s) => s.name.trim());
   const youtubeId = input.youtube_video_id?.trim() || "";
+  const youtubeTitle = input.youtube_video_title?.trim() || "";
   const recap =
     input.transcript?.trim() ||
     (youtubeId
@@ -259,7 +267,7 @@ export function buildNewsletterPosterHtml(input: {
     </td>
   </tr>
   ${speakersSectionHtml(speakers, theme)}
-  ${youtubeSectionHtml(youtubeId, theme, recap)}
+  ${youtubeSectionHtml(youtubeId, theme, recap, youtubeTitle)}
   ${communitySectionHtml(theme)}
   ${cardSectionHtml(
     "🪙 $WIP Token Rewards",
@@ -302,9 +310,11 @@ export function buildNewsletterPosterMarkdown(input: {
   speakers: NewsletterSpeaker[];
   transcript?: string;
   youtube_video_id?: string;
+  youtube_video_title?: string;
 }): string {
   const speakers = input.speakers.filter((s) => s.name.trim());
   const youtubeId = input.youtube_video_id?.trim() || "";
+  const youtubeTitle = input.youtube_video_title?.trim() || "";
   const recap =
     input.transcript?.trim() ||
     (youtubeId
@@ -347,7 +357,7 @@ ${speakerBlocks || "_Add speakers in compose._"}
 
 ${recap}
 
-${youtubeId ? `https://www.youtube.com/watch?v=${youtubeId}` : ""}
+${youtubeTitle ? `**${youtubeTitle}**\n` : ""}${youtubeId ? `https://www.youtube.com/watch?v=${youtubeId}` : ""}
 
 ---
 
