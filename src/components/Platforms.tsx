@@ -63,20 +63,20 @@ const platforms = [
   {
     name: "$WIP Token",
     description: "Stake, trade, and collect attendee rewards",
-    url: "https://wip-staking.pages.dev/trade",
+    url: "https://trinity-labs.org/stake",
     icon: wipLogoStatic,
     miniapps: [
       {
         name: "Stake",
-        url: "https://wip-staking.pages.dev/",
+        url: "https://trinity-labs.org/stake",
       },
       {
         name: "Trade",
-        url: "https://wip-staking.pages.dev/trade",
+        url: "https://trinity-labs.org/stake",
       },
       {
         name: "Chart",
-        url: "https://www.geckoterminal.com/base/pools/0xfa9d608b5a13a78bd403e61e2459660efa7566348357ef7ccb010522af3660f0",
+        url: "https://trinity-labs.org/stake",
       },
     ],
   },
