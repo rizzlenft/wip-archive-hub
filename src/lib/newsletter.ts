@@ -57,6 +57,7 @@ export function createManualNewsletterDraft(payload: {
   speakers: NewsletterSpeaker[];
   transcript?: string;
   youtube_video_id?: string;
+  youtube_video_title?: string;
 }): NewsletterIssue {
   const now = new Date().toISOString();
   const id = `wip-weekly-${Date.now()}`;
@@ -69,6 +70,7 @@ export function createManualNewsletterDraft(payload: {
   const meetupDate = getNextMeetupDateLabel();
   const title = `WIP Meetup - ${meetupDate}`;
   const youtubeId = payload.youtube_video_id?.trim() || "";
+  const youtubeTitle = payload.youtube_video_title?.trim() || "";
   const recap =
     payload.transcript?.trim() ||
     (youtubeId
@@ -79,12 +81,14 @@ export function createManualNewsletterDraft(payload: {
     speakers,
     transcript: payload.transcript,
     youtube_video_id: youtubeId,
+    youtube_video_title: youtubeTitle,
   });
   const body_markdown = buildNewsletterPosterMarkdown({
     title,
     speakers,
     transcript: payload.transcript,
     youtube_video_id: youtubeId,
+    youtube_video_title: youtubeTitle,
   });
 
   return {
