@@ -76,33 +76,116 @@ function parseMeetupDate(title: unknown): string | undefined {
   return Number.isNaN(date.getTime()) ? undefined : date.toISOString();
 }
 
-function normalizeNewsletterRecord(record: NewsletterRecord, apiBase: string): NewsletterRecord {
-  const speakers = Array.isArray(record.speakers)
-    ? record.speakers.map((speaker) => {
-        const name = typeof speaker.name === "string" ? speaker.name.trim() : "";
-        const twitter = normalizeHandle(speaker.twitter);
-        const farcaster = normalizeHandle(speaker.farcaster, true);
-        const currentAvatar = typeof speaker.profile_image_url === "string" ? speaker.profile_image_url.trim() : "";
-        const avatarParams = new URLSearchParams();
-        if (currentAvatar) avatarParams.set("url", currentAvatar);
-        if (farcaster) avatarParams.set("farcaster", farcaster);
-        if (twitter) avatarParams.set("twitter", twitter);
-        if (name) avatarParams.set("name", name);
+function extractSpeakersFromBodyHtml(html: string): NewsletterSpeaker[] {
+  if (!html) return [];
+  const speakers: NewsletterSpeaker[] = [];
+  const seen = new Set<string>();
 
-        return {
-          ...speaker,
-          name,
-          twitter: twitter || undefined,
-          farcaster: farcaster || undefined,
-          topic: cleanTopic(speaker.topic),
-          profile_image_url: `${apiBase}/api/newsletter?action=avatar&${avatarParams.toString()}`,
-        } satisfies NewsletterSpeaker;
-      })
-    : [];
+  // Poster speaker cards: large 28px name heading; pull nearby avatar + socials
+  const namePattern = /font-size:28px[^>]*>([^<]+)</gi;
+  let match: RegExpExecArray | null;
+  while ((match = namePattern.exec(html)) !== null) {
+    const name = match[1].trim();
+    if (!name || /^WIP$/i.test(name)) continue;
+    const key = name.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+
+    const start = Math.max(0, match.index - 700);
+    const windowHtml = html.slice(start, match.index + 700);
+
+    const imgMatch =
+      windowHtml.match(new RegExp(`<img\\s[^>]*alt="${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"[^>]*>`, "i")) ||
+      windowHtml.match(new RegExp(`<img\\s[^>]*alt='${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}'[^>]*>`, "i"));
+    const src = imgMatch?.[0]?.match(/src=["']([^"']+)["']/)?.[1];
+
+    const twitter = windowHtml.match(/https?:\/\/(?:www\.)?(?:x|twitter)\.com\/([A-Za-z0-9_]+)/i)?.[1];
+    const farcaster = windowHtml.match(/https?:\/\/(?:www\.)?warpcast\.com\/([A-Za-z0-9_.-]+)/i)?.[1];
+    const topicMatch = windowHtml.match(/Topic:\s*(?:<a[^>]*>([^<]+)<\/a>|([^<]+))</i);
+    const topic = (topicMatch?.[1] || topicMatch?.[2] || "").trim() || undefined;
+
+    speakers.push({
+      name,
+      twitter: twitter || undefined,
+      farcaster: farcaster || undefined,
+      topic,
+      profile_image_url: src?.startsWith("http") ? src : undefined,
+    });
+  }
+
+  return speakers;
+}
+
+function extractYoutubeIdFromBodyHtml(html: string): string | undefined {
+  const match = html.match(/img\.youtube\.com\/vi\/([a-zA-Z0-9_-]{11})\//);
+  return match?.[1];
+}
+
+function extractRecapFromBodyHtml(html: string): string | undefined {
+  const match = html.match(
+    /Last Week's Recap[\s\S]{0,200}?font-size:16px[^>]*>([\s\S]*?)<\/td>/i,
+  );
+  if (!match?.[1]) return undefined;
+  const text = match[1]
+    .replace(/<br\s*\/?>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&nbsp;/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  return text || undefined;
+}
+
+function normalizeNewsletterRecord(record: NewsletterRecord, apiBase: string): NewsletterRecord {
+  const bodyHtml = typeof record.body_html === "string" ? record.body_html : "";
+  let rawSpeakers = Array.isArray(record.speakers) ? record.speakers : [];
+  if (!rawSpeakers.some((s) => typeof s?.name === "string" && s.name.trim())) {
+    rawSpeakers = extractSpeakersFromBodyHtml(bodyHtml);
+  }
+
+  const speakers = rawSpeakers
+    .map((speaker) => {
+      const name = typeof speaker.name === "string" ? speaker.name.trim() : "";
+      if (!name) return null;
+      const twitter = normalizeHandle(speaker.twitter);
+      const farcaster = normalizeHandle(speaker.farcaster, true);
+      const currentAvatar = typeof speaker.profile_image_url === "string" ? speaker.profile_image_url.trim() : "";
+      const avatarParams = new URLSearchParams();
+      if (currentAvatar) avatarParams.set("url", currentAvatar);
+      if (farcaster) avatarParams.set("farcaster", farcaster);
+      if (twitter) avatarParams.set("twitter", twitter);
+      if (name) avatarParams.set("name", name);
+
+      const normalized: NewsletterSpeaker = {
+        ...speaker,
+        name,
+        twitter: twitter || undefined,
+        farcaster: farcaster || undefined,
+        topic: cleanTopic(speaker.topic),
+        profile_image_url: `${apiBase}/api/newsletter?action=avatar&${avatarParams.toString()}`,
+      };
+      return normalized;
+    })
+    .filter((s): s is NewsletterSpeaker => s !== null);
+
+  const youtubeFromHtml = extractYoutubeIdFromBodyHtml(bodyHtml);
+  const recapFromHtml = extractRecapFromBodyHtml(bodyHtml);
+  const recapSummary =
+    (typeof record.recap_summary === "string" && record.recap_summary.trim()) ||
+    recapFromHtml ||
+    (speakers.length ? `ft. ${speakers.map((s) => s.name).join(", ")}` : undefined);
 
   return {
     ...record,
     speakers,
+    recap_summary: recapSummary,
+    youtube_video_id:
+      (typeof record.youtube_video_id === "string" && record.youtube_video_id) ||
+      youtubeFromHtml ||
+      undefined,
+    cover_image:
+      (typeof record.cover_image === "string" && record.cover_image) ||
+      (youtubeFromHtml ? `https://img.youtube.com/vi/${youtubeFromHtml}/maxresdefault.jpg` : undefined),
     event_date: parseMeetupDate(record.title),
   };
 }
