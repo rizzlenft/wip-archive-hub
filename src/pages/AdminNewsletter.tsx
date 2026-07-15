@@ -14,7 +14,6 @@ import {
   type NewsletterIssue,
   createManualNewsletterDraft,
   saveNewsletter,
-  publishNewsletter,
   fetchNewsletters,
   deleteNewsletter,
 } from "@/lib/newsletter";
@@ -298,7 +297,7 @@ const AdminNewsletter = () => {
     );
   };
 
-  const handleCreateDraft = (e: FormEvent) => {
+  const handleCreateDraft = async (e: FormEvent) => {
     e.preventDefault();
     const validSpeakers = speakers.filter((s) => s.name.trim());
     if (validSpeakers.length === 0) {
@@ -338,6 +337,12 @@ const AdminNewsletter = () => {
         youtube_video_id: youtubeVideoId.trim() || undefined,
         youtube_video_title: youtubeVideoTitle.trim() || undefined,
       });
+      // Persist full card metadata immediately so /newsletter cards populate even
+      // if the editor only edits HTML before publishing.
+      await saveNewsletter({
+        ...issue,
+        status: "draft",
+      });
       setDraft(issue);
       setEditableHtml(issue.body_html);
       setEditableMarkdown(issue.body_markdown);
@@ -347,6 +352,7 @@ const AdminNewsletter = () => {
         type: "success",
         msg: "Poster draft created with speaker photos and layout — edit below, then save and publish.",
       });
+      fetchNewsletters().then(setPastIssues).catch(() => {});
     } catch (err) {
       setFeedback({
         type: "error",
@@ -361,12 +367,22 @@ const AdminNewsletter = () => {
     if (!draft) return;
     setSaving(true);
     try {
-      await saveNewsletter({
+      const payload = {
+        ...draft,
         id: draft.id,
         title: editableTitle,
         body_html: editableHtml,
         body_markdown: editableMarkdown,
-      });
+        speakers: draft.speakers || [],
+        recap_summary: draft.recap_summary || undefined,
+        cover_image: draft.cover_image || undefined,
+        youtube_video_id: draft.youtube_video_id || undefined,
+        week_of: draft.week_of || draft.created_at || new Date().toISOString(),
+        created_at: draft.created_at || new Date().toISOString(),
+        status: draft.status || "draft",
+      };
+      await saveNewsletter(payload);
+      setDraft({ ...draft, ...payload });
       setFeedback({ type: "success", msg: "Draft saved!" });
     } catch {
       setFeedback({ type: "error", msg: "Failed to save" });
@@ -379,17 +395,25 @@ const AdminNewsletter = () => {
     if (!draft) return;
     setPublishing(true);
     try {
-      // Save final edits first
-      await saveNewsletter({
+      // Save full card metadata + final edits, then mark published
+      const payload = {
+        ...draft,
         id: draft.id,
         title: editableTitle,
         body_html: editableHtml,
         body_markdown: editableMarkdown,
-      });
-      await publishNewsletter(draft.id);
+        speakers: draft.speakers || [],
+        recap_summary: draft.recap_summary || undefined,
+        cover_image: draft.cover_image || undefined,
+        youtube_video_id: draft.youtube_video_id || undefined,
+        week_of: draft.week_of || draft.created_at || new Date().toISOString(),
+        created_at: draft.created_at || new Date().toISOString(),
+        status: "published" as const,
+        published_at: new Date().toISOString(),
+      };
+      await saveNewsletter(payload);
+      setDraft({ ...draft, ...payload });
       setFeedback({ type: "success", msg: "🎉 Newsletter published!" });
-      setDraft({ ...draft, status: "published" });
-      // Refresh past issues
       fetchNewsletters().then(setPastIssues).catch(() => {});
     } catch {
       setFeedback({ type: "error", msg: "Publish failed" });
