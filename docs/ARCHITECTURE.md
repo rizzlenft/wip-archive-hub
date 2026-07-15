@@ -64,5 +64,5 @@ All routes below are served from **`api.thewipmeetup.com`**:
 ## Known fragilities
 
 - **YouTube scraper** (`api/youtube-latest.ts`) — HTML scrape + static fallback archive
-- **Newsletter AI generation** — disabled; admin editor builds manual drafts locally
+- **Newsletter AI generation** — disabled; admin editor builds full poster HTML locally (logo, speaker PFPs, YouTube cover, community sections)
 - **Dual API layers** — `backend/` and `api/` can drift; prefer `api/` for production
