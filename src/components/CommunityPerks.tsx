@@ -19,9 +19,10 @@ const artists = [
 ];
 
 const collectionUrl = "https://opensea.io/collection/random-3d-things";
-const stakingUrl = "https://wip-staking.pages.dev/";
-const tradeUrl = "https://wip-staking.pages.dev/trade";
-const chartUrl = "https://www.geckoterminal.com/base/pools/0xfa9d608b5a13a78bd403e61e2459660efa7566348357ef7ccb010522af3660f0";
+const WIP_STAKE_URL = "https://trinity-labs.org/stake";
+const stakingUrl = WIP_STAKE_URL;
+const tradeUrl = WIP_STAKE_URL;
+const chartUrl = WIP_STAKE_URL;
 
 export const CommunityPerks = () => {
   const [currentNft, setCurrentNft] = useState(0);

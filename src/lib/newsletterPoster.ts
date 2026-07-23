@@ -272,8 +272,8 @@ export function buildNewsletterPosterHtml(input: {
   ${cardSectionHtml(
     "🪙 $WIP Token Rewards",
     `Attend our weekly meetups and receive $WIP tokens as a thank you for being part of our community. Every attendee gets rewarded!<br><br>
-    <a href="https://wip-staking.pages.dev/trade" target="_blank" style="color:${theme.accent1};text-decoration:underline;font-weight:bold;">Buy and Stake $WIP</a> ·
-    <a href="https://www.geckoterminal.com/base/pools/0x32dd94d272e5b4ef47e8694100b7c3eb7de3d09d" target="_blank" style="color:${theme.accent2};text-decoration:underline;font-weight:bold;">View Chart</a>`,
+    <a href="https://trinity-labs.org/stake" target="_blank" style="color:${theme.accent1};text-decoration:underline;font-weight:bold;">Buy and Stake $WIP</a> ·
+    <a href="https://trinity-labs.org/stake" target="_blank" style="color:${theme.accent2};text-decoration:underline;font-weight:bold;">View Chart</a>`,
     theme,
   )}
   ${cardSectionHtml(
@@ -381,7 +381,7 @@ ${youtubeTitle ? `**${youtubeTitle}**\n` : ""}${youtubeId ? `https://www.youtube
 
 Attend our weekly meetups and receive $WIP tokens as a thank you for being part of our community. Every attendee gets rewarded!
 
-[Buy and Stake $WIP](https://wip-staking.pages.dev/trade) · [View Chart](https://www.geckoterminal.com/base/pools/0x32dd94d272e5b4ef47e8694100b7c3eb7de3d09d)
+[Buy and Stake $WIP](https://trinity-labs.org/stake) · [View Chart](https://trinity-labs.org/stake)
 
 ---
 
