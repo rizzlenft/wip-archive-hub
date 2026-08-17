@@ -1,6 +1,10 @@
 # The WIP Meetup
 
-Community hub for The WIP Meetup — a web3 community podcast and events platform.
+Live site: [thewipmeetup.com](https://thewipmeetup.com)
+
+This is the public codebase for The WIP Meetup, a weekly web3 metaverse meetup running since 2019. The site is the community hub: episode archive, live events, newsletter, merch, and check-in.
+
+The GitHub repo named `TheWIPMeetup` is a stub. This repo (`wip-archive-hub`) is the live site.
 
 ## Tech Stack
 
